@@ -10,7 +10,7 @@ makes available three Visual Analytics software:
 with temporal evolution.
 - Network and text: for visually inspecting networks
 with text related to each vertex.
-- Multilevel: fo visually inspecting and performing
+- Multilevel: for visually inspecting and performing
 multilevel strategies in networks.
 
 

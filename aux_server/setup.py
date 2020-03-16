@@ -49,5 +49,6 @@ setup(
     keywords=['complex networks', 'multilevel strategies', 'multilevel optimization', 'data visualization', 'data mining', 'graph', 'network science'],
 
     packages=["multilevel"],
-    install_requires=['networkx', 'numpy', 'Flask', 'flask-cors', 'pymongo'],
+    install_requires=['networkx', 'numpy', 'Flask', 'flask-cors', 'pymongo',  # multilevel package, aux server
+        'python-igraph', 'pyyaml', 'PyPDF2', 'scipy', 'sharedmem'],  # mlpb
 )

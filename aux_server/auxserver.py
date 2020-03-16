@@ -1,9 +1,14 @@
 # hold here only the routines used in the models
+import sys
+import warnings
+
 from flask import Flask, jsonify, render_template, request
 from flask_cors import CORS
 
 import numpy as n, networkx as x
-import warnings
+
+app = Flask(__name__)
+CORS(app)
 
 warnings.filterwarnings('ignore')
 
@@ -14,7 +19,7 @@ for key in keys:  # for correct and full update of the package if changed
 import multilevel as ml
 mkSafeFname = ml.utils.mkSafeFname
 
-@app.route("/test/", methods=['POST'])
+@app.route("/test/")
 def atest():
     print('man')
     return 'you'

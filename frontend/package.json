@@ -1,0 +1,27 @@
+{
+  "name": "NetText",
+  "scripts": {
+    "dev": "nuxt"
+  },
+  "dependencies": {
+    "@feathersjs/feathers": "^3.3.1",
+    "@feathersjs/socketio-client": "^1.2.1",
+    "@nuxtjs/vuetify": "^0.5.2",
+    "babylonjs": "^3.3.0",
+    "d3": "^5.8.0",
+    "earcut": "^2.1.5",
+    "feathers-vuex": "^1.6.2",
+    "jquery": "^3.4.1",
+    "node-fetch": "^2.5.0",
+    "nuxt": "^2.6.3",
+    "nuxt-dropzone": "^0.2.8",
+    "pixi.js": "^5.0.2",
+    "socket.io-client": "^2.2.0",
+    "tone": "^13.8.25",
+    "vue-color": "^2.7.0",
+    "vue-dialog-drag": "^0.1.29",
+    "vue-js-modal": "^1.3.31",
+    "vue-mathjax": "0.0.8",
+    "vuetify-loader": "^1.2.2"
+  }
+}

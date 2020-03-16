@@ -1,0 +1,80 @@
+{
+  "host": "localhost",
+  "port": 3030,
+  "public": "../public/",
+  "apiUrl": "http://localhost:3000",
+  "bucket": "site-jardim",
+  "mapsApi": "AIzaSyDJWx1QxrFgQPPuMJsSWCyKl51ImQOocIA",
+  "paginate": {
+    "default": 10,
+    "max": 50
+  },
+  "authentication": {
+    "secret": "5cf9ee0f2af81364ff4186f9b30291707fe17b4cee16e735e88bc28cf51374f2aa9b99eca4efabf9953d48c1f3089d7b1825b0caac29a54eb6269609c6b291d0163fd16294f7e5b47d5ad35da866ee4c2315a517f3d9f92db3a3a36e91a458ad84666bda6e858322c65a0f2d5f0c36aa3d8770c92a51257903fa0f8c99fde92278180fc03e3ef78eaef627773616b0d78fceda27a0bdf94cb773cfa436c1774ec89a339e1e9797a3c41d89c87ef034c10ec624b6fa7880c41fbc593ad29a8a0f64514daef9e54852ce8a47634f34a4eb2978fe5bac2076e993f2ad2bc5821a892075042883c61ea06554295602d5b8bddec6efe987acd67cb6c4f0962a91772b",
+    "strategies": [
+      "jwt",
+      "local"
+    ],
+    "path": "/authentication",
+    "service": "users",
+    "jwt": {
+      "header": {
+        "typ": "access"
+      },
+      "audience": "https://yourdomain.com",
+      "subject": "anonymous",
+      "issuer": "feathers",
+      "algorithm": "HS256",
+      "expiresIn": "5y"
+    },
+    "local": {
+      "entity": "user",
+      "usernameField": "email",
+      "passwordField": "password"
+    },
+    "google": {
+      "clientID": "945277597486-fj55c6eklthumq4aj0quij8d63ucj32t.apps.googleusercontent.com",
+      "clientSecret": "phTaUhyQuPx5l-8Vh8OA2OJs",
+      "successRedirect": "http://localhost:3000/login-external",
+      "failureRedirect": "http://localhost:3000/login-external-fail",
+      "scope": [
+        "profile openid email"
+      ]
+    },
+    "facebook": {
+      "clientID": "228884034282645",
+      "clientSecret": "1e5078258de08b6f8c5028f9a25f9496",
+      "successRedirect": "http://localhost:3000/login-external",
+      "failureRedirect": "http://localhost:3000/login-external-fail",
+      "scope": [
+        "public_profile",
+        "email"
+      ],
+      "profileFields": [
+        "id",
+        "displayName",
+        "first_name",
+        "last_name",
+        "email",
+        "gender",
+        "profileUrl",
+        "birthday",
+        "picture",
+        "permissions"
+      ]
+    },
+    "github": {
+      "clientID": "9df9861164a165a11b73",
+      "clientSecret": "846a5c76860a3cc422753ed63a78a039d0ad05f4",
+      "successRedirect": "http://localhost:3000/login-external",
+      "failureRedirect": "http://localhost:3000/login-external-fail"
+    },
+    "cookie": {
+      "enabled": true,
+      "name": "feathers-jwt",
+      "httpOnly": false,
+      "secure": false
+    }
+  },
+  "mongodb": "mongodb://localhost:27017/boilerplate"
+}

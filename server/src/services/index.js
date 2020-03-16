@@ -1,0 +1,37 @@
+const users = require('./users/users.service.js');
+const mailer = require('./mailer/mailer.service.js');
+const uploads = require('./uploads/uploads.service.js');
+const authmanagement = require('./authmanagement/authmanagement.service.js');
+const checkemail = require('./checkemail/checkemail.service.js');
+const foto = require('./foto/foto.service.js');
+const imageResize = require('./image-resize/image-resize.service.js');
+const todo = require('./todo/todo.service.js');
+const endereco = require('./endereco/endereco.service.js');
+const coment = require('./coment/coment.service.js');
+const feedback = require('./feedback/feedback.service.js');
+const relation = require('./relation/relation.service.js');
+const ansettings = require('./ansettings/ansettings.service.js');
+const networks = require('./networks/networks.service.js');
+const layouts = require('./layouts/layouts.service.js');
+const usage = require('./usage/usage.service.js');
+const mynsa = require('./mynsa/mynsa.service.js');
+module.exports = function () {
+  const app = this; // eslint-disable-line no-unused-vars
+  app.configure(users);
+  app.configure(mailer);
+  app.configure(uploads);
+  app.configure(authmanagement);
+  app.configure(checkemail);
+  app.configure(foto);
+  app.configure(imageResize);
+  app.configure(todo);
+  app.configure(endereco);
+  app.configure(coment);
+  app.configure(feedback);
+  app.configure(relation);
+  app.configure(ansettings);
+  app.configure(networks);
+  app.configure(layouts);
+  app.configure(usage);
+  app.configure(mynsa);
+};

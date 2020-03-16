@@ -1,0 +1,15 @@
+stable#form-orcamento(style='width: 75%; max-width: 900px;  margin: 0 auto;  position: relative; font-family: sans-serif; font-size: 10pt;')
+  thead
+    tr(style='background-color: #000!important; color: #FFFFFF!important; height: 30px;')
+      th Campo
+      th Resposta
+  tbody
+    - var count = 0
+    each prop, key in obj
+      - var background = 'background-color: lightgrey;'
+      if (count % 2 === 1)
+        - background = 'background-color: #FFF;'
+      - count++
+      tr(style='height: 25px; ' + background)
+        td(style='padding-right: 10px; text-align: right;') #{key}
+        td(style='text-align: left; font-weight: bold; padding-left: 10px;') #{prop}

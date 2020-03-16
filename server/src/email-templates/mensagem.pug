@@ -1,0 +1,13 @@
+table#form-contato(style='width: 600px; margin: 0px auto; position: relative; font-family: sans-serif; background-color: lightgray; border: none; color: #000;')
+  thead(style='height: 80px; text-align: center;')
+    tr 
+      th
+        h2 Mensagem de #{obj.name}
+  tbody
+    tr
+      td(style='padding: 0 0 20px 20px;')
+        i #{obj.email}
+    tr
+      td(style='padding: 0 0 20px 20px;') #{obj.mensagem}
+    tr
+      td(style='padding: 0 0 20px 20px;') #{obj.como}

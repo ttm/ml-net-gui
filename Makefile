@@ -22,11 +22,14 @@ server-run:
 
 server: server-install server-run
 
+
 frontend-install:
 	cd frontend && npm install && cd ..
 
 frontend-run:
 	cd frontend && npm run dev && cd ..
+
+frontend: frontend-install frontend-run
 
 #######
 # auxiliary targets:

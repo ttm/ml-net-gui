@@ -11,8 +11,24 @@ To bootstrap the system, your best friends are:
 3. MongoDB management. Suggestion: install the Robo 3T, which was used throughout the develoment of this software.
 
 
-### contact
+This repository is proposed as separation of the multilevel strategies from the other visualization interfaces
+developed by the team.
+Thus, this repository only contains the initial versions of the interfaces (with boxes or hybrid edges),
+and should contain enhanced versions of them as they come into existence.
 
+A Meteor.js app was developed using multilevel strategies for analysis, modification and harnessing of social networks,
+and might be added or linked to this repo, maybe refactored in to a pure node.js software, with hot-reload, and the needed
+libraries: (Pixi.js, Tone.js, the ones for networks).
+
+
+### instalation
+The data visualization interfaces should be listed in the URL output by `make frontend-install && make frontend-run`.
+It needs the backend and auxiliary servers, thus: `make backend-install && make backend-run` and `make aux-server-install && make aux-server-run`.
+You'll probably use three terminals to monitor each of these components.
+Suggestion: use Byobu, specially if the server is kept in a remote machine or should be persistent.
+
+
+### contact
 Send me a message, open an issue in this repo,
 or message Cristina Ferreira de Oliveira and Alan Valejo,
 researchers at ICMC/USP (VICG and Labic)

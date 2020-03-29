@@ -27,6 +27,11 @@ It needs the backend and auxiliary servers, thus: `make backend-install && make 
 You'll probably use three terminals to monitor each of these components.
 Suggestion: use Byobu, specially if the server is kept in a remote machine or should be persistent.
 
+### provenance
+This repo steams from three repos, which will be refactored and/or split in other repos:
+- git@gitlab.com:renato.fabbri/nettext-server.git
+- git@gitlab.com:renato.fabbri/nettext-pyserver.git
+- git@github.com:ttm/netText.git
 
 ### contact
 Send me a message, open an issue in this repo,

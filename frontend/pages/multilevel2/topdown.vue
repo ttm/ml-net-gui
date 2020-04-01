@@ -393,8 +393,6 @@ const ColourValues = [
   "A00000", "00A000", "0000A0", "A0A000", "A000A0", "00A0A0", "A0A0A0",
   "E00000", "00E000", "0000FF", "E000E0", "00E0E0"
 ]
-// , "E0E0E0",
-// ]
 
 export default {
   head () {
@@ -502,7 +500,6 @@ export default {
           title: 'a title',
           description: 'a description',
           filename: path[0].files[0].name,
-          // user: this.user._id
           user: '5c51162561e2414b1f85ac0b'
         }).then((res) => {
           this.loading = false
@@ -521,8 +518,6 @@ export default {
       let c2 = this.getCenter()
       this.app_.stage.x += (c2.x - c1.x) * this.app_.stage.scale.x
       this.app_.stage.y += (c2.y - c1.y) * this.app_.stage.scale.x
-      // this.app_.stage.x -= this.cwidth_ * inc / 2
-      // this.app_.stage.y -= this.cheight_ * inc / 2
     },
     rotateScene(direction) {
       if (this.tool && this.tool !== 'info')
@@ -530,22 +525,16 @@ export default {
       let inc = Math.PI/32
       if (direction !== '+')
         inc *= -1
-      // this.app_.stage.x += dist * Math.cos(inc)
-      // this.app_.stage.y -= dist * Math.sin(inc)
       this.mcont.rotation += inc
       this.nodes.forEach( l => {
         l.forEach( n => {
           if (n) {
             if (!n.isopen) {
               n.rotation -= inc
-              // this.updateLinkPos(n)
-              // this.redrawLinks(n)
             }
           }
         })
       })
-      // this.app_.stage.x += (c2.x - c1.x) * this.app_.stage.scale.x
-      // this.app_.stage.y += (c2.y - c1.y) * this.app_.stage.scale.x
     },
     pan (direction) {
       if (direction === 'l') {
@@ -833,7 +822,6 @@ export default {
           return (i.layer === 0) && (i.filename.split('.').pop() === 'ncol')
         })
         this.network = this.networks_[0]
-        // this.renderNetwork()
       })
     },
     renderNetwork () {
@@ -969,7 +957,6 @@ export default {
             successor: parents[i],
             degree: neighbors.length,
             strength: strength,
-            // neighbors: neighbors,
           }
           let MLdata = {
             paths: [],
@@ -1665,7 +1652,6 @@ export default {
       let tstrength = 0
       let tchildren = 0
       let tparents = []
-      // let ids = nodes.map( n => n.id )
       let ids = []
       nodes.forEach( n => {
         if (!n.isopen) {
@@ -1758,18 +1744,6 @@ export default {
         n1.tint = this.temptint
         let n2 = node
         let nodes = [n1, n2]
-        // let nodes_ = []
-        // nodes.forEach( n => {
-        //   n.ids.forEach( id => {
-        //     if (id !== n1.id & id !== n2.id) {
-        //       let tnode = this.nodes[n1.level][id]
-        //       nodes_.push(tnode)
-        //     }
-        //   })
-        // })
-        // let nodes__ = [...nodes, ...nodes_]
-        // nodes__.sort( function (a, b) { return a.id - b.id } )
-        // this.joinManyNodes(nodes__)
         this.joinManyNodes(nodes)
         this.specified_metanode = undefined
       }
@@ -1868,7 +1842,6 @@ export default {
       let turl = process.env.flaskURL + '/biMLDBgetinfo/'
       $.post(
         turl,
-        // {see: 'this', and: 'thisother', num: 5}
         {
           netid: this.network._id,
         }

@@ -615,8 +615,6 @@ const ColourValues = [
   "A00000", "00A000", "0000A0", "A0A000", "A000A0", "00A0A0", "A0A0A0",
   "E00000", "00E000", "0000FF", "E000E0", "00E0E0"
 ]
-// , "E0E0E0",
-// ]
 
 export default {
   head () {
@@ -661,10 +659,7 @@ export default {
         {name: 'VICG - optimalX', tkey: 'vicgX'},
         {name: 'VICG - optimalXX', tkey: 'vicgXX'},
       ],
-      // layout: {name: 'VICG - optimal', tkey: 'vicg2'},
-      // layout: {name: 'VICG - theoretic', tkey: 'vicg1'},
       layout: {name: 'Fruchterman-Reingold', tkey: 'fru'},
-      // layout: {name: 'VICG - optimalX', tkey: 'vicgX'},
       curlevel: 0,
       loaded: false,
       mapping: false,
@@ -716,7 +711,6 @@ export default {
     this.runLayout = this.vicg1
     this.runLayout = this.fruchter
     this.runLayout = this.vicgX
-    // this.layout = {name: 'VICG - optimalX', tkey: 'vicgX'}
     this.layout = {name: 'VICG', tkey: 'vicg1'}
     this.getNodes = this.getAllNodes
     let mdialog =document.getElementById('dialog-1')
@@ -785,7 +779,6 @@ export default {
           let d = this.calcDist(dx, dy)
           let fr = k2 / d
           let fa = 0
-          // if (neighbors.includes(n2.id)) {
           if (n1.linkedTo[n2.level][n2.id]) {
             let w = 1
             if (this.lweight) {
@@ -1012,8 +1005,6 @@ export default {
       let c2 = this.getCenter()
       this.app_.stage.x += (c2.x - c1.x) * this.app_.stage.scale.x
       this.app_.stage.y += (c2.y - c1.y) * this.app_.stage.scale.x
-      // this.app_.stage.x -= this.cwidth_ * inc / 2
-      // this.app_.stage.y -= this.cheight_ * inc / 2
     },
     rotateScene(direction) {
       if (this.tool && this.tool !== 'info')
@@ -1021,22 +1012,16 @@ export default {
       let inc = Math.PI/32
       if (direction !== '+')
         inc *= -1
-      // this.app_.stage.x += dist * Math.cos(inc)
-      // this.app_.stage.y -= dist * Math.sin(inc)
       this.mcont.rotation += inc
       this.nodes.forEach( l => {
         l.forEach( n => {
           if (n) {
             if (!n.isopen) {
               n.rotation -= inc
-              // this.updateLinkPos(n)
-              // this.redrawLinks(n)
             }
           }
         })
       })
-      // this.app_.stage.x += (c2.x - c1.x) * this.app_.stage.scale.x
-      // this.app_.stage.y += (c2.y - c1.y) * this.app_.stage.scale.x
     },
     pan (direction) {
       if (direction === 'l') {
@@ -1547,7 +1532,6 @@ export default {
           return (i.layer === 0) && (i.filename.split('.').pop() === 'ncol')
         })
         this.network = this.networks_[0]
-        // this.renderNetwork()
       })
     },
     renderNetwork () {
@@ -1715,7 +1699,6 @@ export default {
             successor: parents[i],
             degree: neighbors.length,
             strength: strength,
-            // neighbors: neighbors,
           }
           let MLdata = {
             paths: [],
@@ -2113,7 +2096,6 @@ export default {
         }
       })
       return w
-      // return 1
     },
     findParent (nid, level) {
       let parent_
@@ -2467,8 +2449,6 @@ export default {
       }, {})
       this.mkNodesC(children, level, dx * 2, dy * 2, c, layout)
 
-      // this.placeOnCanvas_(children, links, level, dx*2, dy*2, c)
-
       this.iinfo.textContent += '\nshown predecessor(s) ' + children + ' at level ' + level
       this.iinfo.scrollTop = this.iinfo.scrollHeight
     },
@@ -2502,7 +2482,6 @@ export default {
       this.mmc = c
       this.mmpath_ = path_
       this.mmbounds = bounds
-      // let ids = nodes.map( n => n.id )
       let ids = []
       nodes.forEach( n => {
         n.visible = false
@@ -2646,7 +2625,6 @@ export default {
       let turl = process.env.flaskURL + '/biMLDBgetinfo/'
       $.post(
         turl,
-        // {see: 'this', and: 'thisother', num: 5}
         {
           netid: this.network._id,
         }

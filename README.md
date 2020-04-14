@@ -16,16 +16,20 @@ developed by the team.
 Thus, this repository only contains the initial versions of the interfaces (with boxes or hybrid edges),
 and should contain enhanced versions of them as they come into existence.
 
-A Meteor.js app was developed using multilevel strategies for analysis, modification and harnessing of social networks,
-and might be added or linked to this repo, maybe refactored in to a pure node.js software, with hot-reload, and the needed
-libraries: (Pixi.js, Tone.js, the ones for networks).
-
+A an experimental collection of Meteor.js apps were developed using multilevel strategies for analysis, modification and harnessing of social networks.
+One of its versions, potentially having pure-javascript (no Python needed) implementations of networks measurements and multilevel representations,
+layouts, ploting with Pixi.js and animations, projections, WebGL particle system, sounds with Tone.js, and performance timing.
 
 ### installation
 The data visualization interfaces should be listed in the URL output by `make frontend-install && make frontend-run`.
 It needs the backend and auxiliary servers, thus: `make backend-install && make backend-run` and `make aux-server-install && make aux-server-run`.
 You'll probably use three terminals to monitor each of these components.
 Suggestion: use Byobu, specially if the server is kept in a remote machine or should be persistent.
+
+For the visual analytics (intended) legacy app: `make va-legacy-install && make va-legacy`.
+Check `visual_analytics_legacy/README.md` to know of some links to visit and things to explore.
+A bare node.js version of this app is being put together in `visual_analytics/`, to use it:
+`make va-install && make va`.
 
 ### provenance
 This repo steams from three repos, which will be refactored and/or split in other repos:

@@ -1,0 +1,142 @@
+### from main.js, sex out 18 20:05:33 -03 2019
+
+// needs:
+// router
+// canvas and how to deal with computed and watched properties
+// what is the best way to link meteor to pixi.js in the applications
+// I am making?
+// vue watchers and computed are automatically rendered if
+// ReactVar or ReactDict. That is, things that are in them are
+// put any routines that have them in the processing queue.
+// Thus, there is no distinction in Meteor, but declaration
+// still has to exist (data () in vue).
+//
+// If data is to be reactive and persistent, it seems that
+// Meteor Collections are up for the job.
+// This may avoid the need to declare reactive data in
+// both client and server, but may overload computation
+// and clutter web (HTTP, sockets) communication.
+// 
+// method calls are just function calls, and may exist outside
+// main.js file.
+// This makes it easy to implement inheritance, so that
+// e.g. gadget_min gadget_model inherits from gadget_model_min
+// gadget_model_extra inherits from gadget_model, etc.
+// this is performed in nuxt/vue through mixins, and we are not
+// focused so much using HTML components, but in having
+// reactive canvas components.
+//
+// which meteor events are equivalent to the events pixi.js provides,
+// such as pointerdown, etc?
+//
+// maybe make sprites instead of just regular node-link diagrams.
+// make a navigation sprite. The nearest node is the selected node.
+// the person can click on the node directly.
+//
+// The MyNSA game is based on unlocking new pages, where more data
+// is exposed.
+// Example tasks/achievements (façanhas)
+// (tasks give points, points unlocks pages):
+// * Enter new network or searchstring.
+// * Time online (or number of actions=clicks+keys+etc)
+// * Started an intervention.
+// * Milestones achieved in the intervention and actions, visits, etc.
+// * upload data / start crowler.
+//
+// unlock habilities? :
+// * to see individual degrees, degree distribution
+// * to see neighbors
+// * to do community detection
+// * see 
+//
+// status visualization:
+// * points
+// * pages unlocked
+// * username
+// * tasks available, finished and unfinished.
+// * progress timeline.
+// * Related users.
+// * hidden tasks finished (and found?)
+// * a level/role nick/
+// * status about mynsa: ppl online, chat screen, etc.
+// * "position" in mynsa (in linked pages graph).
+// * rank among mynsa players.
+// * indicators of strength of user interaction/intervention:
+//     if already have the written social protocol, ++
+//     if using mynsa social virus by using mynsa URLs, ++
+//     if had previous experiment, ++
+
+// intervention if of different types:
+// * ephemeral (ebó)
+// * process (cow of the end of the world)
+// * viral (with multilevel strategies)
+
+// data processing on the server:
+// * get SparQL data, insert them in collections for processing
+//   in a minimal format
+// * for example, net collection holds a collection of networks,
+// which is populated by the layout collection, which is given by
+// the client. The client is subscribed to the layouts collection,
+// and renders the network with the layout as soon as it receives the
+// response.
+//
+// data processing in the client:
+//
+// usage pipeline:
+// user accesses a URL ->
+// audiovisual context and interaction is defined by the URL ->
+// data is defined by the URL ->
+// data is mapped into audiovidual context ->
+// (
+//   data is reactive to user interaction
+//   data is persistent. URL keys identify session, Etherpad-like.
+//   enables gamification of analysis and exploitation of social structures.
+// )
+//
+// Each URL is actually a URI that identifies a gadget.
+//
+// first gadget:
+// * cursor is different inside canvas.
+// * cursor changes when inside interaction zone of the canvas,
+// it becomes a sprite with the name of the person connected.
+// * nearest neighbor is connected to the sprite, if clicked, its
+// own page will open, with the second gadget.
+// * there is sound, which may be controlled at least the volumes of the instruments.
+// * state is kept and may be set to default, e.g. initial layout.
+// * login with all that meteor enables.
+// * scrapping in js: https://medium.com/@bretcameron/how-to-build-a-web-scraper-using-javascript-11d7cd9f77f2
+//   https://www.freecodecamp.org/news/the-ultimate-guide-to-web-scraping-with-node-js-daa2027dcd3/
+//
+// second gadget:
+// * full canvas standard app.
+// * opens one of the snapshots.
+// * provides means to analyze and intervene in the social structure.
+  // audio: data mapped to music, user interaction mapped to audio.
+  //        mute option to both.
+// // animations may only stop, but the canvas should always display
+  //     relevant data.
+//
+// third gadget:
+// * full canvas.
+// * opens results about a searchstring.
+//
+
+// meteor TODO:
+// finish browsing documentation
+// check reactive collections
+// check routing and/or parsing the URL
+// check js and Meteor imports.
+// make full canvas page
+// interact with PIXI and Tone.js
+// get LOSD data using SparQL
+// make pages:
+// * gadgets
+// * overview of LOSD
+// * overview of MyNSA users/usage
+  // expose domains of mynsa that are most related to activity of which participant. E.g. user A, B, C, have done interventions in different networks. The networks which they interacted with have their colors, and spread to other connected networks.
+// use images/icons as nodes to enhance immersion and social motivators
+  // try to scrape images of the person in social platforms and image search engines (e.g. google search). Use them as the node sprite.
+// use diagetic info on the sprite to enhance immersion.
+
+// ref: http://vasir.net/blog/game-development/data-visualization-in-games
+

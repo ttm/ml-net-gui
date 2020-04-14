@@ -31,8 +31,20 @@ frontend-run:
 
 frontend: frontend-install frontend-run
 
-#######
-# auxiliary targets:
+
+# visual analytics app, independent from previous targets:   ############################
+va-legacy:
+	cd visual_analytics_legacy && meteor
+
+va-install:
+	cd visual_analytics && npm i
+
+va:
+	cd visual_analytics && node app.js
+
+
+
+# auxiliary targets:   ################################################################
 # create binomial/random bipartite networks in aux_server/data/
 mk-random-nets:
 	python3 aux_server/utils/generateNcol.py

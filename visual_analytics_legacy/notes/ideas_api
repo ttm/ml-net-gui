@@ -1,0 +1,17 @@
+Utils para usuario
+
+  taggear comunidades com nomes, tela que mostra comunidades por tag e informacoes alocadas da comunidade
+
+  Entrada de texto e notas para cada tela de nivel e cada usuario.
+
+Feature
+
+  Ativacao de telas de redes e grupos multiniveis por proximidade de agentes, como se fosse um unlock de comunidades e grupos taggeados por níveis.
+
+  Funcao de mandar msgem de texto para amigos individuais ou no metodo cascata utilizando bot para as redes sociais (facebook, twiter, linkedin, google plus etc ...). Outra ideia de propagacao de mensagem, percolacao entre 2 nos na redes por: random walk, caminho mais curto, outros... 
+
+  Funcao de update de dados com raspador de dados integrados.
+
+Viz e interacao
+
+  Zoom de grupos de nos, primeiros vizinhos, segundos vizinhos, distancia por massa de conexoes, comunidades multiniveis.

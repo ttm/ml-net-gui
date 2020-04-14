@@ -1,0 +1,25 @@
+.column {
+  float: left;
+  width: 23.33%;
+  margin: 50px;
+}
+
+/* Clear floats after the columns */
+.row:after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
+.center-div
+{
+  margin: 0 auto;
+  width: 80%; 
+}
+
+#center-btn
+{
+  margin: 0 auto;
+  width: 10%; 
+  background-color: #000000;
+}

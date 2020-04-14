@@ -1,0 +1,17 @@
+<template name="mintro">
+  <div class="center-div">
+    <div class="row">
+      {{#each text in texts}}
+        <div class="column">
+          {{#each parag in text}}
+            <p>{{ parag }}</p>
+          {{/each}}
+        </div>
+      {{/each}}
+      <div class="column">
+        <button type="button">Start quest!</button>
+      </div>
+    </div>
+  </div>
+</template>
+

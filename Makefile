@@ -33,7 +33,11 @@ frontend: frontend-install frontend-run
 
 
 # visual analytics app, independent from previous targets:   ############################
-va-legacy:
+va-legacy-install:
+	curl https://install.meteor.com/ | sh
+	cd visual_analytics_legacy && meteor npm install --save @babel/runtime tone pixi.js pixi-projection mathjs graphology-layout graphology-layout-forceatlas2 graphology jsnetworkx fuse.js graphology-components graphology-communities-louvain graphology-utils
+
+va-legacy:  # will finish to install and run
 	cd visual_analytics_legacy && meteor
 
 va-install:

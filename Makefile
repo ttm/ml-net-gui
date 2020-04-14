@@ -46,6 +46,14 @@ va-install:
 va:
 	cd visual_analytics && node app.js
 
+va-test:
+	node visual_analytics/tests/test_basic.js
+
+va-dev-install:
+	node i -g nodemon
+
+va-dev:
+	cd visual_analytics && nodemon app.js
 
 
 # auxiliary targets:   ################################################################

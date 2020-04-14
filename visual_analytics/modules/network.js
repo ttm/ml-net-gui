@@ -1,8 +1,8 @@
 exports.basic = function () {
-  return 'Multilevel hi!';
+  return 'Network  hi!';
 }
 
 exports.initialize = function () {
-  return 'multilevel  initialized!';
+  return 'network  initialized!';
 }
 

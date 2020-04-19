@@ -10,7 +10,7 @@ class BaseML {
     this.mkMLSequence();
     this.mkCascade();
   }
-  mkCascade () {
+  mkCascade () { // hierarchy, sequence
     // from most reduced level down:
     // get participants what are not meta participants:
     // they must be initialized in this level
@@ -114,4 +114,3 @@ class BaseML {
     this.exnodes = exnodes;
   }
 }
-

@@ -45,6 +45,9 @@ basic_start = () => {
 class Router {
   constructor () {
     this.routes = {};
+    this.register_path('/', basic_start);
+    this.register_path('/network', network.basic);
+    this.register_path('/constants', constants.basic);
   }
   register_path (path_, action_) {
     this.routes[path_] = action_;

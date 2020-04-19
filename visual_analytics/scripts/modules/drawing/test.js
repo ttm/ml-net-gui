@@ -27,4 +27,7 @@ let particleSprites = function (ambience, PIXI, app) {
 let panels = function (ambience, app) {
     ambience.initBackgroundPanels(app)
 }
-exports.tests = { oneNode, basicElements, backImage, particleSprites, panels }
+let dancers = function (ambience, app) {
+    ambience.initCanvasDancers(app)
+}
+exports.tests = { oneNode, basicElements, backImage, particleSprites, panels, dancers }

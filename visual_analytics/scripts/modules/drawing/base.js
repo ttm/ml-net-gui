@@ -1,5 +1,5 @@
 var PIXI = require('pixi.js')
-global.PIXI = PIXI; // workaround? ask PIXI's community? TTM
+global.PIXI = PIXI; // fixme: workaround? ask PIXI's community?
 require("pixi-projection")
 window.mpixi = PIXI
 

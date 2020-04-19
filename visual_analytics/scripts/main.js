@@ -1,5 +1,5 @@
 var net = require('./modules/networks.js')
-var net = require('./modules/artist.js')
+var artist = require('./modules/artist.js')
 
 console.log('yeah man');
 window.banana = 'big banana';

@@ -1,0 +1,3 @@
+node_modules/
+*.tmp-browserify-*
+scripts/main_ok.js

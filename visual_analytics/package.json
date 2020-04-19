@@ -1,0 +1,19 @@
+{
+  "name": "va",
+  "devDependencies": {
+    "standard": "*"
+  },
+  "scripts": {
+    "test": "standard && node tests/test_basic.js",
+    "start": "node app.js",
+    "build": "browserify -b esmify scripts/main.js -o scripts/main_ok.js",
+    "runme": "nodemon app.js --exec 'npm run test && node'",
+    "fixme": "standard --fix",
+    "x": "nodemon app.js --exec 'npm run build && node'"
+  },
+  "dependencies": {
+    "browserify": "^16.5.1",
+    "graphology": "^0.17.1",
+    "pixi-projection": "^0.3.11"
+  }
+}

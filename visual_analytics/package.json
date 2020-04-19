@@ -14,6 +14,7 @@
   "dependencies": {
     "browserify": "^16.5.1",
     "graphology": "^0.17.1",
-    "pixi-projection": "^0.3.11"
+    "pixi-projection": "^0.3.11",
+    "pixi.js": "^5.2.1"
   }
 }

@@ -1,8 +1,7 @@
 exports.basic = function () {
-  return 'Maestro hi!';
+  return 'Maestro hi!'
 }
 
 exports.initialize = function () {
-  return 'maestro  initialized!';
+  return 'maestro  initialized!'
 }
-

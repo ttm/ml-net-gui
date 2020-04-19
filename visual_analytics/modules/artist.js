@@ -1,7 +1,6 @@
 exports.basic = function () {
-  return 'Artist hi!';
+  return 'Artist hi!'
 }
 exports.initialize = function () {
-  return 'artist  initialized!';
+  return 'artist  initialized!'
 }
-

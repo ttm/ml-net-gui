@@ -47,7 +47,7 @@ va:
 	cd visual_analytics && node app.js
 
 va-test:
-	node visual_analytics/tests/test_basic.js
+	cd visual_analytics && npm test
 
 va-dev-install:
 	node i -g nodemon

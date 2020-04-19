@@ -1,8 +1,7 @@
 exports.basic = function () {
-  return 'Conductor hi!';
+  return 'Conductor hi!'
 }
 
 exports.initialize = function () {
-  return 'conductor  initialized!';
+  return 'conductor  initialized!'
 }
-

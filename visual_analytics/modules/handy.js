@@ -1,64 +1,65 @@
-var constants = require('./constants');  // shared values
-var network = require('./network');  // shared values
+var constants = require('./constants') // shared values
+var network = require('./network') // shared values
 
-basic = function () {
-  return 'Handy  hi!';
+const basic = function () {
+  return 'Handy  hi!'
 }
 
-initialize = function () {
-  return 'Handy  initialized!';
+const initialize = function () {
+  return 'Handy  initialized!'
 }
 
-start_module = module_ => {
-  return module_.initialize();
+const startModule = module_ => {
+  return module_.initialize()
 }
 
-basic_from_module = module_ => {
-  return module_.basic();
+const basicFromModule = module_ => {
+  return module_.basic()
 }
 
-start_modules = (modules, init)  => {
-  let feedback = {};
-  let action = basic_from_module
-  if (init === true)
-    action = start_module
+const startModules = (modules, init) => {
+  const feedback = {}
+  let action = basicFromModule
+  if (init === true) { action = startModule }
   for (let i = 0; i < modules.length; i++) {
-    feedback[i] = action(modules[i]);
+    feedback[i] = action(modules[i])
   }
   return feedback
 }
 
-start = (modules, init=true) => {
-  let feedback = start_modules(modules, init);
+const start = (modules, init = true) => {
+  const feedback = startModules(modules, init)
   return `Hello World! ${Object.values(feedback).join('\n')} `
 }
 
 // basic startup:
-basic_start = () => {
-  let base_constants = constants.base();
-  let start_ = start(base_constants._all_modules);
+const basicStart = () => {
+  const baseConstants = constants.base()
+  const start_ = start(baseConstants._allModules)
 
-  let init = start(base_constants._all_modules, false);
+  const init = start(baseConstants._allModules, false)
   return `${start_}\n|||\n${init}`
 }
 
 class Router {
   constructor () {
-    this.routes = {};
-    this.register_path('/', basic_start);
-    this.register_path('/network', network.basic);
-    this.register_path('/constants', constants.basic);
+    this.routes = {}
+    this.registerPath('/', basicStart)
+    this.registerPath('/network', network.basic)
+    this.registerPath('/constants', constants.basic)
   }
-  register_path (path_, action_) {
-    this.routes[path_] = action_;
+
+  registerPath (path_, action_) {
+    this.routes[path_] = action_
   }
-  get_path (path) {
+
+  getPath (path) {
     if (path in this.routes) {
-      return this.routes[path];
+      return this.routes[path]
     } else {
-      return constants.page_not_found;
+      return constants.page_not_found
     }
   }
 }
 
-module.exports = { basic, initialize, basic_start, Router };
+module.exports = { basic, initialize, basicStart, Router }

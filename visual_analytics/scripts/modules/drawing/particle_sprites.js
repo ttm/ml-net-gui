@@ -1,4 +1,6 @@
 let startParticleSprites = function (PIXI, app, number_of_sprites=30, dude_size=0.8, crowler=0) {
+    // todo: use a particle system for the edges/lines/links, and another for the vertices/triangles/nodes.
+    // compare performance for plotting and animation e.g. with performance.now()
     let sprites = new PIXI.ParticleContainer(10000, {
       scale: true,
       position: true,
@@ -11,7 +13,7 @@ let startParticleSprites = function (PIXI, app, number_of_sprites=30, dude_size=
     let totalSprites = number_of_sprites;
     if (app.renderer.type !== PIXI.RENDERER_TYPE.WEBGL) {
       let totalSprites = 10;
-      console.log('webgl is off')
+      console.log('***** WEBGL is off ********')
     }
     if (!crowler) {
       crowler = 1 + (Math.random() < 1)

@@ -40,20 +40,23 @@ va-legacy-install:
 va-legacy:  # will finish to install and run
 	cd visual_analytics_legacy && meteor
 
+# JS implementation without framework:
 va-install:
 	cd visual_analytics && npm i
 
 va:
-	cd visual_analytics && node app.js
+	cd visual_analytics && npm run x
 
+# always work to make this pass:
 va-test:
 	cd visual_analytics && npm test
 
-va-dev-install:
-	node i -g nodemon
+# this must always pass or something is wrong with the algorithms:
+va-test_:
+	cd visual_analytics && npm run test_
 
-va-dev:
-	cd visual_analytics && nodemon app.js
+# testing of the client code must be performed on the client. The /test page should be accessed,
+# e.g. https://0.0.0.0:8080/test/
 
 
 # auxiliary targets:   ################################################################

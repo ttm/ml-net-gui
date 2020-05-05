@@ -3,6 +3,7 @@ exports.you = () => 'man';
 
 exports.net = [1,2,3];
 
+// fixme: develop and use synth
 exports.synth = (size, p) => {
   const graph = new Graph()
   for (let i = 0; i < size; i++) {

@@ -1,7 +1,10 @@
 var draw = require('./drawing/main.js')
 window.mdraw = draw.use
 
-let testing = 1
+// fixme: move to page (path) test/
+// after client-side router is in place.
+// include usage of networks.
+let testing = 0
 if (testing) {
     console.log(draw.use)
     draw.share.test.tests.backImage(draw.use.ambience, draw.share.base.PIXI, draw.share.base.app)

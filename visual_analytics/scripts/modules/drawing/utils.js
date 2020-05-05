@@ -1,4 +1,5 @@
 function chooseUnique (marray, nelements) {
+  // fixme: ensure this is not scrambling marray input
   let i = marray.length;
   if ( i == 0 )
     return false;

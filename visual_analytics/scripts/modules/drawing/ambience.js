@@ -3,11 +3,11 @@ let panels = require('./panels')
 let dancers = require('./dancers')
 
 let chooseUnique = require('./utils').chooseUnique
-console.log(chooseUnique, 'OOOOO')
 
 let placeBackgroundImage = function (PIXI, app) {
     const landsScape = new PIXI.Sprite(
       PIXI.Texture.from(
+        // fixme: better names for the images folders?
         'assets/images/back0/' + chooseUnique([
           'business.jpg',
           'alieneye.jpg',

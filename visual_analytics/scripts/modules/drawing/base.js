@@ -61,6 +61,7 @@ function mkNode (ntype='tri', color = 0xff0000) {
     v.mpath = path;
     app.stage.addChild(v);
 
+    // fixme: localization (x,y) left for caller context. Not compliant with other functions in this module.
     v.on('pointerover', () => {
       v.scale.set(1.2);
       v.alpha=0.9;
@@ -90,11 +91,14 @@ function mkText (text, pos) {
   return texto;
 }
 
-function mkLink (p1, p2, weight = 1, level = 0) {
+function mkLink (p1, p2, weight = 1, level = 0, tint = 0xff0000) {
   let line = new PIXI.Graphics();
+  // fixme: how to map [1, 10] linewidth to resolution and screensize?
+  // this was performed in a previous implementation with this ad-hoc-found relation:
   // line.lineStyle(1 + (9 * weight / this.max_weights[level_]) / (this.networks.length - level_) , 0xFFFFFF);
-  line.lineStyle( 1 , 0xFFFFFF);
-  // line.tint = this.linkcolors[level_];
+  line.lineStyle( 1 , 0xffffff);  // always white.
+  // fixme: make/migrate colors/palletes to be used.  e.g. line.tint = this.colors[level_];
+  line.tint = tint
   line.mlevel = level;
   line.moveTo(p1.x, p1.y);
   line.lineTo(p2.x, p2.y);

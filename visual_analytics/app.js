@@ -2,13 +2,6 @@ var http = require('http')
 var fs = require('fs')
 var path = require('path')
 
-// var conductor = require('./modules/conductor') // coordinates all other modules
-// var artist = require('./modules/artist') // drawing and animation with pixi.js
-// var spark = require('./modules/spark') // http calls to perform sparql queries
-// var network = require('./modules/network') // network I/O, measurements and procedures, uses graphology
-// var multilevel = require('./modules/multilevel') // multilevel routines for complex networks. Uses network and maybe graphology
-// var maestro = require('./modules/maestro') // sounds and music with tone.js
-// var slave = require('./modules/slave') // callbacks to a python server for heavy lifting if necessary
 var handy = require('./modules/handy') // general utils
 
 var constants = require('./modules/constants').base() // shared values
@@ -19,16 +12,18 @@ const router = new handy.Router()
 
 http.createServer(function (req, res) {
   const response = router.getPath(req.url)
-  const r = response()
-  // res.end(r)
-  console.log(startResult)
+  // console.log(startResult)  // fixme: noisy
   console.log(`serving at ${constants.port}`)
 
   var filePath = '.' + req.url
   if (filePath === './') {
+    // fixme: what about doing the router on the client side and always loading this file?
     filePath = './public/index.html'
   }
+  console.log(filePath)
 
+  // fixme: is this really needed? are we not only using html or should we keep these to obtain data and files directly?
+  // maybe also image files?
   var extname = String(path.extname(filePath)).toLowerCase()
   var mimeTypes = {
     '.html': 'text/html',
@@ -66,3 +61,4 @@ http.createServer(function (req, res) {
     }
   })
 }).listen(constants.port)
+console.log('listening in port', constants.port)

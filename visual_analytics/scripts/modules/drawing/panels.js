@@ -1,6 +1,7 @@
 let chooseUnique = require('./utils').chooseUnique
 
 let mkPanelPoints = function (app) {
+    // todo: make this function parametrizable, maybe as a class with initBackgroundPanels()
     const cw = app.view.width;
     const ch = app.view.height;
     console.log('HEEEYYY', cw, ch)
@@ -49,6 +50,7 @@ let mkPanelPoints = function (app) {
 let initBackgroundPanels = function (app) {
     let pp = mkPanelPoints(app)
     console.log('tpp:', pp)
+    // todo: make other sets of images, to be used as themes or skins.
     let filenames = ['01_arcturian.jpg', '07_pleiadian-souls.jpg', '02_arcturian2.jpg', '08_Sirian-Pleiadian2.jpg', '03_arcturians.jpeg', '09_someet.jpg', '04_arcturians2.jpg', 'arcturianhelp.jpg', '05_med.jpg', 'pleiadians-and-arcturiansD.jpg', '06_pleiadian-arcturians.jpg']
     let backsprites = [];
     filenames.forEach( filename => {

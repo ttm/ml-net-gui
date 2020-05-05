@@ -2,6 +2,7 @@ let chooseUnique = require('./utils').chooseUnique
 let moveSprite = require('./interaction_helpers').moveSprite
 
 let initCanvasDancers = function (app) {
+    // todo: tweak parameters, make function parametrizable.
 
     const isoScalingContainer = new PIXI.Container();
     isoScalingContainer.scale.y = 0.5;
@@ -33,6 +34,7 @@ let initCanvasDancers = function (app) {
     isometryPlane.addChild(fire);
 
     let backdancers = [];
+    // todo: make other sets of images.
     let filenames = ['angel.jpeg', 'chief.jpg', 'fish.png', 'hand.jpeg', 'hand.png', 'mickey.png', 'mine.jpg', 'queen.png', 'queen2.png', 'toad.png']
     filenames.forEach( filename => {
       const containerSprite = new PIXI.projection.Sprite2d(
@@ -51,7 +53,7 @@ let initCanvasDancers = function (app) {
     backdancers_.forEach( d => {
       isometryPlane.addChild(d);
       d.interactive = true;
-      d.on('pointerdown', moveSprite);
+      d.on('pointerdown', moveSprite);  // todo: make better jump or move or at least other moves for the dancers
     });
 
     let step = 0;

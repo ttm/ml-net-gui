@@ -1,4 +1,6 @@
 // for clicks etc
+// todo: add to client test and ensure it is working. Clean and enhance.
+//
 module.exports = { moveSprite, OnDragStart2, OnDragStart, OnDragEnd, OnDragMove };
 
 function moveSprite (event) {
@@ -63,4 +65,3 @@ function OnDragMove (monclick) {
   }
   return afunc;
 }
-

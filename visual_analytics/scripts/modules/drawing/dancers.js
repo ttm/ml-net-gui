@@ -47,7 +47,7 @@ let initCanvasDancers = function (app) {
       containerSprite.scale.set(0.3 * mscale, 0.5 * mscale);
       backdancers.push(containerSprite);
     });
-    let backdancers_ = chooseUnique(backdancers).slice(
+    let backdancers_ = chooseUnique(backdancers).slice(  // fixme: move filtering/selection to before loading files.
       backdancers.length - 6, backdancers.length
     );
     backdancers_.forEach( d => {

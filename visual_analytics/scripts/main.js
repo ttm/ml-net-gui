@@ -7,4 +7,5 @@ window.main_loaded = true;
 window.you = net.you;
 window.net = net;
 window.net2 = net.net2;
+window.artist = artist;
 console.log('objects added to `window`');

@@ -4,7 +4,6 @@ let mkPanelPoints = function (app) {
     // todo: make this function parametrizable, maybe as a class with initBackgroundPanels()
     const cw = app.view.width;
     const ch = app.view.height;
-    console.log('HEEEYYY', cw, ch)
     const p = [
       [ 0, 0 ],
       [ cw, 0 ],
@@ -66,7 +65,7 @@ let initBackgroundPanels = function (app) {
       containerSprite.interactive = true;
       backsprites.push(containerSprite);
     });
-    let backsprites_ = chooseUnique(backsprites).slice(
+    let backsprites_ = chooseUnique(backsprites).slice(  // fixme: move to before working on backsprites.
       backsprites.length - 5, backsprites.length
     );
     let backcontainer = new PIXI.Container();
@@ -75,7 +74,7 @@ let initBackgroundPanels = function (app) {
       backcontainer.addChild(b);
     }
     app.stage.addChild(backcontainer);
-    app.ticker.add( (delta) => {
+    app.ticker.add( (delta) => {  // fixme: do we really need to animate static projection?  Get in touch with community?
       for (let bi = 0; bi < backsprites_.length; bi++) {
         let b = backsprites_[bi];
         b.proj.mapSprite(b, pp[bi]);

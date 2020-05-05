@@ -1,5 +1,4 @@
 const Graph = require('graphology')
-exports.you = () => 'man';
 
 exports.net = [1,2,3];
 
@@ -17,6 +16,7 @@ exports.synth = (size, p) => {
   return graph
 }
 
+// fixme: remove dummy network:
 const graph = new Graph()
 graph.addNode('John')
 graph.addNode('Martha')

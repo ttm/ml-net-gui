@@ -50,7 +50,7 @@ let paths = mkPaths(10)
 function mkNode (ntype='tri', color = 0xff0000) {
     let path = paths[ntype];
     let v = new PIXI.Graphics();
-    v.beginFill(0xFFFFFF);
+    v.beginFill(0xffffff);
     v.alpha = 0.4;
     v.scale.set(0.7)
     v.drawPolygon(path);
@@ -59,7 +59,7 @@ function mkNode (ntype='tri', color = 0xff0000) {
     v.zIndex = 1000;
     v.interactive = true;
     v.mpath = path;
-    app.stage.addChild(v);
+    app.stage.addChild(v);  // fixme: use internal container?
 
     // fixme: localization (x,y) left for caller context. Not compliant with other functions in this module.
     v.on('pointerover', () => {
@@ -74,14 +74,14 @@ function mkNode (ntype='tri', color = 0xff0000) {
     //   .on('pointerup', releaseNode)
     //   .on('pointerupoutside', releaseNode2)
     //   .on('pointermove', moveNode);
+    window.vvv = v;
     return v;
 }
 
 function mkText (text, pos) {
-  let fill = 0xffffff;
   let texto = new PIXI.Text(
     text,
-    {fontFamily : 'Arial', fontSize: 15, fill : fill, align : 'center'}
+    {fontFamily : 'Arial', fontSize: 15, fill : 0xffffff, align : 'center'}
   );
   texto.tint = 0x00ff00;
   texto.x = pos[0];

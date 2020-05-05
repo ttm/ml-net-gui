@@ -23,7 +23,6 @@ let startParticleSprites = function (PIXI, app, number_of_sprites=30, dude_size=
       // let dude = PIXI.Sprite.from('images/back2/Make_a_Star.jpg');
       // let dude = PIXI.Sprite.from('images/back2/maggot_tiny.png');
       let dude = PIXI.Sprite.from(crowler);
-      dude.tint = Math.random() * 0xE8D4CD;
       dude.anchor.set(0.5);
       dude.scale.set((dude_size + Math.random() * 0.3) * 0.15);
       dude.x = Math.random() * app.screen.width;

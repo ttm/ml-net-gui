@@ -1,2 +1,2 @@
 client side javascript.
-Writen in main.js, traslated to client JS with browserfy.
+Writen in main.js, traslated to client JS (`main_ok.js`) with browserfy.

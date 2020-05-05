@@ -21,7 +21,7 @@ let backImage = function (ambience, PIXI, app) {
     ambience.placeBackgroundImage(PIXI, app)
 }
 let particleSprites = function (ambience, PIXI, app) {
-    ambience.startParticleSprites(PIXI, app, 500, 0.4)
+    ambience.startParticleSprites(PIXI, app, 500, 0.4, 0)
     ambience.startParticleSprites(PIXI, app, 500, 0.4, 1)
 }
 let panels = function (ambience, app) {

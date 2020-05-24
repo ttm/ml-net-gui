@@ -1,2 +1,2 @@
-const render = require('./conducting/drawnet.js')
-module.exports = { use: { render } }
+const drawnet = require('./conducting/drawnet.js')
+module.exports = { use: { DrawnNet: drawnet.use.DrawnNet } }

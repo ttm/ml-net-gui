@@ -7,7 +7,9 @@ const use = {
   mkLink: base.use.mkLink,
   mkText: base.use.mkText,
   mkPaths: base.use.mkPaths,
-  ambience: ambience.use
+  ambience: ambience.use,
+  width: base.share.app.view.width,
+  height: base.share.app.view.height
 }
 
 exports.use = use

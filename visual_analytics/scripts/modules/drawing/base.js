@@ -1,4 +1,5 @@
 const PIXI = require('./pixi').PIXI
+
 const app = new PIXI.Application({
   width: window.innerWidth,
   height: window.innerHeight,
@@ -57,7 +58,6 @@ function mkNode (ntype = 'tri', color = 0xff0000) {
   v.mpath = path
   app.stage.addChild(v) // fixme: use internal container?
 
-  // fixme: localization (x,y) left for caller context. Not compliant with other functions in this module.
   v.on('pointerover', () => {
     v.scale.set(1.2)
     v.alpha = 0.9

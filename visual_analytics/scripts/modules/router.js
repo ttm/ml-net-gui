@@ -3,9 +3,6 @@
 // to get current URL:
 // const pathnameSplit = window.location.pathname.split('/')
 
-let routes = [
-]
-
 class Router {
   constructor (routes) {
     this.routes = routes
@@ -17,8 +14,18 @@ class Router {
       console.log('subpath addresses not implemented')
     }
     path = path[1]
-    console.log(`loaded path: ${path}`)
+    this.loadPath(path)
+  }
+
+  loadPath(path) {
+    let action = this.routes[path]
+    if (action !== undefined) {
+      action()
+      console.log(`loaded path: ${path}`)
+    } else {
+      console.log(`path not found: ${path}`)
+    }
   }
 }
 
-module.exports = { use: { Router }, share: { routes } }
+module.exports = { use: { Router } }

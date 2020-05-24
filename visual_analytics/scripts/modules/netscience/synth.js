@@ -1,30 +1,41 @@
 const Graph = require('graphology')
-const scaleFree = (size, p) => { // barabasi-albert model
-  const graph = new Graph()
-  for (let i = 0; i < size; i++) {
-    graph.addNode(i)
-    graph.forEachNode((key, attr) => {
-      if (Math.random() < p) {
-        graph.addEdge(i, key)
-      }
-    })
-  }
-  return graph
+const { ladder } = require('graphology-generators/classic')
+const { caveman, connectedCaveman } = require('graphology-generators/community')
+// todo: contribute to graphology-generators with a barabasi-albert model:
+const { clusters, girvanNewman, erdosRenyi } = require('graphology-generators/random')
+const { florentineFamilies, karateClub } = require('graphology-generators/social')
+
+const florentineFamilies_ = () => {
+  return florentineFamilies(Graph)
 }
 
-const binomial = (size, p) => { // erdos-renyi model
-  const graph = new Graph()
-  for (let i = 0; i < size; i++) {
-    graph.addNode(i)
-  }
-  for (let i = 0; i < size - 1; i++) {
-    for (let j = i + 1; j < size; j++) {
-      if (Math.random() < p) {
-        graph.addEdge(i, j)
-      }
-    }
-  }
-  return graph
+const karateClub_ = () => {
+  return karateClub(Graph)
+}
+
+const ladder_ = length => {
+  return ladder(Graph, length)
+}
+
+const caveman_ = (ncomponents, order) => {
+  return caveman(Graph, ncomponents, order)
+}
+
+const connectedCaveman_ = (ncomponents, order) => {
+  return connectedCaveman(Graph, ncomponents, order)
+}
+
+const clusters_ = (order, size, clustersCount, clusterDensity) => {
+  return clusters(Graph, { order, size, clusters: clustersCount, clusterDensity })
+}
+
+const girvanNewman_ = (zOut) => {
+  // don't work in simple visualization for zOut >= 8
+  return girvanNewman(Graph, { zOut: zOut })
+}
+
+const erdosRenyi_ = (order, prob) => {
+  return erdosRenyi(Graph, { order: order, probability: prob })
 }
 
 const minimal = () => {
@@ -35,4 +46,20 @@ const minimal = () => {
   return graph
 }
 
-module.exports = { use: { binomial, scaleFree, minimal } }
+module.exports = {
+  use: {
+    // most simple:
+    minimal,
+    ladder: ladder_,
+    // community:
+    caveman: caveman_,
+    connectedCaveman: connectedCaveman_,
+    // random:
+    clusters: clusters_,
+    girvanNewman: girvanNewman_,
+    erdosRenyi: erdosRenyi_,
+    // social:
+    florentineFamilies: florentineFamilies_,
+    karateClub: karateClub_
+  }
+}

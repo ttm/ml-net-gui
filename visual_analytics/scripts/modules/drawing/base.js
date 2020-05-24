@@ -5,6 +5,7 @@ const app = new PIXI.Application({
   height: window.innerHeight,
   backgroundColor: 0x000000
 })
+app.stage.sortableChildren = true
 
 const mkPaths = function (radius) {
   const dx = Math.cos(Math.PI / 6) * radius
@@ -53,7 +54,7 @@ function mkNode (ntype = 'tri', color = 0xff0000) {
   v.drawPolygon(path)
   v.endFill()
   v.tint = color
-  v.zIndex = 1000
+  v.zIndex = 100
   v.interactive = true
   v.mpath = path
   app.stage.addChild(v) // fixme: use internal container?
@@ -100,6 +101,7 @@ function mkLink (p1, p2, weight = 1, level = 0, tint = 0xff0000) {
   line.lineTo(p2.x, p2.y)
   line.alpha = 0.2
   line.p1 = p1
+  line.zIndex = 1
   line.p2 = p2
   app.stage.addChild(line)
   return line

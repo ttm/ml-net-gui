@@ -14,20 +14,20 @@ const scale = positions => {
   const maxy = Math.max(...ky)
   const miny = Math.min(...ky)
   Object.keys(positions).forEach(key => {
-    positions[key].x = 2 * ((positions[key].x - minx) / (maxx - minx)) - 1
-    positions[key].y = 2 * ((positions[key].y - miny) / (maxy - miny)) - 1
+    positions[key].x = (positions[key].x - minx) / (maxx - minx)
+    positions[key].y = (positions[key].y - miny) / (maxy - miny)
   })
   return positions
 }
 
 class DrawnNet {
   constructor (drawer, net, layouts = [], wh = []) {
-    const random_ = random.assign(net, { center: 0, scale: 2 })
+    const random_ = random.assign(net)
     console.log('random positions assigned')
     window.saneSettings = forceAtlas2.inferSettings(net)
     layouts = {
       random: random_,
-      circular: circular(net),
+      circular: circular(net, { center: 0.75, scale: 0.5 }),
       atlas: scale(forceAtlas2(net,
         { iterations: 150, settings: window.saneSettings }
       ))
@@ -44,8 +44,8 @@ class DrawnNet {
   _plot (net, drawer, wh, layouts) {
     net.forEachNode((key, attr) => {
       const node = drawer.mkNode()
-      node.x = ((layouts.random[key].x + 1) / 2) * wh[0]
-      node.y = ((layouts.random[key].y + 1) / 2) * wh[1]
+      node.x = layouts.circular[key].x * wh[0]
+      node.y = layouts.circular[key].y * wh[1]
       net.setNodeAttribute(key, 'pixiElement', node)
     })
     net.forEachEdge((key, attr, source, target, sourceAttr, targetAttr) => {

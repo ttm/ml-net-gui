@@ -16,15 +16,17 @@ http.createServer(function (req, res) {
   console.log(`serving at ${constants.port}`)
 
   var filePath = '.' + req.url
-  if (filePath === './') {
-    // fixme: what about doing the router on the client side and always loading this file?
+  let extname = path.extname(filePath).toLowerCase()
+  // all HTML files are handled by the client-side router. No subpaths allowed (yet):
+  console.log(extname)
+  if ( extname === '.html' || filePath === './' ) {
     filePath = './public/index.html'
   }
   console.log(filePath)
 
   // fixme: is this really needed? are we not only using html or should we keep these to obtain data and files directly?
   // maybe also image files?
-  var extname = String(path.extname(filePath)).toLowerCase()
+  extname = String(path.extname(filePath)).toLowerCase()
   var mimeTypes = {
     '.html': 'text/html',
     '.js': 'text/javascript',

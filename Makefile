@@ -47,10 +47,11 @@ va-install:
 va:
 	cd visual_analytics && npm run x
 
+# executes server-side tests and linting of all code,
+# for client-side tests, open localhost:8080/test.html:
 va-dev:
 	cd visual_analytics && npm run runme
 
-# always work to make this pass:
 va-test:
 	cd visual_analytics && npm test
 

@@ -1,9 +1,9 @@
 const Graph = require('graphology')
-let scale_free = (size, p) => {  // barabasi-albert model
+const scaleFree = (size, p) => { // barabasi-albert model
   const graph = new Graph()
   for (let i = 0; i < size; i++) {
     graph.addNode(i)
-    graph.forEachNode( (key, attr) => {
+    graph.forEachNode((key, attr) => {
       if (Math.random() < p) {
         graph.addEdge(i, key)
       }
@@ -12,7 +12,7 @@ let scale_free = (size, p) => {  // barabasi-albert model
   return graph
 }
 
-let binomial = (size, p) => {  // erdos-renyi model
+const binomial = (size, p) => { // erdos-renyi model
   const graph = new Graph()
   for (let i = 0; i < size; i++) {
     graph.addNode(i)
@@ -27,7 +27,7 @@ let binomial = (size, p) => {  // erdos-renyi model
   return graph
 }
 
-let minimal = () => {
+const minimal = () => {
   const graph = new Graph()
   graph.addNode('John')
   graph.addNode('Martha')
@@ -35,4 +35,4 @@ let minimal = () => {
   return graph
 }
 
-module.exports = {use: {binomial, scale_free, minimal}}
+module.exports = { use: { binomial, scaleFree, minimal } }

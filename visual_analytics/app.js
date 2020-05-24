@@ -1,17 +1,15 @@
 var http = require('http')
 var fs = require('fs')
 var path = require('path')
-
-var handy = require('./modules/handy') // general utils
-
 var constants = require('./modules/constants').base() // shared values
 
-const startResult = handy.basicStart()
-
-const router = new handy.Router()
+// var handy = require('./modules/handy') // general utils, enable to manage server-side tasks and routing
+// const startResult = handy.basicStart()
+// const router = new handy.Router()
 
 http.createServer(function (req, res) {
-  const response = router.getPath(req.url)
+  // server side routing and tasks are desabled:
+  // const response = router.getPath(req.url)
   // console.log(startResult)  // fixme: noisy
   console.log(`serving at ${constants.port}`)
 
@@ -19,7 +17,7 @@ http.createServer(function (req, res) {
   let extname = path.extname(filePath).toLowerCase()
   // all HTML files are handled by the client-side router. No subpaths allowed (yet):
   console.log(extname)
-  if ( extname === '.html' || filePath === './' ) {
+  if (extname === '.html' || filePath === './') {
     filePath = './public/index.html'
   }
   console.log(filePath)

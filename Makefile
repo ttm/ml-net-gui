@@ -47,6 +47,9 @@ va-install:
 va:
 	cd visual_analytics && npm run x
 
+va-dev:
+	cd visual_analytics && npm run runme
+
 # always work to make this pass:
 va-test:
 	cd visual_analytics && npm test

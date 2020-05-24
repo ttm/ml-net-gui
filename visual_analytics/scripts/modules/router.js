@@ -17,8 +17,8 @@ class Router {
     this.loadPath(path)
   }
 
-  loadPath(path) {
-    let action = this.routes[path]
+  loadPath (path) {
+    const action = this.routes[path]
     if (action !== undefined) {
       action()
       console.log(`loaded path: ${path}`)

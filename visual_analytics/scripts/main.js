@@ -5,7 +5,8 @@ var conductor = require('./modules/conductor.js')
 // fixme: create and import needed modules, probably migrated from ../modules/*
 
 const testPlot = () => {
-  const net_ = net.use.synth.use.binomial(10, 0.2)
+  // const net_ = net.use.synth.use.scaleFree(300, 0.1)
+  const net_ = net.use.synth.use.binomial(300, 0.1)
   console.log('testing plot')
   return new conductor.use.DrawnNet(artist.use, net_, [])
 }

@@ -20,6 +20,7 @@
     "graphology-layout-forceatlas2": "^0.4.3",
     "nodemon": "^2.0.3",
     "pixi-projection": "^0.3.11",
-    "pixi.js": "^5.2.1"
+    "pixi.js": "^5.2.1",
+    "puxi.js": "0.0.5"
   }
 }

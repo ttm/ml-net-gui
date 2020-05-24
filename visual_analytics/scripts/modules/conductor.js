@@ -1,2 +1,3 @@
 const drawnet = require('./conducting/drawnet.js')
-module.exports = { use: { DrawnNet: drawnet.use.DrawnNet } }
+const ui = require('./conducting/ui.js')
+module.exports = { use: { DrawnNet: drawnet.use.DrawnNet, ui: ui.use } }

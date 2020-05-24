@@ -3,7 +3,8 @@ const PIXI = require('./pixi').PIXI
 const app = new PIXI.Application({
   width: window.innerWidth,
   height: window.innerHeight,
-  backgroundColor: 0x000000
+  transparent: true
+  // backgroundColor: 0x000000
 })
 app.stage.sortableChildren = true
 

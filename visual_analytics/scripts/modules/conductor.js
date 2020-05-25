@@ -3,6 +3,9 @@ const animate = require('./conducting/animate.js')
 const ui = require('./conducting/ui.js')
 module.exports = {
   use: {
-    DrawnNet: drawnet.use.DrawnNet, rotateLayouts: animate.use.rotateLayouts, ui: ui.use
+    DrawnNet: drawnet.use.DrawnNet,
+    rotateLayouts: animate.use.rotateLayouts,
+    blink: animate.use.blink,
+    ui: ui.use
   }
 }

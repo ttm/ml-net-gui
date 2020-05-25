@@ -20,6 +20,7 @@ const testPlot = () => {
   console.log(`testing plot for network number: ${index}, order: ${net_.order}, size: ${net_.size}`)
   const drawnNet = new conductor.use.DrawnNet(artist.use, net_, [])
   conductor.use.rotateLayouts(drawnNet, artist.share.draw.base.app, artist)
+  conductor.use.blink(drawnNet.net, artist.share.draw.base.app)
 }
 
 const routes = {

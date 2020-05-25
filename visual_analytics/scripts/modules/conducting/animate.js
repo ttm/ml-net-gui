@@ -94,4 +94,17 @@ const rotateLayouts = (drawnNet, app, artist) => {
   })
 }
 
-module.exports = { use: { rotateLayouts } }
+const blink = (net, app) => {
+  app.ticker.add(delta => { // delta is 1 for 60 fps
+    if (Math.random() < 0.7) {
+      net.forEachNode((key, attr) => {
+        if (Math.random() < 0.4) {
+          attr.pixiElement.tint = 0xffffff * Math.random()
+          attr.pixiElement.alpha = Math.random()
+        }
+      })
+    }
+  })
+}
+
+module.exports = { use: { rotateLayouts, blink } }

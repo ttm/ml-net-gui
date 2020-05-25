@@ -1,5 +1,5 @@
 const PIXI = require('pixi.js')
-const chooseUnique = require('./utils').chooseUnique
+const chooseUnique = require('../utils').chooseUnique
 
 const mkPanelPoints = function (app) {
   // todo: make this function parametrizable, maybe as a class with initBackgroundPanels()

@@ -1,5 +1,5 @@
 const PIXI = require('./pixi').PIXI
-const chooseUnique = require('./utils').chooseUnique
+const chooseUnique = require('../utils').chooseUnique
 const moveSprite = require('./interaction_helpers').moveSprite
 
 const initCanvasDancers = function (app) {

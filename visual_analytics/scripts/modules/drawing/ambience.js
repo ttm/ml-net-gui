@@ -2,7 +2,7 @@ const particleSprites = require('./particle_sprites')
 const panels = require('./panels')
 const dancers = require('./dancers')
 
-const chooseUnique = require('./utils').chooseUnique
+const chooseUnique = require('../utils').chooseUnique
 
 const placeBackgroundImage = function (PIXI, app) {
   const landsScape = new PIXI.Sprite(

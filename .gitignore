@@ -3,4 +3,5 @@ aux_server/log/
 aux_server/multilevel.egg-info/
 frontend/.nuxt/
 frontend/node_modules/
+.DS_Store
 

@@ -19,7 +19,6 @@ const rotateLayouts = (drawnNet, app, artist) => {
   // one set per layout, thus:
   // array[node][layout][position] = x, y
   const order = net.order
-  console.log('HERE', order, nlayouts, movePositions, net, layouts)
   const nodeLayoutPositions = []
   for (let nodekey = 0; nodekey < order; nodekey++) {
     nodeLayoutPositions.push([])
@@ -32,25 +31,21 @@ const rotateLayouts = (drawnNet, app, artist) => {
         const inverse = 1 - proportion
         const posx = proportion * layout1[nodekey].x + inverse * layout2[nodekey].x
         const posy = proportion * layout1[nodekey].y + inverse * layout2[nodekey].y
-        console.log('MANNN', posx, posy, nodekey, j)
         nodeLayoutPositions[nodekey][i][j] = [posx, posy]
       }
     }
   }
 
   let positionCounter = 0
-  window.nodeLayoutPositions = nodeLayoutPositions
   const sectionPositions_ = Math.floor(sectionPositions)
   let lock = false
   app.ticker.add((delta) => { // delta is 1 for 60 fps
     const section = Math.floor(positionCounter / sectionPositions)
     const positionInSection = positionCounter % sectionPositions_
     const ismoving = positionInSection > staticPositions
-    // console.log(ismoving, positionInSection, staticPositions)
     if (ismoving) {
       const positionInMovement = positionInSection - staticPositions
       net.forEachNode((key, attr) => {
-        // console.log(key, positionInMovement, positionInSection, section, 'sectionHEYAAAA')
         attr.pixiElement.x = nodeLayoutPositions[key][section][positionInMovement][0]
         attr.pixiElement.y = nodeLayoutPositions[key][section][positionInMovement][1]
 
@@ -77,7 +72,6 @@ const rotateLayouts = (drawnNet, app, artist) => {
           artist.use.updateLink(attr.pixiElement)
         })
         lock = true
-        console.log('AND LOCK')
       } else {
         net.forEachNode((key, attr) => {
           // wiggle:

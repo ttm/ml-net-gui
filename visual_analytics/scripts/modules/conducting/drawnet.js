@@ -1,10 +1,11 @@
+// this file has basics for drawing a network, which includes obtaining layouts
+
 // import forceAtlas2 from 'graphology-layout-forceatlas2'
 const { random, circular } = require('graphology-layout')
 const forceAtlas2 = require('graphology-layout-forceatlas2')
 // todo: use this webworker to animate layout while changing settings:
 // todo: check implementation as web worker of the package to learn and explore:
 // const FA2Layout = require('graphology-layout-forceatlas2/worker')
-window.fa = forceAtlas2
 
 const scale = positions => {
   // scales force atlas 2 positions to [-1,1], compliant with builtin layouts
@@ -22,44 +23,62 @@ const scale = positions => {
   return positions
 }
 
-const makeLayouts = net => {
+const makeLayouts = (net, wh, border) => {
   const random_ = random.assign(net)
-  window.saneSettings = forceAtlas2.inferSettings(net)
-  return {
+  const saneSettings = forceAtlas2.inferSettings(net)
+  const layouts = {
     random: random_,
     circular: circular(net, { center: 0.75, scale: 0.5 }),
     atlas: scale(forceAtlas2(net,
       // todo: explore settings to optimize and result enhancements:
-      { iterations: 150, settings: window.saneSettings }
+      { iterations: 150, settings: saneSettings }
     ))
+  }
+  scaleLayoutsToCanvas(layouts, wh, border)
+  return layouts
+}
+
+const scaleLayoutsToCanvas = (layouts, wh, border) => {
+  const layoutNames = Object.keys(layouts)
+  const size = Object.keys(layouts[layoutNames[0]]).length
+  const wh_ = wh.map(i => i * (1 - border))
+  const border_ = wh.map(i => i * border / 2)
+  window.layouts = layouts
+  for (let i = 0; i < layoutNames.length; i++) {
+    const name = layoutNames[i]
+    for (let j = 0; j < size; j++) {
+      const pos = layouts[name][j]
+      const x = pos.x * wh_[0] + border_[0]
+      const y = pos.y * wh_[1] + border_[1]
+      layouts[name][j].x = x
+      layouts[name][j].y = y
+    }
   }
 }
 
 class DrawnNet {
   constructor (drawer, net, wh = [], layouts = [], border = 0.1) {
-    if (layouts.length === 0) {
-      layouts = makeLayouts(net)
-    }
-    window.layouts = layouts
-
     if (wh.length === 0) {
       wh = [drawer.width, drawer.height]
     }
-    this._plot(net, drawer, wh, layouts.atlas, border)
+    if (layouts.length === 0) {
+      layouts = makeLayouts(net, wh, border)
+    }
+    this._plot(net, drawer, layouts.atlas)
     console.log('net drawn')
+    this.layouts = layouts
+    this.net = net
   }
 
-  _plot (net, drawer, wh, layout, border) {
-    const wh_ = wh.map(i => i * (1 - border))
-    const border_ = wh.map(i => i * border / 2)
+  _plot (net, drawer, layout) {
     net.forEachNode((key, attr) => {
       const node = drawer.mkNode()
-      node.x = layout[key].x * wh_[0] + border_[0]
-      node.y = layout[key].y * wh_[1] + border_[1]
-      net.setNodeAttribute(key, 'pixiElement', node)
+      node.x = layout[key].x
+      node.y = layout[key].y
+      attr.pixiElement = node
     })
     net.forEachEdge((key, attr, source, target, sourceAttr, targetAttr) => {
-      drawer.mkLink(
+      attr.pixiElement = drawer.mkLink(
         sourceAttr.pixiElement, targetAttr.pixiElement,
         1, -1, 0xffff00
       )

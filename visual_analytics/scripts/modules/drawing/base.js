@@ -3,8 +3,8 @@ const PIXI = require('./pixi').PIXI
 const app = new PIXI.Application({
   width: window.innerWidth,
   height: window.innerHeight,
-  transparent: true
-  // backgroundColor: 0x000000
+  // transparent: true
+  backgroundColor: 0x000000
 })
 app.stage.sortableChildren = true
 
@@ -94,9 +94,10 @@ function mkLink (p1, p2, weight = 1, level = 0, tint = 0xff0000) {
   // fixme: how to map [1, 10] linewidth to resolution and screensize?
   // this was performed in a previous implementation with this ad-hoc-found relation:
   // line.lineStyle(1 + (9 * weight / this.max_weights[level_]) / (this.networks.length - level_) , 0xFFFFFF);
-  line.lineStyle(1, 0xffffff) // always white.
+  line.lineStyle(1, 0xffffff) // always 1 pixel width white.
   // fixme: make/migrate colors/palletes to be used.  e.g. line.tint = this.colors[level_];
   line.tint = tint
+  line.mtint = tint
   line.mlevel = level
   line.moveTo(p1.x, p1.y)
   line.lineTo(p2.x, p2.y)
@@ -108,10 +109,20 @@ function mkLink (p1, p2, weight = 1, level = 0, tint = 0xff0000) {
   return line
 }
 
+function updateLink (l) {
+  l.clear()
+  l.lineStyle(1, 0xffffff)
+  // l.tint = l.mtint, not necessary, preserved
+  l.alpha = 0.2
+  l.zIndex = 1
+  l.moveTo(l.p1.x, l.p1.y)
+  l.lineTo(l.p2.x, l.p2.y)
+}
+
 app.ticker.add((delta) => {
   // delta is 1 for 60 fps
 })
 document.body.appendChild(app.view)
 
-exports.use = { mkNode, mkLink, mkText, mkPaths }
+exports.use = { mkNode, mkLink, mkText, mkPaths, updateLink }
 exports.share = { app, paths, PIXI }

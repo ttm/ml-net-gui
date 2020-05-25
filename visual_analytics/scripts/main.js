@@ -18,7 +18,8 @@ const testPlot = () => {
   const index = Math.floor(Math.random() * nets.length)
   const net_ = nets[index]()
   console.log(`testing plot for network number: ${index}, order: ${net_.order}, size: ${net_.size}`)
-  return new conductor.use.DrawnNet(artist.use, net_, [])
+  const drawnNet = new conductor.use.DrawnNet(artist.use, net_, [])
+  conductor.use.rotateLayouts(drawnNet, artist.share.draw.base.app, artist)
 }
 
 const routes = {

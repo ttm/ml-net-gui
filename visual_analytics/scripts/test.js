@@ -36,4 +36,12 @@ const testExibition1 = () => {
   conductor.use.blink(drawnNet.net, artist.share.draw.base.app)
 }
 
-module.exports = { testPlot, testRotateLayouts, testBlink, testExibition1 }
+const testDiffusion = () => {
+  const drawnNet = testPlot()
+  // conductor.use.rotateLayouts(drawnNet, artist.share.draw.base.app, artist)
+  // conductor.use.blink(drawnNet.net, artist.share.draw.base.app)
+  const spread = new net.use.diffusion.use.Diffusion(drawnNet.net, artist.share.draw.base.app)
+  return spread
+}
+
+module.exports = { testPlot, testRotateLayouts, testBlink, testExibition1, testDiffusion }

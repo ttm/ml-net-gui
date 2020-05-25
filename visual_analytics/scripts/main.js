@@ -11,6 +11,7 @@ const routes = {
   'empty.html': () => console.log('empty page/canvas'),
   '': () => console.log('homepage'),
   'plot.html': test.testPlot,
+  'diffusion.html': test.testDiffusion,
   'rotate.html': test.testRotateLayouts,
   'blink.html': test.testBlink,
   'exibit1.html': test.testExibition1,

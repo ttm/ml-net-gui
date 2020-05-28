@@ -1,4 +1,33 @@
+// basic diffusion process with blinking nodes and activated edges.
+// should be performed here and visualized in conductor using artist.
+// thus...
+// fixme: isolate propagation here. Isolate visualization and animation in conductor.
+//        probably: overwrite activateLink(), or add to sequence of functions for activated link.
 const utils = require('../utils.js')
+const mkLink = require('../artist').use.mkLink
+
+const activateLink = (p1, p2) => {
+  const c1 = [p1.x, p1.y]
+  const c2 = [p2.x, p2.y]
+  const slope = (c1[1] - c2[1]) / (c1[0] - c2[0])
+  const orthSlope = -1 / slope
+  const size = 5
+  const dx = size / Math.sqrt(1 + orthSlope ** 2)
+  const dy = orthSlope * dx
+  console.log('activating link')
+  for (let i = 0; i < 10; i++) {
+    const mklink = () => {
+      const p = i / 10
+      const x = c1[0] * (1 - p) + c2[0] * p
+      const y = c1[1] * (1 - p) + c2[1] * p
+      const p1 = { x: x + dx, y: y + dy }
+      const p2 = { x: x - dx, y: y - dy }
+      const link = mkLink(p1, p2, 1, 0, 0x00ff00)
+      setTimeout(() => { link.destroy() }, 100 * i)
+    }
+    setTimeout(() => { mklink() }, 100 * i)
+  }
+}
 
 const activate = (nodeAttr, fancy = true) => {
   nodeAttr.activated = true
@@ -22,11 +51,13 @@ const neighborPropagate = net => {
     let nattr = null
     if (sourceAttr.activated === true && targetAttr.activated !== true) {
       if (!newNeighbors.includes(target)) {
+        activateLink(sourceAttr.pixiElement, targetAttr.pixiElement)
         nkey = target
         nattr = targetAttr
       }
     } else if (targetAttr.activated === true && sourceAttr.activated !== true) {
       if (!newNeighbors.includes(source)) {
+        activateLink(targetAttr.pixiElement, sourceAttr.pixiElement)
         nkey = source
         nattr = sourceAttr
       }

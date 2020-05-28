@@ -40,8 +40,8 @@ const testDiffusion = () => {
   const drawnNet = testPlot()
   // conductor.use.rotateLayouts(drawnNet, artist.share.draw.base.app, artist) // ok
   // conductor.use.blink(drawnNet.net, artist.share.draw.base.app) // conflicts with spread by color
-  const spread = new net.use.diffusion.use.Diffusion(drawnNet.net, artist.share.draw.base.app, [], false, 'keeplist')
-  // const spread = new net.use.diffusion.use.Diffusion(drawnNet.net, artist.share.draw.base.app)
+  // const spread = new net.use.diffusion.use.Diffusion(drawnNet.net, artist.share.draw.base.app, [], false, 'keeplist')
+  const spread = new net.use.diffusion.use.Diffusion(drawnNet.net, artist.share.draw.base.app)
   spread.start()
   return spread
 }

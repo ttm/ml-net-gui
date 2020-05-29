@@ -12,6 +12,7 @@ const routes = {
   '': () => console.log('homepage'),
   'plot.html': test.testPlot,
   'diffusion.html': test.testDiffusion,
+  'multilevelDiffusion.html': test.testMultilevelDiffusion,
   'rotate.html': test.testRotateLayouts,
   'blink.html': test.testBlink,
   'exibit1.html': test.testExibition1,

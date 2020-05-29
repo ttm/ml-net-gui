@@ -46,4 +46,14 @@ const testDiffusion = () => {
   return spread
 }
 
-module.exports = { testPlot, testRotateLayouts, testBlink, testExibition1, testDiffusion }
+const testMultilevelDiffusion = () => {
+  const drawnNet = testPlot()
+  window.nnn = drawnNet
+  const seeds = net.use.seeding.use.random(drawnNet.net, 5)
+  // const seeds = net.use.seeding.degree(net, 'min')
+  const hierarchy = new net.use.diffusion.use.MultilevelDiffusion(drawnNet.net, seeds)
+  window.hhh = hierarchy
+  return hierarchy
+}
+
+module.exports = { testPlot, testRotateLayouts, testBlink, testExibition1, testDiffusion, testMultilevelDiffusion }

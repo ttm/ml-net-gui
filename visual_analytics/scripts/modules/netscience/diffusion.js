@@ -155,4 +155,101 @@ class Diffusion {
   }
 }
 
-module.exports = { use: { Diffusion } }
+class MultilevelDiffusion {
+  constructor (net, seeds) {
+    this.makeHierrarchy(net, seeds)
+  }
+
+  makeHierrarchy (net, seeds) {
+    // 1) choose up to b=5 neighbors to be activated by criterion (implement random)
+    // 2) such b neighbors are nodes to be collapsed into the supernode
+    // 3) repeat 1-2 until only the seeds are not collapsed or only lonly nodes are left to be supernodes.
+    const hierarchy = [net]
+    let superNodes = this.match(net, seeds)
+    let level = 0
+    let net_ = hierarchy[hierarchy.length - 1]
+    while (superNodes.length !== 0) {
+      const collapseResult = this.collapse(net_, superNodes, level)
+      net_ = collapseResult[0]
+      const seeds_ = collapseResult[1]
+      hierarchy.push(net_)
+      superNodes = this.match(net_, seeds_)
+      window.ddd = { hierarchy, net_, seeds_, superNodes }
+      level++
+    }
+  }
+
+  match (net, seeds, b = 5) {
+    for (let i = 0; i < seeds.length; i++) {
+      const seed = seeds[i]
+      net.setNodeAttribute(seed, 'activated', true)
+    }
+    const superNodes = []
+    const nodesTaken = []
+    for (let i = 0; i < seeds.length; i++) {
+      const seed = seeds[i]
+      // other criteria:
+      // choose neighbor by being more or less connected
+      const neighs = net.neighbors(seed)
+      let superNode = neighs.filter(n => {
+        console.log('inside filtering')
+        if (net.getNodeAttribute(n, 'activated') !== true) {
+          if (!nodesTaken.includes(n)) {
+            return true
+          }
+        }
+        return false
+      })
+      if (superNode.length > b) {
+        superNode = superNode.splice(0, b)
+      }
+      superNodes.push(superNode)
+      nodesTaken.push(...superNode)
+    }
+    return superNodes.filter(s => s.length > 0)
+  }
+
+  collapse (net_, superNodes, level) {
+    const net = net_.copy()
+    const seeds = []
+    for (let i = 0; i < superNodes.length; i++) {
+      const superNode = superNodes[i]
+      console.log(superNode, 'super node!!!')
+      const superNeighbors = []
+      for (let j = 0; j < superNode.length; j++) {
+        const node = superNode[j]
+        console.log(`going to delete ${node}`)
+        superNeighbors.push(...net.neighbors(node).filter(n => {
+          return !(superNeighbors.includes(n) || superNode.includes(n))
+        }))
+        net.dropNode(node)
+      }
+      const node = `super-node-${level}-${i}`
+      const seed = net.addNode(node, {
+        weight: superNode.length,
+        level: level
+      })
+      seeds.push(seed)
+
+      superNeighbors.forEach(n => {
+        if (!superNode.includes(n)) {
+          if (!net.hasEdge(node, n)) {
+            console.log(node, n, 'TLINK')
+            net.addUndirectedEdge(node, n)
+          }
+        }
+      })
+      for (let j = i + 1; j < superNodes.length; j++) {
+        superNodes[j] = superNodes[j].map(n => {
+          if (superNode.includes(n)) {
+            return node
+          }
+          return n
+        })
+      }
+    }
+    return [net, seeds]
+  }
+}
+
+module.exports = { use: { Diffusion, MultilevelDiffusion } }

@@ -13,6 +13,7 @@ const routes = {
   'plot.html': test.testPlot,
   'diffusion.html': test.testDiffusion,
   'multilevelDiffusion.html': test.testMultilevelDiffusion,
+  'metaNetwork.html': test.testMetaNetwork,
   'rotate.html': test.testRotateLayouts,
   'blink.html': test.testBlink,
   'exibit1.html': test.testExibition1,

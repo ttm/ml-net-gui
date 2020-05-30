@@ -51,9 +51,18 @@ const testMultilevelDiffusion = () => {
   window.nnn = drawnNet
   const seeds = net.use.seeding.use.random(drawnNet.net, 5)
   // const seeds = net.use.seeding.degree(net, 'min')
-  const hierarchy = new net.use.diffusion.use.MultilevelDiffusion(drawnNet.net, seeds)
+  const hierarchy = new net.use.diffusion.use.MultilevelDiffusionSketch(drawnNet.net, seeds)
   window.hhh = hierarchy
   return hierarchy
 }
 
-module.exports = { testPlot, testRotateLayouts, testBlink, testExibition1, testDiffusion, testMultilevelDiffusion }
+const testMetaNetwork = () => {
+  const drawnNet = testPlot()
+  window.nnn = drawnNet
+  // const seeds = net.use.seeding.degree(net, 'min')
+  const metaHierarchy = new net.use.meta.use.MetaHierarchy(drawnNet.net)
+  window.hhh = metaHierarchy
+  return metaHierarchy
+}
+
+module.exports = { testPlot, testRotateLayouts, testBlink, testExibition1, testDiffusion, testMultilevelDiffusion, testMetaNetwork }

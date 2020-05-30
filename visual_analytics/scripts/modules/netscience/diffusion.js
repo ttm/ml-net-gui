@@ -155,7 +155,95 @@ class Diffusion {
   }
 }
 
-class MultilevelDiffusion {
+class MultilevelDiffusionBase {
+  // base class with only annotations and fundamental attributes.
+  // By definition, this class receives a network and obtain from it a sequence of networks.
+  // It is a succession of incrementally smaller networks,
+  // in which supernodes in a network represents sets of nodes in the previous network.
+  // The superlinks are complied with such supernodes-nodes relations.
+  // supernodes and superlinks may be regarded as parent nodes and links, meta(nodes, links) or hyper(nodes, links)
+  constructor (net, attr = {}, start = false) {
+    this.net = net
+    this.attr = attr
+    this.hierarchy = [this.net]
+    if (start) {
+      this.makeHierarchy()
+    }
+  }
+
+  makeHierarchy () { // push networks to hierarchy
+    this.level = 0
+    this.stop = false
+    while (!this.stop) {
+      this.match() // creates this.superNodes
+      this.collapse() // increments hierarchy implied by given superNodes
+      this.level++
+    }
+  }
+
+  match () {
+    // selects sets of nodes to be represented by supernodes.
+    // criteria / algorithm is arbitrary and thus defined in derived classes.
+    // returns [[<node>]], a sequence of nodes in each supernode.
+    // basic:
+    // random sets
+    // equally chosen sets
+    // degree +-
+    let nodes = this.hierarchy[this.hierarchy.length - 1].nodes()
+    nodes = utils.inplaceShuffle(nodes)
+    const superNodeSize = 5 // number of nodes
+    this.superNodes = utils.chunkArray(nodes, superNodeSize())
+  }
+
+  collapse () { // each sequence of nodes in superNodes => superNode
+    // replace nodes into supernodes and updates links as entailed.
+    // resulting supernodes have the list of nodes is represents.
+    // return resulting network and any further data structures as needed.
+    //
+    // this algorithm is +- determined, vary mostly if keeping weight of not
+    // or if network more elaborate, e.g. k-partite.
+    //
+    // variations:
+    // bipartite, k-partite, logitudinal net, threshold on the weight of the link,
+    // or in the number of links to yield superlink.
+    const net = this.net.copy()
+    // iterate through supernode sets:
+    for (let i = 0; i < this.superNodes.length; i++) {
+      const superNodeId = `supernode-${this.level}-${i}`
+      const superNode = this.superNodes[i]
+      const superNeighbors = []
+      for (let j = 0; j < superNode.length; j++) { // get neighbors and simplify net
+        const node = superNode[j]
+        superNeighbors.push(...net.neighbors(node).filter(n => {
+          return !(superNeighbors.includes(n) || superNode.includes(n))
+        }))
+        net.dropNode(node)
+      }
+      net.addNode(superNodeId, {
+        weight: superNode.length,
+        children: superNode,
+        level: this.level
+      })
+      superNeighbors.forEach(n => {
+        if (!net.hasEdge(superNodeId, n)) {
+          net.addUndirectedEdge(superNodeId, n)
+        }
+      })
+    }
+    this.hierarchy.push(net)
+  }
+}
+
+class MultilevelDiffusionMinimalFunctional extends MultilevelDiffusionBase {
+  match () {
+    // choose sets of nodes at random to obtain supernodes
+  }
+
+  collapse () {
+  }
+}
+
+class MultilevelDiffusionSketch {
   constructor (net, seeds) {
     this.makeHierrarchy(net, seeds)
   }
@@ -214,7 +302,6 @@ class MultilevelDiffusion {
     const seeds = []
     for (let i = 0; i < superNodes.length; i++) {
       const superNode = superNodes[i]
-      console.log(superNode, 'super node!!!')
       const superNeighbors = []
       for (let j = 0; j < superNode.length; j++) {
         const node = superNode[j]
@@ -234,7 +321,6 @@ class MultilevelDiffusion {
       superNeighbors.forEach(n => {
         if (!superNode.includes(n)) {
           if (!net.hasEdge(node, n)) {
-            console.log(node, n, 'TLINK')
             net.addUndirectedEdge(node, n)
           }
         }
@@ -252,4 +338,4 @@ class MultilevelDiffusion {
   }
 }
 
-module.exports = { use: { Diffusion, MultilevelDiffusion } }
+module.exports = { use: { Diffusion, MultilevelDiffusionSketch, MultilevelDiffusionMinimalFunctional } }

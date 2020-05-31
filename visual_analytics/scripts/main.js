@@ -16,7 +16,7 @@ const routes = {
   'metaNetwork.html': test.testMetaNetwork,
   'rotate.html': test.testRotateLayouts,
   'blink.html': test.testBlink,
-  'exibit1.html': test.testExibition1,
+  'exhibit1.html': test.testExibition1,
   'data_donated.html': () => console.log('a summary of the data donated in usage, upload and scrapping')
 }
 

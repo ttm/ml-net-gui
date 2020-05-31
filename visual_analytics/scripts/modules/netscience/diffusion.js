@@ -245,7 +245,7 @@ class MultilevelDiffusionMinimalFunctional extends MultilevelDiffusionBase {
 
 class MultilevelDiffusionSketch {
   constructor (net, seeds) {
-    this.makeHierrarchy(net, seeds)
+    this.hierarchy = this.makeHierrarchy(net, seeds)
   }
 
   makeHierrarchy (net, seeds) {
@@ -265,6 +265,7 @@ class MultilevelDiffusionSketch {
       window.ddd = { hierarchy, net_, seeds_, superNodes }
       level++
     }
+    return hierarchy
   }
 
   match (net, seeds, b = 5) {
@@ -335,6 +336,16 @@ class MultilevelDiffusionSketch {
       }
     }
     return [net, seeds]
+  }
+
+  report () {
+    const orders = this.hierarchy.map(g => g.order)
+    const sizes = this.hierarchy.map(g => g.size)
+    return {
+      orders,
+      sizes,
+      length: this.hierarchy.length
+    }
   }
 }
 

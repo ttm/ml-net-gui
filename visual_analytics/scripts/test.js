@@ -52,7 +52,8 @@ const testMultilevelDiffusion = () => {
   const seeds = net.use.seeding.use.random(drawnNet.net, 5)
   // const seeds = net.use.seeding.degree(net, 'min')
   const hierarchy = new net.use.diffusion.use.MultilevelDiffusionSketch(drawnNet.net, seeds)
-  window.hhh = hierarchy
+  window.hierarchy = hierarchy
+  console.log('meta report:', hierarchy.report())
   return hierarchy
 }
 
@@ -60,8 +61,10 @@ const testMetaNetwork = () => {
   const drawnNet = testPlot()
   window.nnn = drawnNet
   // const seeds = net.use.seeding.degree(net, 'min')
-  const metaHierarchy = new net.use.meta.use.MetaHierarchy(drawnNet.net)
-  window.hhh = metaHierarchy
+  const metaHierarchy = new net.use.meta.use.MetaNetworkCanon(drawnNet.net)
+  metaHierarchy.start()
+  console.log('meta report:', metaHierarchy.report())
+  window.metaHierarchy = metaHierarchy
   return metaHierarchy
 }
 

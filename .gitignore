@@ -4,4 +4,5 @@ aux_server/multilevel.egg-info/
 frontend/.nuxt/
 frontend/node_modules/
 .DS_Store
+losdheaders.js
 

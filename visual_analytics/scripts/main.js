@@ -1,8 +1,9 @@
-var net = require('./modules/networks.js')
-var artist = require('./modules/artist.js')
-var router = require('./modules/router.js')
-var conductor = require('./modules/conductor.js')
-var test = require('./test.js')
+const net = require('./modules/networks.js')
+const artist = require('./modules/artist.js')
+const router = require('./modules/router.js')
+const conductor = require('./modules/conductor.js')
+const spark = require('./modules/transfer/spark.js')
+const test = require('./test.js')
 // fixme: create and import needed modules, probably migrated from ../modules/*
 
 const routes = {
@@ -13,10 +14,13 @@ const routes = {
   'plot.html': test.testPlot,
   'diffusion.html': test.testDiffusion,
   'multilevelDiffusion.html': test.testMultilevelDiffusion,
+  // fixme: add MultilevelDiffusionSketch or migrate it to netscience/meta.js
   'metaNetwork.html': test.testMetaNetwork,
   'rotate.html': test.testRotateLayouts,
   'blink.html': test.testBlink,
   'exhibit1.html': test.testExibition1,
+  'sparkmin.html': test.testSparkMin,
+  'losd.html': test.testSparkLosd,
   'data_donated.html': () => console.log('a summary of the data donated in usage, upload and scrapping')
 }
 
@@ -29,5 +33,6 @@ window.__all = {
   router,
   artist,
   net,
+  spark,
   test
 }

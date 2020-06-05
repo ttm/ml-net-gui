@@ -237,6 +237,9 @@ class MetaNetworkCanon extends MetaNetworkBase {
 
 class MetaNetworkMulti {
   // this class holds lists of functions to be performed in each action
+  constructor (metaNetwork) {
+    this.banana = 'quente'
+  }
 }
 
 module.exports = { use: { MetaNetworkBase, MetaNetworkCanon, MetaNetworkMulti } }

@@ -21,6 +21,7 @@
     "nodemon": "^2.0.3",
     "pixi-projection": "^0.3.11",
     "pixi.js": "^5.2.1",
-    "puxi.js": "0.0.5"
+    "puxi.js": "0.0.5",
+    "superagent": "^5.2.2"
   }
 }

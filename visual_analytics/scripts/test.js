@@ -82,6 +82,11 @@ const testSparkLosd = () => {
 const testMong = () => {
   console.log(transfer.mong)
   window.mong = transfer.mong
+  const astring = (new Date() % 9e6).toString(36) // +- random, arbitrary string
+  console.log('astring:', astring)
+  transfer.mong.db.collection(transfer.mong.auth.collections.test).insertOne({ AAAA: 'llll', astring: astring }).then(() => {
+    return transfer.mong.db.collection(transfer.mong.auth.collections.test).find({ astring: astring }, { limit: 100 }).asArray()
+  }).then(res => console.log('written in atlas and retrieved:', res))
 }
 
 const testGetNet0 = () => {

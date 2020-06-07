@@ -84,4 +84,8 @@ const testMong = () => {
   window.mong = transfer.mong
 }
 
-module.exports = { testPlot, testRotateLayouts, testBlink, testExibition1, testDiffusion, testMultilevelDiffusion, testMetaNetwork, testSparkMin, testSparkLosd, testMong }
+const testGetNet0 = () => {
+  transfer.spark.getNetMembersLinks('facebook-legacy-AntonioAnzoategui18022013')
+}
+
+module.exports = { testPlot, testRotateLayouts, testBlink, testExibition1, testDiffusion, testMultilevelDiffusion, testMetaNetwork, testSparkMin, testSparkLosd, testMong, testGetNet0 }

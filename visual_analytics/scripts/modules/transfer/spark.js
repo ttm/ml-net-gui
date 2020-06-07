@@ -86,4 +86,27 @@ const losdCall = (query, callback) => {
   )
 }
 
-module.exports = { MSPARQLMin2, MDBPedia0, sparqlCall, losdCall }
+// const getNetMembersLinks = (netid, callback) => {
+const getNetMembersLinks = (netid) => {
+  const qmembers = `SELECT DISTINCT ?p ?n WHERE {
+    ?s po:snapshotID '${netid}' .
+    ?p a po:Participant .
+    ?p po:snapshot ?s .
+    ?p po:observation ?o .
+    ?o po:name ?n .
+  }`
+  const qfriendships = `SELECT DISTINCT ?p1 ?p2 WHERE {
+    ?f a po:Friendship .
+    ?f po:snapshot ?s .
+    ?s po:snapshotID '${netid}' .
+    ?f po:member ?p1, ?p2 .
+    FILTER(?p1 != ?p2)
+  }`
+  losdCall(qmembers, (members) => {
+    losdCall(qfriendships, (friendships) => {
+      console.log({ members, friendships })
+    })
+  })
+}
+
+module.exports = { MSPARQLMin2, MDBPedia0, sparqlCall, losdCall, getNetMembersLinks }

@@ -2,7 +2,7 @@ const net = require('./modules/networks.js')
 const artist = require('./modules/artist.js')
 const router = require('./modules/router.js')
 const conductor = require('./modules/conductor.js')
-const spark = require('./modules/transfer/spark.js')
+const transfer = require('./modules/transfer/main.js')
 const test = require('./test.js')
 // fixme: create and import needed modules, probably migrated from ../modules/*
 
@@ -21,6 +21,7 @@ const routes = {
   'exhibit1.html': test.testExibition1,
   'sparkmin.html': test.testSparkMin,
   'losd.html': test.testSparkLosd,
+  'mong.html': test.testMong,
   'data_donated.html': () => console.log('a summary of the data donated in usage, upload and scrapping')
 }
 
@@ -33,6 +34,6 @@ window.__all = {
   router,
   artist,
   net,
-  spark,
+  transfer,
   test
 }

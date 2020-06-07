@@ -5,4 +5,5 @@ frontend/.nuxt/
 frontend/node_modules/
 .DS_Store
 losdheaders.js
+mong_auth.js
 

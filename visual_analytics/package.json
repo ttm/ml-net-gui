@@ -18,6 +18,8 @@
     "graphology-generators": "^0.10.1",
     "graphology-layout": "^0.2.0",
     "graphology-layout-forceatlas2": "^0.4.3",
+    "mongodb-stitch-browser-sdk": "^4.8.0",
+    "mongoose": "^5.9.18",
     "nodemon": "^2.0.3",
     "pixi-projection": "^0.3.11",
     "pixi.js": "^5.2.1",

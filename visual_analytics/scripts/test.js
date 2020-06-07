@@ -1,7 +1,7 @@
 const net = require('./modules/networks.js')
 const artist = require('./modules/artist.js')
 const conductor = require('./modules/conductor.js')
-const spark = require('./modules/transfer/spark.js')
+const transfer = require('./modules/transfer/main.js')
 
 const testPlot = () => {
   const nets = [
@@ -70,13 +70,18 @@ const testMetaNetwork = () => {
 }
 
 const testSparkMin = () => {
-  spark.MDBPedia0.queryEndpoint(spark.MDBPedia0.q1)
+  transfer.spark.MDBPedia0.queryEndpoint(transfer.spark.MDBPedia0.q1)
   console.log('check window.res.sparqlres')
-  window.res = spark.MDBPedia0
+  window.res = transfer.spark.MDBPedia0
 }
 
 const testSparkLosd = () => {
-  spark.losdCall(Math.floor(Math.random() * 2), (res) => console.log(res))
+  transfer.spark.losdCall(Math.floor(Math.random() * 2), (res) => console.log(res))
 }
 
-module.exports = { testPlot, testRotateLayouts, testBlink, testExibition1, testDiffusion, testMultilevelDiffusion, testMetaNetwork, testSparkMin, testSparkLosd }
+const testMong = () => {
+  console.log(transfer.mong)
+  window.mong = transfer.mong
+}
+
+module.exports = { testPlot, testRotateLayouts, testBlink, testExibition1, testDiffusion, testMultilevelDiffusion, testMetaNetwork, testSparkMin, testSparkLosd, testMong }

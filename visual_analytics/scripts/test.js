@@ -79,16 +79,6 @@ const testSparkLosd = () => {
   transfer.spark.losdCall(Math.floor(Math.random() * 2), (res) => console.log(res))
 }
 
-const testMong = () => {
-  console.log(transfer.mong)
-  window.mong = transfer.mong
-  const astring = (new Date() % 9e6).toString(36) // +- random, arbitrary string
-  console.log('astring:', astring)
-  transfer.mong.db.collection(transfer.mong.auth.collections.test).insertOne({ AAAA: 'llll', astring: astring }).then(() => {
-    return transfer.mong.db.collection(transfer.mong.auth.collections.test).find({ astring: astring }, { limit: 100 }).asArray()
-  }).then(res => console.log('written in atlas and retrieved:', res))
-}
-
 const testGetNet0 = () => {
   // just gets members names and ids, and friendships
   transfer.spark.getNetMembersLinks('facebook-legacy-AntonioAnzoategui18022013')
@@ -126,4 +116,47 @@ const testGetNet3 = () => {
   transfer.spark.getNetMembersLinks('facebook-legacy-AntonioAnzoategui18022013', call)
 }
 
-module.exports = { testPlot, testRotateLayouts, testBlink, testExibition1, testDiffusion, testMultilevelDiffusion, testMetaNetwork, testSparkMin, testSparkLosd, testMong, testGetNet0, testGetNet1, testGetNet2, testGetNet3 }
+const testMong = () => {
+  console.log(transfer.mong)
+  window.mong = transfer.mong
+  const astring = (new Date() % 9e6).toString(36) // +- random, arbitrary string
+  console.log('astring:', astring)
+  transfer.mong.db.collection(transfer.mong.auth.collections.test).insertOne({ AAAA: 'llll', astring: astring }).then(() => {
+    return transfer.mong.db.collection(transfer.mong.auth.collections.test).find({ astring: astring }, { limit: 100 }).asArray()
+  }).then(res => console.log('written in atlas and retrieved:', res))
+}
+
+const testNetIO = () => {
+  // choose a netid
+  // check if it is in mongo
+  // if there:
+  //   get network from mongo
+  //   delete it
+  // if not there:
+  //   get from losd
+  //   then write it to mongo
+  const snapid = 'facebook-legacy-AntonioAnzoategui18022013'
+  transfer.mong.db.collection(transfer.mong.auth.collections.test).findOne({ snapid: snapid }).then(res => {
+    if (res) {
+      console.log('found!!!', res)
+      window.mmong = transfer.mong.db.collection(transfer.mong.auth.collections.test)
+      transfer.mong.db.collection(transfer.mong.auth.collections.test).deleteMany({ snapid: snapid })
+    } else {
+      transfer.spark.getNetMembersLinks('facebook-legacy-AntonioAnzoategui18022013', res => {
+        const net_ = net.use.build.buildFromSparql(res.members, res.friendships)
+        window.nnet_ = net_
+        // fixme: use JSON.stringify(net_.export()) and zstd it to compare size, should be better.
+        transfer.mong.db.collection(transfer.mong.auth.collections.test).insertOne({ AAAA: 'llll', snapid: snapid, net: net_.export() }).then(() => {
+          console.log('written')
+        })
+      })
+    }
+  })
+  // transfer.mong.db.collection(transfer.mong.auth.collections.test).insertOne({ AAAA: 'llll', snapid: snapid }).then(() => {
+  //   transfer.mong.db.collection(transfer.mong.auth.collections.test).findOne({ snapid: snapid }).then(res => {
+  //     console.log('found:', res)
+  //   })
+  // })
+}
+
+module.exports = { testPlot, testRotateLayouts, testBlink, testExibition1, testDiffusion, testMultilevelDiffusion, testMetaNetwork, testSparkMin, testSparkLosd, testMong, testGetNet0, testGetNet1, testGetNet2, testGetNet3, testNetIO }

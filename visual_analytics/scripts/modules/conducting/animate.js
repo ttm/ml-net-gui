@@ -101,4 +101,23 @@ const blink = (net, app) => {
   })
 }
 
-module.exports = { use: { rotateLayouts, blink } }
+const showMembers = (net, artist, alternate = false) => {
+  net.forEachNode((key, attr) => {
+    const text = artist.use.mkText(attr.name, [attr.pixiElement.x, attr.pixiElement.y])
+    attr.textElement = text
+  })
+  if (alternate) {
+    artist.share.draw.base.app.ticker.add(delta => { // delta is 1 for 60 fps
+      if (Math.random() < 0.1) {
+        net.forEachNode((key, attr) => {
+          if (Math.random() < 0.1) {
+            attr.textElement.tint = 0xffffff * Math.random()
+            attr.textElement.alpha = Math.random()
+          }
+        })
+      }
+    })
+  }
+}
+
+module.exports = { use: { rotateLayouts, blink, showMembers } }

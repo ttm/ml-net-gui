@@ -134,7 +134,6 @@ class MetaNetworkCanon extends MetaNetworkBase {
           self.superNodes = utils.randChunkSplit(
             nodes, this.superNodeSizeMin, this.superNodeSizeMax
           )
-          console.log(nodes, self.superNodes, 'HEREEE')
         }
       },
       equalRandomPartitions: {

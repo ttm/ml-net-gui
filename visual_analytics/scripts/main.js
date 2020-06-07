@@ -24,6 +24,7 @@ const routes = {
   'getNet.html': test.testGetNet0,
   'getNet1.html': test.testGetNet1,
   'getNet2.html': test.testGetNet2,
+  'getNet3.html': test.testGetNet3,
   'mong.html': test.testMong,
   'data_donated.html': () => console.log('a summary of the data donated in usage, upload and scrapping')
 }

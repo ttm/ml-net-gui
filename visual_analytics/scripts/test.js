@@ -96,10 +96,10 @@ const testGetNet1 = () => {
 
 const testGetNet2 = () => {
   // plots network
+  // fixme: separate non-connected nodes to avoid having so much empty space
   transfer.spark.getNetMembersLinks('facebook-legacy-AntonioAnzoategui18022013')
   const call = res => {
     const net_ = net.use.build.buildFromSparql(res.members, res.friendships)
-    console.log(net_, 'HERE')
     const drawn = new conductor.use.DrawnNet(artist.use, net_, [])
     window.drawn = drawn
     return drawn
@@ -109,11 +109,12 @@ const testGetNet2 = () => {
 
 const testGetNet3 = () => {
   // plots network and alternate names of participants
+  // fixme: emphasize neighbors if 'onclick' event
   transfer.spark.getNetMembersLinks('facebook-legacy-AntonioAnzoategui18022013')
   const call = res => {
     const net_ = net.use.build.buildFromSparql(res.members, res.friendships)
-    console.log(net_, 'HERE')
     const drawn = new conductor.use.DrawnNet(artist.use, net_, [])
+    conductor.use.showMembers(net_, artist, Math.random() > 0.5)
     window.drawn = drawn
     return drawn
   }

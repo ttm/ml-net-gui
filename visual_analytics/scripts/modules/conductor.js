@@ -6,6 +6,7 @@ module.exports = {
     DrawnNet: drawnet.use.DrawnNet,
     rotateLayouts: animate.use.rotateLayouts,
     blink: animate.use.blink,
+    showMembers: animate.use.showMembers,
     ui: ui.use
   }
 }

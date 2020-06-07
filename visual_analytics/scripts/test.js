@@ -85,7 +85,39 @@ const testMong = () => {
 }
 
 const testGetNet0 = () => {
+  // just gets members names and ids, and friendships
   transfer.spark.getNetMembersLinks('facebook-legacy-AntonioAnzoategui18022013')
 }
 
-module.exports = { testPlot, testRotateLayouts, testBlink, testExibition1, testDiffusion, testMultilevelDiffusion, testMetaNetwork, testSparkMin, testSparkLosd, testMong, testGetNet0 }
+const testGetNet1 = () => {
+  // builds network
+  transfer.spark.getNetMembersLinks('facebook-legacy-AntonioAnzoategui18022013', res => console.log(net.use.build.buildFromSparql(res.members, res.friendships)))
+}
+
+const testGetNet2 = () => {
+  // plots network
+  transfer.spark.getNetMembersLinks('facebook-legacy-AntonioAnzoategui18022013')
+  const call = res => {
+    const net_ = net.use.build.buildFromSparql(res.members, res.friendships)
+    console.log(net_, 'HERE')
+    const drawn = new conductor.use.DrawnNet(artist.use, net_, [])
+    window.drawn = drawn
+    return drawn
+  }
+  transfer.spark.getNetMembersLinks('facebook-legacy-AntonioAnzoategui18022013', call)
+}
+
+const testGetNet3 = () => {
+  // plots network and alternate names of participants
+  transfer.spark.getNetMembersLinks('facebook-legacy-AntonioAnzoategui18022013')
+  const call = res => {
+    const net_ = net.use.build.buildFromSparql(res.members, res.friendships)
+    console.log(net_, 'HERE')
+    const drawn = new conductor.use.DrawnNet(artist.use, net_, [])
+    window.drawn = drawn
+    return drawn
+  }
+  transfer.spark.getNetMembersLinks('facebook-legacy-AntonioAnzoategui18022013', call)
+}
+
+module.exports = { testPlot, testRotateLayouts, testBlink, testExibition1, testDiffusion, testMultilevelDiffusion, testMetaNetwork, testSparkMin, testSparkLosd, testMong, testGetNet0, testGetNet1, testGetNet2, testGetNet3 }

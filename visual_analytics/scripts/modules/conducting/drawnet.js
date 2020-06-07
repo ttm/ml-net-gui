@@ -40,18 +40,19 @@ const makeLayouts = (net, wh, border) => {
 
 const scaleLayoutsToCanvas = (layouts, wh, border) => {
   const layoutNames = Object.keys(layouts)
-  const size = Object.keys(layouts[layoutNames[0]]).length
+  const nodes = Object.keys(layouts[layoutNames[0]])
+  const size = nodes.length
   const wh_ = wh.map(i => i * (1 - border))
   const border_ = wh.map(i => i * border / 2)
   window.layouts = layouts
   for (let i = 0; i < layoutNames.length; i++) {
     const name = layoutNames[i]
     for (let j = 0; j < size; j++) {
-      const pos = layouts[name][j]
+      const pos = layouts[name][nodes[j]]
       const x = pos.x * wh_[0] + border_[0]
       const y = pos.y * wh_[1] + border_[1]
-      layouts[name][j].x = x
-      layouts[name][j].y = y
+      layouts[name][nodes[j]].x = x
+      layouts[name][nodes[j]].y = y
     }
   }
 }

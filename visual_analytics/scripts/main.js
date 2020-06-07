@@ -22,6 +22,8 @@ const routes = {
   'sparkmin.html': test.testSparkMin,
   'losd.html': test.testSparkLosd,
   'getNet.html': test.testGetNet0,
+  'getNet1.html': test.testGetNet1,
+  'getNet2.html': test.testGetNet2,
   'mong.html': test.testMong,
   'data_donated.html': () => console.log('a summary of the data donated in usage, upload and scrapping')
 }

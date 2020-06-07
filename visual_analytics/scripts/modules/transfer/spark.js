@@ -87,7 +87,7 @@ const losdCall = (query, callback) => {
 }
 
 // const getNetMembersLinks = (netid, callback) => {
-const getNetMembersLinks = (netid) => {
+const getNetMembersLinks = (netid, call = console.log) => {
   const qmembers = `SELECT DISTINCT ?p ?n WHERE {
     ?s po:snapshotID '${netid}' .
     ?p a po:Participant .
@@ -104,7 +104,7 @@ const getNetMembersLinks = (netid) => {
   }`
   losdCall(qmembers, (members) => {
     losdCall(qfriendships, (friendships) => {
-      console.log({ members, friendships })
+      call({ members, friendships })
     })
   })
 }

@@ -4,9 +4,9 @@ console.log('inside fb to scrape man')
 // })
 
 
-var hitsCounterThreshold = 10; //Recommended:10
-var initDelayInMilliseconds = 5000; //Recommended:5000
-var scrollDelayInMilliSeconds = 1000; //Recommended:1000
+var hitsCounterThreshold = 3; //Recommended:10
+var initDelayInMilliseconds = 2000; //Recommended:5000
+var scrollDelayInMilliSeconds = 500; //Recommended:1000
 var scrollMagnitude = 1000; //Recommended:1000
 
 function scrollTillEnd(call = () => console.log('scrolling complete')) {
@@ -22,7 +22,6 @@ function scrollTillEnd(call = () => console.log('scrolling complete')) {
                 clearInterval(time);
                 console.log('finished scrolling')
                 call()
-                // closeCurrentTab();
             }
         }
         else {
@@ -32,26 +31,26 @@ function scrollTillEnd(call = () => console.log('scrolling complete')) {
 }
 
 function getElementsByXPath(xpath, parent) {
-    let results = [];
-    let query = document.evaluate(xpath, parent || document,
+    var results = [];
+    var query = document.evaluate(xpath, parent || document,
         null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
-    for (let i = 0, length = query.snapshotLength; i < length; ++i) {
+    for (var i = 0, length = query.snapshotLength; i < length; ++i) {
         results.push(query.snapshotItem(i));
     }
     return results;
 }
 
-let startup = () => {
-  let membername = getElementsByXPath('//*/h1').map(i => i.innerText)[0]
-  let parts = membername.match(/[^\r\n]+/g)
-  let name = parts[0]
-  let codename = undefined
+function startupOk() {
+  var membername = getElementsByXPath('//*/h1').map(i => i.innerText)[0]
+  var parts = membername.match(/[^\r\n]+/g)
+  var name = parts[0]
+  var codename = undefined
   if (parts.length > 1) {
     codename = parts[1]
   }
   // get potential id of the entity, if user page is loaded is ok:
-  let path = window.location.pathname
-  let potentialId = path.split('/')[1]
+  var path = window.location.pathname
+  var potentialId = path.split('/')[1]
   return {
     url: `${window.location.origin}/${potentialId}`,
     id: potentialId,
@@ -60,22 +59,59 @@ let startup = () => {
   }
 }
 
-let getFriendsProfiles = () => {
+chrome.runtime.onMessage.addListener(
+    function (request, sender, sendResponse) {
+        if (request.message === "clicked_browser_action") {
+            // var firstHref = $("a[href^='http']").eq(0).attr("href");
+            let url = window.location.href
+            chrome.runtime.sendMessage({ message: 'open_new_tab', url, all_profiles: [] });
+        }
+    }
+);
+
+chrome.runtime.onMessage.addListener(
+    function (request, sender, sendResponse) {
+        if (request.message === "opened_new_tab") {
+          console.log(request.all_profiles, 'ALL PROFs')
+          window.all_profiles = request.all_profiles
+          scrape(request.all_profiles)
+        }
+    }
+);
+
+function getFriendsProfiles (profiles) {
   setTimeout(() => {
+  // window.open(url,'_self')
+  // chrome.runtime.sendMessage({ "message": "open_new_tab", "url": url })
     scrollTillEnd(() => {
       // parse HTML to get profiles:
-      let profiles = htmlToFriendsProfiles()
-      console.log('profiles', profiles)
+      var startData = startupOk()
+      console.log(startData, 'HAAAA')
+      var profiles_ = htmlToFriendsProfiles()
+      var url = `${profiles_[0].url}/friends_mutual`
+      profiles.push(...profiles_)
+      console.log('profiles', profiles, url)
+      window.profs = profiles
+      // window.open(url,'_self')
+      // chrome.runtime.sendMessage({ "message": "open_new_tab", "url": url })
+      closeCurrentTab(profiles)
+      chrome.runtime.sendMessage({ "message": "open_new_tab", "url": url, profiles });
+      console.log(startData, 'HOOO')
     })
   }, initDelayInMilliseconds);
 }
 
-let htmlToFriendsProfiles = () => {
-  let exp2 = getElementsByXPath('//*/body/div[2]/div[1]/div[1]/div[1]/div[3]/div[1]/div[1]/div[1]/div[1]/div[1]/div[1]/div[4]/div[1]/div[1]/div[1]/div[1]/div[1]/div[3]/div')
+function closeCurrentTab(profiles) {
+    console.log('Tab termination message issued.')
+    chrome.runtime.sendMessage({ message: 'close_current_tab', profiles });
+}
+
+function htmlToFriendsProfiles () {
+  var exp2 = getElementsByXPath('//*/body/div[2]/div[1]/div[1]/div[1]/div[3]/div[1]/div[1]/div[1]/div[1]/div[1]/div[1]/div[4]/div[1]/div[1]/div[1]/div[1]/div[1]/div[3]/div')
   // get names (always), ids (if available), mutual friends (if available):
-  let names = exp2.map(e => e.childNodes[1].childNodes[0].innerText)
+  var names = exp2.map(e => e.childNodes[1].childNodes[0].innerText)
   // mutual friends, perfectly (undefined if not given):
-  let mutual = exp2.map(e => {
+  var mutual = exp2.map(e => {
     const c = e.childNodes[1]
     if (c.childNodes.length < 2) {
       return undefined
@@ -87,9 +123,9 @@ let htmlToFriendsProfiles = () => {
     return parseInt(num)
   })
   // url to iterate and to get ids, perfectly (undefined for inactive users):
-  let member_urls = exp2.map(e => e.childNodes[1].childNodes[0].childNodes[0].href)
+  var member_urls = exp2.map(e => e.childNodes[1].childNodes[0].childNodes[0].href)
 
-  let iids = member_urls.map((i, ii) => {
+  var iids = member_urls.map((i, ii) => {
     if (i === undefined) {
       return {
         idType: undefined,
@@ -129,7 +165,7 @@ let htmlToFriendsProfiles = () => {
   return iids
 }
 
-let scrape = () => {
+function scrape (profiles) {
   // starts with the profile page of the seed, preferentially / typically the user
   // get name and id
   // enter and scrape friends page
@@ -141,13 +177,7 @@ let scrape = () => {
   //    if not friends_mutual:
   //        may wish to keep track of ppl with are not friends with the seed
   //        to iterate and get friends
-  let startData = startup()
-  console.log(startData, 'HOOO')
-  let url = `${startData.url}/friends_mutual`
-  // window.open(url,'_self')
-  // chrome.runtime.sendMessage({ "message": "open_new_tab", "url": url })
-  let seedProfiles = getFriendsProfiles()
-  console.log(startData, 'HAAAA')
+  var seedProfiles = getFriendsProfiles(profiles)
   if (true) {
     return
   }
@@ -169,3 +199,5 @@ let scrape = () => {
     profiles, // list of dicts with {id, numericId, stringId, name, profilePage, mutualFriends
   }
 }
+
+// scrape()

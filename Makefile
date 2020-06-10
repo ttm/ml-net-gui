@@ -59,6 +59,12 @@ va-test:
 va-test_:
 	cd visual_analytics && npm run test_
 
+va-ext-zip:
+	cd visual_analytics && npm run buildExt && zip -vr hydraOA.zip extension/
+
+va-ext-build:
+	cd visual_analytics && npm run buildExt
+
 # testing of the client code must be performed on the client. The /test page should be accessed,
 # e.g. https://0.0.0.0:8080/test/
 

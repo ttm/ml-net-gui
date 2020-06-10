@@ -1,3 +1,5 @@
+/* global chrome, alert, XPathResult */
+
 // fixme: send data to mongo from the extension
 //        make a better description of the extension data
 //        better naming on manifest.json
@@ -11,6 +13,7 @@
 //        allow for input info directly, may ask to human -> computer
 //        allow scrapping the page of a single person here and there to yield net
 //        open 3 taps to adjust the follosing values for scrolling:
+
 const hitsCounterThreshold = 3 // Recommended:10
 const initDelayInMilliseconds = 2000 // Recommended:5000
 const scrollDelayInMilliSeconds = 500 // Recommended:1000
@@ -20,11 +23,11 @@ const emailAddress = 'renato.fabbri@gmail.com'
 const scrollTillEnd = (call = () => console.log('scrolling complete')) => {
   let x = 1; let y = -1
   let hitsCounter = 0
-  time = setInterval(function () {
+  const time = setInterval(function () {
     x = document.documentElement.scrollTop
     document.documentElement.scrollTop += scrollMagnitude
     y = document.documentElement.scrollTop
-    if (x == y) {
+    if (x === y) {
       hitsCounter += 1
       if (hitsCounter > hitsCounterThreshold) {
         clearInterval(time)
@@ -37,11 +40,11 @@ const scrollTillEnd = (call = () => console.log('scrolling complete')) => {
   }, scrollDelayInMilliSeconds)
 }
 
-const  getElementsByXPath = (xpath, parent) => {
+const getElementsByXPath = (xpath, parent) => {
   const results = []
   const query = document.evaluate(xpath, parent || document,
     null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null)
-  for (var i = 0, length = query.snapshotLength; i < length; ++i) {
+  for (let i = 0, length = query.snapshotLength; i < length; ++i) {
     results.push(query.snapshotItem(i))
   }
   return results
@@ -51,7 +54,7 @@ const getUserPageData = () => {
   const membername = getElementsByXPath('//*/h1').map(i => i.innerText)[0]
   let parts = membername.match(/[^\r\n]+/g)
   const name = parts[0]
-  let codename = undefined
+  let codename
   if (parts.length > 1) {
     codename = parts[1]
   }
@@ -79,14 +82,14 @@ const getUserPageData = () => {
   }
 }
 
-const getSeedFriendsUrl = () => {
-  const ud = getUserPageData()
-  if (ud.numeric) {
-    return `${ud.url}&sk=friends`
-  } else {
-    return `${ud.url}/friends`
-  }
-}
+// const getSeedFriendsUrl = () => {
+//   const ud = getUserPageData()
+//   if (ud.numeric) {
+//     return `${ud.url}&sk=friends`
+//   } else {
+//     return `${ud.url}/friends`
+//   }
+// }
 
 const htmlToFriendsProfiles = () => {
   const exp2 = getElementsByXPath('//*/body/div[2]/div[1]/div[1]/div[1]/div[3]/div[1]/div[1]/div[1]/div[1]/div[1]/div[1]/div[4]/div[1]/div[1]/div[1]/div[1]/div[1]/div[3]/div')
@@ -105,9 +108,9 @@ const htmlToFriendsProfiles = () => {
     return parseInt(num)
   })
   // url to iterate and to get ids, perfectly (undefined for inactive users):
-  const member_urls = exp2.map(e => e.childNodes[1].childNodes[0].childNodes[0].href)
+  const memberUrls = exp2.map(e => e.childNodes[1].childNodes[0].childNodes[0].href)
 
-  const iids = member_urls.map((i, ii) => {
+  const iids = memberUrls.map((i, ii) => {
     if (i === undefined) {
       return {
         idType: undefined,

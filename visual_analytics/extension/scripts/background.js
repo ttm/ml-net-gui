@@ -1,7 +1,8 @@
+/* global chrome */
+
 // fixme: come with a strategy for dealing with users with both string and numeric ids
 const Graph = require('graphology')
 
-let scrappedData
 let counter
 let graph
 let anonString
@@ -19,7 +20,7 @@ const getMutualFriendsURL = (profile) => {
 const addNode = (profile) => {
   const i = profile
   let id = i.id
-  if (id == undefined) {
+  if (id === undefined) {
     id = anonString + anonCount++
   }
   if (!graph.hasNode(id)) {
@@ -85,7 +86,7 @@ chrome.runtime.onMessage.addListener(
           })
         } else {
           chrome.tabs.getSelected(null, function (tab) {
-            chrome.tabs.remove(tab.id);
+            chrome.tabs.remove(tab.id)
             chrome.tabs.create({ url: getMutualFriendsURL(profile) }, function (tab) {
               chrome.tabs.executeScript(tab.id, { file: 'scripts/fb_scrape.js' }, function () {
                 chrome.tabs.sendMessage(tab.id, { message: 'opened_new_tab' })

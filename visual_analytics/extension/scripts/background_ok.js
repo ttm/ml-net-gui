@@ -1,8 +1,9 @@
 (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
+/* global chrome */
+
 // fixme: come with a strategy for dealing with users with both string and numeric ids
 const Graph = require('graphology')
 
-let scrappedData
 let counter
 let graph
 let anonString
@@ -20,7 +21,7 @@ const getMutualFriendsURL = (profile) => {
 const addNode = (profile) => {
   const i = profile
   let id = i.id
-  if (id == undefined) {
+  if (id === undefined) {
     id = anonString + anonCount++
   }
   if (!graph.hasNode(id)) {
@@ -86,7 +87,7 @@ chrome.runtime.onMessage.addListener(
           })
         } else {
           chrome.tabs.getSelected(null, function (tab) {
-            chrome.tabs.remove(tab.id);
+            chrome.tabs.remove(tab.id)
             chrome.tabs.create({ url: getMutualFriendsURL(profile) }, function (tab) {
               chrome.tabs.executeScript(tab.id, { file: 'scripts/fb_scrape.js' }, function () {
                 chrome.tabs.sendMessage(tab.id, { message: 'opened_new_tab' })

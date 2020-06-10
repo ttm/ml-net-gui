@@ -89,7 +89,7 @@ function htmlToFriendsProfiles () {
     const numericId = last.match(/^profile.php\?id=(.*)/)
     if (numericId && /^\d+$/.test(numericId[1])) {
       return {
-        idType: Number,
+        idType: 'number',
         id: numericId[1],
         stringId: undefined,
         numericId: numericId[1],
@@ -99,7 +99,7 @@ function htmlToFriendsProfiles () {
       }
     } else {
       return {
-        idType: String,
+        idType: 'string',
         id: last,
         stringId: last,
         numericId: undefined,

@@ -11,15 +11,15 @@
 //        allow for input info directly, may ask to human -> computer
 //        allow scrapping the page of a single person here and there to yield net
 //        open 3 taps to adjust the follosing values for scrolling:
-var hitsCounterThreshold = 3 // Recommended:10
-var initDelayInMilliseconds = 2000 // Recommended:5000
-var scrollDelayInMilliSeconds = 500 // Recommended:1000
-var scrollMagnitude = 1000 // Recommended:1000
-var emailAddress = 'renato.fabbri@gmail.com'
+const hitsCounterThreshold = 3 // Recommended:10
+const initDelayInMilliseconds = 2000 // Recommended:5000
+const scrollDelayInMilliSeconds = 500 // Recommended:1000
+const scrollMagnitude = 1000 // Recommended:1000
+const emailAddress = 'renato.fabbri@gmail.com'
 
-function scrollTillEnd (call = () => console.log('scrolling complete')) {
-  var x = 1; var y = -1
-  var hitsCounter = 0
+const scrollTillEnd = (call = () => console.log('scrolling complete')) => {
+  let x = 1; let y = -1
+  let hitsCounter = 0
   time = setInterval(function () {
     x = document.documentElement.scrollTop
     document.documentElement.scrollTop += scrollMagnitude
@@ -37,9 +37,9 @@ function scrollTillEnd (call = () => console.log('scrolling complete')) {
   }, scrollDelayInMilliSeconds)
 }
 
-function getElementsByXPath (xpath, parent) {
-  var results = []
-  var query = document.evaluate(xpath, parent || document,
+const  getElementsByXPath = (xpath, parent) => {
+  const results = []
+  const query = document.evaluate(xpath, parent || document,
     null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null)
   for (var i = 0, length = query.snapshotLength; i < length; ++i) {
     results.push(query.snapshotItem(i))
@@ -47,19 +47,19 @@ function getElementsByXPath (xpath, parent) {
   return results
 }
 
-function getUserPageData () {
-  var membername = getElementsByXPath('//*/h1').map(i => i.innerText)[0]
-  var parts = membername.match(/[^\r\n]+/g)
-  var name = parts[0]
-  var codename = undefined
+const getUserPageData = () => {
+  const membername = getElementsByXPath('//*/h1').map(i => i.innerText)[0]
+  let parts = membername.match(/[^\r\n]+/g)
+  const name = parts[0]
+  let codename = undefined
   if (parts.length > 1) {
     codename = parts[1]
   }
   // get potential id of the entity, if user page is loaded is ok:
-  var path = window.location.href
-  const parts_ = path.split('/')
-  const ind = parts_.indexOf('www.facebook.com')
-  const last = parts_[ind + 1]
+  const path = window.location.href
+  parts = path.split('/')
+  const ind = parts.indexOf('www.facebook.com')
+  const last = parts[ind + 1]
   const numericId = last.match(/^profile.php\?id=(\d+)/)
   let numeric
   let id
@@ -88,12 +88,12 @@ const getSeedFriendsUrl = () => {
   }
 }
 
-function htmlToFriendsProfiles () {
-  var exp2 = getElementsByXPath('//*/body/div[2]/div[1]/div[1]/div[1]/div[3]/div[1]/div[1]/div[1]/div[1]/div[1]/div[1]/div[4]/div[1]/div[1]/div[1]/div[1]/div[1]/div[3]/div')
+const htmlToFriendsProfiles = () => {
+  const exp2 = getElementsByXPath('//*/body/div[2]/div[1]/div[1]/div[1]/div[3]/div[1]/div[1]/div[1]/div[1]/div[1]/div[1]/div[4]/div[1]/div[1]/div[1]/div[1]/div[1]/div[3]/div')
   // get names (always), ids (if available), mutual friends (if available):
-  var names = exp2.map(e => e.childNodes[1].childNodes[0].innerText)
+  const names = exp2.map(e => e.childNodes[1].childNodes[0].innerText)
   // mutual friends, perfectly (undefined if not given):
-  var mutual = exp2.map(e => {
+  const mutual = exp2.map(e => {
     const c = e.childNodes[1]
     if (c.childNodes.length < 2) {
       return undefined
@@ -105,9 +105,9 @@ function htmlToFriendsProfiles () {
     return parseInt(num)
   })
   // url to iterate and to get ids, perfectly (undefined for inactive users):
-  var member_urls = exp2.map(e => e.childNodes[1].childNodes[0].childNodes[0].href)
+  const member_urls = exp2.map(e => e.childNodes[1].childNodes[0].childNodes[0].href)
 
-  var iids = member_urls.map((i, ii) => {
+  const iids = member_urls.map((i, ii) => {
     if (i === undefined) {
       return {
         idType: undefined,
@@ -147,11 +147,11 @@ function htmlToFriendsProfiles () {
   return iids
 }
 
-function scrape () {
+const scrape = () => {
   setTimeout(() => {
-    var pageUserData = getUserPageData()
+    const pageUserData = getUserPageData()
     scrollTillEnd(() => {
-      var profiles = htmlToFriendsProfiles()
+      const profiles = htmlToFriendsProfiles()
       chrome.runtime.sendMessage({ message: 'open_new_tab', pageUserData, profiles })
     })
   }, initDelayInMilliseconds)

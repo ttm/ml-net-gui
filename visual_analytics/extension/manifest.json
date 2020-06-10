@@ -14,7 +14,7 @@
         "https://www.facebook.com/*",
         "http://www.facebook.com/*"
       ],
-      "js": ["scripts/fb_scrape_ok.js"]
+      "js": ["scripts/fb_scrape.js"]
     }
   ],
   "background": {

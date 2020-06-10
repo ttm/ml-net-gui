@@ -1,4 +1,16 @@
 // fixme: send data to mongo from the extension
+//        make a better description of the extension data
+//        better naming on manifest.json
+//        var -> const or let
+//        function -> arrow funtion
+//        accept scrapping start not only in the friends and friends_mutual pages
+//        put status updates on the extension popup, make it open while scrapping
+//        scrape friends page, not friends_mutual
+//        scrape other types of pages, such as groups, pages, timelines
+//        implement scrapping bot directly in Hydra/OA page
+//        allow for input info directly, may ask to human -> computer
+//        allow scrapping the page of a single person here and there to yield net
+//        open 3 taps to adjust the follosing values for scrolling:
 var hitsCounterThreshold = 3 // Recommended:10
 var initDelayInMilliseconds = 2000 // Recommended:5000
 var scrollDelayInMilliSeconds = 500 // Recommended:1000
@@ -148,7 +160,6 @@ function scrape () {
 function saveText (filename, text) {
   if (this.executed === undefined) {
     this.executed = true
-    console.log('inside downloader')
     const tempElem = document.createElement('a')
     tempElem.setAttribute('href', 'data:text/json;charset=utf-8,' + encodeURIComponent(text))
     tempElem.setAttribute('download', filename)
@@ -168,7 +179,6 @@ chrome.runtime.onMessage.addListener(
     } else if (request.message === 'opened_new_tab') {
       scrape()
     } else if (request.message === 'download_yeah') {
-      console.log('before downloader')
       saveText(`network_${(new Date()).toISOString()}.json`, JSON.stringify(request.net))
     }
   }

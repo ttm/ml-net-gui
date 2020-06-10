@@ -69,7 +69,6 @@ chrome.runtime.onMessage.addListener(
           //     return a
           //   })
           // }
-          console.log('request profiles for', request.pageUserData.name, ':', request.profiles, counter)
           request.profiles.forEach(i => {
             const id = addNode(i)
             if (!graph.hasEdge(request.pageUserData.id, id)) {
@@ -78,21 +77,18 @@ chrome.runtime.onMessage.addListener(
           })
         }
         let profile
-        console.log('profiles, counter:', seed.profiles, counter)
         do {
           profile = seed.profiles[counter++]
         } while ((profile === undefined || profile.url === undefined) && counter < seed.profiles.length)
         if (profile === undefined) {
-          console.log('finished scrapping iteration')
           chrome.tabs.getSelected(null, function (tab) {
             chrome.tabs.sendMessage(tab.id, { message: 'download_yeah', net: graph.toJSON() })
           })
         } else {
           chrome.tabs.getSelected(null, function (tab) {
             chrome.tabs.remove(tab.id);
-            console.log('profile, url:', profile, getMutualFriendsURL(profile))
             chrome.tabs.create({ url: getMutualFriendsURL(profile) }, function (tab) {
-              chrome.tabs.executeScript(tab.id, { file: 'scripts/fb_scrape_ok.js' }, function () {
+              chrome.tabs.executeScript(tab.id, { file: 'scripts/fb_scrape.js' }, function () {
                 chrome.tabs.sendMessage(tab.id, { message: 'opened_new_tab' })
               })
             })
@@ -100,7 +96,7 @@ chrome.runtime.onMessage.addListener(
         }
       } else { // just clicked, first page to scrape
         chrome.tabs.create({ url: request.url }, function (tab) {
-          chrome.tabs.executeScript(tab.id, { file: 'scripts/fb_scrape_ok.js' }, function () {
+          chrome.tabs.executeScript(tab.id, { file: 'scripts/fb_scrape.js' }, function () {
             chrome.tabs.sendMessage(tab.id, { message: 'opened_new_tab' })
           })
         })

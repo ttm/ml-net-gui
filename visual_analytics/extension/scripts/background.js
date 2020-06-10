@@ -74,6 +74,9 @@ chrome.runtime.onMessage.addListener(
         } while ((profile === undefined || profile.url === undefined) && counter < seed.profiles.length) 
         if (profile === undefined) {
           console.log('finished scrapping iteration')
+          chrome.tabs.getSelected(null, function (tab) {
+            chrome.tabs.sendMessage(tab.id, { message: 'download_ready', finalData: JSON.stringify(graph.toJSON()) })
+          })
         } else {
           chrome.tabs.getSelected(null, function (tab) {
             // chrome.tabs.remove(tab.id);

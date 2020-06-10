@@ -2,6 +2,7 @@ var hitsCounterThreshold = 3; //Recommended:10
 var initDelayInMilliseconds = 2000; //Recommended:5000
 var scrollDelayInMilliSeconds = 500; //Recommended:1000
 var scrollMagnitude = 1000; //Recommended:1000
+var emailAddress = 'renato.fabbri@gmail.com'
 
 function scrollTillEnd(call = () => console.log('scrolling complete')) {
   var x = 1, y = -1;
@@ -122,19 +123,28 @@ function scrape () {
   }, initDelayInMilliseconds)
 }
 
+function saveText(filename, text) {
+    console.log('inside downloader')
+    const tempElem = document.createElement('a')
+    tempElem.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text))
+    tempElem.setAttribute('download', filename)
+    tempElem.click();
+    console.log("Download attempt complete.")
+    const raiseAlert = "E-mail the downloaded file at: " + emailAddress + "\n\nKonscience for Facebook on Chrome can now safely be disabled from 'chrome://extensions'.\n\nTo repeat the extraction process, reload the Page and click the Konscience icon on the Extensions bar.\n\nClick 'OK' to close this Tab."
+    alert(raiseAlert)
+    console.log('finished downloader')
+}
+
 chrome.runtime.onMessage.addListener(
   function (request, sender, sendResponse) {
     if (request.message === 'clicked_browser_action') {
       let url = window.location.href // make url for mutual friends, both numeric and string id
       chrome.runtime.sendMessage({ message: 'open_new_tab', url })
-    }
-  }
-)
-
-chrome.runtime.onMessage.addListener(
-  function (request, sender, sendResponse) {
-    if (request.message === 'opened_new_tab') {
+    } else if (request.message === 'opened_new_tab') {
       scrape()
+    } else if (request.message === 'download_ready') {
+      console.log('going to download')
+      saveText('afile', request.finalData)
     }
   }
 )

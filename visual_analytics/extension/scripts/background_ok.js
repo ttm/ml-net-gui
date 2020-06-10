@@ -1,6 +1,7 @@
 (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
 // fixme: come with a strategy for dealing with users with both string and numeric ids
 const Graph = require('graphology')
+
 let scrappedData
 let counter
 let graph
@@ -24,13 +25,13 @@ const addNode = (profile) => {
   }
   if (!graph.hasNode(id)) {
     graph.addNode(id, {
-       idType: i.idType,
-       id: i.id,
-       stringId: i.stringId,
-       numericId: i.numericId,
-       url: i.url,
-       name: i.name,
-       mutual: i.mutual
+      idType: i.idType,
+      id: i.id,
+      stringId: i.stringId,
+      numericId: i.numericId,
+      url: i.url,
+      name: i.name,
+      mutual: i.mutual
     })
   }
   return id
@@ -72,17 +73,17 @@ chrome.runtime.onMessage.addListener(
         console.log(seed.profiles, counter)
         do {
           profile = seed.profiles[counter++]
-        } while ((profile === undefined || profile.url === undefined) && counter < seed.profiles.length) 
+        } while ((profile === undefined || profile.url === undefined) && counter < seed.profiles.length)
         if (profile === undefined) {
           console.log('finished scrapping iteration')
           chrome.tabs.getSelected(null, function (tab) {
-            chrome.tabs.sendMessage(tab.id, { message: 'download_ready', finalData: JSON.stringify(graph.toJSON()) })
+            chrome.tabs.sendMessage(tab.id, { message: 'download_yeah', net: graph.toJSON() })
           })
         } else {
           chrome.tabs.getSelected(null, function (tab) {
             // chrome.tabs.remove(tab.id);
             chrome.tabs.create({ url: getMutualFriendsURL(profile) }, function (tab) {
-              chrome.tabs.executeScript(tab.id, { file: 'scripts/fb_scrape.js' }, function () {
+              chrome.tabs.executeScript(tab.id, { file: 'scripts/fb_scrape_ok.js' }, function () {
                 chrome.tabs.sendMessage(tab.id, { message: 'opened_new_tab' })
               })
             })
@@ -90,7 +91,7 @@ chrome.runtime.onMessage.addListener(
         }
       } else { // just clicked, first page to scrape
         chrome.tabs.create({ url: request.url }, function (tab) {
-          chrome.tabs.executeScript(tab.id, { file: 'scripts/fb_scrape.js' }, function () {
+          chrome.tabs.executeScript(tab.id, { file: 'scripts/fb_scrape_ok.js' }, function () {
             chrome.tabs.sendMessage(tab.id, { message: 'opened_new_tab' })
           })
         })

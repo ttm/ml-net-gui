@@ -5,7 +5,7 @@ const client = s.Stitch.initializeDefaultAppClient(auth.app)
 const db = client.getServiceClient(s.RemoteMongoClient.factory, auth.cluster).db(auth.db)
 
 // usage:
-// db.collection(mong.auth.collections.test).insertOne({AAAA: 'llll'})
+// mong.db.collection(mong.auth.collections.test).insertOne({AAAA: 'llll'})
 // db.collection(collectionName).updateOne({ owner_id: client.auth.user.id }, { $set: { number: 40 } }, { upsert: true })
 // db.collection(collectionName).find({ owner_id: client.auth.user.id }, { limit: 100 }).asArray()
 //

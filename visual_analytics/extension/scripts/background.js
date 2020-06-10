@@ -30,6 +30,7 @@ const addNode = (profile) => {
       numericId: i.numericId,
       url: i.url,
       name: i.name,
+      codename: undefined,
       mutual: i.mutual
     })
   }
@@ -61,6 +62,13 @@ chrome.runtime.onMessage.addListener(
             addNode(i)
           })
         } else { // iterating
+          // if (request.pageUserData.codename !== undefined) {
+          //   graph.updateNodeAttribute(request.pageUserData.id, a => {
+          //     a.codename = request.pageUserData.codename
+          //     return a
+          //   })
+          // }
+          console.log('request profiles for', request.pageUserData.name, ':', request.profiles, counter)
           request.profiles.forEach(i => {
             const id = addNode(i)
             if (!graph.hasEdge(request.pageUserData.id, id)) {
@@ -69,7 +77,7 @@ chrome.runtime.onMessage.addListener(
           })
         }
         let profile
-        console.log(seed.profiles, counter)
+        console.log('profiles, counter:', seed.profiles, counter)
         do {
           profile = seed.profiles[counter++]
         } while ((profile === undefined || profile.url === undefined) && counter < seed.profiles.length)
@@ -80,7 +88,8 @@ chrome.runtime.onMessage.addListener(
           })
         } else {
           chrome.tabs.getSelected(null, function (tab) {
-            // chrome.tabs.remove(tab.id);
+            chrome.tabs.remove(tab.id);
+            console.log('profile, url:', profile, getMutualFriendsURL(profile))
             chrome.tabs.create({ url: getMutualFriendsURL(profile) }, function (tab) {
               chrome.tabs.executeScript(tab.id, { file: 'scripts/fb_scrape_ok.js' }, function () {
                 chrome.tabs.sendMessage(tab.id, { message: 'opened_new_tab' })

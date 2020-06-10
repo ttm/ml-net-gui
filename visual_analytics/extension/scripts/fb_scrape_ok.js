@@ -45,13 +45,35 @@ function getUserPageData () {
     codename = parts[1]
   }
   // get potential id of the entity, if user page is loaded is ok:
-  var path = window.location.pathname
-  var potentialId = path.split('/')[1]
+  var path = window.location.href
+  const parts_ = path.split('/')
+  const ind = parts_.indexOf('www.facebook.com')
+  const last = parts_[ind + 1]
+  const numericId = last.match(/^profile.php\?id=(\d+)/)
+  let numeric
+  let id
+  if (numericId && /^\d+$/.test(numericId[1])) {
+    numeric = true
+    id = numericId[1]
+  } else {
+    numeric = false
+    id = last
+  }
   return {
-    url: `${window.location.origin}/${potentialId}`,
-    id: potentialId,
+    url: `${window.location.origin}/${last}`,
+    id: id,
     name,
-    codename
+    codename,
+    numeric: numeric
+  }
+}
+
+const getSeedFriendsUrl = () => {
+  const ud = getUserPageData()
+  if (ud.numeric) {
+    return `${ud.url}&sk=friends`
+  } else {
+    return `${ud.url}/friends`
   }
 }
 
@@ -88,7 +110,7 @@ function htmlToFriendsProfiles () {
     }
     const parts = i.split('/')
     const last = parts[parts.length - 1]
-    const numericId = last.match(/^profile.php\?id=(.*)/)
+    const numericId = last.match(/^profile.php\?id=(\d+)/)
     if (numericId && /^\d+$/.test(numericId[1])) {
       return {
         idType: 'number',
@@ -142,12 +164,13 @@ chrome.runtime.onMessage.addListener(
   function (request, sender, sendResponse) {
     if (request.message === 'clicked_browser_action') {
       const url = window.location.href // make url for mutual friends, both numeric and string id
+      // chrome.runtime.sendMessage({ message: 'open_new_tab', url: getSeedFriendsUrl() })
       chrome.runtime.sendMessage({ message: 'open_new_tab', url })
     } else if (request.message === 'opened_new_tab') {
       scrape()
     } else if (request.message === 'download_yeah') {
       console.log('before downloader')
-      saveText(`network_${(new Date()).toISOString()}`, JSON.stringify(request.net))
+      saveText(`network_${(new Date()).toISOString()}.json`, JSON.stringify(request.net))
     }
   }
 )

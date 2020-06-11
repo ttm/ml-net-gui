@@ -14,9 +14,9 @@
 //        allow scrapping the page of a single person here and there to yield net
 //        open 3 taps to adjust the follosing values for scrolling:
 
-const hitsCounterThreshold = 3 // Recommended:10
-const initDelayInMilliseconds = 2000 // Recommended:5000
-const scrollDelayInMilliSeconds = 500 // Recommended:1000
+const hitsCounterThreshold = 10 // Recommended:10
+const initDelayInMilliseconds = 3000 // Recommended:5000
+const scrollDelayInMilliSeconds = 1000 // Recommended:1000
 const scrollMagnitude = 1000 // Recommended:1000
 const emailAddress = 'renato.fabbri@gmail.com'
 

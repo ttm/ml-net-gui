@@ -1,19 +1,28 @@
 /* global chrome, alert, XPathResult */
 
-// fixme: send data to mongo from the extension
-//        make a better description of the extension data
-//        better naming on manifest.json
-//        var -> const or let
-//        function -> arrow funtion
-//        accept scrapping start not only in the friends and friends_mutual pages
-//        put status updates on the extension popup, make it open while scrapping
-//        scrape friends page, not friends_mutual
-//        scrape other types of pages, such as groups, pages, timelines
-//        implement scrapping bot directly in Hydra/OA page
-//        allow for input info directly, may ask to human -> computer
-//        allow scrapping the page of a single person here and there to yield net
-//        open 3 taps to adjust the follosing values for scrolling:
-
+// fixme:
+//   send data to mongo from the extension
+//   make a better description of the extension data
+//   better naming on manifest.json
+//   var -> const or let
+//   function -> arrow funtion
+//   accept scrapping start not only in the friends and friends_mutual pages
+//   put status updates on the extension popup, make it open while scrapping
+//   scrape friends page, not friends_mutual
+//   scrape other types of pages, such as groups, pages, timelines
+//   implement scrapping bot directly in Hydra/OA page
+//   allow for input info directly, may ask to human -> computer
+//   allow scrapping the page of a single person here and there to yield net
+//   taking too long to scrape large networks, thus:
+//     use multiple tabs to scrape, background absorbs profiles from time to time
+//     keep track of profiles already scrapped to restart if a problem comes up
+//     get friends from FB API, then visit each friend's page
+//     don't close initial window because 4k friends takes long to load
+//     partial net download
+//     construct pieces (e.g. from a partial fetch of friends, or starting from a friend's mutual friends)
+//     output the html in case no friends were found, so we can parse it
+//     start/stop button in order to make net in days
+//   open 3 taps to adjust the follosing values for scrolling:
 const hitsCounterThreshold = 10 // Recommended:10
 const initDelayInMilliseconds = 3000 // Recommended:5000
 const scrollDelayInMilliSeconds = 1000 // Recommended:1000

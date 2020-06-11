@@ -178,7 +178,8 @@ chrome.runtime.onMessage.addListener(
     if (request.message === 'clicked_browser_action') {
       const url = window.location.href // make url for mutual friends, both numeric and string id
       // chrome.runtime.sendMessage({ message: 'open_new_tab', url: getSeedFriendsUrl() })
-      chrome.runtime.sendMessage({ message: 'open_new_tab', url })
+      // chrome.runtime.sendMessage({ message: 'open_new_tab', url })
+      scrape()
     } else if (request.message === 'opened_new_tab') {
       scrape()
     } else if (request.message === 'download_yeah') {

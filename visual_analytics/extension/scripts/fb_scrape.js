@@ -21,7 +21,7 @@
 //     output the html in case no friends were found, so we can parse it
 //     start/stop button in order to make net in days
 //   allow for popup (or automated test) page to adjust the follosing values for scrolling:
-const hitsCounterThreshold = 30 // Recommended:10
+const hitsCounterThreshold = 20 // Recommended:10
 const initDelayInMilliseconds = 1000 // Recommended:5000
 const scrollDelayInMilliSeconds = 300 // Recommended:1000
 const scrollMagnitude = 1000 // Recommended:1000
@@ -148,7 +148,7 @@ let htmlToFriendsProfilesClassic = () => {
     } else {
       stringId = link.match(/www.facebook.com\/(.+)\?/)
       if (stringId) {
-        stringId = stringId[0]
+        stringId = stringId[1]
         id = stringId
         idType = 'string'
         numericId = undefined

@@ -139,22 +139,22 @@ let htmlToFriendsProfilesClassic = () => {
       }
     }
     const link = c.firstChild.firstChild.href
-    numericId = link.match(/profile.php\?id=(\d+)/)
-    if (numericId) {
-      numericId = numericId[1]
-      id = numericId
-      idType = 'number'
-      url = `https://www.facebook.com/profile.php?id=${numericId}`
-    } else {
-      stringId = link.match(/www.facebook.com\/(.+)\?/)
-      if (stringId) {
-        stringId = stringId[1]
-        id = stringId
-        idType = 'string'
-        numericId = undefined
-        url = `https://www.facebook.com/${stringId}`
+    if (link.match(/_tab$/)) {
+      numericId = link.match(/profile.php\?id=(\d+)/)
+      if (numericId) {
+        numericId = numericId[1]
+        id = numericId
+        idType = 'number'
+        url = `https://www.facebook.com/profile.php?id=${numericId}`
       } else {
-        stringId = undefined
+        stringId = link.match(/www.facebook.com\/(.+)\?/)
+        if (stringId) {
+          stringId = stringId[1]
+          id = stringId
+          idType = 'string'
+          numericId = undefined
+          url = `https://www.facebook.com/${stringId}`
+        }
       }
     }
     // return { idType, id, stringId, numericId, name, mutual, url, nfriends}

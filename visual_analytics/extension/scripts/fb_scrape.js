@@ -146,11 +146,16 @@ let htmlToFriendsProfilesClassic = () => {
       idType = 'number'
       url = `https://www.facebook.com/profile.php?id=${numericId}`
     } else {
-      stringId = link.match(/www.facebook.com\/(.+)\?/)[1]
-      id = stringId
-      idType = 'string'
-      numericId = undefined
-      url = `https://www.facebook.com/${stringId}`
+      stringId = link.match(/www.facebook.com\/(.+)\?/)
+      if (stringId) {
+        stringId = stringId[0]
+        id = stringId
+        idType = 'string'
+        numericId = undefined
+        url = `https://www.facebook.com/${stringId}`
+      } else {
+        stringId = undefined
+      }
     }
     // return { idType, id, stringId, numericId, name, mutual, url, nfriends}
     return { idType, id, stringId, numericId, name, mutual, nfriends, url }

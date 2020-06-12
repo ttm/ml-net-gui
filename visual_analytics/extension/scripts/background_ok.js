@@ -33,7 +33,8 @@ const addNode = (profile) => {
       url: i.url,
       name: i.name,
       codename: undefined,
-      mutual: i.mutual
+      mutual: i.mutual,
+      nfriends: i.nfriends
     })
   }
   return id
@@ -64,12 +65,9 @@ chrome.runtime.onMessage.addListener(
             addNode(i)
           })
         } else { // iterating
-          // if (request.pageUserData.codename !== undefined) {
-          //   graph.updateNodeAttribute(request.pageUserData.id, a => {
-          //     a.codename = request.pageUserData.codename
-          //     return a
-          //   })
-          // }
+          if (request.pageUserData.codename !== undefined) {
+            graph.mergeNodeAttributes(request.pageUserData.id, { codename: request.pageUserData.codename })
+          }
           request.profiles.forEach(i => {
             const id = addNode(i)
             if (!graph.hasEdge(request.pageUserData.id, id)) {

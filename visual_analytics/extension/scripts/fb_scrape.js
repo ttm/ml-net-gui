@@ -124,7 +124,7 @@ const getUserPageData = () => {
 //   }
 // }
 
-let htmlToFriendsProfilesClassic = () => {
+const htmlToFriendsProfilesClassic = () => {
   return getElementsByXPath('//*/div[1]/ul/li/div[1]/div[1]/div[2]/div[1]/div[2]').map(c => {
     let mutual, idType, id, stringId, numericId, nfriends, url
     const name = c.firstChild.firstChild.innerText
@@ -162,7 +162,7 @@ let htmlToFriendsProfilesClassic = () => {
   })
 }
 
-let htmlToFriendsProfiles = () => {
+const htmlToFriendsProfiles = () => {
   return getElementsByXPath('//*/div[4]/div[1]/div[1]/div[1]/div[1]/div[1]/div[3]/div/div[2]').map(c => {
     let mutual, idType, id, stringId, numericId
     const name = c.childNodes[0].innerText
@@ -226,7 +226,7 @@ function saveText (filename, text) {
 chrome.runtime.onMessage.addListener(
   function (request, sender, sendResponse) {
     if (request.message === 'clicked_browser_action') {
-      const url = window.location.href // make url for mutual friends, both numeric and string id
+      // const url = window.location.href // make url for mutual friends, both numeric and string id
       scrape()
     } else if (request.message === 'opened_new_tab') {
       scrape()

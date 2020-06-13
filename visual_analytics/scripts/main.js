@@ -27,6 +27,7 @@ const routes = {
   'getNet3.html': test.testGetNet3,
   'mong.html': test.testMong,
   'netIO.html': test.testNetIO,
+  'gui.html': test.testGUI,
   'data_donated.html': () => console.log('a summary of the data donated in usage, upload and scrapping')
 }
 

@@ -24,6 +24,7 @@ const testPlot = () => {
 const testRotateLayouts = () => {
   const drawnNet = testPlot()
   conductor.use.rotateLayouts(drawnNet, artist.share.draw.base.app, artist)
+  transfer.gui.basicStats()
 }
 
 const testBlink = () => {
@@ -161,6 +162,18 @@ const testNetIO = () => {
 
 const testGUI = () => {
   transfer.gui.atest()
+  const statsui = transfer.gui.basicStats()
+  // statsui.executing = false // to stop monitoring.
+  // to start again:
+  // statsui.executing = true
+  // statsui.animate()
+  statsui.tasks.push(() => {
+    const ii = []
+    for (let i = 0; i < 1000000; i++) {
+      ii.push(i * 99)
+    }
+  })
+  return statsui
 }
 
 module.exports = { testPlot, testRotateLayouts, testBlink, testExibition1, testDiffusion, testMultilevelDiffusion, testMetaNetwork, testSparkMin, testSparkLosd, testMong, testGetNet0, testGetNet1, testGetNet2, testGetNet3, testNetIO, testGUI }

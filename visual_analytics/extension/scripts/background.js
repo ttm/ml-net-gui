@@ -64,15 +64,17 @@ chrome.runtime.onMessage.addListener(
             addNode(i)
           })
         } else { // iterating
-          if (request.pageUserData.codename !== undefined) {
-            graph.mergeNodeAttributes(request.pageUserData.id, { codename: request.pageUserData.codename })
-          }
-          request.profiles.forEach(i => {
-            const id = addNode(i)
-            if (!graph.hasEdge(request.pageUserData.id, id)) {
-              graph.addUndirectedEdge(request.pageUserData.id, id)
+          if (request.profiles) {
+            request.profiles.forEach(i => {
+              const id = addNode(i)
+              if (!graph.hasEdge(request.pageUserData.id, id)) {
+                graph.addUndirectedEdge(request.pageUserData.id, id)
+              }
+            })
+            if (request.pageUserData.codename !== undefined) {
+              graph.mergeNodeAttributes(request.pageUserData.id, { codename: request.pageUserData.codename })
             }
-          })
+          }
         }
         let profile
         do {

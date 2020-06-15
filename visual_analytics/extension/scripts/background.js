@@ -236,10 +236,7 @@ chrome.runtime.onMessage.addListener(
               graph.setAttribute('stringIds', stringIds)
               graph.setAttribute('numericIdsCount', numericIdsCount)
               graph.setAttribute('stringIdsCount', stringIdsCount)
-              graph.setAttribute('partialDownload', {
-                partial: true,
-                counts: { numericIdsCount, stringIdsCount }
-              })
+              graph.setAttribute('partialDownload', true)
               chrome.tabs.getSelected(null, function (tab) {
                 chrome.tabs.sendMessage(tab.id, { message: 'download_yeah', net: graph.toJSON(), partial: 'yes' })
               })

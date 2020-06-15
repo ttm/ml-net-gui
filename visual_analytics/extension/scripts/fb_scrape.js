@@ -77,9 +77,11 @@ const getUserPageDataClassic = () => {
   }
   if (!curUrl.match(/\?uid=(\d+)/)) {
     const h1elements = getElementsByXPath('//*/h1')
-    let h1el = h1elements[0]
-    if (h1elements.length > 1) {
-      h1el = h1elements[1]
+    let h1el
+    if (h1elements.length === 0) {
+      h1el = getElementsByXPath('//*/h2/div')[0]
+    } else {
+      h1el = h1elements.length > 1 ? h1elements[1] : h1elements[0]
     }
     membername = h1el.innerText
     const parts = membername.match(/[^\r\n]+/g)

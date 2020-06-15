@@ -158,69 +158,88 @@ const htmlToFriendsProfilesClassic = () => {
   let elements = getElementsByXPath('//*/div[4]/div[1]/div[1]/div[1]/div[1]/div[1]/div[3]/div/div[2]')
   // https://www.facebook.com/browse/mutual_friends/?uid=1537120300
   // https://www.facebook.com/browse/mutual_friends/?uid=100006942884068
+  //   https://www.facebook.com/browse/mutual_friends/?uid=100004051628084
+  //   https://www.facebook.com/profile.php?id=100004051628084&sk=friends_mutual
   //   https://www.facebook.com/profile.php?id=100006942884068&sk=friends_mutual
   //   https://www.facebook.com/profile.php?id=100006942884068&sk=friends_mutual
   //   https://www.facebook.com/alexandremagnovianasobreira.sobreira/friends_mutual
+  //   https://www.facebook.com/profile.php?id=100000652826936&sk=friends_mutual
+  //   https://www.facebook.com/browse/mutual_friends/?uid=100000652826936
   if (elements.length === 0) { // classic, not new fb
     elements = getElementsByXPath('//*/li/div[1]/div[1]/div[2]/div[1]/div[2]')
   }
   if (elements.length === 0) { // classic, not new fb
-    const msg = getElementsByXPath('//*/div[1]/div[2]/h2')[0].innerText
-    chrome.runtime.sendMessage({ message: 'open_new_tab', msg, fbblock: true, pageUserData: userScrapper() })
+    const els = getElementsByXPath('//*/div[1]/div[2]/h2')
+    if (els.length === 0) {
+      // issue new tab as usual
+      chrome.runtime.sendMessage({ message: 'open_new_tab', pageUserData: getUserPageDataClassic(), profiles: [] })
+    } else {
+      const msg = els[0].innerText
+      console.log('maybe block')
+      if (msg.split(' ').length > 3) {
+        console.log('issuing block')
+        chrome.runtime.sendMessage({ message: 'open_new_tab', msg, fbblock: 'yes', pageUserData: getUserPageDataClassic(), profiles: [] })
+      }
+    }
+    return 'dont'
   }
   return elements.map(c => {
     let mutual, idType, id, stringId, numericId, nfriends, url
     const name = c.children[0].innerText
-    const linkName = c.children[0].children[0].href
-    const numericMatch = linkName.match(/\?uid=(\d+)/) || linkName.match(/\/profile.php\?id=(\d+)/)
-    if (numericMatch) {
-      numericId = numericMatch[1]
-    } else {
-      // const stringMatch = linkName.match(/facebook.com\/([^\?\/]+)/)
-      const stringMatch = linkName.match(/facebook.com\/([^?/]+)/)
-      if (stringMatch) {
-        stringId = stringMatch[1]
-      }
-    }
-    if (c.children.length > 1) {
-      let linkFriends = c.children[1].href
-      if (!linkFriends) {
-        try {
-          linkFriends = c.children[1].children[0].children[0].children[0].children[0].href
-        } catch (err) {
-          console.log('one friend href not obtained')
-        }
-      }
-      console.log('HERE', c.childNodes[1])
-      window.ccc = c.childNodes[1]
-      if ((/^([.,\d]+)/).test(c.childNodes[1].innerText)) {
-        const num = c.childNodes[1].innerText.match(/^([.,\d]+)/)[1]
-        if ((/\?uid=(\d+)/).test(linkFriends)) {
-          numericId = linkFriends.match(/\?uid=(\d+)/)[1]
-          mutual = num
-        } else if ((/\/profile.php\?id=(\d+)/).test(linkFriends)) {
-          numericId = linkFriends.match(/\/profile.php\?id=(\d+)/)[1]
-          nfriends = num
-        } else if ((/\/friends_mutual$/).test(linkFriends)) {
-          stringId = linkFriends.match(/facebook.com\/(.*)\/friends_mutual$/)[1]
-          mutual = num
-        } else if ((/\/friends$/).test(linkFriends)) {
-          stringId = linkFriends.match(/facebook.com\/(.*)\/friends$/)[1]
-          nfriends = num
+    if (c.children[0].children[0]) {
+      const linkName = c.children[0].children[0].href
+      if (linkName) {
+        const numericMatch = linkName.match(/\?uid=(\d+)/) || linkName.match(/\/profile.php\?id=(\d+)/)
+        if (numericMatch) {
+          numericId = numericMatch[1]
         } else {
-          console.log(linkFriends)
-          throw new Error('friends link of a scrapped friend not understood')
+          // const stringMatch = linkName.match(/facebook.com\/([^\?\/]+)/)
+          const stringMatch = linkName.match(/facebook.com\/([^?/]+)/)
+          if (stringMatch) {
+            stringId = stringMatch[1]
+          }
         }
       }
-    }
-    if (stringId) {
-      id = stringId
-      idType = 'string'
-      url = `https://www.facebook.com/${stringId}`
-    } else {
-      id = numericId
-      idType = 'number'
-      url = `https://www.facebook.com/profile.php?id=${numericId}`
+      if (c.children.length > 1) {
+        let linkFriends = c.children[1].href
+        if (!linkFriends) {
+          try {
+            linkFriends = c.children[1].children[0].children[0].children[0].children[0].href
+          } catch (err) {
+            console.log('one friend href not obtained')
+          }
+        }
+        console.log('HERE', c.childNodes[1])
+        window.ccc = c.childNodes[1]
+        if ((/^([.,\d]+)/).test(c.childNodes[1].innerText)) {
+          const num = c.childNodes[1].innerText.match(/^([.,\d]+)/)[1]
+          if ((/\?uid=(\d+)/).test(linkFriends)) {
+            numericId = linkFriends.match(/\?uid=(\d+)/)[1]
+            mutual = num
+          } else if ((/\/profile.php\?id=(\d+)/).test(linkFriends)) {
+            numericId = linkFriends.match(/\/profile.php\?id=(\d+)/)[1]
+            nfriends = num
+          } else if ((/\/friends_mutual$/).test(linkFriends)) {
+            stringId = linkFriends.match(/facebook.com\/(.*)\/friends_mutual$/)[1]
+            mutual = num
+          } else if ((/\/friends$/).test(linkFriends)) {
+            stringId = linkFriends.match(/facebook.com\/(.*)\/friends$/)[1]
+            nfriends = num
+          } else {
+            console.log(linkFriends)
+            throw new Error('friends link of a scrapped friend not understood')
+          }
+        }
+      }
+      if (stringId) {
+        id = stringId
+        idType = 'string'
+        url = `https://www.facebook.com/${stringId}`
+      } else {
+        id = numericId
+        idType = 'number'
+        url = `https://www.facebook.com/profile.php?id=${numericId}`
+      }
     }
     return { idType, id, stringId, numericId, name, mutual, nfriends, url }
   })
@@ -257,8 +276,8 @@ const htmlToFriendsProfilesClassic = () => {
 //   })
 // }
 
-const scrapper = htmlToFriendsProfilesClassic
-const userScrapper = getUserPageDataClassic
+// const scrapper = htmlToFriendsProfilesClassic
+// const userScrapper = getUserPageDataClassic
 const scrape = () => {
   setTimeout(() => {
     // let pageUserData = userScrapper()
@@ -266,23 +285,29 @@ const scrape = () => {
       // let profiles = scrapper()
       // if (profiles.length === 0) {
       // userScrapper = getUserPageDataClassic
-      const pageUserData = userScrapper()
+      const pageUserData = getUserPageDataClassic()
       // scrapper = htmlToFriendsProfilesClassic
-      const profiles = scrapper()
+      const profiles = htmlToFriendsProfilesClassic()
       // }
-      chrome.runtime.sendMessage({ message: 'open_new_tab', pageUserData, profiles })
+      if (profiles !== 'dont') {
+        chrome.runtime.sendMessage({ message: 'open_new_tab', pageUserData, profiles })
+      }
     })
   }, initDelayInMilliseconds)
 }
 
-function saveText (filename, text) {
+function saveText (filename, text, partial) {
   if (this.executed === undefined) {
     this.executed = true
     const tempElem = document.createElement('a')
     tempElem.setAttribute('href', 'data:text/json;charset=utf-8,' + encodeURIComponent(text))
     tempElem.setAttribute('download', filename)
     tempElem.click()
-    console.log('Download attempt complete.')
+    let msg = 'Download attempt complete.'
+    if (partial) {
+      msg += ' IMPORTANT: downloaded only a part of your netwok, try downloading the full network in the "new facebook" interface.'
+    }
+    console.log(msg)
     const raiseAlert = 'E-mail the downloaded file to: ' + emailAddress
     alert(raiseAlert)
   }
@@ -296,7 +321,7 @@ chrome.runtime.onMessage.addListener(
     } else if (request.message === 'opened_new_tab') {
       scrape()
     } else if (request.message === 'download_yeah') {
-      saveText(`network_${(new Date()).toISOString()}.json`, JSON.stringify(request.net))
+      saveText(`network_${(new Date()).toISOString()}.json`, JSON.stringify(request.net), request.partial)
     }
   }
 )

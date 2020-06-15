@@ -21,7 +21,7 @@
 //     output the html in case no friends were found, so we can parse it
 //     start/stop button in order to make net in days
 //   allow for popup (or automated test) page to adjust the follosing values for scrolling:
-const hitsCounterThreshold = 20 // Recommended:10
+const hitsCounterThreshold = 5 // Recommended:10
 const initDelayInMilliseconds = 1000 // Recommended:5000
 const scrollDelayInMilliSeconds = 300 // Recommended:1000
 const scrollMagnitude = 1000 // Recommended:1000
@@ -58,62 +58,75 @@ const getElementsByXPath = (xpath, parent) => {
 }
 
 const getUserPageDataClassic = () => {
-  const membername = getElementsByXPath('//*/h1').map(i => i.innerText)[1]
-  let parts = membername.match(/[^\r\n]+/g)
-  const name = parts[0]
-  let codename
-  if (parts.length > 1) {
-    codename = parts[1]
+  const curUrl = document.location.href
+  const numericMatch = curUrl.match(/\?uid=(\d+)/) || curUrl.match(/\/profile.php\?id=(\d+)/)
+  let url, membername, codename, idType, numericId, stringId, id, name
+  if (numericMatch) {
+    idType = 'number'
+    id = numericMatch[1]
+    numericId = id
+    url = `https://www.facebook.com/profile.php?id=${numericId}`
+  } else {
+    const stringMatch = curUrl.match(/facebook.com\/(.*)\/friends/)
+    if (stringMatch) {
+      idType = 'string'
+      id = stringMatch[1]
+      stringId = id
+      url = `https://www.facebook.com/${stringId}`
+    }
   }
-  // get potential id of the entity, if user page is loaded is ok:
-  const path = window.location.href
-  parts = path.split('/')
-  const ind = parts.indexOf('www.facebook.com')
-  const last = parts[ind + 1]
-  const numericId = last.match(/^profile.php\?id=(\d+)/)
-  let numeric = false
-  let id = last
-  if (numericId && /^\d+$/.test(numericId[1])) {
-    numeric = true
-    id = numericId[1]
+  if (!curUrl.match(/\?uid=(\d+)/)) {
+    const h1elements = getElementsByXPath('//*/h1')
+    let h1el = h1elements[0]
+    if (h1elements.length > 1) {
+      h1el = h1elements[1]
+    }
+    membername = h1el.innerText
+    const parts = membername.match(/[^\r\n]+/g)
+    name = parts[0]
+    if (parts.length > 1) {
+      codename = parts[1]
+    }
   }
   return {
-    url: `${window.location.origin}/${last}`,
-    id: id,
+    url,
     name,
     codename,
-    numeric: numeric
+    id,
+    idType,
+    numericId,
+    stringId
   }
 }
 
-const getUserPageData = () => {
-  const membername = getElementsByXPath('//*/h1').map(i => i.innerText)[0]
-  let parts = membername.match(/[^\r\n]+/g)
-  const name = parts[0]
-  let codename
-  if (parts.length > 1) {
-    codename = parts[1]
-  }
-  // get potential id of the entity, if user page is loaded is ok:
-  const path = window.location.href
-  parts = path.split('/')
-  const ind = parts.indexOf('www.facebook.com')
-  const last = parts[ind + 1]
-  const numericId = last.match(/^profile.php\?id=(\d+)/)
-  let numeric = false
-  let id = last
-  if (numericId && /^\d+$/.test(numericId[1])) {
-    numeric = true
-    id = numericId[1]
-  }
-  return {
-    url: `${window.location.origin}/${last}`,
-    id: id,
-    name,
-    codename,
-    numeric: numeric
-  }
-}
+// const getUserPageData = () => {
+//   const membername = getElementsByXPath('//*/h1').map(i => i.innerText)[0]
+//   let parts = membername.match(/[^\r\n]+/g)
+//   const name = parts[0]
+//   let codename
+//   if (parts.length > 1) {
+//     codename = parts[1]
+//   }
+//   // get potential id of the entity, if user page is loaded is ok:
+//   const path = window.location.href
+//   parts = path.split('/')
+//   const ind = parts.indexOf('www.facebook.com')
+//   const last = parts[ind + 1]
+//   const numericId = last.match(/^profile.php\?id=(\d+)/)
+//   let numeric = false
+//   let id = last
+//   if (numericId && /^\d+$/.test(numericId[1])) {
+//     numeric = true
+//     id = numericId[1]
+//   }
+//   return {
+//     url: `${window.location.origin}/${last}`,
+//     id,
+//     name,
+//     codename,
+//     numeric: numeric
+//   }
+// }
 
 // const getSeedFriendsUrl = () => {
 //   const ud = getUserPageData()
@@ -124,87 +137,139 @@ const getUserPageData = () => {
 //   }
 // }
 
+// const htmlToFriendsProfilesClassicBetter = () => {
+//   return getElementsByXPath('//*/div[1]/ul/li/div[1]/div[1]/div[2]/div[1]/div[2]').map(c => {
+//     const name = c.children[0].innerText
+//     const nameUrl = c.children[0].children[0].href
+//     const mutualUrl = c.children[1].href
+//     const mutualString = c.children[1].innerText
+//     return {
+//       name,
+//       nameUrl,
+//       mutualUrl,
+//       mutualString
+//     }
+//   })
+// }
+
 const htmlToFriendsProfilesClassic = () => {
-  return getElementsByXPath('//*/div[1]/ul/li/div[1]/div[1]/div[2]/div[1]/div[2]').map(c => {
+// let hh = () => {
+  // return getElementsByXPath('//*/li/div[1]/div[1]/div[2]/div[1]/div[2]').map(c => {
+  let elements = getElementsByXPath('//*/div[4]/div[1]/div[1]/div[1]/div[1]/div[1]/div[3]/div/div[2]')
+  // https://www.facebook.com/browse/mutual_friends/?uid=1537120300
+  // https://www.facebook.com/browse/mutual_friends/?uid=100006942884068
+  //   https://www.facebook.com/profile.php?id=100006942884068&sk=friends_mutual
+  //   https://www.facebook.com/profile.php?id=100006942884068&sk=friends_mutual
+  //   https://www.facebook.com/alexandremagnovianasobreira.sobreira/friends_mutual
+  if (elements.length === 0) { // classic, not new fb
+    elements = getElementsByXPath('//*/li/div[1]/div[1]/div[2]/div[1]/div[2]')
+  }
+  if (elements.length === 0) { // classic, not new fb
+    const msg = getElementsByXPath('//*/div[1]/div[2]/h2')[0].innerText
+    chrome.runtime.sendMessage({ message: 'open_new_tab', msg, fbblock: true, pageUserData: userScrapper() })
+  }
+  return elements.map(c => {
     let mutual, idType, id, stringId, numericId, nfriends, url
-    const name = c.firstChild.firstChild.innerText
-    if (c.childNodes.length > 1) {
-      const parts = c.childNodes[1].innerText.split(' ')
-      if (/^[\d,]+$/.test(parts[0])) {
-        if (parts.length === 3) {
-          mutual = parts[0]
+    const name = c.children[0].innerText
+    const linkName = c.children[0].children[0].href
+    const numericMatch = linkName.match(/\?uid=(\d+)/) || linkName.match(/\/profile.php\?id=(\d+)/)
+    if (numericMatch) {
+      numericId = numericMatch[1]
+    } else {
+      // const stringMatch = linkName.match(/facebook.com\/([^\?\/]+)/)
+      const stringMatch = linkName.match(/facebook.com\/([^?/]+)/)
+      if (stringMatch) {
+        stringId = stringMatch[1]
+      }
+    }
+    if (c.children.length > 1) {
+      let linkFriends = c.children[1].href
+      if (!linkFriends) {
+        try {
+          linkFriends = c.children[1].children[0].children[0].children[0].children[0].href
+        } catch (err) {
+          console.log('one friend href not obtained')
+        }
+      }
+      console.log('HERE', c.childNodes[1])
+      window.ccc = c.childNodes[1]
+      if ((/^([.,\d]+)/).test(c.childNodes[1].innerText)) {
+        const num = c.childNodes[1].innerText.match(/^([.,\d]+)/)[1]
+        if ((/\?uid=(\d+)/).test(linkFriends)) {
+          numericId = linkFriends.match(/\?uid=(\d+)/)[1]
+          mutual = num
+        } else if ((/\/profile.php\?id=(\d+)/).test(linkFriends)) {
+          numericId = linkFriends.match(/\/profile.php\?id=(\d+)/)[1]
+          nfriends = num
+        } else if ((/\/friends_mutual$/).test(linkFriends)) {
+          stringId = linkFriends.match(/facebook.com\/(.*)\/friends_mutual$/)[1]
+          mutual = num
+        } else if ((/\/friends$/).test(linkFriends)) {
+          stringId = linkFriends.match(/facebook.com\/(.*)\/friends$/)[1]
+          nfriends = num
         } else {
-          nfriends = parts[0]
+          console.log(linkFriends)
+          throw new Error('friends link of a scrapped friend not understood')
         }
       }
     }
-    const link = c.firstChild.firstChild.href
-    if (link.match(/_tab$/)) {
-      numericId = link.match(/profile.php\?id=(\d+)/)
-      if (numericId) {
-        numericId = numericId[1]
-        id = numericId
-        idType = 'number'
-        url = `https://www.facebook.com/profile.php?id=${numericId}`
-      } else {
-        stringId = link.match(/www.facebook.com\/(.+)\?/)
-        if (stringId) {
-          stringId = stringId[1]
-          id = stringId
-          idType = 'string'
-          numericId = undefined
-          url = `https://www.facebook.com/${stringId}`
-        }
-      }
+    if (stringId) {
+      id = stringId
+      idType = 'string'
+      url = `https://www.facebook.com/${stringId}`
+    } else {
+      id = numericId
+      idType = 'number'
+      url = `https://www.facebook.com/profile.php?id=${numericId}`
     }
-    // return { idType, id, stringId, numericId, name, mutual, url, nfriends}
     return { idType, id, stringId, numericId, name, mutual, nfriends, url }
   })
 }
 
-const htmlToFriendsProfiles = () => {
-  return getElementsByXPath('//*/div[4]/div[1]/div[1]/div[1]/div[1]/div[1]/div[3]/div/div[2]').map(c => {
-    let mutual, idType, id, stringId, numericId
-    const name = c.childNodes[0].innerText
-    if (c.childNodes.length >= 2) {
-      const num = c.childNodes[1].innerText.split(' ')[0]
-      if (num.length !== 0 || /^[\d,]+$/.test(num)) {
-        mutual = parseInt(num)
-      }
-    }
-    const url = c.childNodes[0].childNodes[0].href
-    if (url !== undefined) {
-      const parts = url.split('/')
-      const last = parts[parts.length - 1]
-      numericId = last.match(/^profile.php\?id=(\d+)/)
-      if (numericId) {
-        numericId = numericId[1]
-        id = numericId
-        idType = 'number'
-      } else {
-        stringId = last
-        id = last
-        idType = 'string'
-        numericId = undefined
-      }
-    }
-    return { idType, id, stringId, numericId, name, mutual, url, nfriends: undefined }
-  })
-}
+// const htmlToFriendsProfiles = () => {
+//   return getElementsByXPath('//*/div[4]/div[1]/div[1]/div[1]/div[1]/div[1]/div[3]/div/div[2]').map(c => {
+//     let mutual, idType, id, stringId, numericId, nfriends, url
+//     const name = c.childNodes[0].innerText
+//     const linkName = c.children[0].children[0].href
+//     if (c.childNodes.length >= 2) {
+//       const num = c.childNodes[1].innerText.split(' ')[0]
+//       if (num.length !== 0 || /^[\d,]+$/.test(num)) {
+//         mutual = parseInt(num)
+//       }
+//     }
+//     url = c.childNodes[0].childNodes[0].href
+//     if (url !== undefined) {
+//       const parts = url.split('/')
+//       const last = parts[parts.length - 1]
+//       numericId = last.match(/^profile.php\?id=(\d+)/)
+//       if (numericId) {
+//         numericId = numericId[1]
+//         id = numericId
+//         idType = 'number'
+//       } else {
+//         stringId = last
+//         id = last
+//         idType = 'string'
+//         numericId = undefined
+//       }
+//     }
+//     return { idType, id, stringId, numericId, name, mutual, url, nfriends: undefined }
+//   })
+// }
 
-let scrapper = htmlToFriendsProfiles
-let userScrapper = getUserPageData
+const scrapper = htmlToFriendsProfilesClassic
+const userScrapper = getUserPageDataClassic
 const scrape = () => {
   setTimeout(() => {
-    let pageUserData = userScrapper()
+    // let pageUserData = userScrapper()
     scrollTillEnd(() => {
-      let profiles = scrapper()
-      if (profiles.length === 0) {
-        userScrapper = getUserPageDataClassic
-        pageUserData = userScrapper()
-        scrapper = htmlToFriendsProfilesClassic
-        profiles = scrapper()
-      }
+      // let profiles = scrapper()
+      // if (profiles.length === 0) {
+      // userScrapper = getUserPageDataClassic
+      const pageUserData = userScrapper()
+      // scrapper = htmlToFriendsProfilesClassic
+      const profiles = scrapper()
+      // }
       chrome.runtime.sendMessage({ message: 'open_new_tab', pageUserData, profiles })
     })
   }, initDelayInMilliseconds)

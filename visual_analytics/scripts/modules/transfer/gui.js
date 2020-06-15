@@ -29,13 +29,24 @@ const atest = function () {
   f2.add(text, 'displayOutline')
   const explode = f2.add(text, 'explode')
   gui.addColor(text, 'color0')
-  gui.addColor(text, 'color1')
+  const color1 = gui.addColor(text, 'color1')
   const color2 = gui.addColor(text, 'color2')
   const color3 = gui.addColor(text, 'color3')
   nets.onFinishChange(v => { console.log('YEY', v) })
   speed.onFinishChange(v => { console.log('YEY', v) })
   explode.onFinishChange(v => { console.log('YEY', v) })
   explode.onChange(v => { console.log('YEY', v) })
+  const uel = document.getElementById('file-input')
+  // const fReader = new FileReader()
+  // fReader.onloadend = r => {
+  //   console.log('READ', r, 'READ')
+  //   uel.files[0].text().then(r => console.log(r))
+  // }
+  uel.onchange = res => {
+    // fReader.readAsDataURL(uel.files[0])
+    uel.files[0].text().then(r => console.log(r))
+  }
+  color1.onFinishChange(v => { uel.click() })
   color2.onFinishChange(v => { console.log('YEY', v) })
   color3.onFinishChange(v => { console.log('YEY', v) })
 

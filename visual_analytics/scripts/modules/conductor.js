@@ -1,6 +1,7 @@
 const drawnet = require('./conducting/drawnet.js')
 const animate = require('./conducting/animate.js')
 const ui = require('./conducting/ui.js')
+const gui = require('./conducting/gui.js')
 module.exports = {
   use: {
     DrawnNet: drawnet.use.DrawnNet,
@@ -8,5 +9,6 @@ module.exports = {
     blink: animate.use.blink,
     showMembers: animate.use.showMembers,
     ui: ui.use
-  }
+  },
+  gui
 }

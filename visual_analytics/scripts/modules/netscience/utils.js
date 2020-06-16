@@ -1,3 +1,4 @@
+const Graph = require('graphology')
 const utils = require('../utils.js')
 
 function nodesDegreeOrder (net, nodes, increase = false) {
@@ -19,4 +20,10 @@ function nodesDegreeOrder (net, nodes, increase = false) {
   return degrees.map(i => i.id)
 }
 
-module.exports = { nodesDegreeOrder }
+const loadJsonString = s => {
+  const agraph = new Graph()
+  agraph.import(JSON.parse(s))
+  return agraph
+}
+
+module.exports = { nodesDegreeOrder, loadJsonString }

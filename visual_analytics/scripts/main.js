@@ -28,6 +28,8 @@ const routes = {
   'mong.html': test.testMong,
   'netIO.html': test.testNetIO,
   'gui.html': test.testGUI,
+  'guiMin.html': test.testNetUpload,
+  'guiMin2.html': test.testNetUpload2,
   'data_donated.html': () => console.log('a summary of the data donated in usage, upload and scrapping')
 }
 

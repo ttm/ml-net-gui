@@ -175,4 +175,28 @@ const testGUI = () => {
   })
 }
 
-module.exports = { testPlot, testRotateLayouts, testBlink, testExibition1, testDiffusion, testMultilevelDiffusion, testMetaNetwork, testSparkMin, testSparkLosd, testMong, testGetNet0, testGetNet1, testGetNet2, testGetNet3, testNetIO, testGUI }
+const testNetUpload = () => {
+  window.agui = conductor.gui.setMinimal(s => {
+    window.anet = net.use.utils.loadJsonString(s)
+  }) // start with net upload button
+  // const uel = document.getElementById('file-input')
+  // uel.onchange = res => {
+  //   uel.files[0].text().then(r => console.log(r))
+  // }
+}
+
+const testNetUpload2 = () => {
+  window.agui = conductor.gui.setMinimal() // start with net upload button
+  window.agui.self.callBack = s => {
+    console.log('HURRAY', s, 'HURRAY')
+    window.anet = net.use.utils.loadJsonString(s)
+    // use window.agui's objects to parse filename, then:
+    // send it to write in mongo
+  }
+  // const uel = document.getElementById('file-input')
+  // uel.onchange = res => {
+  //   uel.files[0].text().then(r => console.log(r))
+  // }
+}
+
+module.exports = { testPlot, testRotateLayouts, testBlink, testExibition1, testDiffusion, testMultilevelDiffusion, testMetaNetwork, testSparkMin, testSparkLosd, testMong, testGetNet0, testGetNet1, testGetNet2, testGetNet3, testNetIO, testGUI, testNetUpload, testNetUpload2 }

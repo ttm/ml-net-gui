@@ -1,3 +1,5 @@
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+
 ## multilevel BiNetViz
 This repository holds the migration of code in three repositories which provided:
 1. A FeathersJS backend (in `server/`).
@@ -36,6 +38,10 @@ This repo steams from three repos, which will be refactored and/or split in othe
 - git@gitlab.com:renato.fabbri/nettext-server.git
 - git@gitlab.com:renato.fabbri/nettext-pyserver.git
 - git@github.com:ttm/netText.git
+
+### license
+GPL v3 (GNU General Public License, vesion 3).
+
 
 ### contact
 Send me a message, open an issue in this repo,

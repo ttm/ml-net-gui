@@ -1,5 +1,7 @@
 const s = require('mongodb-stitch-browser-sdk')
 const auth = require('./mong_auth.js')
+const sha = require('fast-sha256')
+window.sha = sha
 
 const client = s.Stitch.initializeDefaultAppClient(auth.app)
 const db = client.getServiceClient(s.RemoteMongoClient.factory, auth.cluster).db(auth.db)
@@ -20,4 +22,35 @@ const db = client.getServiceClient(s.RemoteMongoClient.factory, auth.cluster).db
 // }).catch(err => {
 //   console.error(err)
 // })
-module.exports = { client, db, auth }
+
+const writeIfNotThereReadIfThere = (astring, call) => {
+  client.auth.loginWithCredential(new s.AnonymousCredential()).then(user => {
+    console.log('authenticated to mongo. User:', user)
+    const hash = String(sha.hash(astring))
+    db.collection(auth.collections.test).findOne({ hash }).then(res => {
+      if (!res) { // insert
+        console.log('not found', astring, hash)
+        db.collection(auth.collections.test).insertOne({ AAAA: 'XXX', astring, date: new Date(Date.now()).toISOString(), hash })
+      } else {
+        console.log('found', res)
+      }
+    })
+  })
+}
+
+const writeNetIfNotThereReadIfThere = (text, name, lastModified, call) => {
+  client.auth.loginWithCredential(new s.AnonymousCredential()).then(user => {
+    console.log('authenticated to mongo. User:', user)
+    const hash = String(sha.hash(text))
+    db.collection(auth.collections.test).findOne({ hash }).then(res => {
+      if (!res) { // insert
+        console.log('not found', hash)
+        db.collection(auth.collections.test).insertOne({ text, date: new Date(Date.now()).toISOString(), hash, name, lastModified })
+      } else {
+        console.log('found', res)
+      }
+    })
+  })
+}
+
+module.exports = { client, db, auth, writeIfNotThereReadIfThere, writeNetIfNotThereReadIfThere }

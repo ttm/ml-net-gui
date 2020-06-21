@@ -127,6 +127,37 @@ const testMong = () => {
   }).then(res => console.log('written in atlas and retrieved:', res))
 }
 
+const testMongIO = () => {
+  console.log(transfer.mong)
+  window.mong = transfer.mong
+  const astring = (new Date() % 9e6).toString(36) // +- random, arbitrary string
+  console.log('astring:', astring)
+  transfer.mong.writeIfNotThereReadIfThere(astring, r => console.log(r))
+  setTimeout(() => transfer.mong.writeIfNotThereReadIfThere(astring, r => console.log(r)), 3000)
+}
+
+const testMongNetIO = () => {
+  window.agui = conductor.gui.setMinimal(s => {
+    // window.anet = net.use.utils.loadJsonString(s)
+    transfer.mong.writeIfNotThereReadIfThere(s, r => console.log(r))
+  }) // start with net upload button
+}
+
+const testMongBetterNetIO = () => {
+  window.agui = conductor.gui.setMinimal() // start with net upload button
+  const uel = document.getElementById('file-input')
+  uel.onchange = res => {
+    const f = uel.files[0]
+    f.text().then(t => {
+      transfer.mong.writeNetIfNotThereReadIfThere(t, f.name, f.lastModified, r => console.log(r))
+      window.anet = net.use.utils.loadJsonString(t)
+      const drawnNet = new conductor.use.DrawnNet(artist.use, window.anet, [])
+      // conductor.use.showMembers(drawnNet.net, artist, Math.random() > 0.5)
+      conductor.use.showMembers(drawnNet.net, artist, true)
+    })
+  }
+}
+
 const testNetIO = () => {
   // choose a netid
   // check if it is in mongo
@@ -188,15 +219,18 @@ const testNetUpload = () => {
 const testNetUpload2 = () => {
   window.agui = conductor.gui.setMinimal() // start with net upload button
   window.agui.self.callBack = s => {
-    console.log('HURRAY', s, 'HURRAY')
     window.anet = net.use.utils.loadJsonString(s)
     // use window.agui's objects to parse filename, then:
     // send it to write in mongo
+    const drawnNet = new conductor.use.DrawnNet(artist.use, window.anet, [])
+    // conductor.use.blink(drawnNet.net, artist.share.draw.base.app)
+    conductor.use.showMembers(drawnNet.net, artist, Math.random() > 0.5)
+    return drawnNet
   }
   // const uel = document.getElementById('file-input')
-  // uel.onchange = res => {
+  // window.agui.uel.onchange = res => {
   //   uel.files[0].text().then(r => console.log(r))
   // }
 }
 
-module.exports = { testPlot, testRotateLayouts, testBlink, testExibition1, testDiffusion, testMultilevelDiffusion, testMetaNetwork, testSparkMin, testSparkLosd, testMong, testGetNet0, testGetNet1, testGetNet2, testGetNet3, testNetIO, testGUI, testNetUpload, testNetUpload2 }
+module.exports = { testPlot, testRotateLayouts, testBlink, testExibition1, testDiffusion, testMultilevelDiffusion, testMetaNetwork, testSparkMin, testSparkLosd, testMong, testGetNet0, testGetNet1, testGetNet2, testGetNet3, testNetIO, testGUI, testNetUpload, testNetUpload2, testMongIO, testMongNetIO, testMongBetterNetIO }

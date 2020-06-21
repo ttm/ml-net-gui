@@ -152,10 +152,13 @@ const testMongBetterNetIO = () => {
       transfer.mong.writeNetIfNotThereReadIfThere(t, f.name, f.lastModified, r => console.log(r))
       window.anet = net.use.utils.loadJsonString(t)
       const drawnNet = new conductor.use.DrawnNet(artist.use, window.anet, [])
-      // conductor.use.showMembers(drawnNet.net, artist, Math.random() > 0.5)
       conductor.use.showMembers(drawnNet.net, artist, true)
     })
   }
+}
+
+const testNetPage = () => {
+  conductor.use.pages.net(net, artist, transfer)
 }
 
 const testNetIO = () => {
@@ -192,8 +195,8 @@ const testNetIO = () => {
 }
 
 const testGUI = () => {
-  window.agui = transfer.gui.atest()
-  const statsui = transfer.gui.basicStats()
+  window.agui = conductor.gui.atest()
+  const statsui = conductor.gui.basicStats()
   // statsui.executing = false // to stop monitoring.
   // to start again:
   // statsui.executing = true
@@ -233,4 +236,4 @@ const testNetUpload2 = () => {
   // }
 }
 
-module.exports = { testPlot, testRotateLayouts, testBlink, testExibition1, testDiffusion, testMultilevelDiffusion, testMetaNetwork, testSparkMin, testSparkLosd, testMong, testGetNet0, testGetNet1, testGetNet2, testGetNet3, testNetIO, testGUI, testNetUpload, testNetUpload2, testMongIO, testMongNetIO, testMongBetterNetIO }
+module.exports = { testPlot, testRotateLayouts, testBlink, testExibition1, testDiffusion, testMultilevelDiffusion, testMetaNetwork, testSparkMin, testSparkLosd, testMong, testGetNet0, testGetNet1, testGetNet2, testGetNet3, testNetIO, testGUI, testNetUpload, testNetUpload2, testMongIO, testMongNetIO, testMongBetterNetIO, testNetPage }

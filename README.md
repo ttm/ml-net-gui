@@ -42,7 +42,6 @@ This repo steams from three repos, which will be refactored and/or split in othe
 ### license
 GPL v3 (GNU General Public License, vesion 3).
 
-
 ### contact
 Send me a message, open an issue in this repo,
 or message Cristina Ferreira de Oliveira and Alan Valejo,

@@ -53,4 +53,10 @@ const writeNetIfNotThereReadIfThere = (text, name, lastModified, call) => {
   })
 }
 
-module.exports = { client, db, auth, writeIfNotThereReadIfThere, writeNetIfNotThereReadIfThere }
+const findAllNetworks = () => {
+  return client.auth.loginWithCredential(new s.AnonymousCredential()).then(user => {
+    return db.collection(auth.collections.test).find({ hash: { $exists: true }, lastModified: { $exists: true } }).asArray()
+  })
+}
+
+module.exports = { client, db, auth, writeIfNotThereReadIfThere, writeNetIfNotThereReadIfThere, findAllNetworks }

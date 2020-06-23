@@ -4,6 +4,10 @@ const router = require('./modules/router.js')
 const conductor = require('./modules/conductor.js')
 const transfer = require('./modules/transfer/main.js')
 const test = require('./test.js')
+const $ = require('jquery')
+
+window.wand = { artist, transfer, conductor, net, $ }
+
 // fixme: create and import needed modules, probably migrated from ../modules/*
 
 const routes = {
@@ -34,6 +38,8 @@ const routes = {
   'guiMin.html': test.testNetUpload,
   'guiMin2.html': test.testNetUpload2,
   'netPage.html': test.testNetPage,
+  'puxi.html': test.testPuxi,
+  'h.html': test.testHtmlEls,
   'data_donated.html': () => console.log('a summary of the data donated in usage, upload and scrapping')
 }
 

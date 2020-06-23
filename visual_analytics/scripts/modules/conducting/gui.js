@@ -1,13 +1,51 @@
-/* global requestAnimationFrame */
+/* global requestAnimationFrame, wand */
 const dat = require('dat.gui')
 const St = require('stats.js')
 
-// window.conductor.gui = {
-//   dat,
-//   St
-// }
+// start using the global object, initialize
+// window.wand in the main.js, add objects as needed
 
-const setMinimal = function (loadCallback = r => console.log(r)) {
+function NetGUI (loadCallback = r => console.log(r)) {
+  this.callBack = loadCallback
+  const self = this
+  this.FizzyText = function () {
+    const uel = document.getElementById('file-input')
+    uel.onchange = res => {
+      const f = uel.files[0]
+      f.text().then(t => {
+        wand.transfer.mong.writeNetIfNotThereReadIfThere(t, f.name, f.lastModified, r => console.log(r))
+        window.anet = wand.net.use.utils.loadJsonString(t)
+        const drawnNet = new wand.conductor.use.DrawnNet(wand.artist.use, window.anet, [])
+        wand.conductor.use.showMembers(drawnNet.net, wand.artist, true)
+        netsui.name(f.name)
+      })
+    }
+    this.netfield = function () {
+      uel.click()
+    }
+    this.nets = 'anet1'
+    console.log('did it')
+  }
+  var text = new this.FizzyText()
+  var gui = new dat.GUI()
+  const netsui = gui.add(text, 'netfield')
+  const netobj = { net1: 'anet1', net2: 'anet2' }
+  window.netobj = netobj
+  const nets = gui.add(text, 'nets', netobj).listen()
+  nets.onFinishChange(v => {
+    if (v === 'upload') {
+    }
+    console.log(v)
+  })
+  gui.remember(text)
+  // add drop-down menu with all the networks found
+  // add proper onchange to erase/destroy previously selected network and view current
+  // make it talk to net upload properly
+  window.agui = { netsui, nets, gui, text, self, netobj }
+  return { netsui, nets, gui, text, self }
+}
+
+function setMinimal (loadCallback = r => console.log(r)) {
   this.callBack = loadCallback
   const self = this
   this.FizzyText = function () {
@@ -113,4 +151,4 @@ function basicStats () {
   return this
 }
 
-module.exports = { setMinimal, St, dat, atest, basicStats }
+module.exports = { setMinimal, St, dat, atest, basicStats, NetGUI }

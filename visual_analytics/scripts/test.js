@@ -2,6 +2,7 @@ const net = require('./modules/networks.js')
 const artist = require('./modules/artist.js')
 const conductor = require('./modules/conductor.js')
 const transfer = require('./modules/transfer/main.js')
+const $ = require('jquery')
 
 const testPlot = () => {
   const nets = [
@@ -236,4 +237,54 @@ const testNetUpload2 = () => {
   // }
 }
 
-module.exports = { testPlot, testRotateLayouts, testBlink, testExibition1, testDiffusion, testMultilevelDiffusion, testMetaNetwork, testSparkMin, testSparkLosd, testMong, testGetNet0, testGetNet1, testGetNet2, testGetNet3, testNetIO, testGUI, testNetUpload, testNetUpload2, testMongIO, testMongNetIO, testMongBetterNetIO, testNetPage }
+const testPuxi = () => {
+  conductor.use.ui.setStage(artist.share.draw.base.app)
+}
+
+const testHtmlEls = () => {
+  const input = $('<input type="button" value="load" />')
+  input.prependTo('body')
+  const s = $('<select/>')
+  s.prependTo('body')
+  // s.append($('<option/>').val('avalman').html('anoptionman'))
+  // s.append($('<option/>').val('yooo').html('the other'))
+  transfer.mong.findAllNetworks().then(r => {
+    r.forEach((n, i) => {
+      s.append($('<option/>').val(i).html(n.name))
+    })
+    console.log('OIUQWE', r)
+    let anet
+    const uel = document.getElementById('file-input')
+    uel.onchange = res => {
+      const f = uel.files[0]
+      f.text().then(t => {
+        transfer.mong.writeNetIfNotThereReadIfThere(t, f.name, f.lastModified, r => console.log(r))
+        anet = net.use.utils.loadJsonString(t)
+        const drawnNet = new conductor.use.DrawnNet(artist.use, anet, [])
+        conductor.use.showMembers(drawnNet.net, artist, true)
+      })
+    }
+    input.on('click', () => {
+      if (anet) {
+        anet.forEachNode((n, a) => {
+          a.pixiElement.destroy()
+          a.textElement.destroy()
+        })
+        anet.forEachEdge((n, a) => a.pixiElement.destroy())
+      }
+      if (s.val() === 'upload') {
+        uel.click()
+        return
+      }
+      anet = net.use.utils.loadJsonString(r[s.val()].text)
+      const drawnNet = new conductor.use.DrawnNet(artist.use, anet, [])
+      conductor.use.showMembers(drawnNet.net, artist, true)
+      window.dn = drawnNet
+      window.nn = anet
+    })
+  })
+  s.append($('<option/>').val('upload').html('upload'))
+  window.s = s
+}
+
+module.exports = { testPlot, testRotateLayouts, testBlink, testExibition1, testDiffusion, testMultilevelDiffusion, testMetaNetwork, testSparkMin, testSparkLosd, testMong, testGetNet0, testGetNet1, testGetNet2, testGetNet3, testNetIO, testGUI, testNetUpload, testNetUpload2, testMongIO, testMongNetIO, testMongBetterNetIO, testNetPage, testPuxi, testHtmlEls }

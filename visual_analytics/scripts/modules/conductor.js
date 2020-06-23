@@ -2,6 +2,7 @@ const drawnet = require('./conducting/drawnet.js')
 const animate = require('./conducting/animate.js')
 const ui = require('./conducting/ui.js')
 const gui = require('./conducting/gui.js')
+const jgui = require('./conducting/jgui.js')
 const pages = require('./conducting/pages.js')
 
 module.exports = {
@@ -11,6 +12,7 @@ module.exports = {
     blink: animate.use.blink,
     showMembers: animate.use.showMembers,
     ui: ui.use,
+    jgui,
     pages
   },
   gui

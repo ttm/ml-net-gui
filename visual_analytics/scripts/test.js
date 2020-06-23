@@ -3,6 +3,9 @@ const artist = require('./modules/artist.js')
 const conductor = require('./modules/conductor.js')
 const transfer = require('./modules/transfer/main.js')
 const $ = require('jquery')
+require('@fortawesome/fontawesome-free/js/all.js')
+// https://fontawesome.com/how-to-use/on-the-web/referencing-icons/icon-cheatsheet
+// https://fontawesome.com/how-to-use/on-the-web/using-with/jquery
 
 const testPlot = () => {
   const nets = [
@@ -242,7 +245,16 @@ const testPuxi = () => {
 }
 
 const testHtmlEls = () => {
-  const input = $('<input type="button" value="load" />')
+  const names = $('<button class="btn"><i class="fa fa-mask"></i></button>').prop('title', 'show names')
+  const input = $('<button class="btn"><i class="fa fa-archway"></i></button>').prop('title', 'load or upload network')
+  const ibtn = $('<button class="btn"><i class="fa fa-bone"></i></button>').prop('title', 'show links')
+  const vbtn = $('<button class="btn"><i class="fa fa-chess"></i></button>').prop('title', 'show nodes')
+  // $('button').button({ icons: { primary: 'ui-icon-circle-plus' } }).click(function (event) {
+  //   event.preventDefault()
+  // }).prependTo('body')
+  ibtn.prependTo('body')
+  vbtn.prependTo('body')
+  names.prependTo('body')
   input.prependTo('body')
   const s = $('<select/>')
   s.prependTo('body')
@@ -281,6 +293,21 @@ const testHtmlEls = () => {
       conductor.use.showMembers(drawnNet.net, artist, true)
       window.dn = drawnNet
       window.nn = anet
+    })
+    names.on('click', () => {
+      anet.forEachNode((n, a) => {
+        a.textElement.visible = !a.textElement.visible
+      })
+    })
+    ibtn.on('click', () => {
+      anet.forEachEdge((e, a) => {
+        a.pixiElement.visible = !a.pixiElement.visible
+      })
+    })
+    vbtn.on('click', () => {
+      anet.forEachNode((n, a) => {
+        a.pixiElement.visible = !a.pixiElement.visible
+      })
     })
   })
   s.append($('<option/>').val('upload').html('upload'))

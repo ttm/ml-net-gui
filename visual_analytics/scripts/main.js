@@ -1,14 +1,23 @@
-const net = require('./modules/networks.js')
-const artist = require('./modules/artist.js')
-const router = require('./modules/router.js')
-const conductor = require('./modules/conductor.js')
-const transfer = require('./modules/transfer/main.js')
-const test = require('./test.js')
-const $ = require('jquery')
+/* global wand */
+window.wand = {
+  artist: require('./modules/artist.js'),
+  transfer: require('./modules/transfer/main.js'),
+  conductor: require('./modules/conductor.js'),
+  net: require('./modules/networks.js'),
+  router: require('./modules/router.js'),
+  test: require('./test.js'),
+  $: require('jquery'),
+  extra: {}
+}
 
-window.wand = { artist, transfer, conductor, net, $ }
+wand.magic = {
+  Gradus: wand.conductor.use.gradus.Gradus
+}
 
 // fixme: create and import needed modules, probably migrated from ../modules/*
+
+const artist = wand.artist
+const test = wand.test
 
 const routes = {
   'test.html': artist.share.testArtist,
@@ -40,18 +49,11 @@ const routes = {
   'netPage.html': test.testNetPage,
   'puxi.html': test.testPuxi,
   'h.html': test.testHtmlEls,
+  'h2.html': test.testHtmlEls2,
+  'gradus.html': test.testGradus,
   'data_donated.html': () => console.log('a summary of the data donated in usage, upload and scrapping')
 }
 
-const _router = new router.use.Router(routes)
+const _router = new wand.router.use.Router(routes)
 _router.loadCurrent()
-
-window.__all = {
-  _router,
-  conductor,
-  router,
-  artist,
-  net,
-  transfer,
-  test
-}
+wand._router = _router

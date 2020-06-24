@@ -1,3 +1,4 @@
+/* global wand */
 const net = require('./modules/networks.js')
 const artist = require('./modules/artist.js')
 const conductor = require('./modules/conductor.js')
@@ -7,18 +8,26 @@ require('@fortawesome/fontawesome-free/js/all.js')
 // https://fontawesome.com/how-to-use/on-the-web/referencing-icons/icon-cheatsheet
 // https://fontawesome.com/how-to-use/on-the-web/using-with/jquery
 
-const testPlot = () => {
+const testPlot = (mode = 'test') => {
   const nets = [
     () => net.use.synth.use.ladder(30),
-    () => net.use.synth.use.caveman(30),
+    // () => net.use.synth.use.caveman(30), return empty:
     () => net.use.synth.use.connectedCaveman(6, 8),
     () => net.use.synth.use.erdosRenyi(100, 0.1),
-    () => net.use.synth.use.clusters(100, 300, 4, 0.8),
-    () => net.use.synth.use.girvanNewman(4),
+    () => net.use.synth.use.clusters(100, 300, 6, 0.8),
+    () => net.use.synth.use.girvanNewman(2),
     () => net.use.synth.use.karateClub(),
     () => net.use.synth.use.florentineFamilies()
   ]
-  const index = Math.floor(Math.random() * nets.length)
+  let index
+  if (mode === 'test') {
+    index = Math.floor(Math.random() * nets.length)
+  } else {
+    // const selected = [0, 1, 3, 5, 6, 7]
+    // index = selected[Math.floor(Math.random() * selected.length)]
+    index = 3
+    console.log('SELECTED')
+  }
   const net_ = nets[index]()
   console.log(`testing plot for network number: ${index}, order: ${net_.order}, size: ${net_.size}`)
   const drawnNet = new conductor.use.DrawnNet(artist.use, net_, [])
@@ -36,10 +45,25 @@ const testBlink = () => {
   conductor.use.blink(drawnNet.net, artist.share.draw.base.app)
 }
 
-const testExibition1 = () => {
-  const drawnNet = testPlot()
-  conductor.use.rotateLayouts(drawnNet, artist.share.draw.base.app, artist)
-  conductor.use.blink(drawnNet.net, artist.share.draw.base.app)
+const testExibition1 = (mode = 'test') => {
+  const drawnNet = testPlot(mode)
+  const r = {
+    drawnNet,
+    rotatorTicker: conductor.use.rotateLayouts(
+      drawnNet, artist.share.draw.base.app, artist, 900
+    ),
+    blinkTicker: conductor.use.blink(
+      drawnNet.net, artist.share.draw.base.app
+    ),
+    remove: function () {
+      artist.share.draw.base.app.ticker.remove(this.blinkTicker)
+      artist.share.draw.base.app.ticker.remove(this.rotatorTicker)
+      this.drawnNet.remove()
+      delete this.drawnNet
+    }
+  }
+  window.rr = r
+  return r
 }
 
 const testDiffusion = () => {
@@ -265,53 +289,69 @@ const testHtmlEls = () => {
       s.append($('<option/>').val(i).html(n.name))
     })
     console.log('OIUQWE', r)
-    let anet
     const uel = document.getElementById('file-input')
     uel.onchange = res => {
       const f = uel.files[0]
       f.text().then(t => {
         transfer.mong.writeNetIfNotThereReadIfThere(t, f.name, f.lastModified, r => console.log(r))
-        anet = net.use.utils.loadJsonString(t)
-        const drawnNet = new conductor.use.DrawnNet(artist.use, anet, [])
+        window.wand.currentNetwork = net.use.utils.loadJsonString(t)
+        const drawnNet = new conductor.use.DrawnNet(artist.use, window.wand.currentNetwork, [])
         conductor.use.showMembers(drawnNet.net, artist, true)
       })
     }
     input.on('click', () => {
-      if (anet) {
-        anet.forEachNode((n, a) => {
+      if (window.wand.currentNetwork) {
+        window.wand.currentNetwork.forEachNode((n, a) => {
           a.pixiElement.destroy()
           a.textElement.destroy()
         })
-        anet.forEachEdge((n, a) => a.pixiElement.destroy())
+        window.wand.currentNetwork.forEachEdge((n, a) => a.pixiElement.destroy())
       }
       if (s.val() === 'upload') {
         uel.click()
         return
       }
-      anet = net.use.utils.loadJsonString(r[s.val()].text)
-      const drawnNet = new conductor.use.DrawnNet(artist.use, anet, [])
+      window.wand.currentNetwork = net.use.utils.loadJsonString(r[s.val()].text)
+      const drawnNet = new conductor.use.DrawnNet(artist.use, window.wand.currentNetwork, [])
       conductor.use.showMembers(drawnNet.net, artist, true)
       window.dn = drawnNet
-      window.nn = anet
+      window.nn = window.wand.currentNetwork
     })
     names.on('click', () => {
-      anet.forEachNode((n, a) => {
+      window.wand.currentNetwork.forEachNode((n, a) => {
         a.textElement.visible = !a.textElement.visible
       })
     })
     ibtn.on('click', () => {
-      anet.forEachEdge((e, a) => {
+      window.wand.currentNetwork.forEachEdge((e, a) => {
         a.pixiElement.visible = !a.pixiElement.visible
       })
     })
     vbtn.on('click', () => {
-      anet.forEachNode((n, a) => {
+      window.wand.currentNetwork.forEachNode((n, a) => {
         a.pixiElement.visible = !a.pixiElement.visible
       })
     })
   })
   s.append($('<option/>').val('upload').html('upload'))
-  window.s = s
 }
 
-module.exports = { testPlot, testRotateLayouts, testBlink, testExibition1, testDiffusion, testMultilevelDiffusion, testMetaNetwork, testSparkMin, testSparkLosd, testMong, testGetNet0, testGetNet1, testGetNet2, testGetNet3, testNetIO, testGUI, testNetUpload, testNetUpload2, testMongIO, testMongNetIO, testMongBetterNetIO, testNetPage, testPuxi, testHtmlEls }
+const testHtmlEls2 = () => {
+  testHtmlEls()
+  // window.wand.currentNetwork.forEachNode((n, a) => {
+  //   a.pixiElement.on('pointerover', () => {
+  //     this.tint = 0xffff00
+  //   })
+  // })
+}
+
+const testGradus = () => {
+  // soh posso passar diretamente, o primeiro passo eh alguem falar seriamente c vc sobre o assunto e a gente conversar eu, o contato (Bruno/Aline) e ela, questao e seguranca e preservar os limites gratuitos
+  // hack for testing:
+  wand.magic.state = new wand.magic.Gradus(0.1)
+  // window.wand.magic.Gradus()
+  // depois de subir a propria rede, se compromete aos principios da fisica antropologica, incluindo dev continuar aberto GPL FSF de qqr ideia em software q a pessoa tiver disso, parecida conteitualmente ou nao
+  // licensa JPL: joy public license, hommage ao Bill Joy (Vim, etc), e concorda dom o joy dos outros
+}
+
+module.exports = { testPlot, testRotateLayouts, testBlink, testExibition1, testDiffusion, testMultilevelDiffusion, testMetaNetwork, testSparkMin, testSparkLosd, testMong, testGetNet0, testGetNet1, testGetNet2, testGetNet3, testNetIO, testGUI, testNetUpload, testNetUpload2, testMongIO, testMongNetIO, testMongBetterNetIO, testNetPage, testPuxi, testHtmlEls, testHtmlEls2, testGradus }

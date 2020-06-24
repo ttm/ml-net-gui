@@ -46,7 +46,7 @@ const mkPaths = function (radius) {
 
 const paths = mkPaths(10)
 
-function mkNode (ntype = 'tri', color = 0xff0000) {
+function mkNode (ntype = 'tri', color = 0xff0000, version = 1) {
   const path = paths[ntype]
   const v = new PIXI.Graphics()
   v.beginFill(0xffffff)
@@ -60,14 +60,16 @@ function mkNode (ntype = 'tri', color = 0xff0000) {
   v.mpath = path
   app.stage.addChild(v) // fixme: use internal container?
 
-  v.on('pointerover', () => {
-    v.scale.set(1.2)
-    v.alpha = 0.9
-  })
-  v.on('pointerout', () => {
-    v.scale.set(0.7)
-    v.alpha = 0.4
-  })
+  if (version === 1) {
+    v.on('pointerover', () => {
+      v.scale.set(1.2)
+      v.alpha = 0.9
+    })
+    v.on('pointerout', () => {
+      v.scale.set(0.7)
+      v.alpha = 0.4
+    })
+  }
   //   .on('pointerdown', clickNode)
   //   .on('pointerup', releaseNode)
   //   .on('pointerupoutside', releaseNode2)
@@ -82,6 +84,19 @@ function mkText (text, pos) {
     { fontFamily: 'Arial', fontSize: 15, fill: 0xffffff, align: 'center' }
   )
   texto.tint = 0x00ff00
+  texto.x = pos[0]
+  texto.y = pos[1]
+  texto.zIndex = 10
+  app.stage.addChild(texto)
+  return texto
+}
+
+function mkTextFancy (text, pos, fontSize = 15, color = 0x00ff00) {
+  const texto = new PIXI.Text(
+    text,
+    { fontFamily: 'Arial', fontSize, fill: 0xffffff, align: 'center' }
+  )
+  texto.tint = color
   texto.x = pos[0]
   texto.y = pos[1]
   texto.zIndex = 10
@@ -124,5 +139,5 @@ app.ticker.add((delta) => {
 })
 document.body.appendChild(app.view)
 
-exports.use = { mkNode, mkLink, mkText, mkPaths, updateLink }
+exports.use = { mkNode, mkLink, mkText, mkPaths, updateLink, mkTextFancy }
 exports.share = { app, paths, PIXI }

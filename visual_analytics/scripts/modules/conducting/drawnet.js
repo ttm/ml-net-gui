@@ -71,6 +71,14 @@ class DrawnNet {
     this.net = net
   }
 
+  remove () {
+    this.net.forEachNode((n, a) => {
+      a.pixiElement.destroy()
+      // a.textElement.destroy()
+    })
+    this.net.forEachEdge((n, a) => a.pixiElement.destroy())
+  }
+
   _plot (net, drawer, layout) {
     net.forEachNode((key, attr) => {
       const node = drawer.mkNode()

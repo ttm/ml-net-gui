@@ -1,12 +1,11 @@
 // this file holds helpers to enable animation
 
-const rotateLayouts = (drawnNet, app, artist) => {
+const rotateLayouts = (drawnNet, app, artist, totalPositions = 300) => {
   const net = drawnNet.net
   let layouts = drawnNet.layouts
   window.lll = layouts
   layouts = Object.values(layouts)
 
-  const totalPositions = 300
   const movingProportion = 0.5
   const nlayouts = layouts.length
 
@@ -39,7 +38,7 @@ const rotateLayouts = (drawnNet, app, artist) => {
   let positionCounter = 0
   const sectionPositions_ = Math.floor(sectionPositions)
   let lock = false
-  app.ticker.add((delta) => { // delta is 1 for 60 fps
+  const anim = delta => { // delta is 1 for 60 fps
     const section = Math.floor(positionCounter / sectionPositions)
     const positionInSection = positionCounter % sectionPositions_
     const ismoving = positionInSection > staticPositions
@@ -85,11 +84,13 @@ const rotateLayouts = (drawnNet, app, artist) => {
     }
     positionCounter++
     positionCounter = positionCounter % totalPositions
-  })
+  }
+  app.ticker.add(anim)
+  return anim
 }
 
 const blink = (net, app) => {
-  app.ticker.add(delta => { // delta is 1 for 60 fps
+  const anim = delta => { // delta is 1 for 60 fps
     if (Math.random() < 0.7) {
       net.forEachNode((key, attr) => {
         if (Math.random() < 0.4) {
@@ -98,7 +99,9 @@ const blink = (net, app) => {
         }
       })
     }
-  })
+  }
+  app.ticker.add(anim)
+  return anim
 }
 
 const showMembers = (net, artist, alternate = false) => {

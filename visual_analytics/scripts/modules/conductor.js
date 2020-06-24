@@ -13,6 +13,7 @@ module.exports = {
     showMembers: animate.use.showMembers,
     ui: ui.use,
     jgui,
+    gradus: require('./conducting/gradus.js'),
     pages
   },
   gui

@@ -36,7 +36,7 @@ function Gradus (timeStreach = 1) {
     },
     () => {
       console.log('gradus1.1')
-      const ibtn = $('<button class="btn"><i class="fa fa-bone"></i></button>').prop('title', 'show links')
+      const ibtn = $('<button class="btn" id="ibtn"><i class="fa fa-bone"></i></button>').prop('title', 'show links')
       const vbtn = $('<button class="btn"><i class="fa fa-chess"></i></button>').prop('title', 'show nodes')
       ibtn.prependTo('body')
       vbtn.prependTo('body')
@@ -156,17 +156,24 @@ function Gradus (timeStreach = 1) {
       console.log('last level')
       wand.extra.counter.colorChange = 0
       const pbtn = $('<button class="btn"><i class="fa fa-pallete"></i></button>').prop('title', 'change colors')
-      pbtn.prependTo('body')
+      pbtn.insertAfter('#ibtn')
       pbtn.on('click', () => {
+        const ecolor = 0xffffff * Math.random()
+        const ncolor = 0xffffff * Math.random()
+        const tcolor = 0xffffff * Math.random()
         wand.currentNetwork.forEachEdge((e, a) => {
-          a.pixiElement.tint = 0xffffff * Math.random()
+          a.pixiElement.tint = ecolor
         })
         wand.currentNetwork.forEachNode((e, a) => {
-          a.pixiElement.tint = 0xffffff * Math.random()
-          a.textElement.tint = 0xffffff * Math.random()
+          a.pixiElement.tint = ncolor
+          a.textElement.tint = tcolor
         })
         wand.artist.share.draw.base.app.renderer.backgroundColor = 0xffffff * Math.random()
         wand.extra.counter.colorChange++
+        if (wand.extra.counter.colorChange >= 5) {
+          this.bumpLevel()
+          this.allGradus[this.currentLevel]()
+        }
       })
     }
 

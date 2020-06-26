@@ -91,6 +91,36 @@ function mkText (text, pos) {
   return texto
 }
 
+function mkTextBetter (
+  {
+    text = 'abanana',
+    fontFamily = 'Arial',
+    fontSize = 15,
+    color = 0x00ff00,
+    pos = [100, 100],
+    zIndex = 10,
+    alpha = 1
+  } = {
+    text: 'hey',
+    fontFamily: 'Arial',
+    fontSize: 15,
+    color: 0x00ff00,
+    pos: [100, 100],
+    zIndex: 10,
+    alpha: 1
+  }) {
+  const texto = new PIXI.Text(
+    text,
+    { fontFamily, fontSize, fill: 0xffffff, align: 'center' }
+  )
+  texto.tint = color
+  texto.x = pos[0]
+  texto.y = pos[1]
+  texto.zIndex = 10
+  app.stage.addChild(texto)
+  return texto
+}
+
 function mkTextFancy (text, pos, fontSize = 15, color = 0x00ff00) {
   const texto = new PIXI.Text(
     text,
@@ -139,5 +169,5 @@ app.ticker.add((delta) => {
 })
 document.body.appendChild(app.view)
 
-exports.use = { mkNode, mkLink, mkText, mkPaths, updateLink, mkTextFancy }
+exports.use = { mkNode, mkLink, mkText, mkPaths, updateLink, mkTextFancy, mkTextBetter }
 exports.share = { app, paths, PIXI }

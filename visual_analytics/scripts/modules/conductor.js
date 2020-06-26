@@ -14,6 +14,7 @@ module.exports = {
     ui: ui.use,
     jgui,
     gradus: require('./conducting/gradus.js'),
+    parnassum: require('./conducting/parnassum.js'),
     pages
   },
   gui

@@ -7,6 +7,7 @@ const use = {
   mkLink: base.use.mkLink,
   mkText: base.use.mkText,
   mkTextFancy: base.use.mkTextFancy,
+  mkTextBetter: base.use.mkTextBetter,
   mkPaths: base.use.mkPaths,
   updateLink: base.use.updateLink,
   ambience: ambience.use,

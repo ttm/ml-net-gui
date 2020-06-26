@@ -1,6 +1,7 @@
 /* global wand */
 window.wand = {
   artist: require('./modules/artist.js'),
+  maestro: require('./modules/maestro/all.js'),
   transfer: require('./modules/transfer/main.js'),
   conductor: require('./modules/conductor.js'),
   net: require('./modules/networks.js'),
@@ -12,12 +13,12 @@ window.wand = {
 
 wand.magic = {
   Gradus: wand.conductor.use.gradus.Gradus,
-  AdParnassum: wand.conductor.use.gradus.AdParnassum
+  AdParnassum: wand.conductor.use.parnassum.AdParnassum
 }
 
-// fixme: create and import needed modules, probably migrated from ../modules/*
-
 const artist = wand.artist
+wand.extra.winDim = [artist.use.width, artist.use.height]
+
 const test = wand.test
 
 const routes = {
@@ -32,7 +33,7 @@ const routes = {
   'metaNetwork.html': test.testMetaNetwork,
   'rotate.html': test.testRotateLayouts,
   'blink.html': test.testBlink,
-  'exhibit1.html': test.testExhibition1,
+  'exhibit1.html': test.testExibition1,
   'sparkmin.html': test.testSparkMin,
   'losd.html': test.testSparkLosd,
   'getNet.html': test.testGetNet0,

@@ -1,4 +1,7 @@
+/* global performance, wand */
 // this file holds helpers to enable animation
+
+const chooseUnique = require('../utils.js').chooseUnique
 
 const rotateLayouts = (drawnNet, app, artist, totalPositions = 300) => {
   const net = drawnNet.net
@@ -104,9 +107,13 @@ const blink = (net, app) => {
   return anim
 }
 
-const showMembers = (net, artist, alternate = false) => {
+function showMembers (net, artist, alternate = false) {
   net.forEachNode((key, attr) => {
-    const text = artist.use.mkText(attr.name, [attr.pixiElement.x, attr.pixiElement.y])
+    const text = artist.use.mkTextBetter({
+      text: attr.name,
+      pos: [attr.pixiElement.x, attr.pixiElement.y],
+      fontSize: 35
+    })
     attr.textElement = text
   })
   if (alternate) {
@@ -116,8 +123,58 @@ const showMembers = (net, artist, alternate = false) => {
           if (Math.random() < 0.1) {
             attr.textElement.tint = 0xffffff * Math.random()
             attr.textElement.alpha = Math.random()
+            const color = attr.pixiElement.tint
+            const now = performance.now()
+            attr.pixiElement.scale.set(2)
+            const id = setInterval(() => {
+              attr.pixiElement.tint = 0xffffff * Math.random()
+              if (performance.now() - now > 500) {
+                attr.pixiElement.tint = color
+                attr.pixiElement.scale.set(1)
+                clearInterval(id)
+              }
+            }, 100)
           }
         })
+      }
+    })
+  }
+  this.sayNames = (density = 0.1) => {
+    const nodes = net.nodes()
+    let speaker = new wand.maestro.synths.Speaker()
+    artist.share.draw.base.app.ticker.add(delta => { // delta is 1 for 60 fps
+      if (Math.random() < density) {
+        if (!speaker.synth.speaking) {
+          const node = chooseUnique(nodes, 1)[0]
+          const name = net.getNodeAttribute(node, 'name')
+          speaker = new wand.maestro.synths.Speaker()
+          speaker.play(name)
+          window.speaker = speaker
+
+          const textElement = net.getNodeAttribute(node, 'textElement')
+          const pixiElement = net.getNodeAttribute(node, 'pixiElement')
+          textElement.tint = 0xffffff * Math.random()
+          textElement.alpha = Math.random()
+          textElement.visible = true
+          const color = pixiElement.tint
+          const now = performance.now()
+          pixiElement.scale.set(2)
+          const id = setInterval(() => {
+            pixiElement.tint = 0xffffff * Math.random()
+            if (performance.now() - now > 500) {
+              pixiElement.tint = color
+              pixiElement.scale.set(1)
+              clearInterval(id)
+            }
+          }, 100)
+        } else {
+          net.forEachNode((key, attr) => {
+            if (Math.random() < 0.1) {
+              attr.textElement.tint = 0xffffff * Math.random()
+              attr.textElement.alpha = Math.random()
+            }
+          })
+        }
       }
     })
   }

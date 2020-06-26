@@ -1,4 +1,4 @@
-/* global wand */
+/* global wand, performance */
 
 // each gradus has:
 //    a feature it enables
@@ -9,7 +9,15 @@ class AdParnassum {
     const defaultSettings = {
       currentLevel: 0,
       relativeSize: 1,
-      fontSize: 20
+      fontSize: 20,
+      timeStreach: 1, // only used for when time has to pass
+      counter: {
+        nodesVisible: 0,
+        networksVisualized: 0,
+        edgesVisible: 0,
+        namesVisible: 0,
+        colorChange: 0
+      }
     }
     this.settings = { ...defaultSettings, ...settings }
     this.texts = {} // pixi elements
@@ -22,30 +30,49 @@ class AdParnassum {
   start (level) {
     this.mkFeatures()
     this.mkConditions()
+    this.setGradus()
+    const step = this.gradus[level]
+    this.currentCondition = this.conditions[step.condition]
+    this.features[step.feature]()
+    this.currentLevel = level
+    this.counter = this.settings.counter
     this.startConditionVerifier()
   }
 
   startConditionVerifier () {
-    setTimeout(() => {
-      this.currentCondition()
-      if (this.conditionMet) {
-        this.conditionMet = false
-        this.setNextLevel()
+    setInterval(() => {
+      console.log('verified', this.currentLevel, this.gradus.length)
+      if (this.currentLevel < this.gradus.length) {
+        console.log(this.gradus[this.currentLevel], 'GRADUS')
+        this.currentCondition()
+        if (this.conditionMet && !this.conditionMetLock) {
+          console.log('condition met')
+          this.setNextLevel()
+        }
+      } else {
+        console.log('parnassum reached')
       }
     }, 300)
   }
 
   setNextLevel () {
+    this.conditionMetLock = true
+    console.log('set next level')
     this.bumpLevel()
+    const step = this.gradus[this.currentLevel]
+    this.currentCondition = this.conditions[step.condition]
+    this.features[step.feature]()
+    this.conditionMet = false
+    this.conditionMetLock = false
   }
 
   setGradus () {
     this.gradus = [
       { feature: 'exhibition', condition: 'wait10s' },
       { feature: 'showHideLinks', condition: 'minClickOnNodesEdgesVisible' },
-      { feature: 'dummy', condition: 'loadDatata' },
-      { feature: 'visualizeNetworks', condition: 'networksVisualized' }
-      // { feature: , condition: 'colorChanges' },
+      { feature: 'loadDatata', condition: 'dummy' },
+      { feature: 'visualizeNetworks', condition: 'networksVisualized' },
+      { feature: 'randomColors', condition: 'colorChanges' }
     ]
   }
 
@@ -72,6 +99,7 @@ class AdParnassum {
 
   mkFeatures () {
     const $ = wand.$
+    const self = this
     this.features = {
       exhibition: () => {
         wand.extra.exibition = wand.test.testExhibition1('gradus')
@@ -86,29 +114,37 @@ class AdParnassum {
           wand.currentNetwork.forEachEdge((e, a) => {
             a.pixiElement.visible = !a.pixiElement.visible
           })
-          wand.extra.counter.edgesVisible++
+          this.counter.edgesVisible++
         })
         vbtn.on('click', () => {
           wand.currentNetwork.forEachNode((n, a) => {
             a.pixiElement.visible = !a.pixiElement.visible
           })
-          wand.extra.counter.nodesVisible++
+          this.counter.nodesVisible++
         })
       },
-      dummy: () => {
-        console.log('dummy condition, probably waiting for some feaature to be loaded')
+      loadDatata: () => {
+        wand.transfer.mong.findAllNetworks().then(r => {
+          self.allNetworks = r
+          self.conditionMet = true
+        })
       },
       visualizeNetworks: () => {
         const artist = wand.artist
         const conductor = wand.conductor
         const net = wand.net
         const transfer = wand.transfer
-        const r = wand.allNetworks
 
         const names = $('<button class="btn"><i class="fa fa-mask"></i></button>').prop('title', 'show names')
         const input = $('<button class="btn"><i class="fa fa-archway"></i></button>').prop('title', 'load or upload network')
         const s = $('<select/>')
         names.prependTo('body')
+        names.on('click', () => {
+          wand.currentNetwork.forEachNode((n, a) => {
+            a.textElement.visible = !a.textElement.visible
+          })
+          this.counter.namesVisible++
+        })
         input.prependTo('body')
         s.prependTo('body')
         this.allNetworks.forEach((n, i) => {
@@ -120,7 +156,7 @@ class AdParnassum {
           const f = uel.files[0]
           f.text().then(t => {
             transfer.mong.writeNetIfNotThereReadIfThere(t, f.name, f.lastModified, r => console.log(r))
-            self.currentNetwork = net.use.utils.loadJsonString(t)
+            wand.currentNetwork = net.use.utils.loadJsonString(t)
             const drawnNet = new conductor.use.DrawnNet(artist.use, wand.currentNetwork, [])
             conductor.use.showMembers(drawnNet.net, artist, true)
           })
@@ -128,12 +164,10 @@ class AdParnassum {
         input.on('click', () => {
           if (wand.extra.exibition) {
             delete wand.currentNetwork
-            setTimeout(function () {
-              wand.extra.exibition.remove()
-              delete wand.extra.exibition
-            }, 1000)
+            wand.extra.exibition.remove()
+            delete wand.extra.exibition
           }
-          if (self.currentNetwork) {
+          if (wand.currentNetwork) {
             wand.currentNetwork.forEachNode((n, a) => {
               a.pixiElement.destroy()
               a.textElement.destroy()
@@ -145,10 +179,28 @@ class AdParnassum {
             uel.click()
             return
           }
-          window.wand.currentNetwork = net.use.utils.loadJsonString(r[s.val()].text)
-          const drawnNet = new conductor.use.DrawnNet(artist.use, window.wand.currentNetwork, [])
-          conductor.use.showMembers(drawnNet.net, artist, true)
+          wand.currentNetwork = net.use.utils.loadJsonString(this.allNetworks[s.val()].text)
+          const drawnNet = new conductor.use.DrawnNet(artist.use, wand.currentNetwork, [artist.use.width * 0.7, artist.use.height * 0.7])
+          const ShowMembers = conductor.use.showMembers
+          wand.magic.showMembers = new ShowMembers(drawnNet.net, artist, true)
+          wand.magic.showMembers.sayNames(0.01)
           self.counter.networksVisualized++
+        })
+      },
+      randomColors: () => {
+        const pbtn = $('<button class="btn"><i class="fa fa-pallete"></i></button>').prop('title', 'change colors')
+        pbtn.insertAfter('#ibtn')
+        pbtn.on('click', () => {
+          const ecolor = 0xffffff * Math.random()
+          const ncolor = 0xffffff * Math.random()
+          wand.currentNetwork.forEachEdge((e, a) => {
+            a.pixiElement.tint = ecolor
+          })
+          wand.currentNetwork.forEachNode((e, a) => {
+            a.pixiElement.tint = ncolor
+          })
+          wand.artist.share.draw.base.app.renderer.backgroundColor = 0xffffff * Math.random()
+          self.counter.colorChange++
         })
       }
     }
@@ -156,12 +208,11 @@ class AdParnassum {
 
   mkConditions () {
     const self = this
+    this.startedAt = performance.now()
     this.conditions = {
       wait10s: () => {
-        if (!self.timeoutset && !self.conditionMet) {
-          setTimeout(() => {
-            self.conditionMet = true
-          }, 10000 * self.settings.timeStreach)
+        if (performance.now() - this.startedAt > 10000 * self.settings.timeStreach) {
+          self.conditionMet = true
         }
       },
       minClickOnNodesEdgesVisible: () => {
@@ -169,11 +220,8 @@ class AdParnassum {
           self.conditionMet = true
         }
       },
-      loadDatata: () => {
-        wand.transfer.mong.findAllNetworks().then(r => {
-          self.allNetworks = r
-          self.conditionMet = true
-        })
+      dummy: () => {
+        console.log('dummy condition, probably waiting for some feaature to be loaded')
       },
       networksVisualized: () => {
         if (

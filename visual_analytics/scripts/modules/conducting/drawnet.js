@@ -1,3 +1,4 @@
+/* global wand */
 // this file has basics for drawing a network, which includes obtaining layouts
 
 // import forceAtlas2 from 'graphology-layout-forceatlas2'
@@ -49,8 +50,8 @@ const scaleLayoutsToCanvas = (layouts, wh, border) => {
     const name = layoutNames[i]
     for (let j = 0; j < size; j++) {
       const pos = layouts[name][nodes[j]]
-      const x = pos.x * wh_[0] + border_[0]
-      const y = pos.y * wh_[1] + border_[1]
+      const x = pos.x * wh_[0] + border_[0] + (wand.extra.winDim[0] - wh[0]) / 2
+      const y = pos.y * wh_[1] + border_[1] + (wand.extra.winDim[1] - wh[1]) / 2
       layouts[name][nodes[j]].x = x
       layouts[name][nodes[j]].y = y
     }
@@ -60,7 +61,7 @@ const scaleLayoutsToCanvas = (layouts, wh, border) => {
 class DrawnNet {
   constructor (drawer, net, wh = [], layouts = [], border = 0.1) {
     if (wh.length === 0) {
-      wh = [drawer.width, drawer.height]
+      wh = wand.extra.winDim
     }
     if (layouts.length === 0) {
       layouts = makeLayouts(net, wh, border)

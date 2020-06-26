@@ -11,7 +11,8 @@ window.wand = {
 }
 
 wand.magic = {
-  Gradus: wand.conductor.use.gradus.Gradus
+  Gradus: wand.conductor.use.gradus.Gradus,
+  AdParnassum: wand.conductor.use.gradus.AdParnassum
 }
 
 // fixme: create and import needed modules, probably migrated from ../modules/*
@@ -31,7 +32,7 @@ const routes = {
   'metaNetwork.html': test.testMetaNetwork,
   'rotate.html': test.testRotateLayouts,
   'blink.html': test.testBlink,
-  'exhibit1.html': test.testExibition1,
+  'exhibit1.html': test.testExhibition1,
   'sparkmin.html': test.testSparkMin,
   'losd.html': test.testSparkLosd,
   'getNet.html': test.testGetNet0,
@@ -51,6 +52,7 @@ const routes = {
   'h.html': test.testHtmlEls,
   'h2.html': test.testHtmlEls2,
   'gradus.html': test.testGradus,
+  'adParnassum.html': test.testAdParnassum,
   'data_donated.html': () => console.log('a summary of the data donated in usage, upload and scrapping')
 }
 

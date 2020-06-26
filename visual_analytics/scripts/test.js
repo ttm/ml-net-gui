@@ -45,7 +45,7 @@ const testBlink = () => {
   conductor.use.blink(drawnNet.net, artist.share.draw.base.app)
 }
 
-const testExibition1 = (mode = 'test') => {
+const testExhibition1 = (mode = 'test') => {
   const drawnNet = testPlot(mode)
   const r = {
     drawnNet,
@@ -348,10 +348,15 @@ const testHtmlEls2 = () => {
 const testGradus = () => {
   // soh posso passar diretamente, o primeiro passo eh alguem falar seriamente c vc sobre o assunto e a gente conversar eu, o contato (Bruno/Aline) e ela, questao e seguranca e preservar os limites gratuitos
   // hack for testing:
-  wand.magic.state = new wand.magic.Gradus(0.1)
+  // wand.magic.state = new wand.magic.Gradus(0.1)
+  wand.magic.state = new wand.magic.Gradus(1)
   // window.wand.magic.Gradus()
   // depois de subir a propria rede, se compromete aos principios da fisica antropologica, incluindo dev continuar aberto GPL FSF de qqr ideia em software q a pessoa tiver disso, parecida conteitualmente ou nao
   // licensa JPL: joy public license, hommage ao Bill Joy (Vim, etc), e concorda dom o joy dos outros
 }
 
-module.exports = { testPlot, testRotateLayouts, testBlink, testExibition1, testDiffusion, testMultilevelDiffusion, testMetaNetwork, testSparkMin, testSparkLosd, testMong, testGetNet0, testGetNet1, testGetNet2, testGetNet3, testNetIO, testGUI, testNetUpload, testNetUpload2, testMongIO, testMongNetIO, testMongBetterNetIO, testNetPage, testPuxi, testHtmlEls, testHtmlEls2, testGradus }
+const testAdParnassum = () => {
+  wand.magic.adParnassum = new wand.magic.AdParnassum({ currentLevel: 55 })
+}
+
+module.exports = { testPlot, testRotateLayouts, testBlink, testExhibition1, testDiffusion, testMultilevelDiffusion, testMetaNetwork, testSparkMin, testSparkLosd, testMong, testGetNet0, testGetNet1, testGetNet2, testGetNet3, testNetIO, testGUI, testNetUpload, testNetUpload2, testMongIO, testMongNetIO, testMongBetterNetIO, testNetPage, testPuxi, testHtmlEls, testHtmlEls2, testGradus, testAdParnassum }

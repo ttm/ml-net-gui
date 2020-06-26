@@ -1,4 +1,9 @@
 /* global wand */
+
+// each gradus has:
+//    a feature it enables
+//    a condition to complete, which triggers its
+
 function Gradus (timeStreach = 1) {
   const $ = wand.$
   const s = (v) => {
@@ -26,7 +31,7 @@ function Gradus (timeStreach = 1) {
     () => {
       console.log('gradus1')
       this.achievements.push('loaded page')
-      wand.extra.exibition = wand.test.testExibition1('gradus')
+      wand.extra.exibition = wand.test.testExhibition1('gradus')
       wand.currentNetwork = wand.extra.exibition.drawnNet.net
       console.log(10000 * timeStreach, timeStreach, 'timeStreach')
       setTimeout(() => {
@@ -153,20 +158,17 @@ function Gradus (timeStreach = 1) {
       })
     },
     () => {
-      console.log('last level')
       wand.extra.counter.colorChange = 0
       const pbtn = $('<button class="btn"><i class="fa fa-pallete"></i></button>').prop('title', 'change colors')
       pbtn.insertAfter('#ibtn')
       pbtn.on('click', () => {
         const ecolor = 0xffffff * Math.random()
         const ncolor = 0xffffff * Math.random()
-        const tcolor = 0xffffff * Math.random()
         wand.currentNetwork.forEachEdge((e, a) => {
           a.pixiElement.tint = ecolor
         })
         wand.currentNetwork.forEachNode((e, a) => {
           a.pixiElement.tint = ncolor
-          a.textElement.tint = tcolor
         })
         wand.artist.share.draw.base.app.renderer.backgroundColor = 0xffffff * Math.random()
         wand.extra.counter.colorChange++
@@ -175,8 +177,10 @@ function Gradus (timeStreach = 1) {
           this.allGradus[this.currentLevel]()
         }
       })
+    },
+    () => {
+      console.log('last level')
     }
-
   ]
   setStage()
   this.allGradus[0]()

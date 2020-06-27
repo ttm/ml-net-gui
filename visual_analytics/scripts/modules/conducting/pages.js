@@ -1,3 +1,4 @@
+/* global wand */
 const gui = require('./gui.js')
 // const { DrawnNet } = require('./drawnet.js').use
 // const { showMembers } = require('./animate.js').use
@@ -17,4 +18,18 @@ const net = (net, artist, transfer) => {
   // }
 }
 
-module.exports = { net }
+const worldPropertyCondition = () => {
+  const $ = wand.$
+  const text = `In continuing to thrive through the gradus,
+    you agree to be, or is considered as, an owner of the Earth
+  and of the universe. In any matters of the State or institution
+  you are part of, your deliberation/vote count as any other,
+  you have to choose someone that is responsible in
+  case of your abstinence. Her vote will count twice, if another
+  person decides for her, that person's decision will count 3 times.`
+  const a = $(`<div>${text}</div>`)
+  a.prependTo('body')
+  return a
+}
+
+module.exports = { net, worldPropertyCondition }

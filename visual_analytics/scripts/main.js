@@ -54,6 +54,7 @@ const routes = {
   'h2.html': test.testHtmlEls2,
   'gradus.html': test.testGradus,
   'adParnassum.html': test.testAdParnassum,
+  'worldProperty.html': test.testWorldPropertyPage,
   'data_donated.html': () => console.log('a summary of the data donated in usage, upload and scrapping')
 }
 

@@ -179,9 +179,10 @@ function showMembersAndBlink (net, artist, alternate = false) {
   }
 }
 
-const blinkChangeColorsAndSayNames = () => {
+function blinkChangeColorsAndSayNames () {
   // fixme: not used nor tested
-  const { artist, net } = wand
+  const { artist, currentNetwork } = wand
+  const net = currentNetwork
 
   this.sayNames = (density = 0.1) => {
     const nodes = net.nodes()

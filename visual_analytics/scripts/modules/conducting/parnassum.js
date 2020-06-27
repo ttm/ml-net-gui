@@ -726,6 +726,9 @@ class AdParnassum {
             aa.textElement.alpha = 1
           })
         }
+        const cn = wand.currentNetwork
+        const activated = `${cn.totalActivated}/${cn.totalAccessed}/`
+        this.texts.orderSize.text = `members, friendships: ${activated}${wand.currentNetwork.order}, ${wand.currentNetwork.size}`
       })
     })
     const $ = wand.$
@@ -747,6 +750,7 @@ class AdParnassum {
           a.pixiElement.tint = 0xff0000
           a.textElement.visible = true
         })
+        this.texts.orderSize.text = `members, friendships: 0/0/${wand.currentNetwork.order}, ${wand.currentNetwork.size}`
         return
       }
       if (m.friendsExplorer) {
@@ -761,6 +765,9 @@ class AdParnassum {
       net.totalAccessed = 0
       m.friendsExplorer = true
       $('#nbtn').click()
+      const cn = wand.currentNetwork
+      const activated = `${cn.totalActivated}/${cn.totalAccessed}/`
+      this.texts.orderSize.text = `members, friendships: ${activated}${wand.currentNetwork.order}, ${wand.currentNetwork.size}`
     })
     return fbtn
   }

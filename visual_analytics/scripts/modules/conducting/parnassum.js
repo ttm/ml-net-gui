@@ -269,7 +269,6 @@ class AdParnassum {
           setInterval(() => {
             let total = 0
             for (const i in self.counter) {
-              console.log(i)
               total += self.counter[i]
             }
             self.texts.interactionCount.text = `interactions: ${total}`
@@ -330,6 +329,13 @@ class AdParnassum {
         tip: 'click a bit more on the buttons',
         condition: () => {
           wand.extra.counter = self.counter
+          let total = 0
+          for (const i in self.counter) {
+            total += self.counter[i]
+          }
+          if (total > 50) {
+            self.conditionMet = true
+          }
         }
       }
     }

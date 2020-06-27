@@ -459,6 +459,143 @@ class AdParnassum {
         tip: 'search for names and load nets',
         condition: () => {
         }
+      },
+      makeSongAboutSomeone: {
+        tip: 'select a person in loop, use new sync',
+        condition: () => {
+          // select any person in any network
+        }
+      },
+      uploadYourNetwork: {
+        tip: 'install and run extension',
+        condition: () => {
+          // execute extension and result in a full network
+          // or at least > 100
+        }
+      },
+      makeSongAboutYourNetwork: {
+        tip: 'record a song about your network',
+        condition: () => {
+          // youtube > 10s
+        }
+      },
+      newInstruments: {
+        tip: 'use new instruments',
+        condition: () => {
+          // track new instruments usage
+        }
+      },
+      uploadFullNetwork: { // maybe always call this on load
+        tip: 'finish loading your network',
+        condition: () => {
+          // execute extension and return full in last month
+        }
+      },
+      makeFullNetworkMusic: {
+        tip: 'record song > 10s video',
+        condition: () => {
+          // execute extension and return full in last month
+        }
+      },
+      makeFullNetworkSilence: {
+        tip: 'record song > 10s video',
+        condition: () => {
+          // execute extension and return full in last month
+        }
+      },
+      makeFullNetworkVoices: {
+        tip: 'record choir > 10s video',
+        condition: () => {
+          // record choir in own network
+          // new song/audio on mode
+        }
+      },
+      exploreSync: {
+        tip: 'use synchronizer in networks',
+        condition: () => {
+          // select at least two networks and sync options
+        }
+      },
+      recordSync: {
+        tip: 'record one full synchronization',
+        condition: () => {
+          // from loading the network to
+          // completing the network
+          // or repeating synchronization > 10s
+        }
+      },
+      useMultilevelSync: {
+        tip: 'explore multilevel sync',
+        condition: () => {
+          // some time with it on and off in some networks
+        }
+      },
+      startYourSync: {
+        tip: 'set three synchronization candidates',
+        condition: () => {
+          // new button four states:
+          // not setting, set1, set2, set3
+        }
+      },
+      setSync: {
+        tip: 'test sync button with different candidates',
+        condition: () => {
+          // at least once with each candidate
+        }
+      },
+      startSync: {
+        tip: 'lock sync and open songs for the synchronization',
+        condition: () => {
+          // hit the lock sync and generate the synchronization
+          // songs and links.
+        }
+      },
+      mutiple1: {
+        tip: 'use the interface',
+        condition: () => {
+          // enable login with the same fb id.
+          //    needs click on the extension
+          // enable and track taking notes on nodes
+          //    imediatelly sends to the server
+          //    always loads with network
+          //    node gets square or hexagonal
+          //    public and related to the id of the user
+          // time online: more instruments
+          // sync > 50%, a minor sync
+          // sync > 10%, scrapping random person
+          // videos recorded:
+          // clicks: info on the network, nodes, links
+        }
+      },
+      startSecondSync: {
+        tip: 'locked for you',
+        condition: () => {
+          // lock two syncs
+        }
+      },
+      useTwitterStream: {
+        tip: 'set hashtag to set Twitter stream',
+        condition: () => {
+          // set some hashtags and observe networks 10 < N < 1000
+        }
+      },
+      recordTwitterStream: {
+        tip: 'record hashtag Twitter stream',
+        condition: () => {
+          // > 10s
+        }
+      },
+      useInstagramStream: {
+        tip: 'set instagram stream',
+        condition: () => {
+          // set some hashtags and observe networks 10 < N < 1000
+        }
+      },
+      recordInstagramStream: {
+        tip: 'record instagram stream',
+        condition: () => {
+          // > 10s
+        }
       }
     }
   }

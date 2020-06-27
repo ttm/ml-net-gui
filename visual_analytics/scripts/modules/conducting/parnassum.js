@@ -101,6 +101,7 @@ class AdParnassum {
       { feature: 'loadDatata', condition: 'dummy' },
       { feature: 'visualizeNetworks', condition: 'networksVisualized' },
       { feature: 'randomColors', condition: 'colorChanges' },
+
       { feature: 'interactionCount', condition: 'interactMore' },
       { feature: 'nodeInfo', condition: 'hoverNodes' },
       { feature: 'nodeInfoClick', condition: 'activateAll' }
@@ -415,7 +416,7 @@ class AdParnassum {
         }
       },
       activate3Access2: {
-        tip: `expore e reach members count: 3/2/${wand.currentNetwork.order}`,
+        tip: 'expore e reach members count: 3/2/XXXX',
         condition: () => {
           const cn = wand.currentNetwork
           if (cn.totalActivated === 3 && cn.totalAccessed === 2) {
@@ -424,7 +425,7 @@ class AdParnassum {
         }
       },
       activate2Access9: {
-        tip: `expore e reach members count: 2/9/${wand.currentNetwork.order}`,
+        tip: 'expore e reach members count: 2/9/XXXX',
         condition: () => {
           const cn = wand.currentNetwork
           if (cn.totalActivated === 2 && cn.totalAccessed === 9) {
@@ -749,45 +750,47 @@ class AdParnassum {
         this.texts.orderSize.text = `members, friendships: ${activated}${wand.currentNetwork.order}, ${wand.currentNetwork.size}`
       })
     })
-    const $ = wand.$
-    const fbtn = $('<button class="btn"><i class="fa fa-user-alt" id="ifr"></i></button>').prop('title', 'friends explorer')
-    fbtn.insertAfter('#pbtn')
-    self.fbtn = fbtn
-    fbtn.on('click', () => {
-      const m = wand.magic
-      console.log('change friendship tool')
-      if (m.friendsExplorerHoney) {
-        delete m.friendsExplorer
-        delete m.friendsExplorerHoney
-        console.log('off')
-        $('#ifr').removeClass('fa-people-arrows').addClass('fa-users')
-        net.forEachNode((n, a) => {
-          delete a.accessed
-          delete a.activated
-          a.pixiElement.scale.set(1)
-          a.pixiElement.tint = 0xff0000
-          a.textElement.visible = true
-        })
-        this.texts.orderSize.text = `members, friendships: 0/0/${wand.currentNetwork.order}, ${wand.currentNetwork.size}`
-        return
-      }
-      if (m.friendsExplorer) {
-        m.friendsExplorerHoney = true
-        console.log('on honey')
-        $('#ifr').removeClass('fa-user-cog').addClass('fa-people-arrows')
-        return
-      }
-      console.log('on explorer')
-      $('#ifr').removeClass('fa-users-alt').addClass('fa-user-cog')
-      net.totalActivated = 0
-      net.totalAccessed = 0
-      m.friendsExplorer = true
-      $('#nbtn').click()
-      const cn = wand.currentNetwork
-      const activated = `${cn.totalActivated}/${cn.totalAccessed}/`
-      this.texts.orderSize.text = `members, friendships: ${activated}${wand.currentNetwork.order}, ${wand.currentNetwork.size}`
-    })
-    return fbtn
+    if (!self.friendsExplorerActivated) {
+      const $ = wand.$
+      const fbtn = $('<button class="btn"><i class="fa fa-user-alt" id="ifr"></i></button>').prop('title', 'friends explorer')
+      fbtn.insertAfter('#pbtn')
+      self.fbtn = fbtn
+      fbtn.on('click', () => {
+        const m = wand.magic
+        console.log('change friendship tool')
+        if (m.friendsExplorerHoney) {
+          delete m.friendsExplorer
+          delete m.friendsExplorerHoney
+          console.log('off')
+          $('#ifr').removeClass('fa-people-arrows').addClass('fa-users')
+          net.forEachNode((n, a) => {
+            delete a.accessed
+            delete a.activated
+            a.pixiElement.scale.set(1)
+            a.pixiElement.tint = 0xff0000
+            a.textElement.visible = true
+          })
+          this.texts.orderSize.text = `members, friendships: 0/0/${wand.currentNetwork.order}, ${wand.currentNetwork.size}`
+          return
+        }
+        if (m.friendsExplorer) {
+          m.friendsExplorerHoney = true
+          console.log('on honey')
+          $('#ifr').removeClass('fa-user-cog').addClass('fa-people-arrows')
+          return
+        }
+        console.log('on explorer')
+        $('#ifr').removeClass('fa-users-alt').addClass('fa-user-cog')
+        net.totalActivated = 0
+        net.totalAccessed = 0
+        m.friendsExplorer = true
+        $('#nbtn').click()
+        const cn = wand.currentNetwork
+        const activated = `${cn.totalActivated}/${cn.totalAccessed}/`
+        this.texts.orderSize.text = `members, friendships: ${activated}${wand.currentNetwork.order}, ${wand.currentNetwork.size}`
+      })
+      return fbtn
+    }
   }
 }
 

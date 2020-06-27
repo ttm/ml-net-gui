@@ -138,6 +138,8 @@ class AdParnassum {
     const t = this.texts.achievement.tint
     this.texts.achievement.tint = t === 0x666600 ? 0x660066 : 0x666600
     this.texts.tip.text = `tip: ${tip}`
+    wand.maestro.synths.speaker.play(`new feature achieved: ${achievement}`, 'en')
+    wand.maestro.synths.speaker.play(`suggestion on what to do now: ${tip}`, 'en')
   }
 
   mkFeatures () {
@@ -329,7 +331,7 @@ class AdParnassum {
         }
       },
       interactMore: {
-        tip: 'click a bit more on the buttons',
+        tip: 'click around and explore',
         condition: () => {
           wand.extra.counter = self.counter
           let total = 0

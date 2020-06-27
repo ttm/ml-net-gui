@@ -16,7 +16,6 @@ class AdParnassum {
   constructor (settings = {}) {
     const defaultSettings = {
       currentLevel: 0,
-      relativeSize: 1,
       fontSize: 20,
       timeStreach: 1, // only used for when time has to pass
       counter: {
@@ -29,11 +28,10 @@ class AdParnassum {
     }
     this.settings = { ...defaultSettings, ...settings }
     console.log(wand.artist.use.height, 'HEIGHT')
-    if (!settings.relativeSize) {
-      const refHeight = 833
-      const prop = wand.artist.use.height / refHeight
-      this.settings.heightProportion = prop
-    }
+    const refHeight = 833
+    const refWidth = 884
+    this.settings.heightProportion = wand.artist.use.height / refHeight
+    this.settings.widthProportion = wand.artist.use.width / refWidth
     this.texts = {} // pixi elements
     this.achievements = [] // list of strings (sentences in natural language)
     // this.setLevels()
@@ -95,25 +93,29 @@ class AdParnassum {
     ]
   }
 
-  scale (val) {
-    return this.settings.relativeSize * val
+  scaley (val) {
+    return this.settings.heightProportion * val
+  }
+
+  scalex (val) {
+    return this.settings.widthProportion * val
   }
 
   setStage () {
     const a = wand.artist.use
-    wand.rect1 = a.mkRectangle({ wh: [a.width, a.height * 0.05], zIndex: 200, color: 0xffffff, alpha: 0.85 })
+    wand.rect1 = a.mkRectangle({ wh: [a.width, a.height * 0.055], zIndex: 200, color: 0xffffff, alpha: 0.85 })
     const f = this.settings.fontSize
-    this.texts.adParnassum = wand.artist.use.mkTextFancy('ad parnassum: > 1', [this.scale(f / 2), this.scale(f * 1.1)], this.scale(f), 0x777733)
+    this.texts.adParnassum = wand.artist.use.mkTextFancy('ad parnassum: > 1', [this.scalex(f / 2), this.scaley(f * 1.1)], this.scaley(f), 0x777733)
   }
 
   setLevel () {
     const f = this.settings.fontSize
     const p = f / 2
-    this.texts.gradus = wand.artist.use.mkTextFancy(`gradus: ${this.settings.currentLevel}`, [this.scale(p), this.scale(p) * 0.1], this.scale(f), 0x333377)
+    this.texts.gradus = wand.artist.use.mkTextFancy(`gradus: ${this.settings.currentLevel}`, [this.scalex(p), this.scaley(p) * 0.1], this.scaley(f), 0x333377)
 
     const { feature, condition } = this.gradus[this.currentLevel]
-    this.texts.achievement = wand.artist.use.mkTextFancy(`achieved: ${feature.achievement}`, [this.scale(p) * 25, p * 0.2], this.scale(f), 0x666600)
-    this.texts.tip = wand.artist.use.mkTextFancy(`tip: ${condition.tip}`, [this.scale(p) * 25, p * 2.2], this.scale(f), 0x555599)
+    this.texts.achievement = wand.artist.use.mkTextFancy(`achieved: ${feature.achievement}`, [this.scalex(p) * 21, this.scaley(p) * 0.2], this.scaley(f), 0x666600)
+    this.texts.tip = wand.artist.use.mkTextFancy(`tip: ${condition.tip}`, [this.scalex(p) * 21, this.scaley(p) * 2.2], this.scaley(f), 0x555599)
   }
 
   bumpLevel () {
@@ -128,6 +130,8 @@ class AdParnassum {
     const tip = this.conditions[step.condition].tip
     this.texts.gradus.text = `gradus: ${this.currentLevel}`
     this.texts.achievement.text = `achieved: ${achievement}`
+    const t = this.texts.achievement.tint
+    this.texts.achievement.tint = t === 0x666600 ? 0x660066 : 0x666600
     this.texts.tip.text = `tip: ${tip}`
   }
 
@@ -140,6 +144,8 @@ class AdParnassum {
         alg: () => {
           wand.extra.exibition = wand.test.testExhibition1('gradus')
           wand.currentNetwork = wand.extra.exibition.drawnNet.net
+          const f = self.settings.fontSize
+          self.texts.orderSize = wand.artist.use.mkTextFancy(`members, friendships: ${wand.currentNetwork.order}, ${wand.currentNetwork.size}`, [self.scalex(f) * 29.5, self.scaley(f * 0.1)], self.scaley(f), 0x773377)
         }
       },
       showHideLinks: {
@@ -230,6 +236,7 @@ class AdParnassum {
             // const ShowMembers = conductor.use.showMembers
             wand.magic.showMembers = conductor.use.showMembers(drawnNet.net, artist, true)
             // wand.magic.showMembers.sayNames(0.01)
+            self.texts.orderSize.text = `members, friendships: ${wand.currentNetwork.order}, ${wand.currentNetwork.size}`
             self.counter.networksVisualized++
           })
         }
@@ -251,6 +258,11 @@ class AdParnassum {
             wand.artist.share.draw.base.app.renderer.backgroundColor = 0xffffff * Math.random()
             self.counter.colorChange++
           })
+        }
+      },
+      interactionCount: {
+        achievement: 'access to interactions counter',
+        alg: () => {
         }
       }
     }

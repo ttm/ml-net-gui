@@ -274,6 +274,9 @@ class AdParnassum {
             if (this.nodeInfoActivated) {
               this.setNodeInfo()
             }
+            if (this.friendsExplorerActivated) {
+              this.setFriendsExporer()
+            }
             this.texts.orderSize.text = `members, friendships: ${wand.currentNetwork.order}, ${wand.currentNetwork.size}`
             this.counter.networksVisualized++
           })
@@ -324,6 +327,7 @@ class AdParnassum {
         achievement: 'click node to explore in network',
         alg: () => {
           self.setFriendsExporer()
+          self.friendsExplorerActivated = true
         }
       }
     }
@@ -402,6 +406,12 @@ class AdParnassum {
         condition: () => {
           // keep track of total activations
           // and of activated nodes in currentNetwork
+          const net = wand.currentNetwork
+          const self = this
+          if (net.totalActivated + net.totalAccessed >= net.order) {
+            console.log('all activated or accessed, gradus achieved')
+            self.conditionMet = true
+          }
         }
       },
       chooseSeed: {
@@ -646,17 +656,15 @@ class AdParnassum {
         }
         if (net.totalActivated + net.totalAccessed >= net.order) {
           console.log('all activated or accessed')
-          self.conditionMet = true
+          net.totalAccessed = 0
+          net.totalActivated = 0
           net.forEachNode((n, a) => {
             delete a.accessed
-            net.totalAccessed = 0
             delete a.activated
-            net.totalActivated = 0
             a.pixiElement.scale.set(1)
             a.pixiElement.tint = 0xff0000
             a.textElement.visible = false
           })
-          return
         }
         if (a.activated) {
           a.pixiElement.tint = a.lastColor
@@ -732,6 +740,13 @@ class AdParnassum {
         delete m.friendsExplorerHoney
         console.log('off')
         $('#ifr').removeClass('fa-people-arrows').addClass('fa-users')
+        net.forEachNode((n, a) => {
+          delete a.accessed
+          delete a.activated
+          a.pixiElement.scale.set(1)
+          a.pixiElement.tint = 0xff0000
+          a.textElement.visible = true
+        })
         return
       }
       if (m.friendsExplorer) {

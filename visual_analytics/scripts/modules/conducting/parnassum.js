@@ -414,6 +414,24 @@ class AdParnassum {
           }
         }
       },
+      activate3Access2: {
+        tip: `expore e reach members count: 3/2/${wand.currentNetwork.order}`,
+        condition: () => {
+          const cn = wand.currentNetwork
+          if (cn.totalActivated === 3 && cn.totalAccessed === 2) {
+            self.conditionMet = true
+          }
+        }
+      },
+      activate2Access9: {
+        tip: `expore e reach members count: 2/9/${wand.currentNetwork.order}`,
+        condition: () => {
+          const cn = wand.currentNetwork
+          if (cn.totalActivated === 2 && cn.totalAccessed === 9) {
+            self.conditionMet = true
+          }
+        }
+      },
       chooseSeed: {
         tip: 'click on node to synchronize full network',
         condition: () => {

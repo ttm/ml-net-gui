@@ -208,7 +208,7 @@ class AdParnassum {
           const net = wand.net
           const transfer = wand.transfer
 
-          const names = $('<button class="btn"><i class="fa fa-mask"></i></button>').prop('title', 'show names')
+          const names = $('<button class="btn" id="nbtn"><i class="fa fa-mask"></i></button>').prop('title', 'show names')
           const input = $('<button class="btn"><i class="fa fa-archway"></i></button>').prop('title', 'load or upload network')
           const s = $('<select/>').prop('title', 'select network')
           names.prependTo('body')
@@ -321,7 +321,7 @@ class AdParnassum {
         }
       },
       nodeInfoClick: {
-        achievement: 'click node to get mode info',
+        achievement: 'click node to explore in network',
         alg: () => {
           self.setFriendsExporer()
         }
@@ -647,6 +647,16 @@ class AdParnassum {
         if (net.totalActivated + net.totalAccessed >= net.order) {
           console.log('all activated or accessed')
           self.conditionMet = true
+          net.forEachNode((n, a) => {
+            delete a.accessed
+            net.totalAccessed = 0
+            delete a.activated
+            net.totalActivated = 0
+            a.pixiElement.scale.set(1)
+            a.pixiElement.tint = 0xff0000
+            a.textElement.visible = false
+          })
+          return
         }
         if (a.activated) {
           a.pixiElement.tint = a.lastColor
@@ -670,6 +680,7 @@ class AdParnassum {
           net.totalActivated += 1
           a.activated = true
           a.pixiElement.scaleBlock = true
+          a.textElement.visible = true
           const bg = wand.artist.share.draw.base.app.renderer.backgroundColor
           let color = 0xffffff
           if (bg >= 0xffffff / 2) {
@@ -734,6 +745,7 @@ class AdParnassum {
       net.totalActivated = 0
       net.totalAccessed = 0
       m.friendsExplorer = true
+      $('#nbtn').click()
     })
     return fbtn
   }

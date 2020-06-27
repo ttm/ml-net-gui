@@ -116,7 +116,13 @@ class AdParnassum {
   setStage () {
     const a = wand.artist.use
     wand.rect1 = a.mkRectangle({ wh: [a.width, a.height * 0.055], zIndex: 200, color: 0xffffff, alpha: 0.85 })
+    wand.rect2 = a.mkRectangle({ wh: [a.width, a.height * 0.055], zIndex: 100, color: 0xbbbbbb, alpha: 1 })
     const f = this.settings.fontSize
+    const p = f / 2
+    this.texts.nodeId = wand.artist.use.mkTextFancy('', [this.scalex(p), this.scaley(p) * 0.1], this.scaley(f), 0x333377, 1)
+    this.texts.nodeName = wand.artist.use.mkTextFancy('', [this.scalex(f / 2), this.scaley(f * 1.1)], this.scaley(f), 0x777733, 1)
+    this.texts.nodeDegree = wand.artist.use.mkTextFancy('', [this.scalex(p) * 41, this.scaley(p) * 0.2], this.scaley(f), 0x666600, 1)
+    this.texts.nodeDegreeCentrality = wand.artist.use.mkTextFancy('', [this.scalex(p) * 41, this.scaley(p) * 2.2], this.scaley(f), 0x555599, 1)
     this.texts.adParnassum = wand.artist.use.mkTextFancy('ad parnassum: > 1', [this.scalex(f / 2), this.scaley(f * 1.1)], this.scaley(f), 0x777733)
   }
 
@@ -216,7 +222,6 @@ class AdParnassum {
             s.append($('<option/>').val(i).html(n.name))
           })
           const uel = document.getElementById('file-input')
-          const self = this
           uel.onchange = res => {
             const f = uel.files[0]
             f.text().then(t => {
@@ -264,8 +269,11 @@ class AdParnassum {
             wand.currentNetwork.degree = mString('degree')
             wand.magic.showMembers = conductor.use.showMembers(drawnNet.net, artist, true)
             // wand.magic.showMembers.sayNames(0.01)
-            self.texts.orderSize.text = `members, friendships: ${wand.currentNetwork.order}, ${wand.currentNetwork.size}`
-            self.counter.networksVisualized++
+            if (this.nodeInfoActivated) {
+              this.setNodeInfo()
+            }
+            this.texts.orderSize.text = `members, friendships: ${wand.currentNetwork.order}, ${wand.currentNetwork.size}`
+            this.counter.networksVisualized++
           })
           input.click()
         }
@@ -307,38 +315,8 @@ class AdParnassum {
         achievement: 'hover node to get some info',
         alg: () => {
           self.counter.hoverNode = 0
-          const a = wand.artist.use
-          wand.rect2 = a.mkRectangle({ wh: [a.width, a.height * 0.055], zIndex: 100, color: 0xbbbbbb, alpha: 1 })
-          const f = self.settings.fontSize
-          const p = f / 2
-          self.texts.nodeId = wand.artist.use.mkTextFancy('', [self.scalex(p), self.scaley(p) * 0.1], self.scaley(f), 0x333377, 1)
-          self.texts.nodeName = wand.artist.use.mkTextFancy('', [self.scalex(f / 2), self.scaley(f * 1.1)], self.scaley(f), 0x777733, 1)
-          self.texts.nodeDegree = wand.artist.use.mkTextFancy('', [self.scalex(p) * 41, self.scaley(p) * 0.2], self.scaley(f), 0x666600, 1)
-          self.texts.nodeDegreeCentrality = wand.artist.use.mkTextFancy('', [self.scalex(p) * 41, self.scaley(p) * 2.2], self.scaley(f), 0x555599, 1)
-          const net = wand.currentNetwork
-          net.forEachNode((n, a) => {
-            a.pixiElement.on('pointerover', () => {
-              console.log(n, a, 'NODE HOVERED')
-              self.counter.hoverNode++
-              wand.rect2.zIndex = 500
-              self.texts.nodeId.text = `id: ${a.id}`
-              self.texts.nodeName.text = `name: ${a.name}`
-              self.texts.nodeDegree.text = `degree: ${a.degree} in ${net.degree}`
-              self.texts.nodeDegreeCentrality.text = `degree centrality: ${a.degreeCentrality.toFixed(3)} in ${net.degreeCentrality}`
-              self.texts.nodeId.zIndex = 600
-              self.texts.nodeName.zIndex = 600
-              self.texts.nodeDegree.zIndex = 600
-              self.texts.nodeDegreeCentrality.zIndex = 600
-              wand.extra.nnn = { n, a }
-            })
-            a.pixiElement.on('pointerout', () => {
-              wand.rect2.zIndex = 100
-              self.texts.nodeId.zIndex = 100
-              self.texts.nodeName.zIndex = 100
-              self.texts.nodeDegree.zIndex = 100
-              self.texts.nodeDegreeCentrality.zIndex = 100
-            })
-          })
+          self.setNodeInfo()
+          self.nodeInfoActivated = true
         }
       }
     }
@@ -413,6 +391,33 @@ class AdParnassum {
         }
       }
     }
+  }
+
+  setNodeInfo () {
+    const net = wand.currentNetwork
+    net.forEachNode((n, a) => {
+      a.pixiElement.on('pointerover', () => {
+        console.log(n, a, 'NODE HOVERED')
+        this.counter.hoverNode++
+        wand.rect2.zIndex = 500
+        this.texts.nodeId.text = `id: ${a.id}`
+        this.texts.nodeName.text = `name: ${a.name}`
+        this.texts.nodeDegree.text = `degree: ${a.degree} in ${net.degree}`
+        this.texts.nodeDegreeCentrality.text = `degree centrality: ${a.degreeCentrality.toFixed(3)} in ${net.degreeCentrality}`
+        this.texts.nodeId.zIndex = 600
+        this.texts.nodeName.zIndex = 600
+        this.texts.nodeDegree.zIndex = 600
+        this.texts.nodeDegreeCentrality.zIndex = 600
+        wand.extra.nnn = { n, a }
+      })
+      a.pixiElement.on('pointerout', () => {
+        wand.rect2.zIndex = 100
+        this.texts.nodeId.zIndex = 100
+        this.texts.nodeName.zIndex = 100
+        this.texts.nodeDegree.zIndex = 100
+        this.texts.nodeDegreeCentrality.zIndex = 100
+      })
+    })
   }
 }
 

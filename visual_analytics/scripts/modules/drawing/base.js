@@ -2,7 +2,7 @@ const PIXI = require('./pixi').PIXI
 
 const app = new PIXI.Application({
   width: window.innerWidth,
-  height: window.innerHeight,
+  height: window.innerHeight * 0.95,
   // transparent: true
   backgroundColor: 0x000000
 })
@@ -121,7 +121,7 @@ function mkTextBetter (
   return texto
 }
 
-function mkTextFancy (text, pos, fontSize = 15, color = 0x00ff00) {
+function mkTextFancy (text, pos, fontSize = 15, color = 0x00ff00, zIndex = 300) {
   const texto = new PIXI.Text(
     text,
     { fontFamily: 'Arial', fontSize, fill: 0xffffff, align: 'center' }
@@ -129,7 +129,7 @@ function mkTextFancy (text, pos, fontSize = 15, color = 0x00ff00) {
   texto.tint = color
   texto.x = pos[0]
   texto.y = pos[1]
-  texto.zIndex = 10
+  texto.zIndex = zIndex
   app.stage.addChild(texto)
   return texto
 }
@@ -164,8 +164,9 @@ function updateLink (l) {
   l.lineTo(l.p2.x, l.p2.y)
 }
 
-app.ticker.add((delta) => {
-  // delta is 1 for 60 fps
+app.ticker.add((delta) => { // delta is 1 for 60 fps
+  // would or might need to change zIndex:
+  // app.renderer.render(app.stage)
 })
 document.body.appendChild(app.view)
 

@@ -13,7 +13,9 @@ window.wand = {
 
 wand.magic = {
   Gradus: wand.conductor.use.gradus.Gradus,
-  AdParnassum: wand.conductor.use.parnassum.AdParnassum
+  AdParnassum: wand.conductor.use.parnassum.AdParnassum,
+  PIXI: wand.artist.share.draw.base.PIXI,
+  app: wand.artist.share.draw.base.app
 }
 
 const artist = wand.artist

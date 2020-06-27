@@ -1,9 +1,11 @@
 const base = require('./base')
 const ambience = require('./ambience')
+const utils = require('./utils.js')
 const test = require('./test')
 
 const use = {
   mkNode: base.use.mkNode,
+  mkRectangle: utils.mkRectangle,
   mkLink: base.use.mkLink,
   mkText: base.use.mkText,
   mkTextFancy: base.use.mkTextFancy,

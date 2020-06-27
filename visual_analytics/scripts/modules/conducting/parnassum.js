@@ -28,6 +28,12 @@ class AdParnassum {
       }
     }
     this.settings = { ...defaultSettings, ...settings }
+    console.log(wand.artist.use.height, 'HEIGHT')
+    if (!settings.relativeSize) {
+      const refHeight = 833
+      const prop = wand.artist.use.height / refHeight
+      this.settings.heightProportion = prop
+    }
     this.texts = {} // pixi elements
     this.achievements = [] // list of strings (sentences in natural language)
     // this.setLevels()
@@ -94,18 +100,20 @@ class AdParnassum {
   }
 
   setStage () {
+    const a = wand.artist.use
+    wand.rect1 = a.mkRectangle({ wh: [a.width, a.height * 0.05], zIndex: 200, color: 0xffffff, alpha: 0.85 })
     const f = this.settings.fontSize
-    this.texts.adParnassum = wand.artist.use.mkTextFancy('ad parnassum: > 1', [this.scale(f / 2), this.scale(f * 1.5)], this.scale(f), 0xffff00)
+    this.texts.adParnassum = wand.artist.use.mkTextFancy('ad parnassum: > 1', [this.scale(f / 2), this.scale(f * 1.1)], this.scale(f), 0x777733)
   }
 
   setLevel () {
     const f = this.settings.fontSize
     const p = f / 2
-    this.texts.gradus = wand.artist.use.mkTextFancy(`gradus: ${this.settings.currentLevel}`, [this.scale(p), this.scale(p)], this.scale(f))
+    this.texts.gradus = wand.artist.use.mkTextFancy(`gradus: ${this.settings.currentLevel}`, [this.scale(p), this.scale(p) * 0.1], this.scale(f), 0x333377)
 
     const { feature, condition } = this.gradus[this.currentLevel]
-    this.texts.achievement = wand.artist.use.mkTextFancy(`achieved: ${feature.achievement}`, [this.scale(p), p * 5], this.scale(f), 0xff9999)
-    this.texts.tip = wand.artist.use.mkTextFancy(`tip: ${condition.tip}`, [this.scale(p), p * 7], this.scale(f), 0x9999ff)
+    this.texts.achievement = wand.artist.use.mkTextFancy(`achieved: ${feature.achievement}`, [this.scale(p) * 25, p * 0.2], this.scale(f), 0x666600)
+    this.texts.tip = wand.artist.use.mkTextFancy(`tip: ${condition.tip}`, [this.scale(p) * 25, p * 2.2], this.scale(f), 0x555599)
   }
 
   bumpLevel () {

@@ -637,11 +637,16 @@ class AdParnassum {
 
   setFriendsExporer () {
     const net = wand.currentNetwork
+    const self = this
     net.forEachNode((n, a) => {
       a.pixiElement.on('pointerdown', () => {
         console.log('yeah clicked')
         if (!wand.magic.friendsExplorer) {
           return
+        }
+        if (net.totalActivated + net.totalAccessed >= net.order) {
+          console.log('all activated or accessed')
+          self.conditionMet = true
         }
         if (a.activated) {
           a.pixiElement.tint = a.lastColor
@@ -652,14 +657,18 @@ class AdParnassum {
             aa.pixiElement.scale.y = aa.lastScale.y
             aa.pixiElement.tint = aa.lastColor
             aa.textElement.tint = aa.lastTextColor
-            if (wand.extra.friendsExplorerHoney) {
+            if (!wand.extra.friendsExplorerHoney) {
               delete aa.lastScale
               delete aa.lastColor
               delete aa.lastTextColor
             }
           })
-          delete a.activated
+          if (!wand.extra.friendsExplorerHoney) {
+            delete a.activated
+          }
         } else {
+          net.totalActivated += 1
+          a.activated = true
           a.pixiElement.scaleBlock = true
           const bg = wand.artist.share.draw.base.app.renderer.backgroundColor
           let color = 0xffffff
@@ -686,30 +695,44 @@ class AdParnassum {
             aa.lastTextColor = aa.textElement.tint
             aa.pixiElement.scale.set(3)
             aa.pixiElement.tint = 0xffff00
+            aa.textElement.visible = true
+            if (!aa.accessed) {
+              aa.accessed = true
+              net.totalAccessed += 1
+            }
             setTimeout(() => {
               aa.pixiElement.tint = color
             }, 2000)
             aa.textElement.tint = (color + bg) / 2
             aa.textElement.alpha = 1
           })
-          a.activated = true
         }
       })
     })
     const $ = wand.$
-    const fbtn = $('<button class="btn"><i class="fa fa-users"></i></button>').prop('title', 'friends explorer')
+    const fbtn = $('<button class="btn"><i class="fa fa-user-alt" id="ifr"></i></button>').prop('title', 'friends explorer')
     fbtn.insertAfter('#pbtn')
+    self.fbtn = fbtn
     fbtn.on('click', () => {
       const m = wand.magic
+      console.log('change friendship tool')
       if (m.friendsExplorerHoney) {
         delete m.friendsExplorer
         delete m.friendsExplorerHoney
+        console.log('off')
+        $('#ifr').removeClass('fa-people-arrows').addClass('fa-users')
         return
       }
       if (m.friendsExplorer) {
         m.friendsExplorerHoney = true
+        console.log('on honey')
+        $('#ifr').removeClass('fa-user-cog').addClass('fa-people-arrows')
         return
       }
+      console.log('on explorer')
+      $('#ifr').removeClass('fa-users-alt').addClass('fa-user-cog')
+      net.totalActivated = 0
+      net.totalAccessed = 0
       m.friendsExplorer = true
     })
     return fbtn

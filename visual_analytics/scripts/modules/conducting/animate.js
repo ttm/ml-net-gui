@@ -117,32 +117,77 @@ function showMembers (net, artist, alternate = false) {
     attr.textElement = text
   })
   if (alternate) {
-    artist.share.draw.base.app.ticker.add(delta => { // delta is 1 for 60 fps
+    const colorLoop = delta => {
+      // delta is 1 for 60 fps
       if (Math.random() < 0.1) {
         net.forEachNode((key, attr) => {
           if (Math.random() < 0.1) {
+            attr.textElement.tint = 0xffffff * Math.random()
+            attr.textElement.alpha = Math.random()
+          }
+        })
+      }
+    }
+    artist.share.draw.base.app.ticker.add(colorLoop)
+    return colorLoop
+  }
+}
+
+function showMembersAndBlink (net, artist, alternate = false) {
+  // fixme: does not find the element to .scale(1) when network changes
+  // fixme: not used or has a test
+  net.forEachNode((key, attr) => {
+    const text = artist.use.mkTextBetter({
+      text: attr.name,
+      pos: [attr.pixiElement.x, attr.pixiElement.y],
+      fontSize: 35
+    })
+    attr.textElement = text
+  })
+  if (alternate) {
+    const blinkMembers = delta => {
+      // delta is 1 for 60 fps
+      if (Math.random() < 0.1) {
+        net.forEachNode((key, attr) => {
+          if (Math.random() < 0.1 && !attr.blinking) {
+            attr.blinking = true
             attr.textElement.tint = 0xffffff * Math.random()
             attr.textElement.alpha = Math.random()
             const color = attr.pixiElement.tint
             const now = performance.now()
             attr.pixiElement.scale.set(2)
             const id = setInterval(() => {
+              if (!attr || !attr.pixiElement) {
+                clearInterval(id)
+                return
+              }
               attr.pixiElement.tint = 0xffffff * Math.random()
               if (performance.now() - now > 500) {
                 attr.pixiElement.tint = color
                 attr.pixiElement.scale.set(1)
+                delete attr.blinking
                 clearInterval(id)
               }
             }, 100)
+            window.iidd = id
           }
         })
       }
-    })
+    }
+    artist.share.draw.base.app.ticker.add(blinkMembers)
+    return blinkMembers
   }
+}
+
+const blinkChangeColorsAndSayNames = () => {
+  // fixme: not used nor tested
+  const { artist, net } = wand
+
   this.sayNames = (density = 0.1) => {
     const nodes = net.nodes()
     let speaker = new wand.maestro.synths.Speaker()
-    artist.share.draw.base.app.ticker.add(delta => { // delta is 1 for 60 fps
+    artist.share.draw.base.app.ticker.add(delta => {
+      // delta is 1 for 60 fps
       if (Math.random() < density) {
         if (!speaker.synth.speaking) {
           const node = chooseUnique(nodes, 1)[0]
@@ -180,4 +225,4 @@ function showMembers (net, artist, alternate = false) {
   }
 }
 
-module.exports = { use: { rotateLayouts, blink, showMembers } }
+module.exports = { use: { rotateLayouts, blink, blinkChangeColorsAndSayNames, showMembersAndBlink, showMembers } }

@@ -90,6 +90,8 @@ class AdParnassum {
     const f = this.settings.fontSize
     const p = f / 2
     this.texts.gradus = wand.artist.use.mkTextFancy(`gradus: ${this.settings.currentLevel}`, [this.scale(p), this.scale(p)], this.scale(f))
+    this.texts.achievement = wand.artist.use.mkTextFancy('achieved: load page', [this.scale(p), p * 5], this.scale(f), 0xff9999)
+    this.texts.tip = wand.artist.use.mkTextFancy('tip: wait', [this.scale(p), p * 7], this.scale(f), 0x9999ff)
   }
 
   bumpLevel () {
@@ -168,22 +170,24 @@ class AdParnassum {
             delete wand.extra.exibition
           }
           if (wand.currentNetwork) {
+            console.log(wand.artist.share.draw.base.app.ticker.remove, wand.magic.showMembers, 'HEREEE')
+            console.log(wand.magic.showMembers, 'HEREEE2')
+            wand.artist.share.draw.base.app.ticker.remove(wand.magic.showMembers)
             wand.currentNetwork.forEachNode((n, a) => {
               a.pixiElement.destroy()
               a.textElement.destroy()
             })
             wand.currentNetwork.forEachEdge((n, a) => a.pixiElement.destroy())
-            delete wand.currentNetwork
           }
           if (s.val() === 'upload') {
             uel.click()
             return
           }
           wand.currentNetwork = net.use.utils.loadJsonString(this.allNetworks[s.val()].text)
-          const drawnNet = new conductor.use.DrawnNet(artist.use, wand.currentNetwork, [artist.use.width * 0.7, artist.use.height * 0.7])
-          const ShowMembers = conductor.use.showMembers
-          wand.magic.showMembers = new ShowMembers(drawnNet.net, artist, true)
-          wand.magic.showMembers.sayNames(0.01)
+          const drawnNet = new conductor.use.DrawnNet(artist.use, wand.currentNetwork, [artist.use.width, artist.use.height * 0.9])
+          // const ShowMembers = conductor.use.showMembers
+          wand.magic.showMembers = conductor.use.showMembers(drawnNet.net, artist, true)
+          // wand.magic.showMembers.sayNames(0.01)
           self.counter.networksVisualized++
         })
       },

@@ -26,7 +26,8 @@ class AdParnassum {
         networksVisualized: 0,
         edgesVisible: 0,
         namesVisible: 0,
-        colorChange: 0
+        colorChange: 0,
+        hoverNode: 0
       }
     }
     this.settings = { ...defaultSettings, ...settings }
@@ -101,7 +102,8 @@ class AdParnassum {
       { feature: 'visualizeNetworks', condition: 'networksVisualized' },
       { feature: 'randomColors', condition: 'colorChanges' },
       { feature: 'interactionCount', condition: 'interactMore' },
-      { feature: 'nodeInfo', condition: 'hoverNodes' }
+      { feature: 'nodeInfo', condition: 'hoverNodes' },
+      { feature: 'nodeInfoClick', condition: 'activateAll' }
     ]
   }
 
@@ -314,9 +316,14 @@ class AdParnassum {
       nodeInfo: {
         achievement: 'hover node to get some info',
         alg: () => {
-          self.counter.hoverNode = 0
           self.setNodeInfo()
           self.nodeInfoActivated = true
+        }
+      },
+      nodeInfoClick: {
+        achievement: 'click node to get mode info',
+        alg: () => {
+          self.setFriendsExporer()
         }
       }
     }
@@ -604,9 +611,36 @@ class AdParnassum {
     // fixme: separate in new step and make neat, put modes:
     const net = wand.currentNetwork
     net.forEachNode((n, a) => {
+      a.pixiElement.on('pointerover', () => {
+        console.log(n, a, 'NODE HOVERED')
+        this.counter.hoverNode++
+        wand.rect2.zIndex = 500
+        this.texts.nodeId.text = `id: ${a.id}`
+        this.texts.nodeName.text = `name: ${a.name}`
+        this.texts.nodeDegree.text = `degree: ${a.degree} in ${net.degree}`
+        this.texts.nodeDegreeCentrality.text = `degree centrality: ${a.degreeCentrality.toFixed(3)} in ${net.degreeCentrality}`
+        this.texts.nodeId.zIndex = 600
+        this.texts.nodeName.zIndex = 600
+        this.texts.nodeDegree.zIndex = 600
+        this.texts.nodeDegreeCentrality.zIndex = 600
+        wand.extra.nnn = { n, a }
+      })
+      a.pixiElement.on('pointerout', () => {
+        wand.rect2.zIndex = 100
+        this.texts.nodeId.zIndex = 100
+        this.texts.nodeName.zIndex = 100
+        this.texts.nodeDegree.zIndex = 100
+        this.texts.nodeDegreeCentrality.zIndex = 100
+      })
+    })
+  }
+
+  setFriendsExporer () {
+    const net = wand.currentNetwork
+    net.forEachNode((n, a) => {
       a.pixiElement.on('pointerdown', () => {
         console.log('yeah clicked')
-        if (!wand.extra.friendsExplorer) {
+        if (!wand.magic.friendsExplorer) {
           return
         }
         if (a.activated) {
@@ -661,31 +695,7 @@ class AdParnassum {
           a.activated = true
         }
       })
-      a.pixiElement.on('pointerover', () => {
-        console.log(n, a, 'NODE HOVERED')
-        this.counter.hoverNode++
-        wand.rect2.zIndex = 500
-        this.texts.nodeId.text = `id: ${a.id}`
-        this.texts.nodeName.text = `name: ${a.name}`
-        this.texts.nodeDegree.text = `degree: ${a.degree} in ${net.degree}`
-        this.texts.nodeDegreeCentrality.text = `degree centrality: ${a.degreeCentrality.toFixed(3)} in ${net.degreeCentrality}`
-        this.texts.nodeId.zIndex = 600
-        this.texts.nodeName.zIndex = 600
-        this.texts.nodeDegree.zIndex = 600
-        this.texts.nodeDegreeCentrality.zIndex = 600
-        wand.extra.nnn = { n, a }
-      })
-      a.pixiElement.on('pointerout', () => {
-        wand.rect2.zIndex = 100
-        this.texts.nodeId.zIndex = 100
-        this.texts.nodeName.zIndex = 100
-        this.texts.nodeDegree.zIndex = 100
-        this.texts.nodeDegreeCentrality.zIndex = 100
-      })
     })
-  }
-
-  setFriendsExporer () {
     const $ = wand.$
     const fbtn = $('<button class="btn"><i class="fa fa-users"></i></button>').prop('title', 'friends explorer')
     fbtn.insertAfter('#pbtn')

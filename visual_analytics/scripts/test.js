@@ -360,7 +360,7 @@ const testGradus = () => {
 }
 
 const testAdParnassum = () => {
-  wand.magic.adParnassum = new wand.magic.AdParnassum({ currentLevel: 6, timeStreach: 0.01, counter: { colorChange: 60 } })
+  wand.magic.adParnassum = new wand.magic.AdParnassum({ currentLevel: 7, timeStreach: 0.01, counter: { colorChange: 60, hoverNode: 19 } })
 }
 
 const testAudio = () => {

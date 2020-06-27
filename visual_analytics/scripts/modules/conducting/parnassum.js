@@ -89,7 +89,8 @@ class AdParnassum {
       { feature: 'showHideLinks', condition: 'minClickOnNodesEdgesVisible' },
       { feature: 'loadDatata', condition: 'dummy' },
       { feature: 'visualizeNetworks', condition: 'networksVisualized' },
-      { feature: 'randomColors', condition: 'colorChanges' }
+      { feature: 'randomColors', condition: 'colorChanges' },
+      { feature: 'interactionCount', condition: 'interactMore' }
     ]
   }
 
@@ -263,6 +264,16 @@ class AdParnassum {
       interactionCount: {
         achievement: 'access to interactions counter',
         alg: () => {
+          const f = self.settings.fontSize
+          self.texts.interactionCount = wand.artist.use.mkTextFancy(`interactions: ${f}`, [self.scalex(f) * 29.5, self.scaley(f * 1.1)], self.scaley(f), 0x337777)
+          setInterval(() => {
+            let total = 0
+            for (const i in self.counter) {
+              console.log(i)
+              total += self.counter[i]
+            }
+            self.texts.interactionCount.text = `interactions: ${total}`
+          }, 500)
         }
       }
     }
@@ -313,6 +324,12 @@ class AdParnassum {
           if (self.counter.colorChange >= 5) {
             self.conditionMet = true
           }
+        }
+      },
+      interactMore: {
+        tip: 'click a bit more on the buttons',
+        condition: () => {
+          wand.extra.counter = self.counter
         }
       }
     }

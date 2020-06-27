@@ -281,7 +281,7 @@ class AdParnassum {
       randomColors: {
         achievement: 'randomize colors',
         alg: () => {
-          const pbtn = $('<button class="btn"><i class="fa fa-pallete"></i></button>').prop('title', 'change colors')
+          const pbtn = $('<button class="btn" id="pbtn"><i class="fa fa-palette"></i></button>').prop('title', 'change colors')
           pbtn.insertAfter('#ibtn')
           pbtn.on('click', () => {
             const ecolor = 0xffffff * Math.random()
@@ -389,15 +389,89 @@ class AdParnassum {
             self.conditionMet = true
           }
         }
+      },
+      activateAll: {
+        tip: 'explore one network thorough',
+        condition: () => {
+          // keep track of total activations
+          // and of activated nodes in currentNetwork
+        }
+      },
+      chooseSeed: {
+        tip: 'click on node to synchronize full network',
+        condition: () => {
+          // click on node, activate from there on
+          // count if clicked and if finished
+          // if finished > x, pass
+        }
+      },
+      synthChanges: {
+        tip: 'use new synth button',
+        condition: () => {
+          // when button clicked, randomize synth params
+          // sample audio playing random seed to synchronize
+        }
+      },
+      useSynthInSeeds: {
+        tip: 'click on nodes with 2 diferent synths',
+        condition: () => {
+          // you know
+        }
+      },
+      toogleLoop: {
+        tip: 'use new loop button',
+        condition: () => {
+          // use both random and last seed mode
+        }
+      },
+      chooseMutipleSeeds: {
+        tip: 'test new mode for two seeds button',
+        condition: () => {
+          // use both random and last seeds mode
+          // use both with/out loop on
+        }
+      },
+      chooseBeats: {
+        tip: 'select beats in different networks',
+        condition: () => {
+          // choose random beat in at least three networks
+          // beats wiggle low-high degree proportional to high-low frequencies
+        }
+      },
+      manipulateSynth: {
+        tip: 'use a synth for some consecutive time',
+        condition: () => {
+        }
+      },
+      recordVideo: {
+        tip: 'record a video with at least 10s',
+        condition: () => {
+          // maybe cut when > 30s and send
+        }
+      },
+      useLargerNetwork: {
+        tip: 'select one of the large',
+        condition: () => {
+          // account for recording a video with and without a beat
+        }
+      },
+      searchMembers: {
+        tip: 'search for names and load nets',
+        condition: () => {
+        }
       }
     }
   }
 
   setNodeInfo () {
+    // fixme: separate in new step and make neat, put modes:
     const net = wand.currentNetwork
     net.forEachNode((n, a) => {
       a.pixiElement.on('pointerdown', () => {
         console.log('yeah clicked')
+        if (!wand.extra.friendsExplorer) {
+          return
+        }
         if (a.activated) {
           a.pixiElement.tint = a.lastColor
           a.pixiElement.scale.x = a.lastScale.x
@@ -407,9 +481,11 @@ class AdParnassum {
             aa.pixiElement.scale.y = aa.lastScale.y
             aa.pixiElement.tint = aa.lastColor
             aa.textElement.tint = aa.lastTextColor
-            // delete aa.lastScale
-            // delete aa.lastColor
-            // delete aa.lastTextColor
+            if (wand.extra.friendsExplorerHoney) {
+              delete aa.lastScale
+              delete aa.lastColor
+              delete aa.lastTextColor
+            }
           })
           delete a.activated
         } else {
@@ -470,6 +546,26 @@ class AdParnassum {
         this.texts.nodeDegreeCentrality.zIndex = 100
       })
     })
+  }
+
+  setFriendsExporer () {
+    const $ = wand.$
+    const fbtn = $('<button class="btn"><i class="fa fa-users"></i></button>').prop('title', 'friends explorer')
+    fbtn.insertAfter('#pbtn')
+    fbtn.on('click', () => {
+      const m = wand.magic
+      if (m.friendsExplorerHoney) {
+        delete m.friendsExplorer
+        delete m.friendsExplorerHoney
+        return
+      }
+      if (m.friendsExplorer) {
+        m.friendsExplorerHoney = true
+        return
+      }
+      m.friendsExplorer = true
+    })
+    return fbtn
   }
 }
 

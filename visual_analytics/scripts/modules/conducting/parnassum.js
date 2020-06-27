@@ -7,8 +7,8 @@
 class AdParnassum {
   // each gradus/level has a UI feature
   // and a use condition to pass the gradus.
-  // a feature has an "achieved" sentence (a string).
-  // a condition has a string tip to meet the condition.
+  // a feature has an "achieved" sentence (string).
+  // a condition has a tip to meet the condition (string).
   // the usage is accounted in clicks and time using
   // the interface and gradus achieved.
   // the registered usage is translated into bendas,
@@ -27,7 +27,6 @@ class AdParnassum {
       }
     }
     this.settings = { ...defaultSettings, ...settings }
-    console.log(wand.artist.use.height, 'HEIGHT')
     const refHeight = 833
     const refWidth = 884
     this.settings.heightProportion = wand.artist.use.height / refHeight
@@ -36,7 +35,7 @@ class AdParnassum {
     this.achievements = [] // list of strings (sentences in natural language)
     // this.setLevels()
     this.setStage()
-    this.start(settings.currentLevel)
+    this.start(0)
   }
 
   start (level) {
@@ -53,11 +52,16 @@ class AdParnassum {
 
   startConditionVerifier () {
     this.setLevel()
+    const forward = () => {
+      if (this.currentLevel !== 2 && this.currentLevel < this.settings.currentLevel) {
+        return true
+      }
+    }
     setInterval(() => {
       if (this.currentLevel < this.gradus.length) {
         this.currentCondition()
-        if (this.conditionMet && !this.conditionMetLock) {
-          console.log('verified', this.currentLevel, this.gradus.length)
+        if ((this.conditionMet && !this.conditionMetLock) || forward()) {
+          console.log('verified, gradus, ad parnassum:', this.currentLevel, this.gradus.length)
           console.log('condition met')
           this.setNextLevel()
         }
@@ -220,7 +224,6 @@ class AdParnassum {
               delete wand.extra.exibition
             }
             if (wand.currentNetwork) {
-              console.log(wand.artist.share.draw.base.app.ticker.remove, wand.magic.showMembers, 'HEREEE')
               wand.artist.share.draw.base.app.ticker.remove(wand.magic.showMembers)
               wand.currentNetwork.forEachNode((n, a) => {
                 a.pixiElement.destroy()

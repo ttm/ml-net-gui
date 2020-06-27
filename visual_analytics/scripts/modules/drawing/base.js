@@ -62,12 +62,16 @@ function mkNode (ntype = 'tri', color = 0xff0000, version = 1) {
 
   if (version === 1) {
     v.on('pointerover', () => {
-      v.scale.set(1.2)
-      v.alpha = 0.9
+      if (!v.scaleBlock) {
+        v.scale.set(1.2)
+        v.alpha = 0.9
+      }
     })
     v.on('pointerout', () => {
-      v.scale.set(0.7)
-      v.alpha = 0.4
+      if (!v.scaleBlock) {
+        v.scale.set(0.7)
+        v.alpha = 0.4
+      }
     })
   }
   //   .on('pointerdown', clickNode)

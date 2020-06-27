@@ -396,6 +396,58 @@ class AdParnassum {
   setNodeInfo () {
     const net = wand.currentNetwork
     net.forEachNode((n, a) => {
+      a.pixiElement.on('pointerdown', () => {
+        console.log('yeah clicked')
+        if (a.activated) {
+          a.pixiElement.tint = a.lastColor
+          a.pixiElement.scale.x = a.lastScale.x
+          a.pixiElement.scale.y = a.lastScale.y
+          net.forEachNeighbor(n, (neigh, aa) => {
+            aa.pixiElement.scale.x = aa.lastScale.x
+            aa.pixiElement.scale.y = aa.lastScale.y
+            aa.pixiElement.tint = aa.lastColor
+            aa.textElement.tint = aa.lastTextColor
+            // delete aa.lastScale
+            // delete aa.lastColor
+            // delete aa.lastTextColor
+          })
+          delete a.activated
+        } else {
+          a.pixiElement.scaleBlock = true
+          const bg = wand.artist.share.draw.base.app.renderer.backgroundColor
+          let color = 0xffffff
+          if (bg >= 0xffffff / 2) {
+            color = 0x000000
+          }
+          const meanBg = () => {
+            return color * Math.random() + bg * Math.random()
+          }
+          a.lastColor = a.pixiElement.tint
+          a.pixiElement.tint = meanBg()
+          a.lastScale = {
+            x: a.pixiElement.scale.x,
+            y: a.pixiElement.scale.y
+          }
+          a.pixiElement.scale.set(3)
+          net.forEachNeighbor(n, (neigh, aa) => {
+            aa.pixiElement.scaleBlock = true
+            aa.lastScale = {
+              x: aa.pixiElement.scale.x,
+              y: aa.pixiElement.scale.y
+            }
+            aa.lastColor = aa.pixiElement.tint
+            aa.lastTextColor = aa.textElement.tint
+            aa.pixiElement.scale.set(3)
+            aa.pixiElement.tint = 0xffff00
+            setTimeout(() => {
+              aa.pixiElement.tint = color
+            }, 2000)
+            aa.textElement.tint = (color + bg) / 2
+            aa.textElement.alpha = 1
+          })
+          a.activated = true
+        }
+      })
       a.pixiElement.on('pointerover', () => {
         console.log(n, a, 'NODE HOVERED')
         this.counter.hoverNode++

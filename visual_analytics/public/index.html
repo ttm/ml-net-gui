@@ -6,4 +6,33 @@
     <script type="module" src="scripts/main_ok.js"></script>
     <input id="file-input" type="file" name="name" style="display: none;" />
 </body>
+<style type="text/css">
+
+/* tooltip styling. by default the element to be styled is .tooltip  */
+button[title]:hover:after {
+  opacity: 0.5;
+  transition: all 3.1s ease 0.5s;
+  visibility: visible;
+}
+
+button[title]:after {
+  content: attr(title);
+  background-color: #000000;
+  color: #fff;
+  font-size: 250%;
+  position: absolute;
+  padding: 1px 5px 2px 5px;
+  bottom: -2.6em;
+  left: 100%;
+  white-space: nowrap;
+  box-shadow: 1px 1px 3px #222222;
+  opacity: 0;
+  border: 1px solid #111111;
+  z-index: 99999;
+  visibility: hidden;
+}
+button[title] {
+    position: relative;
+}
+</style>
 </html>

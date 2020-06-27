@@ -248,6 +248,20 @@ class AdParnassum {
             const drawnNet = new conductor.use.DrawnNet(artist.use, wand.currentNetwork, [artist.use.width, artist.use.height * 0.9])
             netmetrics.centrality.degree.assign(wand.currentNetwork)
             netdegree.assign(wand.currentNetwork)
+            const mString = metric => {
+              const norm = v => {
+                const i = Math.round(v)
+                if (v === i) {
+                  return i
+                } else {
+                  return v.toFixed(3)
+                }
+              }
+              const s = netmetrics.extent(wand.currentNetwork, metric)
+              return `[${norm(s[0])}, ${norm(s[1])}]`
+            }
+            wand.currentNetwork.degreeCentrality = mString('degreeCentrality')
+            wand.currentNetwork.degree = mString('degree')
             wand.magic.showMembers = conductor.use.showMembers(drawnNet.net, artist, true)
             // wand.magic.showMembers.sayNames(0.01)
             self.texts.orderSize.text = `members, friendships: ${wand.currentNetwork.order}, ${wand.currentNetwork.size}`
@@ -299,17 +313,18 @@ class AdParnassum {
           const p = f / 2
           self.texts.nodeId = wand.artist.use.mkTextFancy('', [self.scalex(p), self.scaley(p) * 0.1], self.scaley(f), 0x333377, 1)
           self.texts.nodeName = wand.artist.use.mkTextFancy('', [self.scalex(f / 2), self.scaley(f * 1.1)], self.scaley(f), 0x777733, 1)
-          self.texts.nodeDegree = wand.artist.use.mkTextFancy('', [self.scalex(p) * 21, self.scaley(p) * 0.2], self.scaley(f), 0x666600, 1)
-          self.texts.nodeDegreeCentrality = wand.artist.use.mkTextFancy('', [self.scalex(p) * 21, self.scaley(p) * 2.2], self.scaley(f), 0x555599, 1)
-          wand.currentNetwork.forEachNode((n, a) => {
+          self.texts.nodeDegree = wand.artist.use.mkTextFancy('', [self.scalex(p) * 41, self.scaley(p) * 0.2], self.scaley(f), 0x666600, 1)
+          self.texts.nodeDegreeCentrality = wand.artist.use.mkTextFancy('', [self.scalex(p) * 41, self.scaley(p) * 2.2], self.scaley(f), 0x555599, 1)
+          const net = wand.currentNetwork
+          net.forEachNode((n, a) => {
             a.pixiElement.on('pointerover', () => {
               console.log(n, a, 'NODE HOVERED')
               self.counter.hoverNode++
               wand.rect2.zIndex = 500
               self.texts.nodeId.text = `id: ${a.id}`
               self.texts.nodeName.text = `name: ${a.name}`
-              self.texts.nodeDegree.text = `degree: ${a.degree}`
-              self.texts.nodeDegreeCentrality.text = `degree centrality: ${a.degreeCentrality.toFixed(3)}`
+              self.texts.nodeDegree.text = `degree: ${a.degree} in ${net.degree}`
+              self.texts.nodeDegreeCentrality.text = `degree centrality: ${a.degreeCentrality.toFixed(3)} in ${net.degreeCentrality}`
               self.texts.nodeId.zIndex = 600
               self.texts.nodeName.zIndex = 600
               self.texts.nodeDegree.zIndex = 600

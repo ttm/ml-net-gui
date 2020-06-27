@@ -26,7 +26,6 @@ class Speaker {
       lang = chooseUnique(lang, 1)[0]
     }
     utterThis.voice = lang
-    console.log(lang, 'LANG')
     this.synth.speak(utterThis)
   }
 

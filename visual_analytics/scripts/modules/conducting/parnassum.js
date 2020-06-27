@@ -1,5 +1,8 @@
 /* global wand, performance */
 
+const netmetrics = require('graphology-metrics')
+const netdegree = require('graphology-metrics/degree')
+
 // each gradus has:
 //    a feature it enables
 //    a condition to complete, which triggers its
@@ -27,6 +30,7 @@ class AdParnassum {
       }
     }
     this.settings = { ...defaultSettings, ...settings }
+    this.settings.counter = { ...defaultSettings.counter, ...settings.counter }
     const refHeight = 833
     const refWidth = 884
     this.settings.heightProportion = wand.artist.use.height / refHeight
@@ -35,6 +39,8 @@ class AdParnassum {
     this.achievements = [] // list of strings (sentences in natural language)
     // this.setLevels()
     this.setStage()
+    wand.nm = netmetrics
+    wand.nm2 = netdegree
     this.start(0)
   }
 
@@ -94,7 +100,8 @@ class AdParnassum {
       { feature: 'loadDatata', condition: 'dummy' },
       { feature: 'visualizeNetworks', condition: 'networksVisualized' },
       { feature: 'randomColors', condition: 'colorChanges' },
-      { feature: 'interactionCount', condition: 'interactMore' }
+      { feature: 'interactionCount', condition: 'interactMore' },
+      { feature: 'nodeInfo', condition: 'hoverNodes' }
     ]
   }
 
@@ -195,7 +202,7 @@ class AdParnassum {
 
           const names = $('<button class="btn"><i class="fa fa-mask"></i></button>').prop('title', 'show names')
           const input = $('<button class="btn"><i class="fa fa-archway"></i></button>').prop('title', 'load or upload network')
-          const s = $('<select/>')
+          const s = $('<select/>').prop('title', 'select network')
           names.prependTo('body')
           names.on('click', () => {
             wand.currentNetwork.forEachNode((n, a) => {
@@ -239,12 +246,14 @@ class AdParnassum {
             }
             wand.currentNetwork = net.use.utils.loadJsonString(this.allNetworks[s.val()].text)
             const drawnNet = new conductor.use.DrawnNet(artist.use, wand.currentNetwork, [artist.use.width, artist.use.height * 0.9])
-            // const ShowMembers = conductor.use.showMembers
+            netmetrics.centrality.degree.assign(wand.currentNetwork)
+            netdegree.assign(wand.currentNetwork)
             wand.magic.showMembers = conductor.use.showMembers(drawnNet.net, artist, true)
             // wand.magic.showMembers.sayNames(0.01)
             self.texts.orderSize.text = `members, friendships: ${wand.currentNetwork.order}, ${wand.currentNetwork.size}`
             self.counter.networksVisualized++
           })
+          input.click()
         }
       },
       randomColors: {
@@ -278,6 +287,43 @@ class AdParnassum {
             }
             self.texts.interactionCount.text = `interactions: ${total}`
           }, 500)
+        }
+      },
+      nodeInfo: {
+        achievement: 'hover node to get some info',
+        alg: () => {
+          self.counter.hoverNode = 0
+          const a = wand.artist.use
+          wand.rect2 = a.mkRectangle({ wh: [a.width, a.height * 0.055], zIndex: 100, color: 0xbbbbbb, alpha: 1 })
+          const f = self.settings.fontSize
+          const p = f / 2
+          self.texts.nodeId = wand.artist.use.mkTextFancy('', [self.scalex(p), self.scaley(p) * 0.1], self.scaley(f), 0x333377, 1)
+          self.texts.nodeName = wand.artist.use.mkTextFancy('', [self.scalex(f / 2), self.scaley(f * 1.1)], self.scaley(f), 0x777733, 1)
+          self.texts.nodeDegree = wand.artist.use.mkTextFancy('', [self.scalex(p) * 21, self.scaley(p) * 0.2], self.scaley(f), 0x666600, 1)
+          self.texts.nodeDegreeCentrality = wand.artist.use.mkTextFancy('', [self.scalex(p) * 21, self.scaley(p) * 2.2], self.scaley(f), 0x555599, 1)
+          wand.currentNetwork.forEachNode((n, a) => {
+            a.pixiElement.on('pointerover', () => {
+              console.log(n, a, 'NODE HOVERED')
+              self.counter.hoverNode++
+              wand.rect2.zIndex = 500
+              self.texts.nodeId.text = `id: ${a.id}`
+              self.texts.nodeName.text = `name: ${a.name}`
+              self.texts.nodeDegree.text = `degree: ${a.degree}`
+              self.texts.nodeDegreeCentrality.text = `degree centrality: ${a.degreeCentrality.toFixed(3)}`
+              self.texts.nodeId.zIndex = 600
+              self.texts.nodeName.zIndex = 600
+              self.texts.nodeDegree.zIndex = 600
+              self.texts.nodeDegreeCentrality.zIndex = 600
+              wand.extra.nnn = { n, a }
+            })
+            a.pixiElement.on('pointerout', () => {
+              wand.rect2.zIndex = 100
+              self.texts.nodeId.zIndex = 100
+              self.texts.nodeName.zIndex = 100
+              self.texts.nodeDegree.zIndex = 100
+              self.texts.nodeDegreeCentrality.zIndex = 100
+            })
+          })
         }
       }
     }
@@ -339,6 +385,14 @@ class AdParnassum {
             total += self.counter[i]
           }
           if (total > 50) {
+            self.conditionMet = true
+          }
+        }
+      },
+      hoverNodes: {
+        tip: 'hover nodes to see info',
+        condition: () => {
+          if (self.counter.hoverNode > 20) {
             self.conditionMet = true
           }
         }

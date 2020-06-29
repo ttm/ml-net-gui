@@ -237,6 +237,8 @@ class AdParnassum {
               }
             }).attr('atitle', 'show members').prependTo('body')
           )
+          $('#friendship-button').click()
+          $('#member-button').click()
         }
       },
       loadDatata: { // special feature, has to wait loading and solves condition:
@@ -304,13 +306,25 @@ class AdParnassum {
             s.append($('<option/>').val(i).html(n.name))
           })
 
-          $('<i/>', { class: 'fa fa-archway', id: 'loadnet-icon' }).appendTo(
+          $('<div/>').addClass('loader').prependTo('body')
+          const loader = wand.$('.loader')
+          loader.hide()
+          $('<i/>', { class: 'fa fa-cloud-sun', id: 'loadnet-icon' }).appendTo(
             $('<button/>', {
               class: 'btn',
               id: 'loadnet-button',
               click: () => {
-                this.loadNetwork()
-                this.counter.networksVisualized++
+                if (!wand.extra.loadingNetInScreen) {
+                  wand.extra.loadingNetInScreen = true
+                  const { mix, bw } = { mix: 'grey', bw: 'white' }
+                  const c = [mix, bw][this.counter.networksVisualized % 2]
+                  // fixme: loader does not show and toggle class is with color change:
+                  console.log('before loading, fixme: jquery fails to show loading cues.')
+                  wand.$('#loadnet-button').css('background-color', c)
+                  loader.show()
+                  this.loadNetwork()
+                  this.counter.networksVisualized++
+                }
               }
             }).attr('atitle', 'load or upload network').prependTo('body')
           )
@@ -320,11 +334,14 @@ class AdParnassum {
           uel.change(res => {
             const f = uel.files[0]
             f.text().then(t => {
+              // fixme: ensure not fetching whole network if already there
+              // todo: use zstandard
               transfer.mong.writeNetIfNotThereReadIfThere(t, f.name, f.lastModified, r => console.log(r))
               self.visualizeNetwork(t)
             })
           })
           $('#loadnet-button').click()
+          $('#names-button').click()
         }
       },
       randomColors: {
@@ -349,6 +366,7 @@ class AdParnassum {
             }).attr('atitle', 'change colors').css('background-color', 'gray')
               .insertAfter('#friendship-button')
           )
+          $('#pallete-button').click()
         }
       },
       interactionCount: {
@@ -710,6 +728,7 @@ class AdParnassum {
           `degree centrality: ${tf(a.degreeCentrality)} in ${net.degreeCentrality}`]
       ]
       a.pixiElement.on('pointerover', () => {
+        const c = this.currentColors
         console.log(n, a, 'NODE HOVERED')
         this.counter.hoverNode++
         wand.rect2.zIndex = 500
@@ -717,11 +736,34 @@ class AdParnassum {
           this.texts[t[0]].text = t[1]
           this.texts[t[0]].zIndex = 600
         })
+        a.colorBlocked = true
+        a.pixiElement.tint = c.hl.bw
+        a.textElement.tint = c.hl.mix
+        a.pixiElement.alpha = 0
+        a.textElement.alpha = 0
+        net.forEachNeighbor(n, (nn, na) => {
+          na.colorBlocked = true
+          na.pixiElement.tint = c.hl.mix
+          na.textElement.tint = c.hl.bw
+          a.pixiElement.alpha = 1
+          a.textElement.alpha = 1
+        })
       })
       a.pixiElement.on('pointerout', () => {
+        const c = this.currentColors
         wand.rect2.zIndex = 100
         texts.forEach(t => {
           this.texts[t[0]].zIndex = 100
+        })
+        delete a.colorBlocked
+        a.pixiElement.tint = c.ncolor
+        a.pixiElement.alpha = c.nodesAlpha
+        a.textElement.tint = 0xffffff * Math.random()
+        net.forEachNeighbor(n, (nn, na) => {
+          delete na.colorBlocked
+          na.pixiElement.tint = c.ncolor
+          na.textElement.tint = 0xffffff * Math.random()
+          na.textElement.alpha = wand.extra.namesAlpha
         })
       })
     })
@@ -949,6 +991,12 @@ class AdParnassum {
       console.log('friends explorer set')
     }
     this.texts.orderSize.text = `members, friendships: ${wand.currentNetwork.order}, ${wand.currentNetwork.size}`
+    // fixme: loader does not show and toggle class is with color change:
+    wand.$('#loadnet-icon').toggleClass('fa-cloud-sun fa-cloud-sun-rain')
+    const loader = wand.$('.loader')
+    loader.hide()
+    console.log('ended loading. fixme: jquery fails to show loading cues.')
+    wand.extra.loadingNetInScreen = false
   }
 
   selectColors (c) {
@@ -957,7 +1005,7 @@ class AdParnassum {
       ecolor = 0xffff00
       ncolor = 0xff0000
       bcolor = 0x000000
-      bc = 'gray'
+      bc = 'lightgray'
     } else if (c === 2) {
       ecolor = 0xaa00aa
       ncolor = 0x0000aa
@@ -973,7 +1021,14 @@ class AdParnassum {
       }
       bc = '#' + bc
     }
-    return { ecolor, ncolor, bcolor, bc }
+    const bw = bcolor >= 0xffffff ? 0x000000 : 0xffffff
+    let mix = (bw + bcolor) * Math.random()
+    while (mix > 0xffffff) {
+      mix = (bw + bcolor) * Math.random()
+    }
+    this.currentColors = { ecolor, ncolor, bcolor, bc, hl: { bw, mix } }
+
+    return this.currentColors
   }
 }
 

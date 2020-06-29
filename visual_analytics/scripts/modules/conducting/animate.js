@@ -117,13 +117,14 @@ function showMembers (net, artist, alternate = false) {
     attr.textElement = text
   })
   if (alternate) {
+    wand.extra.namesAlpha = net.namesAlpha || 0.5
     const colorLoop = delta => {
       // delta is 1 for 60 fps
-      if (Math.random() < 0.1) {
+      if (Math.random() < 0.1 && !wand.extra.showNameBlock) {
         net.forEachNode((key, attr) => {
           if (Math.random() < 0.1) {
             attr.textElement.tint = 0xffffff * Math.random()
-            attr.textElement.alpha = Math.random()
+            attr.textElement.alpha = wand.extra.namesAlpha * Math.random()
           }
         })
       }

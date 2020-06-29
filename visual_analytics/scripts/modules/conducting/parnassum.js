@@ -22,10 +22,12 @@ class AdParnassum {
       fontSize: 20,
       timeStreach: 1, // only used for when time has to pass
       counter: {
-        nodesVisible: 0,
         networksVisualized: 0,
-        edgesVisible: 0,
+        nodesVisible: 0,
+        nodesSize: 0,
         namesVisible: 0,
+        namesSize: 0,
+        edgesVisible: 0,
         colorChange: 0,
         hoverNode: 0
       }
@@ -97,6 +99,7 @@ class AdParnassum {
 
   startConditionVerifier () {
     this.currentLevel = 0 // fixme
+    this.setAdditionalConditions()
     this.setNextLevel()
     const id = setInterval(() => {
       if (this.checkCondition() || this.forward()) {
@@ -115,9 +118,11 @@ class AdParnassum {
   }
 
   checkCondition () {
-    this.currentCondition()
-    if (this.conditionMet && !this.conditionMetLock) {
-      return true
+    if (!this.conditionMetLock) {
+      this.currentCondition()
+      if (this.conditionMet) {
+        return true
+      }
     }
     return false
   }
@@ -195,8 +200,8 @@ class AdParnassum {
         },
         achievement: 'exhibition page loaded',
         alg: () => {
-          wand.extra.exibition = wand.test.testExhibition1('gradus')
-          wand.currentNetwork = wand.extra.exibition.drawnNet.net
+          wand.extra.exhibition = wand.test.testExhibition1('gradus')
+          wand.currentNetwork = wand.extra.exhibition.drawnNet.net
           // const f = self.settings.fontSize
           self.texts.orderSize.text = `members, friendships: ${wand.currentNetwork.order}, ${wand.currentNetwork.size}`
         }
@@ -209,8 +214,9 @@ class AdParnassum {
               class: 'btn',
               id: 'friendship-button',
               click: () => {
+                const alpha = this.increment01('edgesAlpha', $('#friendship-button'))
                 wand.currentNetwork.forEachEdge((e, a) => {
-                  this.incrementVisibility(a.pixiElement, $('#friendship-button'))
+                  a.pixiElement.alpha = alpha
                 })
                 this.counter.edgesVisible++
               }
@@ -221,8 +227,9 @@ class AdParnassum {
               class: 'btn',
               id: 'member-button',
               click: () => {
+                const alpha = this.increment01('nodesAlpha', $('#member-button'))
                 wand.currentNetwork.forEachNode((n, a) => {
-                  this.incrementVisibility(a.pixiElement, $('#member-button'))
+                  a.pixiElement.alpha = alpha
                 })
                 this.counter.nodesVisible++
               }
@@ -230,7 +237,7 @@ class AdParnassum {
           )
         }
       },
-      loadDatata: {
+      loadDatata: { // special feature, has to wait loading and solves condition:
         achievement: 'loading networks',
         alg: () => {
           wand.transfer.mong.findAllNetworks().then(r => {
@@ -239,95 +246,90 @@ class AdParnassum {
           })
         }
       },
-      visualizeNetworks: {
+      visualizeNetworks: { // multiple features: network menu and names
         achievement: 'network menu',
         alg: () => {
-          const artist = wand.artist
-          const conductor = wand.conductor
-          const net = wand.net
           const transfer = wand.transfer
+          wand.extra.exhibition.remove()
+          delete wand.extra.exhibition
+          delete wand.currentNetwork
 
-          const names = $('<button class="btn" id="nbtn"><i class="fa fa-mask"></i></button>').prop('title', 'show names')
-          const input = $('<button class="btn"><i class="fa fa-archway"></i></button>').prop('title', 'load or upload network')
-          const s = $('<select/>').prop('title', 'select network')
-          names.prependTo('body')
-          names.on('click', () => {
+          $('<i/>', { class: 'fa fa-mask', id: 'names-icon' }).appendTo(
+            $('<button/>', {
+              class: 'btn',
+              id: 'names-button',
+              click: () => {
+                const alpha = this.increment01('namesAlpha', $('#names-button'))
+                wand.currentNetwork.forEachNode((n, a) => {
+                  a.textElement.alpha = alpha
+                })
+                this.counter.namesVisible++
+              }
+            }).attr('atitle', 'show names').prependTo('body')
+          )
+
+          this.texts.gradus.on('click', () => {
+            let size = this.increment01('namesSize')
+            size = this.scaley(this.settings.fontSize) * (0.2 + 1.5 * size)
             wand.currentNetwork.forEachNode((n, a) => {
-              a.textElement.visible = !a.textElement.visible
+              a.textElement.style.fontSize = size
             })
-            this.counter.namesVisible++
+            this.counter.namesSize++
           })
-          input.prependTo('body')
-          s.prependTo('body')
+          this.texts.gradus.interactive = true
+          this.registerAdditionalCondition(
+            () => this.counter.namesSize > 10,
+            'discovered names size change'
+          )
+
+          this.texts.orderSize.on('click', () => {
+            const size = this.scaley(0.2 + 2 * this.increment01('nodesSize'))
+            wand.currentNetwork.forEachNode((n, a) => {
+              a.pixiElement.scale.set(size)
+            })
+            this.counter.nodesSize++
+          })
+          this.texts.orderSize.interactive = true
+          this.registerAdditionalCondition(
+            () => this.counter.nodesSize > 10,
+            'discovered node size change'
+          )
+          // todo: make similar events for link width
+
+          const s = $('<select/>', { id: 'file-select' })
+            .prop('atitle', 'select network').prependTo('body')
           this.allNetworks.forEach((n, i) => {
             s.append($('<option/>').val(i).html(n.name))
           })
-          const uel = document.getElementById('file-input')
-          uel.onchange = res => {
+
+          $('<i/>', { class: 'fa fa-archway', id: 'loadnet-icon' }).appendTo(
+            $('<button/>', {
+              class: 'btn',
+              id: 'loadnet-button',
+              click: () => {
+                this.loadNetwork()
+                this.counter.networksVisualized++
+              }
+            }).attr('atitle', 'load or upload network').prependTo('body')
+          )
+
+          const uel = $('#file-input')
+          const self = this // fixme: really necessary?
+          uel.change(res => {
             const f = uel.files[0]
             f.text().then(t => {
               transfer.mong.writeNetIfNotThereReadIfThere(t, f.name, f.lastModified, r => console.log(r))
-              wand.currentNetwork = net.use.utils.loadJsonString(t)
-              const drawnNet = new conductor.use.DrawnNet(artist.use, wand.currentNetwork, [])
-              conductor.use.showMembers(drawnNet.net, artist, true)
+              self.visualizeNetwork(t)
             })
-          }
-          input.on('click', () => {
-            if (wand.extra.exibition) {
-              delete wand.currentNetwork
-              wand.extra.exibition.remove()
-              delete wand.extra.exibition
-            }
-            if (wand.currentNetwork) {
-              wand.artist.share.draw.base.app.ticker.remove(wand.magic.showMembers)
-              wand.currentNetwork.forEachNode((n, a) => {
-                a.pixiElement.destroy()
-                a.textElement.destroy()
-              })
-              wand.currentNetwork.forEachEdge((n, a) => a.pixiElement.destroy())
-            }
-            if (s.val() === 'upload') {
-              uel.click()
-              return
-            }
-            wand.currentNetwork = net.use.utils.loadJsonString(this.allNetworks[s.val()].text)
-            const drawnNet = new conductor.use.DrawnNet(artist.use, wand.currentNetwork, [artist.use.width, artist.use.height * 0.9])
-            netmetrics.centrality.degree.assign(wand.currentNetwork)
-            netdegree.assign(wand.currentNetwork)
-            const mString = metric => {
-              const norm = v => {
-                const i = Math.round(v)
-                if (v === i) {
-                  return i
-                } else {
-                  return v.toFixed(3)
-                }
-              }
-              const s = netmetrics.extent(wand.currentNetwork, metric)
-              return `[${norm(s[0])}, ${norm(s[1])}]`
-            }
-            wand.currentNetwork.degreeCentrality = mString('degreeCentrality')
-            wand.currentNetwork.degree = mString('degree')
-            wand.magic.showMembers = conductor.use.showMembers(drawnNet.net, artist, true)
-            // wand.magic.showMembers.sayNames(0.01)
-            if (this.nodeInfoActivated) {
-              this.setNodeInfo()
-            }
-            if (this.friendsExplorerActivated) {
-              this.setFriendsExporer()
-              console.log('friends explorer set')
-            }
-            this.texts.orderSize.text = `members, friendships: ${wand.currentNetwork.order}, ${wand.currentNetwork.size}`
-            this.counter.networksVisualized++
           })
-          input.click()
+          $('#loadnet-button').click()
         }
       },
       randomColors: {
         achievement: 'randomize colors',
         alg: () => {
           const pbtn = $('<button class="btn" id="pbtn"><i class="fa fa-palette"></i></button>').prop('title', 'change colors')
-          pbtn.insertAfter('#ibtn')
+          pbtn.insertAfter('#friendship-btn')
           pbtn.on('click', () => {
             const ecolor = 0xffffff * Math.random()
             const ncolor = 0xffffff * Math.random()
@@ -853,18 +855,96 @@ class AdParnassum {
     // $('#ifr').addClass('fa-user-cog')
   }
 
-  incrementVisibility (e, je, amount = 0.1) {
-    e.alpha += amount
-    if (e.alpha > 1) {
-      e.alpha = 0
+  increment01 (attr, je, amount = 0.1) {
+    let n = wand.extra[attr]
+    if (n === undefined) {
+      n = 0.5
     }
-    let color = '#' + Math.floor(0xffffff - 0xffff * e.alpha).toString(16)
-    if (1 - e.alpha < 0.01) {
-      color = '#00ff00'
+    n += amount
+    if (n > 1) {
+      n = 0
     }
-    // color = '#' + '0'.repeat(2 - color.length) + color + 'ffff'
-    je.css('background-color', color)
-    console.log(e.alpha, color)
+    wand.extra[attr] = n
+    if (je !== undefined) {
+      let color = '#00ff00'
+      if (1 - n > 0.01) {
+        color = '#' + Math.floor(0xffffff - 0xffff * n).toString(16)
+      }
+      je.css('background-color', color)
+    }
+    return n
+  }
+
+  registerAdditionalCondition (condition, achievement) {
+    this.additionalConditions.push({ condition, achievement, met: false })
+  }
+
+  setAdditionalConditions () {
+    this.additionalConditions = []
+    setInterval(() => {
+      for (let i = 0; i < this.additionalConditions.length; i++) {
+        const c = this.additionalConditions[i]
+        if (!c.met && c.condition()) {
+          console.log(c, this.counter.nodesSize)
+          c.met = true
+          wand.maestro.synths.speaker.play('hidden condition met', 'en')
+          wand.maestro.synths.speaker.play(c.achievement, 'en')
+        }
+      }
+    }, 1000)
+  }
+
+  loadNetwork () {
+    console.log('load net loaded')
+    const $ = wand.$
+    const option = $('#file-select').val()
+    if (option === 'upload') { // if upload
+      $('#file-input').click()
+      return
+    }
+    this.visualizeNetwork(this.allNetworks[option].text)
+  }
+
+  destroyNetwork () {
+    console.log('net destroyed')
+    if (wand.currentNetwork) { // destroy network:
+      wand.artist.share.draw.base.app.ticker.remove(wand.magic.showMembers)
+      wand.currentNetwork.forEachNode((n, a) => {
+        a.pixiElement.destroy()
+        if (a.textElement) {
+          a.textElement.destroy()
+        }
+      })
+      wand.currentNetwork.forEachEdge((n, a) => a.pixiElement.destroy())
+    }
+    delete wand.currentNetwork
+  }
+
+  visualizeNetwork (string) {
+    const { conductor, artist, net } = wand
+    this.destroyNetwork()
+    console.log('net being visualized')
+    wand.currentNetwork = net.use.utils.loadJsonString(string)
+    const drawnNet = new conductor.use.DrawnNet(artist.use, wand.currentNetwork, [artist.use.width, artist.use.height * 0.9])
+    wand.magic.showMembers = conductor.use.showMembers(drawnNet.net, artist, true)
+    // wand.magic.showMembers.sayNames(0.01)
+    netmetrics.centrality.degree.assign(wand.currentNetwork)
+    netdegree.assign(wand.currentNetwork)
+    const mString = metric => {
+      const norm = v => v === Math.round(v) ? v : v.toFixed(3)
+      const s = netmetrics.extent(wand.currentNetwork, metric).map(i => norm(i))
+      return `[${s[0]}, ${s[1]}]`
+    }
+    wand.currentNetwork.degreeCentrality = mString('degreeCentrality')
+    wand.currentNetwork.degree = mString('degree')
+    if (this.nodeInfoActivated) {
+      this.setNodeInfo()
+    }
+    if (this.friendsExplorerActivated) {
+      this.setFriendsExporer()
+      console.log('friends explorer set')
+    }
+    this.texts.orderSize.text = `members, friendships: ${wand.currentNetwork.order}, ${wand.currentNetwork.size}`
   }
 }
 

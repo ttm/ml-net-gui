@@ -243,8 +243,8 @@ class AdParnassum {
         achievement: 'loading networks',
         alg: () => {
           wand.transfer.mong.findAllNetworks().then(r => {
-            self.allNetworks = r
-            self.conditionMet = true
+            this.allNetworks = r
+            this.conditionMet = true
           })
         }
       },
@@ -336,29 +336,7 @@ class AdParnassum {
               id: 'pallete-button',
               click: () => {
                 // fixme: self really needed?
-                self.counter.colorChange++
-                const c = self.counter.colorChange % 4
-                let ecolor, ncolor, bcolor, bc
-                if (c === 0) {
-                  ecolor = 0xffff00
-                  ncolor = 0xff0000
-                  bcolor = 0x000000
-                  bc = 'gray'
-                } else if (c === 2) {
-                  ecolor = 0xaa00aa
-                  ncolor = 0x0000aa
-                  bcolor = 0xffffff
-                  bc = 'white'
-                } else {
-                  ecolor = 0xffffff * Math.random()
-                  ncolor = 0xffffff * Math.random()
-                  bcolor = 0xffffff * Math.random()
-                  bc = Math.floor(bcolor).toString(16)
-                  if (bc.length < 6) {
-                    bc = '0'.repeat(6 - bc.length) + bc
-                  }
-                  bc = '#' + bc
-                }
+                const { ecolor, ncolor, bcolor, bc } = this.selectColors(++this.counter.colorChange % 4)
                 wand.currentNetwork.forEachEdge((e, a) => {
                   a.pixiElement.tint = ecolor
                 })
@@ -366,7 +344,6 @@ class AdParnassum {
                   a.pixiElement.tint = ncolor
                 })
                 wand.artist.share.draw.base.app.renderer.backgroundColor = bcolor
-                console.log(bc, $('#pallete-button'), 'BBBCCCC')
                 $('#pallete-button').css('background-color', bc)
               }
             }).attr('atitle', 'change colors').css('background-color', 'gray')
@@ -377,14 +354,9 @@ class AdParnassum {
       interactionCount: {
         achievement: 'access to interactions counter',
         alg: () => {
-          // const f = self.settings.fontSize
-          // self.texts.interactionCount = wand.artist.use.mkTextFancy(`interactions: ${f}`, [self.scalex(f) * 29.5, self.scaley(f * 1.1)], self.scaley(f), 0x337777) // fixme: remove
           setInterval(() => {
-            let total = 0
-            for (const i in self.counter) {
-              total += self.counter[i]
-            }
-            self.texts.interactionCount.text = `interactions: ${total}`
+            const total = Object.values(this.counter).reduce((a, v) => a + v, 0)
+            this.texts.interactionCount.text = `interactions: ${total}`
           }, 500)
         }
       },
@@ -729,26 +701,28 @@ class AdParnassum {
     // fixme: separate in new step and make neat, put modes:
     const net = wand.currentNetwork
     net.forEachNode((n, a) => {
+      const tf = v => v.toFixed(3)
+      const texts = [
+        ['nodeId', `id: ${a.id}, x: ${tf(a.pixiElement.x)}, y: ${tf(a.pixiElement.y)}`],
+        ['nodeName', `name: ${a.name}`],
+        ['nodeDegree', `degree: ${a.degree} in ${net.degree}`],
+        ['nodeDegreeCentrality',
+          `degree centrality: ${tf(a.degreeCentrality)} in ${net.degreeCentrality}`]
+      ]
       a.pixiElement.on('pointerover', () => {
         console.log(n, a, 'NODE HOVERED')
         this.counter.hoverNode++
         wand.rect2.zIndex = 500
-        this.texts.nodeId.text = `id: ${a.id}`
-        this.texts.nodeName.text = `name: ${a.name}`
-        this.texts.nodeDegree.text = `degree: ${a.degree} in ${net.degree}`
-        this.texts.nodeDegreeCentrality.text = `degree centrality: ${a.degreeCentrality.toFixed(3)} in ${net.degreeCentrality}`
-        this.texts.nodeId.zIndex = 600
-        this.texts.nodeName.zIndex = 600
-        this.texts.nodeDegree.zIndex = 600
-        this.texts.nodeDegreeCentrality.zIndex = 600
-        wand.extra.nnn = { n, a }
+        texts.forEach(t => {
+          this.texts[t[0]].text = t[1]
+          this.texts[t[0]].zIndex = 600
+        })
       })
       a.pixiElement.on('pointerout', () => {
         wand.rect2.zIndex = 100
-        this.texts.nodeId.zIndex = 100
-        this.texts.nodeName.zIndex = 100
-        this.texts.nodeDegree.zIndex = 100
-        this.texts.nodeDegreeCentrality.zIndex = 100
+        texts.forEach(t => {
+          this.texts[t[0]].zIndex = 100
+        })
       })
     })
   }
@@ -975,6 +949,31 @@ class AdParnassum {
       console.log('friends explorer set')
     }
     this.texts.orderSize.text = `members, friendships: ${wand.currentNetwork.order}, ${wand.currentNetwork.size}`
+  }
+
+  selectColors (c) {
+    let ecolor, ncolor, bcolor, bc
+    if (c === 0) {
+      ecolor = 0xffff00
+      ncolor = 0xff0000
+      bcolor = 0x000000
+      bc = 'gray'
+    } else if (c === 2) {
+      ecolor = 0xaa00aa
+      ncolor = 0x0000aa
+      bcolor = 0xffffff
+      bc = 'white'
+    } else {
+      ecolor = 0xffffff * Math.random()
+      ncolor = 0xffffff * Math.random()
+      bcolor = 0xffffff * Math.random()
+      bc = Math.floor(bcolor).toString(16)
+      if (bc.length < 6) {
+        bc = '0'.repeat(6 - bc.length) + bc
+      }
+      bc = '#' + bc
+    }
+    return { ecolor, ncolor, bcolor, bc }
   }
 }
 

@@ -15,7 +15,9 @@ class AdParnassum {
   // the usage is accounted in clicks and time using
   // the interface and gradus achieved.
   // the registered usage is translated into bendas,
-  // a coin which its value = total given / 10% of the donation
+  // a coin which its value = total given / 10% of the donation.
+  // this class has all gradus ad Parnassum and leads to
+  // Tithorea and Lycoreia.
   constructor (settings = {}) {
     const defaultSettings = {
       currentLevel: 0,
@@ -328,20 +330,48 @@ class AdParnassum {
       randomColors: {
         achievement: 'randomize colors',
         alg: () => {
-          const pbtn = $('<button class="btn" id="pbtn"><i class="fa fa-palette"></i></button>').prop('title', 'change colors')
-          pbtn.insertAfter('#friendship-btn')
-          pbtn.on('click', () => {
-            const ecolor = 0xffffff * Math.random()
-            const ncolor = 0xffffff * Math.random()
-            wand.currentNetwork.forEachEdge((e, a) => {
-              a.pixiElement.tint = ecolor
-            })
-            wand.currentNetwork.forEachNode((e, a) => {
-              a.pixiElement.tint = ncolor
-            })
-            wand.artist.share.draw.base.app.renderer.backgroundColor = 0xffffff * Math.random()
-            self.counter.colorChange++
-          })
+          $('<i/>', { class: 'fa fa-palette', id: 'pallete-icon' }).appendTo(
+            $('<button/>', {
+              class: 'btn',
+              id: 'pallete-button',
+              click: () => {
+                // fixme: self really needed?
+                self.counter.colorChange++
+                const c = self.counter.colorChange % 4
+                let ecolor, ncolor, bcolor, bc
+                if (c === 0) {
+                  ecolor = 0xffff00
+                  ncolor = 0xff0000
+                  bcolor = 0x000000
+                  bc = 'gray'
+                } else if (c === 2) {
+                  ecolor = 0xaa00aa
+                  ncolor = 0x0000aa
+                  bcolor = 0xffffff
+                  bc = 'white'
+                } else {
+                  ecolor = 0xffffff * Math.random()
+                  ncolor = 0xffffff * Math.random()
+                  bcolor = 0xffffff * Math.random()
+                  bc = Math.floor(bcolor).toString(16)
+                  if (bc.length < 6) {
+                    bc = '0'.repeat(6 - bc.length) + bc
+                  }
+                  bc = '#' + bc
+                }
+                wand.currentNetwork.forEachEdge((e, a) => {
+                  a.pixiElement.tint = ecolor
+                })
+                wand.currentNetwork.forEachNode((e, a) => {
+                  a.pixiElement.tint = ncolor
+                })
+                wand.artist.share.draw.base.app.renderer.backgroundColor = bcolor
+                console.log(bc, $('#pallete-button'), 'BBBCCCC')
+                $('#pallete-button').css('background-color', bc)
+              }
+            }).attr('atitle', 'change colors').css('background-color', 'gray')
+              .insertAfter('#friendship-button')
+          )
         }
       },
       interactionCount: {

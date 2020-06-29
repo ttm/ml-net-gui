@@ -360,7 +360,7 @@ const testGradus = () => {
 }
 
 const testAdParnassum = () => {
-  wand.magic.adParnassum = new wand.magic.AdParnassum({ currentLevel: 7, timeStreach: 0.01, counter: { colorChange: 60, hoverNode: 19 } })
+  wand.magic.adParnassum = new wand.magic.AdParnassum({ currentLevel: 9, timeStreach: 0.01, counter: { colorChange: 60, hoverNode: 19 } })
 }
 
 const testAudio = () => {
@@ -368,4 +368,31 @@ const testAudio = () => {
   console.log(wand.maestro.synths)
 }
 
-module.exports = { testPlot, testRotateLayouts, testBlink, testExhibition1, testDiffusion, testMultilevelDiffusion, testMetaNetwork, testSparkMin, testSparkLosd, testMong, testGetNet0, testGetNet1, testGetNet2, testGetNet3, testNetIO, testGUI, testNetUpload, testNetUpload2, testMongIO, testMongNetIO, testMongBetterNetIO, testNetPage, testPuxi, testHtmlEls, testHtmlEls2, testGradus, testAdParnassum, testWorldPropertyPage, testAudio }
+const testJQueryFontsAwesome = () => {
+  const fbtn = $('<button class="btn"><i class="fa fa-user-alt" id="ifr"></i></button>').prop('title', 'friends explorer')
+  fbtn.prependTo('body')
+  let count = 0
+  fbtn.on('click', () => {
+    console.log('clicked')
+    $('#ifr').toggleClass(function () {
+      count++
+      console.log(count)
+      const i = count % 3
+      if (i === 0) {
+        return 'fa-user'
+      } else if (i === 1) {
+        return 'fa-users'
+      } else if (i === 2) {
+        return 'fa-users-alt'
+      }
+    })
+  })
+  var bana = 'yeah'
+  window.fbtn = fbtn
+  const names = $('<button class="btn" id="nbtn"><i class="fa fa-mask"></i></button>').prop('title', 'show names')
+  names.prependTo('body')
+  window.nmnm = names
+  return bana
+}
+
+module.exports = { testPlot, testRotateLayouts, testBlink, testExhibition1, testDiffusion, testMultilevelDiffusion, testMetaNetwork, testSparkMin, testSparkLosd, testMong, testGetNet0, testGetNet1, testGetNet2, testGetNet3, testNetIO, testGUI, testNetUpload, testNetUpload2, testMongIO, testMongNetIO, testMongBetterNetIO, testNetPage, testPuxi, testHtmlEls, testHtmlEls2, testGradus, testAdParnassum, testWorldPropertyPage, testAudio, testJQueryFontsAwesome }

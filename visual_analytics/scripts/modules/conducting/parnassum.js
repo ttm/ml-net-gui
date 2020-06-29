@@ -32,80 +32,18 @@ class AdParnassum {
     }
     this.settings = { ...defaultSettings, ...settings }
     this.settings.counter = { ...defaultSettings.counter, ...settings.counter }
+    this.counter = this.settings.counter
+
     const refHeight = 833
     const refWidth = 884
     this.settings.heightProportion = wand.artist.use.height / refHeight
     this.settings.widthProportion = wand.artist.use.width / refWidth
+
     this.texts = {} // pixi elements
     this.achievements = [] // list of strings (sentences in natural language)
     // this.setLevels()
     this.setStage()
-    wand.nm = netmetrics
-    wand.nm2 = netdegree
-    this.start(0)
-  }
-
-  start (level) {
-    this.mkFeatures()
-    this.mkConditions()
-    this.setGradus()
-    const step = this.gradus[level]
-    this.currentCondition = this.conditions[step.condition].condition
-    this.features[step.feature].alg()
-    this.currentLevel = level
-    this.counter = this.settings.counter
-    this.startConditionVerifier()
-  }
-
-  startConditionVerifier () {
-    this.setLevel()
-    const forward = () => {
-      if (this.currentLevel !== 2 && this.currentLevel < this.settings.currentLevel) {
-        return true
-      }
-    }
-    setInterval(() => {
-      if (this.currentLevel < this.gradus.length) {
-        this.currentCondition()
-        if ((this.conditionMet && !this.conditionMetLock) || forward()) {
-          console.log('verified, gradus, ad parnassum:', this.currentLevel, this.gradus.length)
-          console.log('condition met')
-          this.setNextLevel()
-        }
-      } else {
-        console.log('parnassum reached')
-      }
-    }, 300)
-  }
-
-  setNextLevel () {
-    this.conditionMetLock = true
-    console.log('set next level')
-    this.bumpLevel()
-    if (this.currentLevel >= this.gradus.length) {
-      console.log('ended, no more set new levels')
-      this.conditionMetLock = true
-      return
-    }
-    const step = this.gradus[this.currentLevel]
-    this.currentCondition = this.conditions[step.condition].condition
-    this.features[step.feature].alg()
-    this.conditionMet = false
-    this.conditionMetLock = false
-  }
-
-  setGradus () {
-    this.gradus = [
-      { feature: 'exhibition', condition: 'wait10s' },
-      { feature: 'showHideLinks', condition: 'minClickOnNodesEdgesVisible' },
-      { feature: 'loadDatata', condition: 'dummy' },
-      { feature: 'visualizeNetworks', condition: 'networksVisualized' },
-      { feature: 'randomColors', condition: 'colorChanges' },
-
-      { feature: 'interactionCount', condition: 'interactMore' },
-      { feature: 'nodeInfo', condition: 'hoverNodes' },
-      { feature: 'nodeInfoClick', condition: 'activateAll' }
-    ]
+    this.start()
   }
 
   scaley (val) {
@@ -116,46 +54,133 @@ class AdParnassum {
     return this.settings.widthProportion * val
   }
 
+  start () {
+    this.mkFeatures()
+    this.mkConditions()
+    this.setGradus()
+    this.startConditionVerifier()
+    // const step = this.gradus[this.currentLevel]
+    // this.currentCondition = this.conditions[step.condition].condition
+    // this.features[step.feature].alg()
+  }
+
   setStage () {
     const a = wand.artist.use
-    wand.rect1 = a.mkRectangle({ wh: [a.width, a.height * 0.055], zIndex: 200, color: 0xffffff, alpha: 0.85 })
-    wand.rect2 = a.mkRectangle({ wh: [a.width, a.height * 0.055], zIndex: 100, color: 0xbbbbbb, alpha: 1 })
+    wand.rect1 = a.mkRectangle({
+      wh: [a.width, a.height * 0.055], zIndex: 200, color: 0xffffff, alpha: 0.85
+    })
+    wand.rect2 = a.mkRectangle({
+      wh: [a.width, a.height * 0.055], zIndex: 100, color: 0xbbbbbb, alpha: 1
+    })
+
     const f = this.settings.fontSize
     const p = f / 2
-    this.texts.nodeId = wand.artist.use.mkTextFancy('', [this.scalex(p), this.scaley(p) * 0.1], this.scaley(f), 0x333377, 1)
-    this.texts.nodeName = wand.artist.use.mkTextFancy('', [this.scalex(f / 2), this.scaley(f * 1.1)], this.scaley(f), 0x777733, 1)
-    this.texts.nodeDegree = wand.artist.use.mkTextFancy('', [this.scalex(p) * 41, this.scaley(p) * 0.2], this.scaley(f), 0x666600, 1)
-    this.texts.nodeDegreeCentrality = wand.artist.use.mkTextFancy('', [this.scalex(p) * 41, this.scaley(p) * 2.2], this.scaley(f), 0x555599, 1)
-    this.texts.adParnassum = wand.artist.use.mkTextFancy('ad parnassum: > 1', [this.scalex(f / 2), this.scaley(f * 1.1)], this.scaley(f), 0x777733)
-  }
+    const x = this.scalex(p)
+    const y = this.scaley(p)
+    const fs = this.scaley(f)
 
-  setLevel () {
-    const f = this.settings.fontSize
-    const p = f / 2
-    this.texts.gradus = wand.artist.use.mkTextFancy(`gradus: ${this.settings.currentLevel}`, [this.scalex(p), this.scaley(p) * 0.1], this.scaley(f), 0x333377)
-
-    const { feature, condition } = this.gradus[this.currentLevel]
-    this.texts.achievement = wand.artist.use.mkTextFancy(`achieved: ${feature.achievement}`, [this.scalex(p) * 21, this.scaley(p) * 0.2], this.scaley(f), 0x666600)
-    this.texts.tip = wand.artist.use.mkTextFancy(`tip: ${condition.tip}`, [this.scalex(p) * 21, this.scaley(p) * 2.2], this.scaley(f), 0x555599)
-  }
-
-  bumpLevel () {
-    this.currentLevel++
-    if (this.currentLevel >= this.gradus.length) {
-      console.log('ended, no more bumping levels')
-      this.conditionMetLock = true
-      return
+    const t = a.mkTextFancy
+    const mkElement = (pos, color, element, text = '') => {
+      this.texts[element] = t(text, [pos[0] * x, pos[1] * y], fs, color)
     }
+    mkElement([1, 0.2], 0x333377, 'gradus')
+    mkElement([21, 2.2], 0x666600, 'achievement')
+    mkElement([21, 0.2], 0x333377, 'tip')
+    mkElement([1, 0.1], 0x333377, 'nodeId')
+    mkElement([1, 2.2], 0x777733, 'nodeName')
+    mkElement([41, 0.2], 0x666600, 'nodeDegree')
+    mkElement([41, 2.2], 0x555599, 'nodeDegreeCentrality')
+    mkElement([1, 2.2], 0x777733, 'adParnassum', 'ad parnassum: > 1')
+    mkElement([54, 2.2], 0x337777, 'interactionCount')
+    mkElement([54, 0.2], 0x773377, 'orderSize')
+  }
+
+  startConditionVerifier () {
+    this.currentLevel = 0 // fixme
+    this.setNextLevel()
+    const id = setInterval(() => {
+      if (this.checkCondition() || this.forward()) {
+        console.log('Condition met. Gradus, ad parnassum:', this.currentLevel, this.gradus.length)
+        if (!this.setNextLevel()) {
+          clearInterval(id)
+        }
+      }
+    }, 300)
+  }
+
+  forward () {
+    if (this.currentLevel !== 3 && this.currentLevel < this.settings.currentLevel) {
+      return true
+    }
+  }
+
+  checkCondition () {
+    this.currentCondition()
+    if (this.conditionMet && !this.conditionMetLock) {
+      return true
+    }
+    return false
+  }
+
+  setNextLevel () {
+    console.log('setting next level')
+    this.conditionMetLock = true
+    this.currentLevel++
+    if (this.parnassumReached()) {
+      return false
+    }
+
     const step = this.gradus[this.currentLevel]
-    const achievement = this.features[step.feature].achievement
-    const tip = this.conditions[step.condition].tip
     this.texts.gradus.text = `gradus: ${this.currentLevel}`
-    this.texts.achievement.text = `achieved: ${achievement}`
-    const t = this.texts.achievement.tint
-    this.texts.achievement.tint = t === 0x666600 ? 0x660066 : 0x666600
+
+    const condition = this.conditions[step.condition]
+    this.currentCondition = condition.condition
+    const tip = condition.tip
     this.texts.tip.text = `tip: ${tip}`
-    wand.maestro.synths.speaker.play(`new feature achieved: ${achievement}`, 'en')
-    wand.maestro.synths.speaker.play(`suggestion on what to do now: ${tip}`, 'en')
+
+    const feature = this.features[step.feature]
+    feature.alg()
+    const achievement = feature.achievement
+
+    this.texts.achievement.text = `achieved: ${achievement}`
+
+    const a = this.texts.achievement
+    a.tint = a.tint === 0x666600 ? 0x660066 : 0x666600
+
+    const textToSay = [
+      `feature ${this.texts.achievement.text}`,
+      `what to do now? ${this.texts.tip.text}`
+    ]
+    textToSay.forEach(i => wand.maestro.synths.speaker.play(i, 'en'))
+    this.conditionMet = false
+    this.conditionMetLock = false
+    return true
+  }
+
+  parnassumReached () {
+    if (this.currentLevel >= this.gradus.length) {
+      console.log('(((( ended, no more set new levels )))')
+      console.log('parnassum reached, ending gradus loop. Gradus, ad parnassum:', this.currentLevel, this.gradus.length)
+      console.log('Get in contact with renato </./> fabbri (O AT O) gmail [UU DOT UU] com to further unlock Gradus ad Parnassum.')
+      return true
+    }
+    return false
+  }
+
+  setGradus () {
+    this.gradus = [
+      { feature: 'dummy', condition: 'loadToStart' },
+      { feature: 'exhibition', condition: 'wait10s' },
+      { feature: 'showHideLinks', condition: 'minClickOnNodesEdgesVisible' },
+      { feature: 'loadDatata', condition: 'dummy' },
+      { feature: 'visualizeNetworks', condition: 'networksVisualized' },
+      { feature: 'randomColors', condition: 'colorChanges' },
+      { feature: 'interactionCount', condition: 'interactMore' },
+      { feature: 'nodeInfo', condition: 'hoverNodes' },
+      { feature: 'nodeInfoClick', condition: 'activateAll' },
+      { feature: 'games', condition: 'activate3Access2' },
+      { feature: 'games2', condition: 'activate2Access9' }
+    ]
   }
 
   mkFeatures () {
@@ -163,12 +188,17 @@ class AdParnassum {
     const self = this
     this.features = {
       exhibition: {
+        dummy: {
+          achievement: 'loading page',
+          alg: () => { // do nothing
+          }
+        },
         achievement: 'exhibition page loaded',
         alg: () => {
           wand.extra.exibition = wand.test.testExhibition1('gradus')
           wand.currentNetwork = wand.extra.exibition.drawnNet.net
-          const f = self.settings.fontSize
-          self.texts.orderSize = wand.artist.use.mkTextFancy(`members, friendships: ${wand.currentNetwork.order}, ${wand.currentNetwork.size}`, [self.scalex(f) * 29.5, self.scaley(f * 0.1)], self.scaley(f), 0x773377)
+          // const f = self.settings.fontSize
+          self.texts.orderSize.text = `members, friendships: ${wand.currentNetwork.order}, ${wand.currentNetwork.size}`
         }
       },
       showHideLinks: {
@@ -180,13 +210,13 @@ class AdParnassum {
           vbtn.prependTo('body')
           ibtn.on('click', () => {
             wand.currentNetwork.forEachEdge((e, a) => {
-              a.pixiElement.visible = !a.pixiElement.visible
+              this.incrementVisibility(a.pixiElement)
             })
             this.counter.edgesVisible++
           })
           vbtn.on('click', () => {
             wand.currentNetwork.forEachNode((n, a) => {
-              a.pixiElement.visible = !a.pixiElement.visible
+              this.incrementVisibility(a.pixiElement)
             })
             this.counter.nodesVisible++
           })
@@ -277,6 +307,7 @@ class AdParnassum {
             }
             if (this.friendsExplorerActivated) {
               this.setFriendsExporer()
+              console.log('friends explorer set')
             }
             this.texts.orderSize.text = `members, friendships: ${wand.currentNetwork.order}, ${wand.currentNetwork.size}`
             this.counter.networksVisualized++
@@ -306,8 +337,8 @@ class AdParnassum {
       interactionCount: {
         achievement: 'access to interactions counter',
         alg: () => {
-          const f = self.settings.fontSize
-          self.texts.interactionCount = wand.artist.use.mkTextFancy(`interactions: ${f}`, [self.scalex(f) * 29.5, self.scaley(f * 1.1)], self.scaley(f), 0x337777)
+          // const f = self.settings.fontSize
+          // self.texts.interactionCount = wand.artist.use.mkTextFancy(`interactions: ${f}`, [self.scalex(f) * 29.5, self.scaley(f * 1.1)], self.scaley(f), 0x337777) // fixme: remove
           setInterval(() => {
             let total = 0
             for (const i in self.counter) {
@@ -330,6 +361,18 @@ class AdParnassum {
           self.setFriendsExporer()
           self.friendsExplorerActivated = true
         }
+      },
+      games: {
+        achievement: 'puzzle game glance',
+        alg: () => {
+          console.log('dummy feature')
+        }
+      },
+      games2: {
+        achievement: 'another glance on games',
+        alg: () => {
+          console.log('dummy feature')
+        }
       }
     }
   }
@@ -338,6 +381,12 @@ class AdParnassum {
     const self = this
     this.startedAt = performance.now()
     this.conditions = {
+      loadToStart: {
+        tip: 'wait to load the interface',
+        condition: () => {
+          return true
+        }
+      },
       wait10s: {
         tip: 'wait, observe the network',
         condition: () => {
@@ -416,7 +465,7 @@ class AdParnassum {
         }
       },
       activate3Access2: {
-        tip: 'expore e reach members count: 3/2/XXXX',
+        tip: 'expore and reach members count: 3/2/XXXX',
         condition: () => {
           const cn = wand.currentNetwork
           if (cn.totalActivated === 3 && cn.totalAccessed === 2) {
@@ -425,7 +474,7 @@ class AdParnassum {
         }
       },
       activate2Access9: {
-        tip: 'expore e reach members count: 2/9/XXXX',
+        tip: 'expore and reach members count: 2/9/XXXX',
         condition: () => {
           const cn = wand.currentNetwork
           if (cn.totalActivated === 2 && cn.totalAccessed === 9) {
@@ -745,51 +794,61 @@ class AdParnassum {
             aa.textElement.alpha = 1
           })
         }
-        const cn = wand.currentNetwork
-        const activated = `${cn.totalActivated}/${cn.totalAccessed}/`
+        const activated = `${net.totalActivated}/${net.totalAccessed}/`
         this.texts.orderSize.text = `members, friendships: ${activated}${wand.currentNetwork.order}, ${wand.currentNetwork.size}`
       })
     })
+    const $ = wand.$
+    const m = wand.magic
     if (!self.friendsExplorerActivated) {
-      const $ = wand.$
       const fbtn = $('<button class="btn"><i class="fa fa-user-alt" id="ifr"></i></button>').prop('title', 'friends explorer')
       fbtn.insertAfter('#pbtn')
       self.fbtn = fbtn
-      fbtn.on('click', () => {
-        const m = wand.magic
-        console.log('change friendship tool')
-        if (m.friendsExplorerHoney) {
-          delete m.friendsExplorer
-          delete m.friendsExplorerHoney
-          console.log('off')
-          $('#ifr').removeClass('fa-people-arrows').addClass('fa-users')
-          net.forEachNode((n, a) => {
-            delete a.accessed
-            delete a.activated
-            a.pixiElement.scale.set(1)
-            a.pixiElement.tint = 0xff0000
-            a.textElement.visible = true
-          })
-          this.texts.orderSize.text = `members, friendships: 0/0/${wand.currentNetwork.order}, ${wand.currentNetwork.size}`
-          return
-        }
-        if (m.friendsExplorer) {
-          m.friendsExplorerHoney = true
-          console.log('on honey')
-          $('#ifr').removeClass('fa-user-cog').addClass('fa-people-arrows')
-          return
-        }
-        console.log('on explorer')
-        $('#ifr').removeClass('fa-users-alt').addClass('fa-user-cog')
+    }
+    const fbtn = self.fbtn
+    fbtn.off()
+    fbtn.on('click', () => {
+      console.log('change friendship tool')
+      if (m.friendsExplorerHoney) {
+        delete m.friendsExplorer
+        delete m.friendsExplorerHoney
+        console.log('off')
+        $('#ifr').removeClass().addClass('fa-users')
         net.totalActivated = 0
         net.totalAccessed = 0
+        // $('#nbtn').click()
+        net.forEachNode((n, a) => {
+          delete a.accessed
+          delete a.activated
+          a.pixiElement.scale.set(1)
+          a.pixiElement.tint = 0xff0000
+          a.textElement.visible = true
+        })
+      } else if (m.friendsExplorer) {
+        console.log('on honey')
+        m.friendsExplorerHoney = true
+        $('#ifr').removeClass('fa-user-cog').addClass('fa-people-arrows')
+      } else {
+        console.log('on explorer')
         m.friendsExplorer = true
-        $('#nbtn').click()
-        const cn = wand.currentNetwork
-        const activated = `${cn.totalActivated}/${cn.totalAccessed}/`
-        this.texts.orderSize.text = `members, friendships: ${activated}${wand.currentNetwork.order}, ${wand.currentNetwork.size}`
-      })
-      return fbtn
+        $('#ifr').removeClass('fa-users').addClass('fa-user-cog')
+      }
+      const activated = `${net.totalActivated}/${net.totalAccessed}/`
+      this.texts.orderSize.text = `members, friendships: ${activated}${net.order}, ${net.size}`
+    })
+    fbtn.click()
+    // net.totalActivated = 0
+    // net.totalAccessed = 0
+    // m.friendsExplorer = true
+    // $('#ifr').removeClass('fa-users-alt')
+    // $('#ifr').removeClass('fa-people-arrows')
+    // $('#ifr').addClass('fa-user-cog')
+  }
+
+  incrementVisibility (e, amount = 0.1) {
+    e.alpha += amount
+    if (e.alpha > 1) {
+      e.alpha = 0
     }
   }
 }

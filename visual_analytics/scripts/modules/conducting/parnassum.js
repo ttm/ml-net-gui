@@ -204,22 +204,30 @@ class AdParnassum {
       showHideLinks: {
         achievement: 'show/hide nodes/links buttons',
         alg: () => {
-          const ibtn = $('<button class="btn" id="ibtn"><i class="fa fa-bone"></i></button>').prop('title', 'show links')
-          const vbtn = $('<button class="btn"><i class="fa fa-chess"></i></button>').prop('title', 'show nodes')
-          ibtn.prependTo('body')
-          vbtn.prependTo('body')
-          ibtn.on('click', () => {
-            wand.currentNetwork.forEachEdge((e, a) => {
-              this.incrementVisibility(a.pixiElement)
-            })
-            this.counter.edgesVisible++
-          })
-          vbtn.on('click', () => {
-            wand.currentNetwork.forEachNode((n, a) => {
-              this.incrementVisibility(a.pixiElement)
-            })
-            this.counter.nodesVisible++
-          })
+          $('<i/>', { class: 'fa fa-bone', id: 'friendship-icon' }).appendTo(
+            $('<button/>', {
+              class: 'btn',
+              id: 'friendship-button',
+              click: () => {
+                wand.currentNetwork.forEachEdge((e, a) => {
+                  this.incrementVisibility(a.pixiElement, $('#friendship-button'))
+                })
+                this.counter.edgesVisible++
+              }
+            }).attr('atitle', 'show friendships').prependTo('body')
+          )
+          $('<i/>', { class: 'fa fa-chess', id: 'member-icon' }).appendTo(
+            $('<button/>', {
+              class: 'btn',
+              id: 'member-button',
+              click: () => {
+                wand.currentNetwork.forEachNode((n, a) => {
+                  this.incrementVisibility(a.pixiElement, $('#member-button'))
+                })
+                this.counter.nodesVisible++
+              }
+            }).attr('atitle', 'show members').prependTo('body')
+          )
         }
       },
       loadDatata: {
@@ -845,11 +853,18 @@ class AdParnassum {
     // $('#ifr').addClass('fa-user-cog')
   }
 
-  incrementVisibility (e, amount = 0.1) {
+  incrementVisibility (e, je, amount = 0.1) {
     e.alpha += amount
     if (e.alpha > 1) {
       e.alpha = 0
     }
+    let color = '#' + Math.floor(0xffffff - 0xffff * e.alpha).toString(16)
+    if (1 - e.alpha < 0.01) {
+      color = '#00ff00'
+    }
+    // color = '#' + '0'.repeat(2 - color.length) + color + 'ffff'
+    je.css('background-color', color)
+    console.log(e.alpha, color)
   }
 }
 

@@ -392,6 +392,26 @@ const testJQueryFontsAwesome = () => {
   const names = $('<button class="btn" id="nbtn"><i class="fa fa-mask"></i></button>').prop('title', 'show names')
   names.prependTo('body')
   window.nmnm = names
+  let clickCount = 0
+  const classes = ['fa-cat', 'fa-user', 'fa-users']
+  const colors = ['red', 'blue', '#ffff00']
+  const names2 = $('<i/>', { class: 'fa fa-cat', id: 'ibtn' }).appendTo(
+    $('<button/>', {
+      class: 'btn',
+      id: 'nbtn2',
+      title: 'show names22',
+      click: () => {
+        const c = clickCount
+        const cc = c + 1
+        console.log('yeah', c, cc, names2, classes, $('#ibtn'))
+        $('#ibtn').removeClass(classes[c % 3])
+          .addClass(classes[cc % 3])
+          .css('color', colors[cc % 3])
+        clickCount++
+      }
+    }).attr('mtitley', 'TITTITI').prependTo('body')
+  )
+  window.nmnm2 = names2
   return bana
 }
 

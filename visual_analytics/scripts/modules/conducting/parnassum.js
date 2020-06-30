@@ -45,7 +45,6 @@ class AdParnassum {
 
     this.texts = {} // pixi elements
     this.achievements = [] // list of strings (sentences in natural language)
-    // this.setLevels()
     this.setStage()
     this.start()
   }
@@ -84,19 +83,22 @@ class AdParnassum {
     const fs = this.scaley(f)
 
     const t = a.mkTextFancy
-    const mkElement = (pos, color, element, text = '') => {
-      this.texts[element] = t(text, [pos[0] * x, pos[1] * y], fs, color)
+    const mkElement = (pos, color, element, zIndex = 300, alpha = 1) => {
+      this.texts[element] = t('', [pos[0] * x, pos[1] * y], fs, color, zIndex, alpha)
     }
+
+    mkElement([1, 2.2], 0x777733, 'adParnassum')
+    this.texts.adParnassum.text = 'ad parnassum: > 1'
     mkElement([1, 0.2], 0x333377, 'gradus')
     mkElement([21, 2.2], 0x666600, 'achievement')
     mkElement([21, 0.2], 0x333377, 'tip')
-    mkElement([1, 0.1], 0x333377, 'nodeId')
-    mkElement([1, 2.2], 0x777733, 'nodeName')
-    mkElement([41, 0.2], 0x666600, 'nodeDegree')
-    mkElement([41, 2.2], 0x555599, 'nodeDegreeCentrality')
-    mkElement([1, 2.2], 0x777733, 'adParnassum', 'ad parnassum: > 1')
     mkElement([54, 2.2], 0x337777, 'interactionCount')
+
     mkElement([54, 0.2], 0x773377, 'orderSize')
+    mkElement([1, 0.1], 0x333377, 'nodeId', 600, 0)
+    mkElement([1, 2.2], 0x777733, 'nodeName', 600, 0)
+    mkElement([41, 0.2], 0x666600, 'nodeDegree', 600, 0)
+    mkElement([41, 2.2], 0x555599, 'nodeDegreeCentrality', 600, 0)
   }
 
   startConditionVerifier () {
@@ -141,21 +143,17 @@ class AdParnassum {
     this.texts.gradus.text = `gradus: ${this.currentLevel}`
 
     const condition = this.conditions[step.condition]
-    this.currentCondition = condition.condition
-    const tip = condition.tip
-    this.texts.tip.text = `tip: ${tip}`
+    this.currentCondition = condition.condition // this sets gradus
+    this.texts.tip.text = `tip: ${condition.tip}`
 
     const feature = this.features[step.feature]
-    feature.alg()
-    const achievement = feature.achievement
-
-    this.texts.achievement.text = `achieved: ${achievement}`
-
+    feature.alg() // this sets gradus
     const a = this.texts.achievement
+    a.text = `achieved: ${feature.achievement}`
     a.tint = a.tint === 0x666600 ? 0x660066 : 0x666600
 
     const textToSay = [
-      `feature ${this.texts.achievement.text}`,
+      `feature ${a.text}`,
       `what to do now? ${this.texts.tip.text}`
     ]
     textToSay.forEach(i => wand.maestro.synths.speaker.play(i, 'en'))
@@ -194,17 +192,16 @@ class AdParnassum {
     const $ = wand.$
     const self = this
     this.features = {
+      dummy: {
+        achievement: 'loading page',
+        alg: () => { // do nothing
+        }
+      },
       exhibition: {
-        dummy: {
-          achievement: 'loading page',
-          alg: () => { // do nothing
-          }
-        },
         achievement: 'exhibition page loaded',
         alg: () => {
           wand.extra.exhibition = wand.test.testExhibition1('gradus')
           wand.currentNetwork = wand.extra.exhibition.drawnNet.net
-          // const f = self.settings.fontSize
           self.texts.orderSize.text = `members, friendships: ${wand.currentNetwork.order}, ${wand.currentNetwork.size}`
         }
       },
@@ -253,6 +250,8 @@ class AdParnassum {
       visualizeNetworks: { // multiple features: network menu and names
         achievement: 'network menu',
         alg: () => {
+          // creates network menu, plot, names alpha buttons
+          // creates names and nodes size hidden buttons and conditions
           const transfer = wand.transfer
           wand.extra.exhibition.remove()
           delete wand.extra.exhibition
@@ -352,7 +351,6 @@ class AdParnassum {
               class: 'btn',
               id: 'pallete-button',
               click: () => {
-                // fixme: self really needed?
                 const { ecolor, ncolor, bcolor, bc } = this.selectColors(++this.counter.colorChange % 4)
                 wand.currentNetwork.forEachEdge((e, a) => {
                   a.pixiElement.tint = ecolor
@@ -381,15 +379,15 @@ class AdParnassum {
       nodeInfo: {
         achievement: 'hover node to get some info',
         alg: () => {
-          self.setNodeInfo()
-          self.nodeInfoActivated = true
+          this.setNodeInfo()
+          this.nodeInfoActivated = true
         }
       },
       nodeInfoClick: {
         achievement: 'click node to explore in network',
         alg: () => {
-          self.setFriendsExporer()
-          self.friendsExplorerActivated = true
+          this.setFriendsExporer()
+          this.friendsExplorerActivated = true
         }
       },
       games: {
@@ -734,30 +732,30 @@ class AdParnassum {
         wand.rect2.zIndex = 500
         texts.forEach(t => {
           this.texts[t[0]].text = t[1]
-          this.texts[t[0]].zIndex = 600
+          this.texts[t[0]].alpha = 1
         })
         a.colorBlocked = true
         a.pixiElement.tint = c.hl.bw
         a.textElement.tint = c.hl.mix
-        a.pixiElement.alpha = 0
-        a.textElement.alpha = 0
+        a.pixiElement.alpha = 1
+        a.textElement.alpha = 1
         net.forEachNeighbor(n, (nn, na) => {
           na.colorBlocked = true
           na.pixiElement.tint = c.hl.mix
           na.textElement.tint = c.hl.bw
-          a.pixiElement.alpha = 1
-          a.textElement.alpha = 1
+          na.pixiElement.alpha = 1
+          na.textElement.alpha = 1
         })
       })
       a.pixiElement.on('pointerout', () => {
         const c = this.currentColors
         wand.rect2.zIndex = 100
         texts.forEach(t => {
-          this.texts[t[0]].zIndex = 100
+          this.texts[t[0]].alpha = 0
         })
         delete a.colorBlocked
         a.pixiElement.tint = c.ncolor
-        a.pixiElement.alpha = c.nodesAlpha
+        a.pixiElement.alpha = wand.extra.nodesAlpha
         a.textElement.tint = 0xffffff * Math.random()
         net.forEachNeighbor(n, (nn, na) => {
           delete na.colorBlocked
@@ -902,14 +900,8 @@ class AdParnassum {
   }
 
   increment01 (attr, je, amount = 0.1) {
-    let n = wand.extra[attr]
-    if (n === undefined) {
-      n = 0.5
-    }
-    n += amount
-    if (n > 1) {
-      n = 0
-    }
+    let n = (wand.extra[attr] || 0.5) + amount
+    n = n > 1 ? 0 : n
     wand.extra[attr] = n
     if (je !== undefined) {
       let color = '#00ff00'
@@ -951,33 +943,17 @@ class AdParnassum {
     this.visualizeNetwork(this.allNetworks[option].text)
   }
 
-  destroyNetwork () {
-    console.log('net destroyed')
-    if (wand.currentNetwork) { // destroy network:
-      wand.artist.share.draw.base.app.ticker.remove(wand.magic.showMembers)
-      wand.currentNetwork.forEachNode((n, a) => {
-        a.pixiElement.destroy()
-        if (a.textElement) {
-          a.textElement.destroy()
-        }
-      })
-      wand.currentNetwork.forEachEdge((n, a) => a.pixiElement.destroy())
-    }
-    delete wand.currentNetwork
-  }
-
   visualizeNetwork (string) {
     const { conductor, artist, net } = wand
     this.destroyNetwork()
-    console.log('net being visualized')
     wand.currentNetwork = net.use.utils.loadJsonString(string)
-    const drawnNet = new conductor.use.DrawnNet(artist.use, wand.currentNetwork, [artist.use.width, artist.use.height * 0.9])
-    wand.magic.showMembers = conductor.use.showMembers(drawnNet.net, artist, true)
+    wand.extra.drawnNet = new conductor.use.DrawnNet(artist.use, wand.currentNetwork, [artist.use.width, artist.use.height * 0.9])
+    wand.magic.showMembers = conductor.use.showMembers(wand.currentNetwork, artist, true)
     // wand.magic.showMembers.sayNames(0.01)
     netmetrics.centrality.degree.assign(wand.currentNetwork)
     netdegree.assign(wand.currentNetwork)
+    const norm = v => v === Math.round(v) ? v : v.toFixed(3)
     const mString = metric => {
-      const norm = v => v === Math.round(v) ? v : v.toFixed(3)
       const s = netmetrics.extent(wand.currentNetwork, metric).map(i => norm(i))
       return `[${s[0]}, ${s[1]}]`
     }
@@ -997,6 +973,21 @@ class AdParnassum {
     loader.hide()
     console.log('ended loading. fixme: jquery fails to show loading cues.')
     wand.extra.loadingNetInScreen = false
+  }
+
+  destroyNetwork () {
+    console.log('net destroyed')
+    if (wand.currentNetwork) { // destroy network:
+      wand.artist.share.draw.base.app.ticker.remove(wand.magic.showMembers)
+      wand.currentNetwork.forEachNode((n, a) => {
+        a.pixiElement.destroy()
+        if (a.textElement) {
+          a.textElement.destroy()
+        }
+      })
+      wand.currentNetwork.forEachEdge((n, a) => a.pixiElement.destroy())
+    }
+    delete wand.currentNetwork
   }
 
   selectColors (c) {

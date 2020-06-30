@@ -125,7 +125,7 @@ function mkTextBetter (
   return texto
 }
 
-function mkTextFancy (text, pos, fontSize = 15, color = 0x00ff00, zIndex = 300) {
+function mkTextFancy (text, pos, fontSize = 15, color = 0x00ff00, zIndex = 300, alpha = 1) {
   const texto = new PIXI.Text(
     text,
     { fontFamily: 'Arial', fontSize, fill: 0xffffff, align: 'center' }
@@ -133,6 +133,7 @@ function mkTextFancy (text, pos, fontSize = 15, color = 0x00ff00, zIndex = 300) 
   texto.tint = color
   texto.x = pos[0]
   texto.y = pos[1]
+  texto.alpha = alpha
   texto.zIndex = zIndex
   app.stage.addChild(texto)
   return texto

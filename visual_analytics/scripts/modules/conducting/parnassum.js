@@ -25,18 +25,88 @@ class AdParnassum {
       timeStreach: 1, // only used for when time has to pass
       counter: {
         networksVisualized: 0,
-        nodesVisible: 0,
-        nodesSize: 0,
-        namesVisible: 0,
-        namesSize: 0,
-        edgesVisible: 0,
-        colorChange: 0,
+        explorerChange: 0,
         hoverNode: 0
+      },
+      state: {
+        nodesSize: {
+        // current val = min + (max - min) * (count % step)
+          count: 0, // interactions count
+          max: 3,
+          min: 1,
+          steps: 10,
+          act: (a, val) => {
+            a.pixiElement.scale.set(val)
+          }
+        },
+        namesSize: {
+          count: 0, // interactions count
+          max: 3,
+          min: 1,
+          steps: 10,
+          act: (a, val) => {
+            a.textElement.scale.set(val)
+          }
+        },
+        nodesAlpha: {
+          count: 0, // interactions count
+          max: 1,
+          min: 0,
+          steps: 10,
+          act: (a, val) => {
+            a.pixiElement.alpha = val
+          }
+        },
+        namesAlpha: {
+          count: 0, // interactions count
+          max: 1,
+          min: 0,
+          steps: 10,
+          act: (a, val) => {
+            a.textElement.alpha = val
+          }
+        },
+        edgesAlpha: {
+          count: 0, // interactions count
+          max: 1,
+          min: 0,
+          steps: 10,
+          act: (a, val) => {
+            a.pixiElement.alpha = val
+          }
+        },
+        colors: {
+          count: 0,
+          min: 0,
+          max: 4, // >= it goes to min
+          steps: 4,
+          act: (a, val) => {
+            this.styleNode(a)
+          }
+        },
+        explorer: {
+          count: 0,
+          min: 0,
+          max: 4,
+          steps: 4,
+          act: () => {
+            const icons = ['fa-users', 'fa-user', 'fa-palette']
+            const algs = Object.keys(this.explorerAlgs)
+            if (icons.length !== algs.length) {
+              throw new Error('Mismatch of icons and explorer algorithms')
+            }
+          }
+        }
       }
     }
+
     this.settings = { ...defaultSettings, ...settings }
     this.settings.counter = { ...defaultSettings.counter, ...settings.counter }
+    this.settings.state = { ...defaultSettings.state, ...settings.state }
     this.counter = this.settings.counter
+    this.state = this.settings.state
+    defaultSettings.state.currentColors = this.selectColors[this.counter.colorChange % 4]
+    this.state.currentColors = { ...defaultSettings.state.currentColors, ...settings.state.currentColors }
 
     const refHeight = 833
     const refWidth = 884
@@ -93,8 +163,8 @@ class AdParnassum {
     mkElement([21, 2.2], 0x666600, 'achievement')
     mkElement([21, 0.2], 0x333377, 'tip')
     mkElement([54, 2.2], 0x337777, 'interactionCount')
-
     mkElement([54, 0.2], 0x773377, 'orderSize')
+
     mkElement([1, 0.1], 0x333377, 'nodeId', 600, 0)
     mkElement([1, 2.2], 0x777733, 'nodeName', 600, 0)
     mkElement([41, 0.2], 0x666600, 'nodeDegree', 600, 0)
@@ -272,8 +342,7 @@ class AdParnassum {
           )
 
           this.texts.gradus.on('click', () => {
-            let size = this.increment01('namesSize')
-            size = this.scaley(this.settings.fontSize) * (0.2 + 1.5 * size)
+            const size = this.scaley(this.settings.fontSize * this.increment01('namesSize'))
             wand.currentNetwork.forEachNode((n, a) => {
               a.textElement.style.fontSize = size
             })
@@ -286,7 +355,7 @@ class AdParnassum {
           )
 
           this.texts.orderSize.on('click', () => {
-            const size = this.scaley(0.2 + 2 * this.increment01('nodesSize'))
+            const size = this.scaley(this.increment01('nodesSize'))
             wand.currentNetwork.forEachNode((n, a) => {
               a.pixiElement.scale.set(size)
             })
@@ -386,7 +455,7 @@ class AdParnassum {
       nodeInfoClick: {
         achievement: 'click node to explore in network',
         alg: () => {
-          this.setFriendsExporer()
+          this.setExplorer()
           this.friendsExplorerActivated = true
         }
       },
@@ -462,11 +531,7 @@ class AdParnassum {
         tip: 'click around and explore',
         condition: () => {
           wand.extra.counter = self.counter
-          let total = 0
-          for (const i in self.counter) {
-            total += self.counter[i]
-          }
-          if (total > 50) {
+          if (Object.keys(wand.extra.counter).reduce((a, i) => a + i, 0) > 50) {
             self.conditionMet = true
           }
         }
@@ -734,12 +799,18 @@ class AdParnassum {
           this.texts[t[0]].text = t[1]
           this.texts[t[0]].alpha = 1
         })
+        if (a.seed || a.activated) {
+          return
+        }
         a.colorBlocked = true
         a.pixiElement.tint = c.hl.bw
         a.textElement.tint = c.hl.mix
         a.pixiElement.alpha = 1
         a.textElement.alpha = 1
         net.forEachNeighbor(n, (nn, na) => {
+          if (na.seed || na.activated) {
+            return
+          }
           na.colorBlocked = true
           na.pixiElement.tint = c.hl.mix
           na.textElement.tint = c.hl.bw
@@ -753,6 +824,9 @@ class AdParnassum {
         texts.forEach(t => {
           this.texts[t[0]].alpha = 0
         })
+        if (a.seed || a.activated) {
+          return
+        }
         delete a.colorBlocked
         a.pixiElement.tint = c.ncolor
         a.pixiElement.alpha = wand.extra.nodesAlpha
@@ -767,142 +841,131 @@ class AdParnassum {
     })
   }
 
-  setFriendsExporer () {
+  setExplorer () {
+    console.log('explorer set')
+    const $ = wand.$
+    if (!this.friendsExplorerActivated) {
+      const icons = ['fa-users', 'fa-user', 'fa-palette']
+      const algs = ['union', 'xor', 'spread']
+      $('<i/>', { class: 'fa fa-users', id: 'explorer-icon' }).appendTo(
+        $('<button/>', {
+          class: 'btn',
+          id: 'explorer-button',
+          click: () => {
+            $('#explorer-icon').toggleClass(() => {
+              this.counter.explorerChange++
+              this.explorer.currentExplorerNumber = (++this.explorer.currentExplorerNumber) % 3
+              this.currentExplorerKey = algs[this.explorer.currentExplorerNumber]
+              return icons[this.explorer.currentExplorerNumber]
+            })
+          }
+        }).attr('atitle', 'change colors').css('background-color', 'gray')
+          .insertAfter('#pallete-button')
+      )
+    }
     const net = wand.currentNetwork
-    const self = this
+    // const self = this
+    this.explorerAlgs = {
+      union: node => {
+        let activated = 0
+        net.forEachNeighbor(node, (nn, na) => {
+          if (!na.activated) {
+            na.activated = true
+            activated++
+            this.styleNode(na)
+          }
+        })
+        return { activated, deactivated: 0 }
+      },
+      xor: node => {
+        let activated = 0
+        let deactivated = 0
+        net.forEachNeighbor(node, (nn, na) => {
+          deactivated += Boolean(na.activated)
+          na.activated = !na.activated
+          activated += na.activated
+          this.styleNode(na)
+        })
+        return { activated, deactivated }
+      },
+      spread: node => { // dummy for now
+        this.resetNetwork()
+        return { activated: 0, deactivated: 0 }
+      }
+    }
+
     net.forEachNode((n, a) => {
       a.pixiElement.on('pointerdown', () => {
-        console.log('yeah clicked')
-        if (!wand.magic.friendsExplorer) {
-          return
-        }
-        if (net.totalActivated + net.totalAccessed >= net.order) {
-          console.log('all activated or accessed')
-          net.totalAccessed = 0
-          net.totalActivated = 0
-          net.forEachNode((n, a) => {
-            delete a.accessed
-            delete a.activated
-            a.pixiElement.scale.set(1)
-            a.pixiElement.tint = 0xff0000
-            a.textElement.visible = false
+        console.log('yeah clicked, node:', n, this.currentExplorerKey)
+        a.seed = !a.seed
+        this.styleNode(a)
+        if (a.seed) { // activate neighs following a pattern:
+          const { activated, deactivated } = this.explorerAlgs[this.currentExplorerKey](n)
+          this.explorer.totalActivated += activated - deactivated
+          this.explorer.totalSeeds += a.seed ? 1 : -1
+          const { totalActivated, totalSeeds } = this.explorer
+          this.explorer.progression.push({ seed: a.seed, activated, deactivated, totalSeeds, totalActivated })
+          console.log(this.explorer)
+          const activatedStr = `${totalSeeds}/${totalActivated}/`
+          this.texts.orderSize.text = `members, friendships: ${activatedStr}${wand.currentNetwork.order}, ${wand.currentNetwork.size}`
+        } else { // deactivate neighs
+          let deactivated = 0
+          net.forEachNeighbor(n, (nn, na) => {
+            deactivated += na.activated
+            na.activated = false
+            this.styleNode(na)
           })
+          const { totalActivated, totalSeeds } = this.explorer
+          this.explorer.progression.push({ seed: a.seed, activated: 0, deactivated, totalSeeds, totalActivated })
         }
-        if (a.activated) {
-          a.pixiElement.tint = a.lastColor
-          a.pixiElement.scale.x = a.lastScale.x
-          a.pixiElement.scale.y = a.lastScale.y
-          net.forEachNeighbor(n, (neigh, aa) => {
-            aa.pixiElement.scale.x = aa.lastScale.x
-            aa.pixiElement.scale.y = aa.lastScale.y
-            aa.pixiElement.tint = aa.lastColor
-            aa.textElement.tint = aa.lastTextColor
-            if (!wand.extra.friendsExplorerHoney) {
-              delete aa.lastScale
-              delete aa.lastColor
-              delete aa.lastTextColor
-            }
-          })
-          if (!wand.extra.friendsExplorerHoney) {
-            delete a.activated
-          }
-        } else {
-          net.totalActivated += 1
-          a.activated = true
-          a.pixiElement.scaleBlock = true
-          a.textElement.visible = true
-          const bg = wand.artist.share.draw.base.app.renderer.backgroundColor
-          let color = 0xffffff
-          if (bg >= 0xffffff / 2) {
-            color = 0x000000
-          }
-          const meanBg = () => {
-            return color * Math.random() + bg * Math.random()
-          }
-          a.lastColor = a.pixiElement.tint
-          a.pixiElement.tint = meanBg()
-          a.lastScale = {
-            x: a.pixiElement.scale.x,
-            y: a.pixiElement.scale.y
-          }
-          a.pixiElement.scale.set(3)
-          net.forEachNeighbor(n, (neigh, aa) => {
-            aa.pixiElement.scaleBlock = true
-            aa.lastScale = {
-              x: aa.pixiElement.scale.x,
-              y: aa.pixiElement.scale.y
-            }
-            aa.lastColor = aa.pixiElement.tint
-            aa.lastTextColor = aa.textElement.tint
-            aa.pixiElement.scale.set(3)
-            aa.pixiElement.tint = 0xffff00
-            aa.textElement.visible = true
-            if (!aa.accessed) {
-              aa.accessed = true
-              net.totalAccessed += 1
-            }
-            setTimeout(() => {
-              aa.pixiElement.tint = color
-            }, 2000)
-            aa.textElement.tint = (color + bg) / 2
-            aa.textElement.alpha = 1
-          })
-        }
-        const activated = `${net.totalActivated}/${net.totalAccessed}/`
-        this.texts.orderSize.text = `members, friendships: ${activated}${wand.currentNetwork.order}, ${wand.currentNetwork.size}`
       })
     })
-    const $ = wand.$
-    const m = wand.magic
-    if (!self.friendsExplorerActivated) {
-      const fbtn = $('<button class="btn"><i class="fa fa-user-alt" id="ifr"></i></button>').prop('title', 'friends explorer')
-      fbtn.insertAfter('#pbtn')
-      self.fbtn = fbtn
-    }
-    const fbtn = self.fbtn
-    fbtn.off()
-    fbtn.on('click', () => {
-      console.log('change friendship tool')
-      if (m.friendsExplorerHoney) {
-        delete m.friendsExplorer
-        delete m.friendsExplorerHoney
-        console.log('off')
-        $('#ifr').removeClass().addClass('fa-users')
-        net.totalActivated = 0
-        net.totalAccessed = 0
-        // $('#nbtn').click()
-        net.forEachNode((n, a) => {
-          delete a.accessed
-          delete a.activated
-          a.pixiElement.scale.set(1)
-          a.pixiElement.tint = 0xff0000
-          a.textElement.visible = true
+    this.explorer = {
+      progression: [],
+      totalSeeds: 0,
+      totalActivated: 0,
+      currentExplorerNumber: 0,
+      getMemberSets: () => {
+        const seeds = []
+        const activated = []
+        const both = []
+        wand.currentNetwork.forEachNode((n, a) => {
+          if (a.seed) {
+            seeds.push(n)
+          }
+          if (a.activated) {
+            activated.push(n)
+          }
+          if (a.seed && a.activated) {
+            both.push(n)
+          }
         })
-      } else if (m.friendsExplorer) {
-        console.log('on honey')
-        m.friendsExplorerHoney = true
-        $('#ifr').removeClass('fa-user-cog').addClass('fa-people-arrows')
-      } else {
-        console.log('on explorer')
-        m.friendsExplorer = true
-        $('#ifr').removeClass('fa-users').addClass('fa-user-cog')
+        return { seeds, activated, both }
+      },
+      verify: () => {
+        // fixme: assert instead of console.log:
+        const { seeds, activated, both } = this.explorer.getMemberSets()
+        console.log(`total seeds: ${this.explorer.totalSeeds} == ${seeds.length}`)
+        console.log(`total activated: ${this.explorer.totalActivated} == ${activated.length}`)
+        console.log(`both: ${both.length}`)
       }
-      const activated = `${net.totalActivated}/${net.totalAccessed}/`
-      this.texts.orderSize.text = `members, friendships: ${activated}${net.order}, ${net.size}`
-    })
-    fbtn.click()
-    // net.totalActivated = 0
-    // net.totalAccessed = 0
-    // m.friendsExplorer = true
-    // $('#ifr').removeClass('fa-users-alt')
-    // $('#ifr').removeClass('fa-people-arrows')
-    // $('#ifr').addClass('fa-user-cog')
+    }
+    $('#explorer-button').click()
   }
 
-  increment01 (attr, je, amount = 0.1) {
-    let n = (wand.extra[attr] || 0.5) + amount
-    n = n > 1 ? 0 : n
-    wand.extra[attr] = n
+  increment01 (attr, je) {
+    // fixme: move to this.settings || this.settings.01
+    // separate the settings attributes in the rest of the class:
+    // settings. counters
+    //           incrementable
+    //           selectable
+    //           scope: { network_name, explorer }
+    //    send settings if changed to mongo at each gradus
+    const { current, max, min, inc } = this.settings.state[attr]
+    const ambit = max - min
+    let n = (current || (min + 0.5 * ambit)) + inc * ambit
+    n = n > max ? min : n
+    this.settings.state[attr] = n
     if (je !== undefined) {
       let color = '#00ff00'
       if (1 - n > 0.01) {
@@ -923,7 +986,6 @@ class AdParnassum {
       for (let i = 0; i < this.additionalConditions.length; i++) {
         const c = this.additionalConditions[i]
         if (!c.met && c.condition()) {
-          console.log(c, this.counter.nodesSize)
           c.met = true
           wand.maestro.synths.speaker.play('hidden condition met', 'en')
           wand.maestro.synths.speaker.play(c.achievement, 'en')
@@ -963,7 +1025,7 @@ class AdParnassum {
       this.setNodeInfo()
     }
     if (this.friendsExplorerActivated) {
-      this.setFriendsExporer()
+      this.setExplorer()
       console.log('friends explorer set')
     }
     this.texts.orderSize.text = `members, friendships: ${wand.currentNetwork.order}, ${wand.currentNetwork.size}`
@@ -1012,7 +1074,8 @@ class AdParnassum {
       }
       bc = '#' + bc
     }
-    const bw = bcolor >= 0xffffff ? 0x000000 : 0xffffff
+    // fixme: correctly check R G B portions of the color
+    const bw = bcolor >= 0xffffff / 2 ? 0x000000 : 0xffffff
     let mix = (bw + bcolor) * Math.random()
     while (mix > 0xffffff) {
       mix = (bw + bcolor) * Math.random()
@@ -1020,6 +1083,50 @@ class AdParnassum {
     this.currentColors = { ecolor, ncolor, bcolor, bc, hl: { bw, mix } }
 
     return this.currentColors
+  }
+
+  random01 (n) {
+    return n * Math.random()
+  }
+
+  restyleNode (attr = { }) {
+    const s = this.settings.state
+    attr = {
+      ...attr,
+      ...{
+        scale: this.scaley(s.nodesSize.current),
+        nodeTint: s.currentColors.ncolor,
+        nodeAlpha: s.nodesAlpha.current,
+        nameTint: 0xffffff * Math.random(), // todo: maybe don't random if not needed
+        nameAlpha: s.namesAlpha.current * Math.random()
+      }
+    }
+    const { a, colorBlocked, scale, nodeTint, nodeAlpha, nameTint, nameAlpha } = attr
+    a.colorBlocked = colorBlocked
+    a.pixiElement.scale.set(scale)
+    a.pixiElement.tint = nodeTint
+    a.pixiElement.alpha = nodeAlpha
+    a.textElement.tint = nameTint
+    a.textElement.alpha = nameAlpha
+  }
+
+  styleNode (a) {
+    const c = this.settings.state.currentColors
+    if (a.seed || a.activated) {
+      const [nodeTint, nameTint] = a.seed ? [c.hl.bw, c.hl.mix] : [c.hl.mix, c.hl.bw]
+      window.aa = a
+      this.restyleNode({
+        a,
+        colorBlocked: true,
+        scale: this.settings.state.nodesSize * 1.5,
+        nodeTint,
+        nodeAlpha: 1,
+        nameTint,
+        nameAlpha: 1
+      })
+      return
+    }
+    this.restyleNode({ a })
   }
 }
 

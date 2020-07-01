@@ -1,3 +1,4 @@
+/* global wand */
 const PIXI = require('./pixi').PIXI
 
 const app = new PIXI.Application({
@@ -63,14 +64,14 @@ function mkNode (ntype = 'tri', color = 0xff0000, version = 1) {
   if (version === 1) {
     v.on('pointerover', () => {
       if (!v.scaleBlock) {
-        v.scale.set(1.2)
-        v.alpha = 0.9
+        v.scale.set(1.5 * (v.currentScale || wand.extra.nodesSize || 1))
+        // v.alpha = 0.9
       }
     })
     v.on('pointerout', () => {
       if (!v.scaleBlock) {
-        v.scale.set(0.7)
-        v.alpha = 0.4
+        v.scale.set(v.currentScale || wand.extra.nodesSize || 1)
+        // v.alpha = 0.4
       }
     })
   }

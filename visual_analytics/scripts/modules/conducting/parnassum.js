@@ -19,24 +19,27 @@ class AdParnassum {
   // this class has all gradus ad Parnassum and leads to
   // Tithorea and Lycoreia.
   constructor (settings = {}) {
+    const self = this
     const defaultSettings = {
       currentLevel: 0,
       fontSize: 20,
       timeStreach: 1, // only used for when time has to pass
       counter: {
         networksVisualized: 0,
-        explorerChange: 0,
         hoverNode: 0
       },
       state: {
         nodesSize: {
         // current val = min + (max - min) * (count % step)
-          count: 0, // interactions count
+          count: 7, // interactions count
+          current: 7 / 10,
           max: 3,
           min: 1,
           steps: 10,
-          act: (a, val) => {
-            a.pixiElement.scale.set(val)
+          act: function () {
+            wand.currentNetwork.forEachNode((n, a) => {
+              a.pixiElement.scale.set(this.current)
+            })
           }
         },
         namesSize: {
@@ -44,8 +47,10 @@ class AdParnassum {
           max: 3,
           min: 1,
           steps: 10,
-          act: (a, val) => {
-            a.textElement.scale.set(val)
+          act: function () {
+            wand.currentNetwork.forEachNode((n, a) => {
+              a.textElement.scale.set(this.current)
+            })
           }
         },
         nodesAlpha: {
@@ -53,8 +58,11 @@ class AdParnassum {
           max: 1,
           min: 0,
           steps: 10,
-          act: (a, val) => {
-            a.pixiElement.alpha = val
+          iconId: '#member-button',
+          update: function () {
+            wand.currentNetwork.forEachNode((n, a) => {
+              a.pixiElement.alpha = this.current
+            })
           }
         },
         namesAlpha: {
@@ -62,8 +70,11 @@ class AdParnassum {
           max: 1,
           min: 0,
           steps: 10,
-          act: (a, val) => {
-            a.textElement.alpha = val
+          iconId: '#names-button',
+          update: function (a) {
+            wand.currentNetwork.forEachNode((n, a) => {
+              a.textElement.alpha = this.current
+            })
           }
         },
         edgesAlpha: {
@@ -71,30 +82,47 @@ class AdParnassum {
           max: 1,
           min: 0,
           steps: 10,
-          act: (a, val) => {
-            a.pixiElement.alpha = val
+          iconId: '#friendship-button',
+          update: function () {
+            wand.currentNetwork.forEachEdge((e, a) => {
+              a.pixiElement.alpha = this.current
+            })
           }
         },
         colors: {
           count: 0,
           min: 0,
-          max: 4, // >= it goes to min
-          steps: 4,
-          act: (a, val) => {
-            this.styleNode(a)
+          max: Object.keys(wand.magic.tint.handPicked).length - 1,
+          steps: Object.keys(wand.magic.tint.handPicked).length,
+          palettes: Object.keys(wand.magic.tint.handPicked),
+          iconId: '#pallete-button',
+          update: function () {
+            this.currentColors = wand.magic.tint.handPicked[this.palettes[this.current]]
+            console.log(this.currentColors, wand.magic.tint.handPicked, this.palettes, this.current, 'TOOOOO')
+            const { bg, e } = this.currentColors
+            wand.artist.share.draw.base.app.renderer.backgroundColor = bg
+            wand.currentNetwork.forEachEdge((i, a) => {
+              a.pixiElement.tint = e
+            })
+            wand.currentNetwork.forEachNode((e, a) => {
+              self.styleNode(a)
+            })
           }
         },
         explorer: {
           count: 0,
           min: 0,
           max: 4,
-          steps: 4,
-          act: () => {
-            const icons = ['fa-users', 'fa-user', 'fa-palette']
-            const algs = Object.keys(this.explorerAlgs)
-            if (icons.length !== algs.length) {
+          steps: 4, // >= it goes to min
+          iconId: '#explorer-icon',
+          iconChange: 'toggle',
+          icons: ['fa-users', 'fa-user', 'fa-palette'],
+          algs: ['union', 'xor', 'spread'],
+          update: function () {
+            if (this.icons.length !== this.algs.length) {
               throw new Error('Mismatch of icons and explorer algorithms')
             }
+            this.currentExplorerAlg = this.current
           }
         }
       }
@@ -105,8 +133,6 @@ class AdParnassum {
     this.settings.state = { ...defaultSettings.state, ...settings.state }
     this.counter = this.settings.counter
     this.state = this.settings.state
-    defaultSettings.state.currentColors = this.selectColors[this.counter.colorChange % 4]
-    this.state.currentColors = { ...defaultSettings.state.currentColors, ...settings.state.currentColors }
 
     const refHeight = 833
     const refWidth = 884
@@ -283,11 +309,7 @@ class AdParnassum {
               class: 'btn',
               id: 'friendship-button',
               click: () => {
-                const alpha = this.increment01('edgesAlpha', $('#friendship-button'))
-                wand.currentNetwork.forEachEdge((e, a) => {
-                  a.pixiElement.alpha = alpha
-                })
-                this.counter.edgesVisible++
+                this.increment('edgesAlpha')
               }
             }).attr('atitle', 'show friendships').prependTo('body')
           )
@@ -296,11 +318,7 @@ class AdParnassum {
               class: 'btn',
               id: 'member-button',
               click: () => {
-                const alpha = this.increment01('nodesAlpha', $('#member-button'))
-                wand.currentNetwork.forEachNode((n, a) => {
-                  a.pixiElement.alpha = alpha
-                })
-                this.counter.nodesVisible++
+                this.increment('nodesAlpha')
               }
             }).attr('atitle', 'show members').prependTo('body')
           )
@@ -332,21 +350,13 @@ class AdParnassum {
               class: 'btn',
               id: 'names-button',
               click: () => {
-                const alpha = this.increment01('namesAlpha', $('#names-button'))
-                wand.currentNetwork.forEachNode((n, a) => {
-                  a.textElement.alpha = alpha
-                })
-                this.counter.namesVisible++
+                this.increment('namesAlpha')
               }
             }).attr('atitle', 'show names').prependTo('body')
           )
 
           this.texts.gradus.on('click', () => {
-            const size = this.scaley(this.settings.fontSize * this.increment01('namesSize'))
-            wand.currentNetwork.forEachNode((n, a) => {
-              a.textElement.style.fontSize = size
-            })
-            this.counter.namesSize++
+            this.increment('namesSize')
           })
           this.texts.gradus.interactive = true
           this.registerAdditionalCondition(
@@ -355,11 +365,7 @@ class AdParnassum {
           )
 
           this.texts.orderSize.on('click', () => {
-            const size = this.scaley(this.increment01('nodesSize'))
-            wand.currentNetwork.forEachNode((n, a) => {
-              a.pixiElement.scale.set(size)
-            })
-            this.counter.nodesSize++
+            this.scaley(this.increment('nodesSize'))
           })
           this.texts.orderSize.interactive = true
           this.registerAdditionalCondition(
@@ -420,15 +426,7 @@ class AdParnassum {
               class: 'btn',
               id: 'pallete-button',
               click: () => {
-                const { ecolor, ncolor, bcolor, bc } = this.selectColors(++this.counter.colorChange % 4)
-                wand.currentNetwork.forEachEdge((e, a) => {
-                  a.pixiElement.tint = ecolor
-                })
-                wand.currentNetwork.forEachNode((e, a) => {
-                  a.pixiElement.tint = ncolor
-                })
-                wand.artist.share.draw.base.app.renderer.backgroundColor = bcolor
-                $('#pallete-button').css('background-color', bc)
+                this.increment('colors')
               }
             }).attr('atitle', 'change colors').css('background-color', 'gray')
               .insertAfter('#friendship-button')
@@ -791,7 +789,7 @@ class AdParnassum {
           `degree centrality: ${tf(a.degreeCentrality)} in ${net.degreeCentrality}`]
       ]
       a.pixiElement.on('pointerover', () => {
-        const c = this.currentColors
+        const c = this.state.colors.currentColors
         console.log(n, a, 'NODE HOVERED')
         this.counter.hoverNode++
         wand.rect2.zIndex = 500
@@ -819,7 +817,7 @@ class AdParnassum {
         })
       })
       a.pixiElement.on('pointerout', () => {
-        const c = this.currentColors
+        const c = this.state.colors.currentColors
         wand.rect2.zIndex = 100
         texts.forEach(t => {
           this.texts[t[0]].alpha = 0
@@ -953,26 +951,27 @@ class AdParnassum {
     $('#explorer-button').click()
   }
 
-  increment01 (attr, je) {
-    // fixme: move to this.settings || this.settings.01
-    // separate the settings attributes in the rest of the class:
-    // settings. counters
-    //           incrementable
-    //           selectable
-    //           scope: { network_name, explorer }
-    //    send settings if changed to mongo at each gradus
-    const { current, max, min, inc } = this.settings.state[attr]
+  increment (attr) {
+    this.state[attr].count++
+    const { count, min, max, steps, iconId, iconChange, icons } = this.state[attr]
     const ambit = max - min
-    let n = (current || (min + 0.5 * ambit)) + inc * ambit
-    n = n > max ? min : n
-    this.settings.state[attr] = n
-    if (je !== undefined) {
-      let color = '#00ff00'
-      if (1 - n > 0.01) {
-        color = '#' + Math.floor(0xffffff - 0xffff * n).toString(16)
-      }
-      je.css('background-color', color)
+    const n = count % steps
+    const val = min + (n / (steps - 1)) * ambit // at least 2 steps
+    this.state[attr].current = val
+    if (iconId === undefined) {
+      return
     }
+    const e = wand.$(iconId)
+    if (iconChange === 'toggle') {
+      e.toggleClass(() => icons[n])
+    } else { // if (iconChange == 'color') {
+      let color = '#00ff00'
+      if (max - val > 0.01) {
+        color = '#' + Math.floor(0xffffff - 0xffff * val).toString(16)
+      }
+      e.css('background-color', color)
+    }
+    this.state[attr].update()
     return n
   }
 
@@ -1052,56 +1051,20 @@ class AdParnassum {
     delete wand.currentNetwork
   }
 
-  selectColors (c) {
-    let ecolor, ncolor, bcolor, bc
-    if (c === 0) {
-      ecolor = 0xffff00
-      ncolor = 0xff0000
-      bcolor = 0x000000
-      bc = 'lightgray'
-    } else if (c === 2) {
-      ecolor = 0xaa00aa
-      ncolor = 0x0000aa
-      bcolor = 0xffffff
-      bc = 'white'
-    } else {
-      ecolor = 0xffffff * Math.random()
-      ncolor = 0xffffff * Math.random()
-      bcolor = 0xffffff * Math.random()
-      bc = Math.floor(bcolor).toString(16)
-      if (bc.length < 6) {
-        bc = '0'.repeat(6 - bc.length) + bc
-      }
-      bc = '#' + bc
-    }
-    // fixme: correctly check R G B portions of the color
-    const bw = bcolor >= 0xffffff / 2 ? 0x000000 : 0xffffff
-    let mix = (bw + bcolor) * Math.random()
-    while (mix > 0xffffff) {
-      mix = (bw + bcolor) * Math.random()
-    }
-    this.currentColors = { ecolor, ncolor, bcolor, bc, hl: { bw, mix } }
-
-    return this.currentColors
-  }
-
-  random01 (n) {
-    return n * Math.random()
-  }
-
-  restyleNode (attr = { }) {
+  restyleNode (attr = { }) { // set node style with input attributes
     const s = this.settings.state
     attr = {
-      ...attr,
       ...{
         scale: this.scaley(s.nodesSize.current),
-        nodeTint: s.currentColors.ncolor,
+        nodeTint: s.colors.currentColors.v,
         nodeAlpha: s.nodesAlpha.current,
-        nameTint: 0xffffff * Math.random(), // todo: maybe don't random if not needed
-        nameAlpha: s.namesAlpha.current * Math.random()
-      }
+        nameTint: s.colors.currentColors.n,
+        nameAlpha: s.namesAlpha.current // * Math.random()
+      },
+      ...attr
     }
     const { a, colorBlocked, scale, nodeTint, nodeAlpha, nameTint, nameAlpha } = attr
+    console.log(attr, 'MATTR')
     a.colorBlocked = colorBlocked
     a.pixiElement.scale.set(scale)
     a.pixiElement.tint = nodeTint
@@ -1110,10 +1073,10 @@ class AdParnassum {
     a.textElement.alpha = nameAlpha
   }
 
-  styleNode (a) {
-    const c = this.settings.state.currentColors
+  styleNode (a) { // apply standard styling giving node's attributes { seed, activated }
+    const c = this.settings.state.colors.currentColors
     if (a.seed || a.activated) {
-      const [nodeTint, nameTint] = a.seed ? [c.hl.bw, c.hl.mix] : [c.hl.mix, c.hl.bw]
+      const [nodeTint, nameTint] = a.seed ? [c.hl.more, c.hl.less] : [c.hl.less, c.hl.more]
       window.aa = a
       this.restyleNode({
         a,
@@ -1126,7 +1089,7 @@ class AdParnassum {
       })
       return
     }
-    this.restyleNode({ a })
+    this.restyleNode({ a }) // default non seed or activated attribute
   }
 }
 

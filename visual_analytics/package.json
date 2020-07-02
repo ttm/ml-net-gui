@@ -16,6 +16,9 @@
   "dependencies": {
     "@fortawesome/fontawesome-free": "^5.13.1",
     "browserify": "^16.5.1",
+    "chroma-js": "^2.1.0",
+    "color-scheme": "^1.0.1",
+    "distinct-colors": "^3.0.0",
     "fast-sha256": "^1.3.0",
     "graphology": "^0.17.1",
     "graphology-generators": "^0.10.1",
@@ -30,7 +33,8 @@
     "pixi-projection": "^0.3.11",
     "pixi.js": "^5.2.1",
     "puxi.js": "0.0.5",
-    "superagent": "^5.2.2"
+    "superagent": "^5.2.2",
+    "tinycolor2": "^1.4.1"
   },
   "standard": {
     "ignore": [

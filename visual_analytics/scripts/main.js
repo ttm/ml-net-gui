@@ -15,7 +15,8 @@ wand.magic = {
   Gradus: wand.conductor.use.gradus.Gradus,
   AdParnassum: wand.conductor.use.parnassum.AdParnassum,
   PIXI: wand.artist.share.draw.base.PIXI,
-  app: wand.artist.share.draw.base.app
+  app: wand.artist.share.draw.base.app,
+  tint: wand.artist.use.tincture
 }
 
 const artist = wand.artist
@@ -58,6 +59,8 @@ const routes = {
   'adParnassum.html': test.testAdParnassum,
   'worldProperty.html': test.testWorldPropertyPage,
   'jquery.html': test.testJQueryFontsAwesome,
+  'obj.html': test.testObj,
+  'colors.html': test.testColors,
   'data_donated.html': () => console.log('a summary of the data donated in usage, upload and scrapping')
 }
 

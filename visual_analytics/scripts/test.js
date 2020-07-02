@@ -415,4 +415,38 @@ const testJQueryFontsAwesome = () => {
   return bana
 }
 
-module.exports = { testPlot, testRotateLayouts, testBlink, testExhibition1, testDiffusion, testMultilevelDiffusion, testMetaNetwork, testSparkMin, testSparkLosd, testMong, testGetNet0, testGetNet1, testGetNet2, testGetNet3, testNetIO, testGUI, testNetUpload, testNetUpload2, testMongIO, testMongNetIO, testMongBetterNetIO, testNetPage, testPuxi, testHtmlEls, testHtmlEls2, testGradus, testAdParnassum, testWorldPropertyPage, testAudio, testJQueryFontsAwesome }
+const testObj = () => {
+  this.aval = 33
+  const a = {
+    aval: 19,
+    afun: () => {
+      console.log(++this.aval, this)
+    }
+  }
+  window.aa = a
+  a.afun()
+}
+
+const testColors = () => {
+  // https://www.npmjs.com/package/distinct-colors, returns chromajs
+  // has scales and main operations on colors:
+  // https://www.npmjs.com/package/chroma-js
+  // https://www.npmjs.com/package/tinycolor2 has basic pallete creation and operations
+  // https://www.npmjs.com/package/color-scheme also basic palletes
+  // http://linkbroker.hu/stuff/kolorwheel.js/ // advanced
+  // https://github.com/google/palette.js // palette generator
+  const c = require('chroma-js')
+  const t = require('tinycolor2')
+  const S = require('color-scheme')
+  const d = require('distinct-colors')
+  const ss = new S()
+  // ss.from_hex('ff0000').variation('soft')
+  // ss.from_hex('000000').variation('soft')
+  // ss.from_hex('ffffff').scheme('triade').variation('soft')
+  // ss.from_hex('ff0000').scheme('mono')
+  // ss.from_hex('ff0000').scheme('analogic')
+  console.log(ss.colors())
+  window.ct = { c, t, S, ss, d }
+}
+
+module.exports = { testPlot, testRotateLayouts, testBlink, testExhibition1, testDiffusion, testMultilevelDiffusion, testMetaNetwork, testSparkMin, testSparkLosd, testMong, testGetNet0, testGetNet1, testGetNet2, testGetNet3, testNetIO, testGUI, testNetUpload, testNetUpload2, testMongIO, testMongNetIO, testMongBetterNetIO, testNetPage, testPuxi, testHtmlEls, testHtmlEls2, testGradus, testAdParnassum, testWorldPropertyPage, testAudio, testJQueryFontsAwesome, testObj, testColors }

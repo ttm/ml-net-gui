@@ -1,7 +1,8 @@
-const base = require('./base')
-const ambience = require('./ambience')
+const base = require('./base.js')
+const ambience = require('./ambience.js')
+const tincture = require('./tincture.js')
 const utils = require('./utils.js')
-const test = require('./test')
+const test = require('./test.js')
 
 const use = {
   mkNode: base.use.mkNode,
@@ -14,7 +15,8 @@ const use = {
   updateLink: base.use.updateLink,
   ambience: ambience.use,
   width: base.share.app.view.width,
-  height: base.share.app.view.height
+  height: base.share.app.view.height,
+  tincture
 }
 
 exports.use = use

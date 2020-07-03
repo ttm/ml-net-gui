@@ -61,6 +61,7 @@ const routes = {
   'jquery.html': test.testJQueryFontsAwesome,
   'obj.html': test.testObj,
   'colors.html': test.testColors,
+  'music.html': test.testMusic,
   'data_donated.html': () => console.log('a summary of the data donated in usage, upload and scrapping')
 }
 

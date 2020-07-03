@@ -503,4 +503,7 @@ const testColors = () => {
   window.ct = { c, t, S, ss, d, pixiEls, scheme }
 }
 
-module.exports = { testPlot, testRotateLayouts, testBlink, testExhibition1, testDiffusion, testMultilevelDiffusion, testMetaNetwork, testSparkMin, testSparkLosd, testMong, testGetNet0, testGetNet1, testGetNet2, testGetNet3, testNetIO, testGUI, testNetUpload, testNetUpload2, testMongIO, testMongNetIO, testMongBetterNetIO, testNetPage, testPuxi, testHtmlEls, testHtmlEls2, testGradus, testAdParnassum, testWorldPropertyPage, testAudio, testJQueryFontsAwesome, testObj, testColors }
+const testMusic = () => {
+}
+
+module.exports = { testPlot, testRotateLayouts, testBlink, testExhibition1, testDiffusion, testMultilevelDiffusion, testMetaNetwork, testSparkMin, testSparkLosd, testMong, testGetNet0, testGetNet1, testGetNet2, testGetNet3, testNetIO, testGUI, testNetUpload, testNetUpload2, testMongIO, testMongNetIO, testMongBetterNetIO, testNetPage, testPuxi, testHtmlEls, testHtmlEls2, testGradus, testAdParnassum, testWorldPropertyPage, testAudio, testJQueryFontsAwesome, testObj, testColors, testMusic }

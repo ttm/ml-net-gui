@@ -98,6 +98,7 @@ class AdParnassum {
           iconId: '#pallete-button',
           update: function () {
             this.currentColors = wand.magic.tint.handPicked[this.palettes[this.current]]
+            this.currentColors = wand.magic.tint.basicStruct(wand.magic.tint.random())
             console.log(this.currentColors, wand.magic.tint.handPicked, this.palettes, this.current, 'TOOOOO')
             const { bg, e } = this.currentColors
             wand.artist.share.draw.base.app.renderer.backgroundColor = bg
@@ -112,8 +113,8 @@ class AdParnassum {
         explorer: {
           count: 0,
           min: 0,
-          max: 4,
-          steps: 4, // >= it goes to min
+          max: 3,
+          steps: 3, // >= it goes to min
           iconId: '#explorer-icon',
           iconChange: 'toggle',
           icons: ['fa-users', 'fa-user', 'fa-palette'],
@@ -438,7 +439,8 @@ class AdParnassum {
         achievement: 'access to interactions counter',
         alg: () => {
           setInterval(() => {
-            const total = Object.values(this.counter).reduce((a, v) => a + v, 0)
+            const total = Object.values(this.state).reduce((a, v) => a + v.count, 0)
+            // const total = Object.values(this.counter).reduce((a, v) => a + v, 0)
             this.texts.interactionCount.text = `interactions: ${total}`
           }, 500)
         }
@@ -843,22 +845,16 @@ class AdParnassum {
     console.log('explorer set')
     const $ = wand.$
     if (!this.friendsExplorerActivated) {
-      const icons = ['fa-users', 'fa-user', 'fa-palette']
-      const algs = ['union', 'xor', 'spread']
+      // const icons = ['fa-users', 'fa-user', 'fa-palette']
+      // const algs = ['union', 'xor', 'spread']
       $('<i/>', { class: 'fa fa-users', id: 'explorer-icon' }).appendTo(
         $('<button/>', {
           class: 'btn',
           id: 'explorer-button',
           click: () => {
-            $('#explorer-icon').toggleClass(() => {
-              this.counter.explorerChange++
-              this.explorer.currentExplorerNumber = (++this.explorer.currentExplorerNumber) % 3
-              this.currentExplorerKey = algs[this.explorer.currentExplorerNumber]
-              return icons[this.explorer.currentExplorerNumber]
-            })
+            this.increment('explorer')
           }
-        }).attr('atitle', 'change colors').css('background-color', 'gray')
-          .insertAfter('#pallete-button')
+        }).attr('atitle', 'change explorer').insertAfter('#pallete-button')
       )
     }
     const net = wand.currentNetwork
@@ -963,6 +959,7 @@ class AdParnassum {
     }
     const e = wand.$(iconId)
     if (iconChange === 'toggle') {
+      console.log(n, icons, icons[n], 'IOIOI')
       e.toggleClass(() => icons[n])
     } else { // if (iconChange == 'color') {
       let color = '#00ff00'

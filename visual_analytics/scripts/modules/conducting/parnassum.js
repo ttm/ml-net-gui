@@ -37,7 +37,7 @@ class AdParnassum {
           min: 0.5,
           steps: 10,
           current: 1,
-          act: function () {
+          update: function () {
             wand.currentNetwork.forEachNode((n, a) => {
               a.pixiElement.scale.set(this.current)
             })
@@ -45,11 +45,11 @@ class AdParnassum {
         },
         namesSize: {
           count: 0, // interactions count
-          max: 3,
-          min: 1,
+          max: 2,
+          min: 0.3,
           steps: 10,
-          current: 3,
-          act: function () {
+          current: 1,
+          update: function () {
             wand.currentNetwork.forEachNode((n, a) => {
               a.textElement.scale.set(this.current)
             })
@@ -122,18 +122,105 @@ class AdParnassum {
         explorer: {
           count: 0,
           min: 0,
-          max: 3,
+          max: 2,
           steps: 3, // >= it goes to min
           iconId: '#explorer-icon',
           iconChange: 'toggle',
-          icons: ['fa-users', 'fa-user', 'fa-palette'],
+          icons: ['fa-user', 'fa-users', 'fa-universal-access'],
           algs: ['union', 'xor', 'spread'],
+          current: 0,
           update: function () {
             if (this.icons.length !== this.algs.length) {
               throw new Error('Mismatch of icons and explorer algorithms')
             }
-            this.currentExplorerAlg = self.explorerAlgs[this.algs[this.current]]
-          }
+            this.currentExplorerAlg = this.explorerAlgs[this.algs[this.current]]
+          },
+          bindExplorer: function () {
+            const net = wand.currentNetwork
+            net.forEachNode((n, a) => {
+              a.pixiElement.on('pointerdown', () => {
+                a.seed = !a.seed
+                self.styleNode(a)
+                this.totalSeeds += a.seed ? 1 : -1
+                let activated = 0
+                let deactivated = 0
+                if (a.seed) { // activate neighs following a pattern:
+                  const res = this.currentExplorerAlg(n)
+                  activated = res.activated
+                  deactivated = res.deactivated
+                } else { // deactivate neighs
+                  deactivated = 0
+                  net.forEachNeighbor(n, (nn, na) => {
+                    deactivated += na.activated
+                    na.activated = false
+                    self.styleNode(na)
+                  })
+                }
+                this.totalActivated += activated - deactivated
+                const { totalActivated, totalSeeds } = this
+                this.progression.push({ seed: a.seed, activated, deactivated, totalSeeds, totalActivated })
+                const activatedStr = `${totalSeeds}/${totalActivated}/`
+                self.texts.orderSize.text = `members, friendships: ${activatedStr}${wand.currentNetwork.order}, ${wand.currentNetwork.size}`
+                console.log(n, this.progression, this.current, this.algs[this.current], 'Explorer info')
+              })
+            })
+          },
+          getMemberSets: () => {
+            const seeds = []
+            const activated = []
+            const both = []
+            wand.currentNetwork.forEachNode((n, a) => {
+              if (a.seed) {
+                seeds.push(n)
+              }
+              if (a.activated) {
+                activated.push(n)
+              }
+              if (a.seed && a.activated) {
+                both.push(n)
+              }
+            })
+            return { seeds, activated, both }
+          },
+          verify: () => {
+            // fixme: assert instead of console.log:
+            const { seeds, activated, both } = this.getMemberSets()
+            console.log(`total seeds: ${this.explorer.totalSeeds} == ${seeds.length}`)
+            console.log(`total activated: ${this.explorer.totalActivated} == ${activated.length}`)
+            console.log(`both: ${both.length}`)
+          },
+          explorerAlgs: {
+            union: node => {
+              let activated = 0
+              wand.currentNetwork.forEachNeighbor(node, (nn, na) => {
+                if (!na.activated) {
+                  na.activated = true
+                  activated++
+                  self.styleNode(na)
+                }
+              })
+              return { activated, deactivated: 0 }
+            },
+            xor: node => {
+              let activated = 0
+              let deactivated = 0
+              wand.currentNetwork.forEachNeighbor(node, (nn, na) => {
+                deactivated += Boolean(na.activated)
+                na.activated = !na.activated
+                activated += na.activated
+                self.styleNode(na)
+              })
+              return { activated, deactivated }
+            },
+            spread: node => { // dummy for now
+              self.resetNetwork()
+              return { activated: 0, deactivated: 0 }
+            }
+          },
+          progression: [],
+          totalSeeds: 0,
+          totalActivated: 0,
+          currentExplorerNumber: 0
         }
       }
     }
@@ -800,7 +887,6 @@ class AdParnassum {
           `degree centrality: ${tf(a.degreeCentrality)} in ${net.degreeCentrality}`]
       ]
       a.pixiElement.on('pointerover', () => {
-        // const c = this.state.colors.currentColors
         console.log(n, a, 'NODE HOVERED')
         this.counter.hoverNode++
         wand.rect2.zIndex = 500
@@ -817,49 +903,19 @@ class AdParnassum {
           na.hoveredNeighbor = true
           this.styleNode(na)
         })
-        // a.pixiElement.tint = c.hl.bw
-        // a.textElement.tint = c.hl.mix
-        // a.pixiElement.alpha = 1
-        // a.textElement.alpha = 1
-        // net.forEachNeighbor(n, (nn, na) => {
-        //   if (na.seed || na.activated) {
-        //     return
-        //   }
-        //   na.colorBlocked = true
-        //   na.pixiElement.tint = c.hl.mix
-        //   na.textElement.tint = c.hl.bw
-        //   na.pixiElement.alpha = 1
-        //   na.textElement.alpha = 1
-        // })
       })
       a.pixiElement.on('pointerout', () => {
-        // const c = this.state.colors.currentColors
         wand.rect2.zIndex = 100
         texts.forEach(t => {
           this.texts[t[0]].alpha = 0
         })
-        if (a.seed || a.activated) {
-          return
-        }
         delete a.colorBlocked
         a.hovered = false
         this.styleNode(a)
         net.forEachNeighbor(n, (nn, na) => {
           na.hoveredNeighbor = false
           this.styleNode(na)
-          // if (na.seed || na.activated) {
-          //   return
-          // }
         })
-        // a.pixiElement.tint = c.ncolor
-        // a.pixiElement.alpha = wand.extra.nodesAlpha
-        // a.textElement.tint = 0xffffff * Math.random()
-        // net.forEachNeighbor(n, (nn, na) => {
-        //   delete na.colorBlocked
-        //   na.pixiElement.tint = c.ncolor
-        //   na.textElement.tint = 0xffffff * Math.random()
-        //   na.textElement.alpha = wand.extra.namesAlpha
-        // })
       })
     })
   }
@@ -867,107 +923,17 @@ class AdParnassum {
   setExplorer () {
     console.log('explorer set')
     const $ = wand.$
-    if (!this.friendsExplorerActivated) {
-      // const icons = ['fa-users', 'fa-user', 'fa-palette']
-      // const algs = ['union', 'xor', 'spread']
-      $('<i/>', { class: 'fa fa-users', id: 'explorer-icon' }).appendTo(
-        $('<button/>', {
-          class: 'btn',
-          id: 'explorer-button',
-          click: () => {
-            this.increment('explorer')
-          }
-        }).attr('atitle', 'change explorer').insertAfter('#pallete-button')
-      )
-    }
-    const net = wand.currentNetwork
-    // const self = this
-    this.explorerAlgs = {
-      union: node => {
-        let activated = 0
-        net.forEachNeighbor(node, (nn, na) => {
-          if (!na.activated) {
-            na.activated = true
-            activated++
-            this.styleNode(na)
-          }
-        })
-        return { activated, deactivated: 0 }
-      },
-      xor: node => {
-        let activated = 0
-        let deactivated = 0
-        net.forEachNeighbor(node, (nn, na) => {
-          deactivated += Boolean(na.activated)
-          na.activated = !na.activated
-          activated += na.activated
-          this.styleNode(na)
-        })
-        return { activated, deactivated }
-      },
-      spread: node => { // dummy for now
-        this.resetNetwork()
-        return { activated: 0, deactivated: 0 }
-      }
-    }
-
-    net.forEachNode((n, a) => {
-      a.pixiElement.on('pointerdown', () => {
-        console.log('yeah clicked, node:', n, this.currentExplorerKey)
-        a.seed = !a.seed
-        this.styleNode(a)
-        if (a.seed) { // activate neighs following a pattern:
-          const { activated, deactivated } = this.explorerAlg(n)
-          this.explorer.totalActivated += activated - deactivated
-          this.explorer.totalSeeds += a.seed ? 1 : -1
-          const { totalActivated, totalSeeds } = this.explorer
-          this.explorer.progression.push({ seed: a.seed, activated, deactivated, totalSeeds, totalActivated })
-          console.log(this.explorer)
-          const activatedStr = `${totalSeeds}/${totalActivated}/`
-          this.texts.orderSize.text = `members, friendships: ${activatedStr}${wand.currentNetwork.order}, ${wand.currentNetwork.size}`
-        } else { // deactivate neighs
-          let deactivated = 0
-          net.forEachNeighbor(n, (nn, na) => {
-            deactivated += na.activated
-            na.activated = false
-            this.styleNode(na)
-          })
-          const { totalActivated, totalSeeds } = this.explorer
-          this.explorer.progression.push({ seed: a.seed, activated: 0, deactivated, totalSeeds, totalActivated })
+    $('<i/>', { class: 'fa fa-users', id: 'explorer-icon' }).appendTo(
+      $('<button/>', {
+        class: 'btn',
+        id: 'explorer-button',
+        click: () => {
+          this.increment('explorer')
         }
-      })
-    })
-    this.explorer = {
-      progression: [],
-      totalSeeds: 0,
-      totalActivated: 0,
-      currentExplorerNumber: 0,
-      getMemberSets: () => {
-        const seeds = []
-        const activated = []
-        const both = []
-        wand.currentNetwork.forEachNode((n, a) => {
-          if (a.seed) {
-            seeds.push(n)
-          }
-          if (a.activated) {
-            activated.push(n)
-          }
-          if (a.seed && a.activated) {
-            both.push(n)
-          }
-        })
-        return { seeds, activated, both }
-      },
-      verify: () => {
-        // fixme: assert instead of console.log:
-        const { seeds, activated, both } = this.explorer.getMemberSets()
-        console.log(`total seeds: ${this.explorer.totalSeeds} == ${seeds.length}`)
-        console.log(`total activated: ${this.explorer.totalActivated} == ${activated.length}`)
-        console.log(`both: ${both.length}`)
-      }
-    }
-    $('#explorer-button').click()
+      }).attr('atitle', 'change explorer').insertAfter('#pallete-button')
+    )
+    this.state.explorer.update()
+    this.state.explorer.bindExplorer()
   }
 
   increment (attr) {
@@ -978,14 +944,12 @@ class AdParnassum {
     const val = min + (n / (steps - 1)) * ambit // at least 2 steps
     console.log('incremented:', max, min, ambit, steps, val)
     this.state[attr].current = val
-    if (iconId === undefined) {
-      return
-    }
+    this.state[attr].update()
     const e = wand.$(iconId)
     if (iconChange === 'toggle') {
       console.log(n, icons, icons[n], 'IOIOI')
       e.toggleClass(() => icons[n])
-    } else { // if (iconChange == 'color') {
+    } else if (iconId !== undefined) { // if (iconChange == 'color') {
       let color = '#00ff00'
       if (max - val > 0.01) {
         color = '#' + Math.floor(0xffffff - 0xffff * val / max).toString(16)
@@ -1025,6 +989,13 @@ class AdParnassum {
     this.visualizeNetwork(this.allNetworks[option].text)
   }
 
+  resetNetwork () {
+    wand.currentNetwork.forEachNode((_, a) => {
+      a.seed = a.activated = false
+      this.style(a)
+    })
+  }
+
   visualizeNetwork (string) {
     const { conductor, artist, net } = wand
     this.destroyNetwork()
@@ -1049,7 +1020,7 @@ class AdParnassum {
       this.setNodeInfo()
     }
     if (this.friendsExplorerActivated) {
-      this.setExplorer()
+      this.state.explorer.bindExplorer()
       console.log('friends explorer set')
     }
     this.texts.orderSize.text = `members, friendships: ${wand.currentNetwork.order}, ${wand.currentNetwork.size}`
@@ -1059,6 +1030,8 @@ class AdParnassum {
     loader.hide()
     console.log('ended loading. fixme: jquery fails to show loading cues.')
     wand.extra.loadingNetInScreen = false
+    this.state.namesSize.update()
+    this.state.nodesSize.update()
   }
 
   destroyNetwork () {

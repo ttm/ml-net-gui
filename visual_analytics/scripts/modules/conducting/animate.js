@@ -117,7 +117,7 @@ function showMembers (net, artist, alternate = false) {
     attr.textElement = text
   })
   if (alternate) {
-    wand.extra.namesAlpha = net.namesAlpha || 0.5
+    wand.extra.namesAlpha = wand.magic.adParnassum.state.namesAlpha.current || 0.5
     const colorLoop = delta => {
       // delta is 1 for 60 fps
       if (Math.random() < 0.1 && !wand.extra.showNameBlock) {

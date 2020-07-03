@@ -48,6 +48,7 @@ const mkPaths = function (radius) {
 const paths = mkPaths(10)
 
 function mkNode (ntype = 'tri', color = 0xff0000, version = 1) {
+  // fixme: add line to nodes border (linetype should suffice)
   const path = paths[ntype]
   const v = new PIXI.Graphics()
   v.beginFill(0xffffff)

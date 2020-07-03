@@ -3,6 +3,7 @@ const net = require('./modules/networks.js')
 const artist = require('./modules/artist.js')
 const conductor = require('./modules/conductor.js')
 const transfer = require('./modules/transfer/main.js')
+const utils = require('./modules/utils.js')
 const $ = require('jquery')
 require('@fortawesome/fontawesome-free/js/all.js')
 // https://fontawesome.com/how-to-use/on-the-web/referencing-icons/icon-cheatsheet
@@ -435,6 +436,9 @@ const testColors = () => {
   // https://www.npmjs.com/package/color-scheme also basic palletes
   // http://linkbroker.hu/stuff/kolorwheel.js/ // advanced
   // https://github.com/google/palette.js // palette generator
+  // https://bashooka.com/coding/9-useful-javascript-color-libraries/ (please.js)
+  // Check artist.use.tincture.
+  // tested but didn't write snippets for each of these libs:
   const c = require('chroma-js')
   const t = require('tinycolor2')
   const S = require('color-scheme')
@@ -446,7 +450,57 @@ const testColors = () => {
   // ss.from_hex('ff0000').scheme('mono')
   // ss.from_hex('ff0000').scheme('analogic')
   console.log(ss.colors())
-  window.ct = { c, t, S, ss, d }
+  // 240
+  const pixiEls = [...Array(40).keys()].map(i => {
+    const node = artist.use.mkNode('tri')
+    node.x = 170 + 150 * (i % 4)
+    node.y = 200 + 100 * Math.floor(i / 4)
+    node.alpha = 1
+    node.scale.set(4)
+    return node
+  })
+  // const pixiEls = colors.reduce((a, c) => {
+  //   const node = artist.use.mkNode('tri', c)
+  //   node.x = 20 + 150 * (i % 4)
+  //   node.y = 100 + 100 * Math.floor(i / 4)
+  //   a.push({ element: node, color: c })
+  //   return a
+  // }, [])
+  const text = wand.artist.use.mkText('asd', [50, 50])
+  text.scale.set(3)
+  let colors
+  const getColors = (scheme = 'triade', variation) => {
+    let colors = ss.from_hue(++current).scheme(scheme)
+    console.log('SCHEME', scheme, ', VARIATION:', variation)
+    if (variation !== undefined) {
+      colors = colors.variation(variation)
+    }
+    text.text = `scheme: ${scheme}, variation: ${variation}`
+    return colors.colors().map(c => parseInt(c, 16))
+  }
+  const schemes = Object.keys(S.SCHEMES)
+  const variations = Object.keys(S.PRESETS)
+  let bg = 0
+  let current = 0
+  let scheme = utils.chooseUnique(schemes, 1)[0]
+  let variation = utils.chooseUnique(variations, 1)[0]
+  wand.magic.app.ticker.add(delta => {
+    if (current % 360 === 0) {
+      const bgc = (++bg) % 2 === 0 ? 0x000000 : 0xffffff
+      wand.artist.share.draw.base.app.renderer.backgroundColor = bgc
+    }
+    if (current % (360 * 2) === 0) {
+      scheme = utils.chooseUnique(schemes, 1)[0]
+      variation = utils.chooseUnique(variations, 1)[0]
+    }
+    // colors = getColors(scheme, variation)
+    colors = getColors('tetrade', variation)
+    pixiEls.forEach((e, i) => {
+      const c = colors[i]
+      e.tint = c
+    })
+  })
+  window.ct = { c, t, S, ss, d, pixiEls, scheme }
 }
 
 module.exports = { testPlot, testRotateLayouts, testBlink, testExhibition1, testDiffusion, testMultilevelDiffusion, testMetaNetwork, testSparkMin, testSparkLosd, testMong, testGetNet0, testGetNet1, testGetNet2, testGetNet3, testNetIO, testGUI, testNetUpload, testNetUpload2, testMongIO, testMongNetIO, testMongBetterNetIO, testNetPage, testPuxi, testHtmlEls, testHtmlEls2, testGradus, testAdParnassum, testWorldPropertyPage, testAudio, testJQueryFontsAwesome, testObj, testColors }

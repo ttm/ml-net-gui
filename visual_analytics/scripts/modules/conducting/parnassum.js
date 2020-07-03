@@ -32,10 +32,11 @@ class AdParnassum {
         nodesSize: {
         // current val = min + (max - min) * (count % step)
           count: 7, // interactions count
-          current: 7 / 10,
+          // current: 7 / 10,
           max: 3,
           min: 1,
           steps: 10,
+          current: 2,
           act: function () {
             wand.currentNetwork.forEachNode((n, a) => {
               a.pixiElement.scale.set(this.current)
@@ -47,6 +48,7 @@ class AdParnassum {
           max: 3,
           min: 1,
           steps: 10,
+          current: 3,
           act: function () {
             wand.currentNetwork.forEachNode((n, a) => {
               a.textElement.scale.set(this.current)
@@ -58,6 +60,7 @@ class AdParnassum {
           max: 1,
           min: 0,
           steps: 10,
+          current: 0.9,
           iconId: '#member-button',
           update: function () {
             wand.currentNetwork.forEachNode((n, a) => {
@@ -70,9 +73,11 @@ class AdParnassum {
           max: 1,
           min: 0,
           steps: 10,
+          current: 0.9,
           iconId: '#names-button',
           update: function (a) {
             wand.currentNetwork.forEachNode((n, a) => {
+              wand.extra.showNameBlock = this.count % 2 === 1
               a.textElement.alpha = this.current
             })
           }
@@ -82,8 +87,10 @@ class AdParnassum {
           max: 1,
           min: 0,
           steps: 10,
+          current: 0.9,
           iconId: '#friendship-button',
           update: function () {
+            console.log('edges alpha', this.current, 'AAAAAAAAAAAAAAAA')
             wand.currentNetwork.forEachEdge((e, a) => {
               a.pixiElement.alpha = this.current
             })
@@ -97,11 +104,13 @@ class AdParnassum {
           palettes: Object.keys(wand.magic.tint.handPicked),
           iconId: '#pallete-button',
           update: function () {
-            this.currentColors = wand.magic.tint.handPicked[this.palettes[this.current]]
-            this.currentColors = wand.magic.tint.basicStruct(wand.magic.tint.random())
+            // this.currentColors = wand.magic.tint.handPicked[this.palettes[this.current]]
+            this.currentColors = wand.magic.tint.randomPalette2()
+            // this.currentColors = wand.magic.tint.basicStruct(wand.magic.tint.random())
             console.log(this.currentColors, wand.magic.tint.handPicked, this.palettes, this.current, 'TOOOOO')
             const { bg, e } = this.currentColors
-            wand.artist.share.draw.base.app.renderer.backgroundColor = bg
+            wand.artist.share.draw.base.app.renderer.backgroundColor = Math.floor(bg)
+            // wand.artist.share.draw.base.app.renderer.backgroundColor = this.count % 2 === 0 ? 0 : 0xffffff
             wand.currentNetwork.forEachEdge((i, a) => {
               a.pixiElement.tint = e
             })
@@ -133,7 +142,7 @@ class AdParnassum {
     this.settings.counter = { ...defaultSettings.counter, ...settings.counter }
     this.settings.state = { ...defaultSettings.state, ...settings.state }
     this.counter = this.settings.counter
-    this.state = this.settings.state
+    wand.state = this.state = this.settings.state
 
     const refHeight = 833
     const refWidth = 884
@@ -323,8 +332,8 @@ class AdParnassum {
               }
             }).attr('atitle', 'show members').prependTo('body')
           )
-          $('#friendship-button').click()
-          $('#member-button').click()
+          this.state.edgesAlpha.update()
+          this.state.nodesAlpha.update()
         }
       },
       loadDatata: { // special feature, has to wait loading and solves condition:
@@ -953,6 +962,7 @@ class AdParnassum {
     const ambit = max - min
     const n = count % steps
     const val = min + (n / (steps - 1)) * ambit // at least 2 steps
+    console.log('incremented:', max, min, ambit, steps, val)
     this.state[attr].current = val
     if (iconId === undefined) {
       return
@@ -1007,6 +1017,10 @@ class AdParnassum {
     wand.currentNetwork = net.use.utils.loadJsonString(string)
     wand.extra.drawnNet = new conductor.use.DrawnNet(artist.use, wand.currentNetwork, [artist.use.width, artist.use.height * 0.9])
     wand.magic.showMembers = conductor.use.showMembers(wand.currentNetwork, artist, true)
+    this.state.colors.update()
+    wand.currentNetwork.forEachEdge((n, a) => {
+      a.pixiElement.alpha = this.state.edgesAlpha.current
+    })
     // wand.magic.showMembers.sayNames(0.01)
     netmetrics.centrality.degree.assign(wand.currentNetwork)
     netdegree.assign(wand.currentNetwork)
@@ -1061,7 +1075,6 @@ class AdParnassum {
       ...attr
     }
     const { a, colorBlocked, scale, nodeTint, nodeAlpha, nameTint, nameAlpha } = attr
-    console.log(attr, 'MATTR')
     a.colorBlocked = colorBlocked
     a.pixiElement.scale.set(scale)
     a.pixiElement.tint = nodeTint
@@ -1084,9 +1097,10 @@ class AdParnassum {
         nameTint,
         nameAlpha: 1
       })
-      return
+    } else if (a.hovered || a.hoveredNeighbor) {
+    } else {
+      this.restyleNode({ a }) // default non seed or activated attribute
     }
-    this.restyleNode({ a }) // default non seed or activated attribute
   }
 }
 

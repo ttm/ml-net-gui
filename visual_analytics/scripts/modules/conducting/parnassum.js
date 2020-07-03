@@ -33,10 +33,10 @@ class AdParnassum {
         // current val = min + (max - min) * (count % step)
           count: 7, // interactions count
           // current: 7 / 10,
-          max: 3,
-          min: 1,
+          max: 2,
+          min: 0.5,
           steps: 10,
-          current: 2,
+          current: 1,
           act: function () {
             wand.currentNetwork.forEachNode((n, a) => {
               a.pixiElement.scale.set(this.current)
@@ -109,8 +109,8 @@ class AdParnassum {
             // this.currentColors = wand.magic.tint.basicStruct(wand.magic.tint.random())
             console.log(this.currentColors, wand.magic.tint.handPicked, this.palettes, this.current, 'TOOOOO')
             const { bg, e } = this.currentColors
-            wand.artist.share.draw.base.app.renderer.backgroundColor = Math.floor(bg)
-            // wand.artist.share.draw.base.app.renderer.backgroundColor = this.count % 2 === 0 ? 0 : 0xffffff
+            // wand.artist.share.draw.base.app.renderer.backgroundColor = Math.floor(bg)
+            wand.artist.share.draw.base.app.renderer.backgroundColor = this.count % 3 === 0 ? 0 : (this.count % 3 === 1 ? 0xffffff : Math.floor(bg))
             wand.currentNetwork.forEachEdge((i, a) => {
               a.pixiElement.tint = e
             })
@@ -132,7 +132,7 @@ class AdParnassum {
             if (this.icons.length !== this.algs.length) {
               throw new Error('Mismatch of icons and explorer algorithms')
             }
-            this.currentExplorerAlg = this.current
+            this.currentExplorerAlg = self.explorerAlgs[this.algs[this.current]]
           }
         }
       }
@@ -800,7 +800,7 @@ class AdParnassum {
           `degree centrality: ${tf(a.degreeCentrality)} in ${net.degreeCentrality}`]
       ]
       a.pixiElement.on('pointerover', () => {
-        const c = this.state.colors.currentColors
+        // const c = this.state.colors.currentColors
         console.log(n, a, 'NODE HOVERED')
         this.counter.hoverNode++
         wand.rect2.zIndex = 500
@@ -811,24 +811,29 @@ class AdParnassum {
         if (a.seed || a.activated) {
           return
         }
-        a.colorBlocked = true
-        a.pixiElement.tint = c.hl.bw
-        a.textElement.tint = c.hl.mix
-        a.pixiElement.alpha = 1
-        a.textElement.alpha = 1
+        a.hovered = true
+        this.styleNode(a)
         net.forEachNeighbor(n, (nn, na) => {
-          if (na.seed || na.activated) {
-            return
-          }
-          na.colorBlocked = true
-          na.pixiElement.tint = c.hl.mix
-          na.textElement.tint = c.hl.bw
-          na.pixiElement.alpha = 1
-          na.textElement.alpha = 1
+          na.hoveredNeighbor = true
+          this.styleNode(na)
         })
+        // a.pixiElement.tint = c.hl.bw
+        // a.textElement.tint = c.hl.mix
+        // a.pixiElement.alpha = 1
+        // a.textElement.alpha = 1
+        // net.forEachNeighbor(n, (nn, na) => {
+        //   if (na.seed || na.activated) {
+        //     return
+        //   }
+        //   na.colorBlocked = true
+        //   na.pixiElement.tint = c.hl.mix
+        //   na.textElement.tint = c.hl.bw
+        //   na.pixiElement.alpha = 1
+        //   na.textElement.alpha = 1
+        // })
       })
       a.pixiElement.on('pointerout', () => {
-        const c = this.state.colors.currentColors
+        // const c = this.state.colors.currentColors
         wand.rect2.zIndex = 100
         texts.forEach(t => {
           this.texts[t[0]].alpha = 0
@@ -837,15 +842,24 @@ class AdParnassum {
           return
         }
         delete a.colorBlocked
-        a.pixiElement.tint = c.ncolor
-        a.pixiElement.alpha = wand.extra.nodesAlpha
-        a.textElement.tint = 0xffffff * Math.random()
+        a.hovered = false
+        this.styleNode(a)
         net.forEachNeighbor(n, (nn, na) => {
-          delete na.colorBlocked
-          na.pixiElement.tint = c.ncolor
-          na.textElement.tint = 0xffffff * Math.random()
-          na.textElement.alpha = wand.extra.namesAlpha
+          na.hoveredNeighbor = false
+          this.styleNode(na)
+          // if (na.seed || na.activated) {
+          //   return
+          // }
         })
+        // a.pixiElement.tint = c.ncolor
+        // a.pixiElement.alpha = wand.extra.nodesAlpha
+        // a.textElement.tint = 0xffffff * Math.random()
+        // net.forEachNeighbor(n, (nn, na) => {
+        //   delete na.colorBlocked
+        //   na.pixiElement.tint = c.ncolor
+        //   na.textElement.tint = 0xffffff * Math.random()
+        //   na.textElement.alpha = wand.extra.namesAlpha
+        // })
       })
     })
   }
@@ -903,7 +917,7 @@ class AdParnassum {
         a.seed = !a.seed
         this.styleNode(a)
         if (a.seed) { // activate neighs following a pattern:
-          const { activated, deactivated } = this.explorerAlgs[this.currentExplorerKey](n)
+          const { activated, deactivated } = this.explorerAlg(n)
           this.explorer.totalActivated += activated - deactivated
           this.explorer.totalSeeds += a.seed ? 1 : -1
           const { totalActivated, totalSeeds } = this.explorer
@@ -974,7 +988,7 @@ class AdParnassum {
     } else { // if (iconChange == 'color') {
       let color = '#00ff00'
       if (max - val > 0.01) {
-        color = '#' + Math.floor(0xffffff - 0xffff * val).toString(16)
+        color = '#' + Math.floor(0xffffff - 0xffff * val / max).toString(16)
       }
       e.css('background-color', color)
     }
@@ -1091,13 +1105,24 @@ class AdParnassum {
       this.restyleNode({
         a,
         colorBlocked: true,
-        scale: this.settings.state.nodesSize * 1.5,
+        scale: this.settings.state.nodesSize.current * 1.5,
         nodeTint,
         nodeAlpha: 1,
         nameTint,
         nameAlpha: 1
       })
     } else if (a.hovered || a.hoveredNeighbor) {
+      const [nodeTint, nameTint] = a.hovered ? [c.hl.more2, c.hl.less2] : [c.hl.less2, c.hl.more2]
+      window.aa = a
+      this.restyleNode({
+        a,
+        colorBlocked: true,
+        scale: this.settings.state.nodesSize.current * 2.7,
+        nodeTint,
+        nodeAlpha: 1,
+        nameTint,
+        nameAlpha: 1
+      })
     } else {
       this.restyleNode({ a }) // default non seed or activated attribute
     }

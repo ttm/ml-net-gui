@@ -55,7 +55,8 @@ const basicStructPalette = c => {
     hl: {
       more: c[1],
       less: c[3],
-      bw: 0xffffff
+      more2: c[2],
+      less2: c[9]
     }
   }
 }

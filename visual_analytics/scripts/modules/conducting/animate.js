@@ -123,7 +123,7 @@ function showMembers (net, artist, alternate = false) {
       if (Math.random() < 0.1 && !wand.extra.showNameBlock) {
         net.forEachNode((key, attr) => {
           if ((Math.random() < 0.1) && !attr.colorBlocked) {
-            attr.textElement.tint = 0xffffff * Math.random()
+            // attr.textElement.tint = 0xffffff * Math.random()
             attr.textElement.alpha = wand.extra.namesAlpha * Math.random()
           }
         })

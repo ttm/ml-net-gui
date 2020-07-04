@@ -239,6 +239,11 @@ class AdParnassum {
               this.seed = seed
             },
             threeSectors: function () {
+              if (this.seqs) {
+                this.seqs.seq.stop()
+                this.seqs.seq2.stop()
+                this.seqs.seq3.stop()
+              }
               console.log('three sectors song')
               const net = wand.currentNetwork
               let nodesDegrees = []
@@ -266,11 +271,12 @@ class AdParnassum {
                 d(() => {
                   a.textElement.tint = c.n
                   a.textElement.alpha = 0
-                }, time + 0.2)
+                }, time + 1)
               }
 
               const membSynth = new Tone.MembraneSynth().toMaster()
-              const plucky = new Tone.PluckSynth({ volume: 10 }).toMaster()
+              // const plucky = new Tone.PluckSynth({ volume: 10 }).toMaster()
+              const metal = new Tone.MetalSynth({ resonance: 100, octaves: 0.01, harmonicity: 10, frequency: 500, volume: 10 }).toMaster()
               const plucky2 = new Tone.PluckSynth({ volume: 10 }).toMaster()
 
               const seq2 = new Tone.Pattern((time, node) => {
@@ -287,15 +293,17 @@ class AdParnassum {
                 const node = inter[intercount++ % inter.length]
                 const a = net.getNodeAttributes(node)
                 console.log('middle', time, a.degree, node)
-                plucky.triggerAttackRelease(a.degree * 20 + 90, 0.01, time)
+                metal.frequency.value = 500 + a.degree
+                metal.triggerAttackRelease(0.01, time)
+                // plucky.triggerAttackRelease(Tone.Midi(a.degree).toNote(), 0.01, time)
                 b(a, time, 'more2')
               }, [null, 1, null, [1, 1]], '4n')
 
               const seq3 = new Tone.Pattern((time, node) => {
                 const a = net.getNodeAttributes(node)
                 console.log('bass', time, a.degree, node)
-                plucky2.triggerAttackRelease(Tone.Midi(90 + 10 * a.degree).toNote(), 0.01, time)
-                b(a, time, 'less')
+                plucky2.triggerAttackRelease(Tone.Midi(70 + 5 * a.degree).toNote(), 0.01, time)
+                b(a, time, 'less2')
               }, periphery.map(i => i.n), 'upDown')
 
               seq3.interval = '8n'
@@ -304,6 +312,8 @@ class AdParnassum {
               seq.start()
               seq2.start()
               seq3.start()
+
+              this.seqs = { seq, seq2, seq3 }
 
               this.nodesDegrees = nodesDegrees
               return { periphery, intermediary }
@@ -1155,6 +1165,7 @@ class AdParnassum {
     wand.extra.loadingNetInScreen = false
     this.state.namesSize.update()
     this.state.nodesSize.update()
+    this.state.player.playerAlgs.threeSectors()
   }
 
   destroyNetwork () {

@@ -92,7 +92,7 @@ function mkText (text, pos) {
   texto.tint = 0x00ff00
   texto.x = pos[0]
   texto.y = pos[1]
-  texto.zIndex = 10
+  texto.zIndex = 1000
   app.stage.addChild(texto)
   return texto
 }
@@ -104,7 +104,7 @@ function mkTextBetter (
     fontSize = 15,
     color = 0x00ff00,
     pos = [100, 100],
-    zIndex = 10,
+    zIndex = 1000,
     alpha = 1
   } = {
     text: 'hey',
@@ -112,7 +112,7 @@ function mkTextBetter (
     fontSize: 15,
     color: 0x00ff00,
     pos: [100, 100],
-    zIndex: 10,
+    zIndex: 1000,
     alpha: 1
   }) {
   const texto = new PIXI.Text(
@@ -122,7 +122,7 @@ function mkTextBetter (
   texto.tint = color
   texto.x = pos[0]
   texto.y = pos[1]
-  texto.zIndex = 10
+  texto.zIndex = zIndex
   app.stage.addChild(texto)
   return texto
 }

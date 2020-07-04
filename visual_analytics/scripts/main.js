@@ -67,6 +67,8 @@ const routes = {
   'seq.html': test.testSeq,
   'sync.html': test.testSync,
   'pat.html': test.testPattern,
+  'rec.html': test.testRec,
+  'rec2.html': test.testRec2,
   'data_donated.html': () => console.log('a summary of the data donated in usage, upload and scrapping')
 }
 

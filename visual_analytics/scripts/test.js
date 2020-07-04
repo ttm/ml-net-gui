@@ -613,4 +613,37 @@ const testPattern = () => {
   }).prependTo('body').html('asd')
 }
 
-module.exports = { testPlot, testRotateLayouts, testBlink, testExhibition1, testDiffusion, testMultilevelDiffusion, testMetaNetwork, testSparkMin, testSparkLosd, testMong, testGetNet0, testGetNet1, testGetNet2, testGetNet3, testNetIO, testGUI, testNetUpload, testNetUpload2, testMongIO, testMongNetIO, testMongBetterNetIO, testNetPage, testPuxi, testHtmlEls, testHtmlEls2, testGradus, testAdParnassum, testWorldPropertyPage, testAudio, testJQueryFontsAwesome, testObj, testColors, testMusic, testLooper, testSeq, testSync, testPattern }
+const testRec = () => {
+  // records audio and video:
+  window.rrr = require('recordrtc')
+  async function f () {
+    const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+    const recorder = new window.rrr.RecordRTCPromisesHandler(stream, {
+      type: 'video'
+    })
+    recorder.startRecording()
+
+    const sleep = m => new Promise((resolve, reject) => setTimeout(resolve, m))
+    await sleep(3000)
+
+    await recorder.stopRecording()
+    const blob = await recorder.getBlob()
+    window.rrr.invokeSaveAsDialog(blob, 'video.webm')
+  }
+  window.fff = f
+  f()
+  return f
+}
+
+const testRec2 = () => {
+  window.rrr = require('recordrtc')
+  // wand.magic.app.view.id = 'mpixiid'
+  // window.ccc = window.rrr.CanvasRecorder('mpixiid')
+  async function f () {
+    const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+    window.ccc = new window.rrr.CanvasRecorder(stream, { disableLogs: true, useWhammyRecorder: true })
+  }
+  f()
+}
+
+module.exports = { testPlot, testRotateLayouts, testBlink, testExhibition1, testDiffusion, testMultilevelDiffusion, testMetaNetwork, testSparkMin, testSparkLosd, testMong, testGetNet0, testGetNet1, testGetNet2, testGetNet3, testNetIO, testGUI, testNetUpload, testNetUpload2, testMongIO, testMongNetIO, testMongBetterNetIO, testNetPage, testPuxi, testHtmlEls, testHtmlEls2, testGradus, testAdParnassum, testWorldPropertyPage, testAudio, testJQueryFontsAwesome, testObj, testColors, testMusic, testLooper, testSeq, testSync, testPattern, testRec, testRec2 }

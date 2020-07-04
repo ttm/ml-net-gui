@@ -267,10 +267,12 @@ class AdParnassum {
                 d(() => {
                   a.textElement.tint = h[hl]
                   a.textElement.alpha = 1
+                  a.textElement.zIndex = 2000
                 }, time)
                 d(() => {
-                  a.textElement.tint = c.n
+                  // a.textElement.tint = c.n
                   a.textElement.alpha = 0
+                  a.textElement.zIndex = 1000
                 }, time + 1)
               }
 

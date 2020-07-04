@@ -569,13 +569,48 @@ const testMusic = () => {
 }
 
 const testLooper = () => {
+  wand.maestro.base.looper()
   $('<button/>', {
     class: 'btn',
     id: 'friendship-button',
     click: () => {
-      wand.maestro.base.looper()
+      wand.maestro.base.Tone.Transport.toggle()
     }
   }).prependTo('body').html('asd')
 }
 
-module.exports = { testPlot, testRotateLayouts, testBlink, testExhibition1, testDiffusion, testMultilevelDiffusion, testMetaNetwork, testSparkMin, testSparkLosd, testMong, testGetNet0, testGetNet1, testGetNet2, testGetNet3, testNetIO, testGUI, testNetUpload, testNetUpload2, testMongIO, testMongNetIO, testMongBetterNetIO, testNetPage, testPuxi, testHtmlEls, testHtmlEls2, testGradus, testAdParnassum, testWorldPropertyPage, testAudio, testJQueryFontsAwesome, testObj, testColors, testMusic, testLooper }
+const testSeq = () => {
+  // wand.maestro.base.oneSeq()
+  wand.maestro.base.twoSeq()
+  $('<button/>', {
+    class: 'btn',
+    id: 'friendship-button',
+    click: () => {
+      wand.maestro.base.Tone.Transport.toggle()
+    }
+  }).prependTo('body').html('asd')
+}
+
+const testSync = () => {
+  window.ares = wand.maestro.base.syncToy()
+  $('<button/>', {
+    class: 'btn',
+    id: 'friendship-button',
+    click: () => {
+      wand.maestro.base.Tone.Transport.toggle()
+    }
+  }).prependTo('body').html('asd')
+}
+
+const testPattern = () => {
+  window.apat = wand.maestro.base.aPattern(2)
+  $('<button/>', {
+    class: 'btn',
+    id: 'friendship-button',
+    click: () => {
+      wand.maestro.base.Tone.Transport.toggle()
+    }
+  }).prependTo('body').html('asd')
+}
+
+module.exports = { testPlot, testRotateLayouts, testBlink, testExhibition1, testDiffusion, testMultilevelDiffusion, testMetaNetwork, testSparkMin, testSparkLosd, testMong, testGetNet0, testGetNet1, testGetNet2, testGetNet3, testNetIO, testGUI, testNetUpload, testNetUpload2, testMongIO, testMongNetIO, testMongBetterNetIO, testNetPage, testPuxi, testHtmlEls, testHtmlEls2, testGradus, testAdParnassum, testWorldPropertyPage, testAudio, testJQueryFontsAwesome, testObj, testColors, testMusic, testLooper, testSeq, testSync, testPattern }

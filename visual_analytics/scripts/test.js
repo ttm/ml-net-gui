@@ -504,6 +504,78 @@ const testColors = () => {
 }
 
 const testMusic = () => {
+  const { Tone, Scribble } = wand.maestro.base
+  wand.maestro.base.Tone.Transport.bpm.value = 60
+  const synth = new Tone.Synth({
+    oscillator: {
+      type: 'pwm',
+      modulationFrequency: 0.2
+    },
+    envelope: {
+      attack: 0.02,
+      decay: 0.1,
+      sustain: 0.2,
+      release: 0.9
+    }
+  }).toMaster()
+  const polySynth = new Tone.PolySynth(6, Tone.Synth, {
+    oscillator: {
+      type: 'square'
+    }
+  }).toMaster()
+  // set the attributes using the set interface
+  polySynth.set('detune', -1200)
+  // const polySynth = new Tone.PolySynth(Tone.Synth).toMaster()
+  // play a middle 'C' for the duration of an 8th note
+  const membSynth = new Tone.MembraneSynth().toMaster()
+  const membSynth2 = new Tone.MembraneSynth().toMaster()
+  $('<i/>', { class: 'fa fa-bone', id: 'friendship-icon' }).appendTo(
+    $('<button/>', {
+      class: 'btn',
+      id: 'friendship-button',
+      click: () => {
+        // play a middle 'C' for the duration of an 8th note
+        // synth.triggerAttackRelease('C4', '8n')
+        synth.triggerAttackRelease('D3', '8n')
+        setTimeout(() => {
+          polySynth.set('detune', -1200)
+          polySynth.triggerAttackRelease(['C4', 'E4', 'A4'], '4n')
+        }, 1000)
+        setTimeout(() => {
+          polySynth.set('detune', 0)
+          polySynth.triggerAttackRelease(['C4', 'E4', 'A4'], '4n')
+        }, 2000)
+        // polySynth.triggerAttackRelease(['C4', 'E4', 'G4', 'B4'], '2n')
+        // synth.triggerAttackRelease('D3', '+1')
+        const loop = new Tone.Loop(function (time) {
+          // triggered every eighth note.
+          // synth.triggerAttackRelease('D3', '8n')
+          membSynth2.triggerAttackRelease('d3', '8n')
+          console.log(time)
+        }, '8n').start(0)
+        const loop2 = new Tone.Loop(function (time) {
+          // Run once per eighth note, 8n, & log the time
+          console.log(time)
+          // trigger synth note
+          membSynth.triggerAttackRelease('C2', '2n')
+        }, '2n').start(0)
+        wand.maestro.base.looper()
+        Tone.Transport.start()
+        return { loop, loop2 }
+      }
+    }).attr('atitle', 'show friendships').prependTo('body')
+  )
+  return { Scribble }
 }
 
-module.exports = { testPlot, testRotateLayouts, testBlink, testExhibition1, testDiffusion, testMultilevelDiffusion, testMetaNetwork, testSparkMin, testSparkLosd, testMong, testGetNet0, testGetNet1, testGetNet2, testGetNet3, testNetIO, testGUI, testNetUpload, testNetUpload2, testMongIO, testMongNetIO, testMongBetterNetIO, testNetPage, testPuxi, testHtmlEls, testHtmlEls2, testGradus, testAdParnassum, testWorldPropertyPage, testAudio, testJQueryFontsAwesome, testObj, testColors, testMusic }
+const testLooper = () => {
+  $('<button/>', {
+    class: 'btn',
+    id: 'friendship-button',
+    click: () => {
+      wand.maestro.base.looper()
+    }
+  }).prependTo('body').html('asd')
+}
+
+module.exports = { testPlot, testRotateLayouts, testBlink, testExhibition1, testDiffusion, testMultilevelDiffusion, testMetaNetwork, testSparkMin, testSparkLosd, testMong, testGetNet0, testGetNet1, testGetNet2, testGetNet3, testNetIO, testGUI, testNetUpload, testNetUpload2, testMongIO, testMongNetIO, testMongBetterNetIO, testNetPage, testPuxi, testHtmlEls, testHtmlEls2, testGradus, testAdParnassum, testWorldPropertyPage, testAudio, testJQueryFontsAwesome, testObj, testColors, testMusic, testLooper }

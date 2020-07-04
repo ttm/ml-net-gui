@@ -62,6 +62,7 @@ const routes = {
   'obj.html': test.testObj,
   'colors.html': test.testColors,
   'music.html': test.testMusic,
+  'looper.html': test.testLooper,
   'data_donated.html': () => console.log('a summary of the data donated in usage, upload and scrapping')
 }
 

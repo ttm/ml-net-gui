@@ -33,8 +33,10 @@
     "pixi-projection": "^0.3.11",
     "pixi.js": "^5.2.1",
     "puxi.js": "0.0.5",
+    "scribbletune": "^3.8.0",
     "superagent": "^5.2.2",
-    "tinycolor2": "^1.4.1"
+    "tinycolor2": "^1.4.1",
+    "tone": "^13.8.25"
   },
   "standard": {
     "ignore": [

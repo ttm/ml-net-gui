@@ -30,13 +30,13 @@ class AdParnassum {
       },
       state: {
         nodesSize: {
-        // current val = min + (max - min) * (count % step)
+          // current val = min + (max - min) * (count % step), in increment(attr)
           count: 7, // interactions count
-          // current: 7 / 10,
           max: 2,
           min: 0.5,
           steps: 10,
           current: 1,
+          // current: 7 / 10,
           update: function () {
             wand.currentNetwork.forEachNode((n, a) => {
               a.pixiElement.scale.set(this.current)
@@ -44,7 +44,7 @@ class AdParnassum {
           }
         },
         namesSize: {
-          count: 0, // interactions count
+          count: 0,
           max: 2,
           min: 0.3,
           steps: 10,
@@ -221,6 +221,113 @@ class AdParnassum {
           totalSeeds: 0,
           totalActivated: 0,
           currentExplorerNumber: 0
+        },
+        player: {
+          count: 1,
+          max: 1,
+          min: 0,
+          steps: 2,
+          current: 1,
+          update: function () {
+            console.log('player update')
+            // this.currentPlayer = this.playerAlgs[this.algs[this.current]]()
+          },
+          algs: ['seeded', 'threeSectors'],
+          playerAlgs: {
+            seeded: function () {
+              const seed = wand.utils.chooseUnique(wand.currentNetwork.nodes(), 1)
+              this.seed = seed
+            },
+            threeSectors: function () {
+              console.log('three sectors song')
+              const net = wand.currentNetwork
+              let nodesDegrees = []
+              net.forEachNode((n, a) => {
+                nodesDegrees.push({ n, d: a.degree })
+              })
+              nodesDegrees = nodesDegrees.sort((i, j) => i.d - j.d)
+              const [nhubs, nintermediary] = [0.05, 0.15].map(i => Math.round(net.order * i))
+              const nperipheral = net.order - nhubs - nintermediary
+              const periphery = nodesDegrees.splice(0, nperipheral)
+              const intermediary = nodesDegrees.splice(0, nintermediary)
+              const hubs = nodesDegrees
+              const Tone = wand.maestro.base.Tone
+
+              const d = (f, time) => Tone.Draw.schedule(f, time)
+              const b = (a, time, hl) => {
+                const c = self.state.colors.currentColors
+                const h = c.hl
+                d(() => { a.pixiElement.tint = h[hl] }, time)
+                d(() => { a.pixiElement.tint = c.v }, time + 0.2)
+                d(() => {
+                  a.textElement.tint = h[hl]
+                  a.textElement.alpha = 1
+                }, time)
+                d(() => {
+                  a.textElement.tint = c.n
+                  a.textElement.alpha = 0
+                }, time + 0.2)
+              }
+
+              const membSynth = new Tone.MembraneSynth().toMaster()
+              const plucky = new Tone.PluckSynth({ volume: 10 }).toMaster()
+              const plucky2 = new Tone.PluckSynth({ volume: 10 }).toMaster()
+
+              const seq2 = new Tone.Pattern((time, node) => {
+                const a = net.getNodeAttributes(node)
+                console.log('bass', time, a.degree, node)
+                membSynth.triggerAttackRelease(a.degree, 0.01, time)
+                b(a, time, 'more')
+              }, hubs.map(i => i.n), 'upDown')
+              seq2.interval = '2n'
+
+              const inter = intermediary.map(i => i.n)
+              let intercount = 0
+              const seq = new Tone.Sequence((time, _) => {
+                const node = inter[intercount++ % inter.length]
+                const a = net.getNodeAttributes(node)
+                console.log('middle', time, a.degree, node)
+                plucky.triggerAttackRelease(a.degree * 20 + 90, 0.01, time)
+                b(a, time, 'more2')
+              }, [null, 1, null, [1, 1]], '4n')
+
+              const seq3 = new Tone.Pattern((time, node) => {
+                const a = net.getNodeAttributes(node)
+                console.log('bass', time, a.degree, node)
+                plucky2.triggerAttackRelease(Tone.Midi(90 + 10 * a.degree).toNote(), 0.01, time)
+                b(a, time, 'less')
+              }, periphery.map(i => i.n), 'upDown')
+
+              seq3.interval = '8n'
+              seq2.interval = '2n'
+
+              seq.start()
+              seq2.start()
+              seq3.start()
+
+              this.nodesDegrees = nodesDegrees
+              return { periphery, intermediary }
+            }
+          },
+          bindPlayer: function () {
+            const $ = wand.$
+            $('<i/>', { class: 'fa fa-music', id: 'player-icon' }).appendTo(
+              $('<button/>', {
+                class: 'btn',
+                id: 'player-button',
+                click: () => {
+                  // console.log('click player', this.count)
+                  // console.log('click player, increment')
+                  // self.increment('player')
+                  // if (this.count >= 2) {
+                  //   console.log('click player, toggle')
+                  // }
+                  wand.maestro.base.Tone.Transport.toggle()
+                }
+              }).attr('atitle', 'change player').insertAfter('#explorer-button')
+            )
+            this.playerAlgs.threeSectors()
+          }
         }
       }
     }
@@ -367,17 +474,18 @@ class AdParnassum {
 
   setGradus () {
     this.gradus = [
-      { feature: 'dummy', condition: 'loadToStart' },
+      { feature: 'dummy', condition: 'loadToStart' }, // 0
       { feature: 'exhibition', condition: 'wait10s' },
       { feature: 'showHideLinks', condition: 'minClickOnNodesEdgesVisible' },
       { feature: 'loadDatata', condition: 'dummy' },
       { feature: 'visualizeNetworks', condition: 'networksVisualized' },
-      { feature: 'randomColors', condition: 'colorChanges' },
+      { feature: 'randomColors', condition: 'colorChanges' }, // 5
       { feature: 'interactionCount', condition: 'interactMore' },
       { feature: 'nodeInfo', condition: 'hoverNodes' },
       { feature: 'nodeInfoClick', condition: 'activateAll' },
       { feature: 'games', condition: 'activate3Access2' },
-      { feature: 'games2', condition: 'activate2Access9' }
+      { feature: 'games2', condition: 'activate2Access9' }, // 10
+      { feature: 'player', condition: 'playSome' }
     ]
   }
 
@@ -566,6 +674,12 @@ class AdParnassum {
         alg: () => {
           console.log('dummy feature')
         }
+      },
+      player: {
+        achievement: 'network player',
+        alg: () => {
+          this.state.player.bindPlayer()
+        }
       }
     }
   }
@@ -573,6 +687,7 @@ class AdParnassum {
   mkConditions () {
     const self = this
     this.startedAt = performance.now()
+    const s = this.state
     this.conditions = {
       loadToStart: {
         tip: 'wait to load the interface',
@@ -591,7 +706,7 @@ class AdParnassum {
       minClickOnNodesEdgesVisible: {
         tip: 'click on the new buttons',
         condition: () => {
-          if (self.counter.nodesVisible >= 2 && self.counter.edgesVisible >= 2) {
+          if (s.nodesAlpha.count >= 2 && s.edgesAlpha.count >= 2) {
             self.conditionMet = true
           }
         }
@@ -606,20 +721,20 @@ class AdParnassum {
         tip: 'visualize networks, press buttons',
         condition: () => {
           if (
-            self.counter.networksVisualized >= 3 &&
-            self.counter.nodesVisible >= 5 &&
-            self.counter.edgesVisible >= 5 &&
-            self.counter.namesVisible >= 6
+            this.counter.networksVisualized >= 3 &&
+            s.nodesAlpha.count >= 5 &&
+            s.edgesVisible.count >= 5 &&
+            s.namesVisible.count >= 6
           ) {
-            self.conditionMet = true
+            this.conditionMet = true
           }
         }
       },
       colorChanges: {
         tip: 'use some colors',
         condition: () => {
-          if (self.counter.colorChange >= 5) {
-            self.conditionMet = true
+          if (s.colors.count >= 5) {
+            this.conditionMet = true
           }
         }
       },
@@ -627,7 +742,7 @@ class AdParnassum {
         tip: 'click around and explore',
         condition: () => {
           wand.extra.counter = self.counter
-          if (Object.keys(wand.extra.counter).reduce((a, i) => a + i, 0) > 50) {
+          if (Object.keys(s).reduce((a, i) => a + s[i].count, 0) > 50) {
             self.conditionMet = true
           }
         }
@@ -635,8 +750,8 @@ class AdParnassum {
       hoverNodes: {
         tip: 'hover nodes to see info',
         condition: () => {
-          if (self.counter.hoverNode > 20) {
-            self.conditionMet = true
+          if (this.counter.hoverNode > 20) {
+            this.conditionMet = true
           }
         }
       },
@@ -645,29 +760,37 @@ class AdParnassum {
         condition: () => {
           // keep track of total activations
           // and of activated nodes in currentNetwork
-          const net = wand.currentNetwork
-          const self = this
-          if (net.totalActivated + net.totalAccessed >= net.order) {
+          const e = s.explorer
+          if (e.totalActivated + e.totalAccessed >= wand.currentNetwork.order) {
             console.log('all activated or accessed, gradus achieved')
-            self.conditionMet = true
+            this.conditionMet = true
           }
         }
       },
       activate3Access2: {
         tip: 'expore and reach members count: 3/2/XXXX',
         condition: () => {
-          const cn = wand.currentNetwork
-          if (cn.totalActivated === 3 && cn.totalAccessed === 2) {
-            self.conditionMet = true
+          const e = s.explorer
+          if (e.totalActivated === 3 && e.totalAccessed === 2) {
+            this.conditionMet = true
           }
         }
       },
       activate2Access9: {
         tip: 'expore and reach members count: 2/9/XXXX',
         condition: () => {
-          const cn = wand.currentNetwork
-          if (cn.totalActivated === 2 && cn.totalAccessed === 9) {
-            self.conditionMet = true
+          const e = s.explorer
+          if (e.totalActivated === 2 && e.totalAccessed === 9) {
+            this.conditionMet = true
+          }
+        }
+      },
+      playSome: {
+        tip: 'play some music',
+        condition: () => {
+          const p = s.player
+          if (p.count > 10) {
+            this.conditionMet = true
           }
         }
       },

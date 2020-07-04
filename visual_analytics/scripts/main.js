@@ -5,6 +5,7 @@ window.wand = {
   transfer: require('./modules/transfer/main.js'),
   conductor: require('./modules/conductor.js'),
   net: require('./modules/networks.js'),
+  utils: require('./modules/utils.js'),
   router: require('./modules/router.js'),
   test: require('./test.js'),
   $: require('jquery'),

@@ -328,17 +328,43 @@ class AdParnassum {
                 class: 'btn',
                 id: 'player-button',
                 click: () => {
-                  // console.log('click player', this.count)
-                  // console.log('click player, increment')
-                  // self.increment('player')
-                  // if (this.count >= 2) {
-                  //   console.log('click player, toggle')
-                  // }
                   wand.maestro.base.Tone.Transport.toggle()
                 }
               }).attr('atitle', 'change player').insertAfter('#explorer-button')
             )
             this.playerAlgs.threeSectors()
+          }
+        },
+        recorder: {
+          count: 0, // interactions count
+          max: 1,
+          min: 0,
+          steps: 2,
+          current: 0,
+          iconId: '#recorder-icon',
+          trans: function (color) { wand.$('#recorder-button').css('background-color', color) },
+          iconChange: 'toggle-color',
+          update: function () {
+            if (this.current % 2 === 1) {
+              this.rec.astart()
+              this.trans('#ff0000')
+            } else {
+              this.rec.stop()
+              this.trans('#ffffff')
+            }
+          },
+          bindRecorder: function () {
+            this.rec = wand.transfer.rec.rec()
+            const $ = wand.$
+            $('<i/>', { class: 'fa fa-compact-disc', id: this.iconId }).appendTo(
+              $('<button/>', {
+                class: 'btn',
+                id: 'recorder-button',
+                click: () => {
+                  self.increment('recorder')
+                }
+              }).attr('atitle', 'start recording').insertAfter('#player-button')
+            )
           }
         }
       }
@@ -497,7 +523,8 @@ class AdParnassum {
       { feature: 'nodeInfoClick', condition: 'activateAll' },
       { feature: 'games', condition: 'activate3Access2' },
       { feature: 'games2', condition: 'activate2Access9' }, // 10
-      { feature: 'player', condition: 'playSome' }
+      { feature: 'player', condition: 'playSome' },
+      { feature: 'recorder', condition: 'recordSome' }
     ]
   }
 
@@ -692,6 +719,12 @@ class AdParnassum {
         alg: () => {
           this.state.player.bindPlayer()
         }
+      },
+      recorder: {
+        achievement: 'video recorder',
+        alg: () => {
+          this.state.recorder.bindRecorder()
+        }
       }
     }
   }
@@ -802,6 +835,15 @@ class AdParnassum {
         condition: () => {
           const p = s.player
           if (p.count > 10) {
+            this.conditionMet = true
+          }
+        }
+      },
+      recordSome: {
+        tip: 'record videos, maybe upload e.g. to youtube',
+        condition: () => {
+          const r = s.recorder
+          if (r.count > 10) {
             this.conditionMet = true
           }
         }
@@ -1084,6 +1126,7 @@ class AdParnassum {
     if (iconChange === 'toggle') {
       console.log(n, icons, icons[n], 'IOIOI')
       e.toggleClass(() => icons[n])
+    } else if (iconChange === 'toggle-color') {
     } else if (iconId !== undefined) { // if (iconChange == 'color') {
       let color = '#00ff00'
       if (max - val > 0.01) {
@@ -1091,7 +1134,6 @@ class AdParnassum {
       }
       e.css('background-color', color)
     }
-    this.state[attr].update()
     return n
   }
 

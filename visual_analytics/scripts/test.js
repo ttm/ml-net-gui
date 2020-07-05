@@ -361,7 +361,7 @@ const testGradus = () => {
 }
 
 const testAdParnassum = () => {
-  wand.magic.adParnassum = new wand.magic.AdParnassum({ currentLevel: 11, timeStreach: 0.01, counter: { colorChange: 60, hoverNode: 19 }, state: {} })
+  wand.magic.adParnassum = new wand.magic.AdParnassum({ currentLevel: 12, timeStreach: 0.01, counter: { colorChange: 60, hoverNode: 19 }, state: {} })
 }
 
 const testAudio = () => {
@@ -884,28 +884,21 @@ const testRecAudioAndCanvas = () => {
 }
 
 const testRecAudioAndCanvas2 = () => {
-  // const audio = wand.$('<audio/>')
   const Tone = wand.maestro.base.Tone
-  // const synth = new Tone.Synth()
   const actx = Tone.context
   const dest = actx.createMediaStreamDestination()
   Tone.Master.connect(dest)
 
   const canvas = document.querySelector('canvas')
   const stream = canvas.captureStream(30)
+
   const combined = new MediaStream([...dest.stream.getTracks(), ...stream.getTracks()])
-
-  // const recorder = new MediaRecorder(dest.stream)
-  const recorder = new MediaRecorder(combined)
-
-  // synth.connect(dest)
-  // synth.toMaster()
-
-  const chunks = []
+  const recorder = new MediaRecorder(combined, { mimeType: 'video/webm' })
 
   const notes = 'CDEFGAB'.split('').map(n => `${n}4`)
-  let note = 0
 
+  let note = 0
+  const chunks = []
   recorder.ondataavailable = evt => chunks.push(evt.data)
   recorder.onstop = evt => {
     const blob = new Blob(chunks, { type: 'video/webm' })
@@ -928,11 +921,10 @@ const testRecAudioAndCanvas2 = () => {
       Tone.Transport.toggle()
       Tone.Transport.scheduleRepeat(time => {
         if (note === 0) recorder.start()
-        if (note > notes.length) {
+        if (note++ > notes.length) {
           recorder.stop()
           Tone.Transport.stop()
         }
-        note++
       }, '4n')
     }
   }).prependTo('body').html('asd')

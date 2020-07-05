@@ -930,4 +930,49 @@ const testRecAudioAndCanvas2 = () => {
   }).prependTo('body').html('asd')
 }
 
-module.exports = { testPlot, testRotateLayouts, testBlink, testExhibition1, testDiffusion, testMultilevelDiffusion, testMetaNetwork, testSparkMin, testSparkLosd, testMong, testGetNet0, testGetNet1, testGetNet2, testGetNet3, testNetIO, testGUI, testNetUpload, testNetUpload2, testMongIO, testMongNetIO, testMongBetterNetIO, testNetPage, testPuxi, testHtmlEls, testHtmlEls2, testGradus, testAdParnassum, testWorldPropertyPage, testAudio, testJQueryFontsAwesome, testObj, testColors, testMusic, testLooper, testSeq, testSync, testPattern, testRec, testRec2, testRecCanvas, testRecAudio, testRecAudioAndCanvas, testRecAudioAndCanvas2 }
+const testDiffusionLimited = () => {
+  // makes a progression, starting from a seed and
+  // activating at most 4 neighbors with preference for smaller degrees
+  const drawnNet = testPlot()
+  window.dd = drawnNet
+  const net = drawnNet.net
+  const seeds = wand.utils.chooseUnique(net.nodes(), 4)
+  const progression = wand.net.use.diffusion.use.seededNeighbors(net, 2, seeds)
+  const Tone = wand.maestro.base.Tone
+  const membSynth = new Tone.MembraneSynth().toMaster()
+  // const metal = new Tone.MetalSynth({ resonance: 100, octaves: 0.01, harmonicity: 10, frequency: 500, volume: 10 }).toMaster()
+
+  const d = (f, time) => Tone.Draw.schedule(f, time)
+  const seq2 = new Tone.Pattern((time, nodes) => {
+    // console.log('bass', time, a.degree, node)
+    membSynth.triggerAttackRelease(10 + nodes.length, 0.01, time)
+    if (nodes.length === 0) {
+      d(() => net.forEachNode((n, a) => {
+        a.pixiElement.tint = 0xff0000
+      }), time)
+    } else {
+      d(() => nodes.forEach(n => {
+        const a = net.getNodeAttributes(n)
+        a.pixiElement.tint = 0xffffff
+      }), time)
+      d(() => nodes.forEach(n => {
+        const a = net.getNodeAttributes(n)
+        a.pixiElement.tint = 0xffff00
+      }), time + 2)
+    }
+  }, progression)
+  seq2.interval = '1n'
+  seq2.start()
+
+  $('<button/>', {
+    class: 'btn',
+    id: 'friendship-button',
+    click: () => {
+      Tone.Transport.toggle()
+    }
+  }).prependTo('body').html('asd')
+
+  window.pp = progression
+}
+
+module.exports = { testPlot, testRotateLayouts, testBlink, testExhibition1, testDiffusion, testMultilevelDiffusion, testMetaNetwork, testSparkMin, testSparkLosd, testMong, testGetNet0, testGetNet1, testGetNet2, testGetNet3, testNetIO, testGUI, testNetUpload, testNetUpload2, testMongIO, testMongNetIO, testMongBetterNetIO, testNetPage, testPuxi, testHtmlEls, testHtmlEls2, testGradus, testAdParnassum, testWorldPropertyPage, testAudio, testJQueryFontsAwesome, testObj, testColors, testMusic, testLooper, testSeq, testSync, testPattern, testRec, testRec2, testRecCanvas, testRecAudio, testRecAudioAndCanvas, testRecAudioAndCanvas2, testDiffusionLimited }

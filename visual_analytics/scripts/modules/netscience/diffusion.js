@@ -1,3 +1,4 @@
+/* global wand */
 // basic diffusion process with blinking nodes and activated edges.
 // should be performed here and visualized in conductor using artist.
 // thus...
@@ -349,4 +350,38 @@ class MultilevelDiffusionSketch {
   }
 }
 
-module.exports = { use: { Diffusion, MultilevelDiffusionSketch, MultilevelDiffusionMinimalFunctional } }
+const seededNeighbors = (net, nneighbors, seeds) => {
+  require('graphology-metrics/degree').assign(net)
+  nneighbors = nneighbors || 4
+  if (seeds === undefined || seeds.length === 0) {
+    seeds = [wand.utils.chooseUnique(net.nodes(), 1)]
+  }
+  seeds.forEach(s => {
+    net.setNodeAttribute(s, 'started', true)
+  })
+  const progression = [seeds]
+  while (seeds.length !== 0) {
+    const newSeeds = []
+    seeds.forEach(s => {
+      const candidates = []
+      net.forEachNeighbor(s, (nn, na) => {
+        if (!na.started) {
+          candidates.push({ n: nn, d: na.degree })
+        }
+      })
+      candidates.sort((i, j) => i.d - j.d).slice(0, nneighbors).forEach(c => {
+        net.setNodeAttribute(c.n, 'started', true)
+        newSeeds.push(c.n)
+      })
+      console.log(candidates, 'CANDIDATES')
+    })
+    progression.push(newSeeds)
+    seeds = newSeeds
+  }
+  net.forEachNode((n, a) => {
+    delete a.started
+  })
+  return progression
+}
+
+module.exports = { use: { Diffusion, MultilevelDiffusionSketch, MultilevelDiffusionMinimalFunctional, seededNeighbors } }

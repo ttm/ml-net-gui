@@ -227,4 +227,14 @@ function blinkChangeColorsAndSayNames () {
   }
 }
 
-module.exports = { use: { rotateLayouts, blink, blinkChangeColorsAndSayNames, showMembersAndBlink, showMembers } }
+const playProgression = (progression, funcs) => {
+  // progression is an array of arrays of notes
+  // iterate through progression applying each func in funcs
+}
+
+const playSets = (sets, funcs) => {
+  // sets is an array of arrays of notes
+  // apply funcs respectivelly to each array in sets
+}
+
+module.exports = { use: { rotateLayouts, blink, blinkChangeColorsAndSayNames, showMembersAndBlink, showMembers, playProgression, playSets } }

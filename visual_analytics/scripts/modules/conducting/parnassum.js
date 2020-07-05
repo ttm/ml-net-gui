@@ -227,16 +227,44 @@ class AdParnassum {
           max: 1,
           min: 0,
           steps: 2,
-          current: 1,
+          current: 0,
           update: function () {
             console.log('player update')
-            // this.currentPlayer = this.playerAlgs[this.algs[this.current]]()
+            this.currentPlayer = this.playerAlgs[this.algs[this.current]]()
           },
           algs: ['seeded', 'threeSectors'],
           playerAlgs: {
             seeded: function () {
-              const seed = wand.utils.chooseUnique(wand.currentNetwork.nodes(), 1)
-              this.seed = seed
+              const net = wand.currentNetwork
+              const nodesDegrees = {}
+              net.forEachNode((n, a) => {
+                nodesDegrees[n] = a.degree
+              })
+
+              const seed = wand.utils.chooseUnique(net.nodes(), 1)
+              net.setNodeAttribute(seed, 'started', true)
+              this.progression = []
+              let seeds = [seed]
+              while (seeds.length !== 0) {
+                const newSeeds = []
+                seeds.forEach(s => {
+                  const candidates = []
+                  net.forEachNeighbor(s, (nn, na) => {
+                    if (!na.started) {
+                      candidates.push({ n: nn, d: na.degree })
+                    }
+                  })
+                  candidates.sort((i, j) => i.d - j.d).slice(0, 4).forEach(c => {
+                    net.setNodeAttribute(c.n, 'started', true)
+                    newSeeds.push(c.n)
+                  })
+                })
+                this.progression.push(newSeeds)
+                seeds = newSeeds
+              }
+              net.forEachNode((n, a) => {
+                delete a.started
+              })
             },
             threeSectors: function () {
               if (this.seqs) {
@@ -244,13 +272,13 @@ class AdParnassum {
                 this.seqs.seq2.stop()
                 this.seqs.seq3.stop()
               }
-              console.log('three sectors song')
+              // console.log('three sectors song')
               const net = wand.currentNetwork
-              let nodesDegrees = []
+              const nodesDegrees = []
               net.forEachNode((n, a) => {
                 nodesDegrees.push({ n, d: a.degree })
               })
-              nodesDegrees = nodesDegrees.sort((i, j) => i.d - j.d)
+              nodesDegrees.sort((i, j) => i.d - j.d)
               const [nhubs, nintermediary] = [0.05, 0.15].map(i => Math.round(net.order * i))
               const nperipheral = net.order - nhubs - nintermediary
               const periphery = nodesDegrees.splice(0, nperipheral)
@@ -283,7 +311,7 @@ class AdParnassum {
 
               const seq2 = new Tone.Pattern((time, node) => {
                 const a = net.getNodeAttributes(node)
-                console.log('bass', time, a.degree, node)
+                // console.log('bass', time, a.degree, node)
                 membSynth.triggerAttackRelease(a.degree, 0.01, time)
                 b(a, time, 'more')
               }, hubs.map(i => i.n), 'upDown')
@@ -294,7 +322,7 @@ class AdParnassum {
               const seq = new Tone.Sequence((time, _) => {
                 const node = inter[intercount++ % inter.length]
                 const a = net.getNodeAttributes(node)
-                console.log('middle', time, a.degree, node)
+                // console.log('middle', time, a.degree, node)
                 metal.frequency.value = 500 + a.degree
                 metal.triggerAttackRelease(0.01, time)
                 // plucky.triggerAttackRelease(Tone.Midi(a.degree).toNote(), 0.01, time)
@@ -303,7 +331,7 @@ class AdParnassum {
 
               const seq3 = new Tone.Pattern((time, node) => {
                 const a = net.getNodeAttributes(node)
-                console.log('bass', time, a.degree, node)
+                // console.log('bass', time, a.degree, node)
                 plucky2.triggerAttackRelease(Tone.Midi(70 + 5 * a.degree).toNote(), 0.01, time)
                 b(a, time, 'less2')
               }, periphery.map(i => i.n), 'upDown')
@@ -318,7 +346,7 @@ class AdParnassum {
               this.seqs = { seq, seq2, seq3 }
 
               this.nodesDegrees = nodesDegrees
-              return { periphery, intermediary }
+              this.partition = { hubs, periphery, intermediary }
             }
           },
           bindPlayer: function () {
@@ -328,11 +356,19 @@ class AdParnassum {
                 class: 'btn',
                 id: 'player-button',
                 click: () => {
-                  wand.maestro.base.Tone.Transport.toggle()
+                  console.log(this.count, 'COUNT')
+                  if (this.count++ % 3 < 2) {
+                    console.log('TOGGLE')
+                    wand.maestro.base.Tone.Transport.toggle()
+                  } else {
+                    console.log('INCREMENT')
+                    this.current = (this.current + 1) % 2
+                    this.update()
+                  }
                 }
               }).attr('atitle', 'change player').insertAfter('#explorer-button')
             )
-            this.playerAlgs.threeSectors()
+            // this.playerAlgs.threeSectors()
           }
         },
         recorder: {

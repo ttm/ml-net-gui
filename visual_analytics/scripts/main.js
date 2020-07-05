@@ -73,6 +73,7 @@ const routes = {
   'recAudio.html': test.testRecAudio,
   'recAudioAndCanvas.html': test.testRecAudioAndCanvas,
   'recAudioAndCanvas2.html': test.testRecAudioAndCanvas2,
+  'diffusionLimited.html': test.testDiffusionLimited,
   'data_donated.html': () => console.log('a summary of the data donated in usage, upload and scrapping')
 }
 

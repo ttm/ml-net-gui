@@ -69,6 +69,10 @@ const routes = {
   'pat.html': test.testPattern,
   'rec.html': test.testRec,
   'rec2.html': test.testRec2,
+  'recCanvas.html': test.testRecCanvas,
+  'recAudio.html': test.testRecAudio,
+  'recAudioAndCanvas.html': test.testRecAudioAndCanvas,
+  'recAudioAndCanvas2.html': test.testRecAudioAndCanvas2,
   'data_donated.html': () => console.log('a summary of the data donated in usage, upload and scrapping')
 }
 

@@ -1,4 +1,4 @@
-/* global wand */
+/* global wand, MediaRecorder, MediaStream, Blob */
 const net = require('./modules/networks.js')
 const artist = require('./modules/artist.js')
 const conductor = require('./modules/conductor.js')
@@ -636,14 +636,306 @@ const testRec = () => {
 }
 
 const testRec2 = () => {
+  // to record audio and page or canvas.
+  // to record tone: https://www.youtube.com/watch?v=VHCv3waFkRo
+  //   https://stackoverflow.com/questions/55686982/how-to-record-web-browser-audio-output-not-microphone-audio
+  // to record canvas: https://developer.mozilla.org/en-US/docs/Web/API/MediaStream_Recording_API
+  // canvas + audio: https://stackoverflow.com/questions/39992048/how-can-we-mix-canvas-stream-with-audio-stream-using-mediarecorder
   window.rrr = require('recordrtc')
   // wand.magic.app.view.id = 'mpixiid'
   // window.ccc = window.rrr.CanvasRecorder('mpixiid')
-  async function f () {
-    const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true })
-    window.ccc = new window.rrr.CanvasRecorder(stream, { disableLogs: true, useWhammyRecorder: true })
+  //
+  // async function f () {
+  //   const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+  //   window.ccc = new window.rrr.CanvasRecorder(stream, { disableLogs: true, useWhammyRecorder: true })
+  // }
+  // f()
+
+  // async function f () {
+  //   const t = wand.maestro.base.Tone
+  //   const d = t.context.createMediaStreamDestination()
+  //   const audioTrack = d.stream.getTracks()[0]
+  //   const canvasStream = wand.magic.app.view.captureStream(30)
+  //   canvasStream.addTrack(audioTrack)
+  //   const recorder = new MediaRecorder(canvasStream)
+  //   recorder.start()
+
+  //   const sleep = m => new Promise((resolve, reject) => setTimeout(resolve, m))
+  //   await sleep(3000)
+
+  //   recorder.stop()
+  //   window.mrec = recorder
+  //   const blob = await recorder.getBlob()
+  //   window.rrr.invokeSaveAsDialog(blob, 'video.webm')
+  //   return recorder
+  // }
+  // f()
+
+  // Optional frames per second argument.
+  var canvas = document.querySelector('canvas')
+  // const canvas = wand.magic.app.view.captureStream(30)
+  var stream = canvas.captureStream(30)
+  // const d = t.context.createMediaStreamDestination()
+  // const audioTrack = d.stream.getTracks()[0]
+  // stream.addTrack(audioTrack)
+  var recordedChunks = []
+
+  console.log(stream)
+  var options = { mimeType: 'video/webm' }
+  const mediaRecorder = new MediaRecorder(stream, options)
+
+  mediaRecorder.ondataavailable = handleDataAvailable
+  mediaRecorder.start()
+
+  function handleDataAvailable (event) {
+    console.log('data-available')
+    if (event.data.size > 0) {
+      console.log('yes data')
+      recordedChunks.push(event.data)
+      console.log(recordedChunks)
+      download()
+    } else {
+      console.log('no data')
+      // ...
+    }
   }
-  f()
+  function download () {
+    var blob = new Blob(recordedChunks, {
+      type: 'video/webm'
+    })
+    var url = URL.createObjectURL(blob)
+    var a = document.createElement('a')
+    document.body.appendChild(a)
+    a.style = 'display: none'
+    a.href = url
+    a.download = 'test.webm'
+    a.click()
+    window.URL.revokeObjectURL(url)
+  }
+
+  // demo: to download after 9sec
+  setTimeout(event => {
+    console.log('stopping')
+    mediaRecorder.stop()
+  }, 3000)
+  window.ares = wand.maestro.base.syncToy()
+  $('<button/>', {
+    class: 'btn',
+    id: 'friendship-button',
+    click: () => {
+      wand.maestro.base.Tone.Transport.toggle()
+    }
+  }).prependTo('body').html('asd')
 }
 
-module.exports = { testPlot, testRotateLayouts, testBlink, testExhibition1, testDiffusion, testMultilevelDiffusion, testMetaNetwork, testSparkMin, testSparkLosd, testMong, testGetNet0, testGetNet1, testGetNet2, testGetNet3, testNetIO, testGUI, testNetUpload, testNetUpload2, testMongIO, testMongNetIO, testMongBetterNetIO, testNetPage, testPuxi, testHtmlEls, testHtmlEls2, testGradus, testAdParnassum, testWorldPropertyPage, testAudio, testJQueryFontsAwesome, testObj, testColors, testMusic, testLooper, testSeq, testSync, testPattern, testRec, testRec2 }
+const testRecCanvas = () => {
+  var canvas = document.querySelector('canvas')
+  var stream = canvas.captureStream(30)
+  var recordedChunks = []
+
+  console.log(stream)
+  var options = { mimeType: 'video/webm' }
+  const mediaRecorder = new MediaRecorder(stream, options)
+  mediaRecorder.ondataavailable = handleDataAvailable
+  mediaRecorder.start()
+  function handleDataAvailable (event) {
+    console.log('data-available')
+    if (event.data.size > 0) {
+      console.log('yes data')
+      recordedChunks.push(event.data)
+      console.log(recordedChunks)
+      download()
+    } else {
+      console.log('no data')
+      // ...
+    }
+  }
+  function download () {
+    var blob = new Blob(recordedChunks, {
+      type: 'video/webm'
+    })
+    var url = URL.createObjectURL(blob)
+    var a = document.createElement('a')
+    document.body.appendChild(a)
+    a.style = 'display: none'
+    a.href = url
+    a.download = 'test.webm'
+    a.click()
+    window.URL.revokeObjectURL(url)
+  }
+
+  // demo: to download after 9sec
+  window.ares = wand.maestro.base.syncToy()
+  $('<button/>', {
+    class: 'btn',
+    id: 'friendship-button',
+    click: () => {
+      setTimeout(event => {
+        console.log('stopping')
+        mediaRecorder.stop()
+      }, 3000)
+      wand.maestro.base.Tone.Transport.toggle()
+    }
+  }).prependTo('body').html('asd')
+}
+
+const testRecAudio = () => {
+  // const audio = wand.$('<audio/>')
+  const Tone = wand.maestro.base.Tone
+  const synth = new Tone.Synth()
+  const actx = Tone.context
+  const dest = actx.createMediaStreamDestination()
+  const recorder = new MediaRecorder(dest.stream)
+
+  synth.connect(dest)
+  synth.toMaster()
+
+  const chunks = []
+
+  const notes = 'CDEFGAB'.split('').map(n => `${n}4`)
+  let note = 0
+
+  recorder.ondataavailable = evt => chunks.push(evt.data)
+  recorder.onstop = evt => {
+    const blob = new Blob(chunks, { type: 'audio/ogg codecs=opus' })
+    // audio.src = URL.createObjectURL(blob)
+    var url = URL.createObjectURL(blob)
+    var a = document.createElement('a')
+    document.body.appendChild(a)
+    a.style = 'display: none'
+    a.href = url
+    a.download = 'test.ogg'
+    a.click()
+    window.URL.revokeObjectURL(url)
+  }
+
+  window.ares = wand.maestro.base.syncToy()
+  $('<button/>', {
+    class: 'btn',
+    id: 'friendship-button',
+    click: () => {
+      Tone.Transport.toggle()
+      Tone.Transport.scheduleRepeat(time => {
+        if (note === 0) recorder.start()
+        if (note > notes.length) {
+          synth.triggerRelease(time)
+          recorder.stop()
+          Tone.Transport.stop()
+        } else synth.triggerAttack(notes[note], time)
+        note++
+      }, '4n')
+    }
+  }).prependTo('body').html('asd')
+}
+
+const testRecAudioAndCanvas = () => {
+  // const audio = wand.$('<audio/>')
+  const Tone = wand.maestro.base.Tone
+  const synth = new Tone.Synth()
+  const actx = Tone.context
+  const dest = actx.createMediaStreamDestination()
+
+  const canvas = document.querySelector('canvas')
+  const stream = canvas.captureStream(30)
+  const combined = new MediaStream([...dest.stream.getTracks(), ...stream.getTracks()])
+
+  // const recorder = new MediaRecorder(dest.stream)
+  const recorder = new MediaRecorder(combined)
+
+  synth.connect(dest)
+  synth.toMaster()
+
+  const chunks = []
+
+  const notes = 'CDEFGAB'.split('').map(n => `${n}4`)
+  let note = 0
+
+  recorder.ondataavailable = evt => chunks.push(evt.data)
+  recorder.onstop = evt => {
+    const blob = new Blob(chunks, { type: 'video/webm' })
+    // audio.src = URL.createObjectURL(blob)
+    var url = URL.createObjectURL(blob)
+    var a = document.createElement('a')
+    document.body.appendChild(a)
+    a.style = 'display: none'
+    a.href = url
+    a.download = 'test.webm'
+    a.click()
+    window.URL.revokeObjectURL(url)
+  }
+
+  window.ares = wand.maestro.base.syncToy()
+  $('<button/>', {
+    class: 'btn',
+    id: 'friendship-button',
+    click: () => {
+      Tone.Transport.toggle()
+      Tone.Transport.scheduleRepeat(time => {
+        if (note === 0) recorder.start()
+        if (note > notes.length) {
+          synth.triggerRelease(time)
+          recorder.stop()
+          Tone.Transport.stop()
+        } else synth.triggerAttack(notes[note], time)
+        note++
+      }, '4n')
+    }
+  }).prependTo('body').html('asd')
+}
+
+const testRecAudioAndCanvas2 = () => {
+  // const audio = wand.$('<audio/>')
+  const Tone = wand.maestro.base.Tone
+  // const synth = new Tone.Synth()
+  const actx = Tone.context
+  const dest = actx.createMediaStreamDestination()
+  Tone.Master.connect(dest)
+
+  const canvas = document.querySelector('canvas')
+  const stream = canvas.captureStream(30)
+  const combined = new MediaStream([...dest.stream.getTracks(), ...stream.getTracks()])
+
+  // const recorder = new MediaRecorder(dest.stream)
+  const recorder = new MediaRecorder(combined)
+
+  // synth.connect(dest)
+  // synth.toMaster()
+
+  const chunks = []
+
+  const notes = 'CDEFGAB'.split('').map(n => `${n}4`)
+  let note = 0
+
+  recorder.ondataavailable = evt => chunks.push(evt.data)
+  recorder.onstop = evt => {
+    const blob = new Blob(chunks, { type: 'video/webm' })
+    // audio.src = URL.createObjectURL(blob)
+    var url = URL.createObjectURL(blob)
+    var a = document.createElement('a')
+    document.body.appendChild(a)
+    a.style = 'display: none'
+    a.href = url
+    a.download = 'test.webm'
+    a.click()
+    window.URL.revokeObjectURL(url)
+  }
+
+  window.ares = wand.maestro.base.syncToy()
+  $('<button/>', {
+    class: 'btn',
+    id: 'friendship-button',
+    click: () => {
+      Tone.Transport.toggle()
+      Tone.Transport.scheduleRepeat(time => {
+        if (note === 0) recorder.start()
+        if (note > notes.length) {
+          recorder.stop()
+          Tone.Transport.stop()
+        }
+        note++
+      }, '4n')
+    }
+  }).prependTo('body').html('asd')
+}
+
+module.exports = { testPlot, testRotateLayouts, testBlink, testExhibition1, testDiffusion, testMultilevelDiffusion, testMetaNetwork, testSparkMin, testSparkLosd, testMong, testGetNet0, testGetNet1, testGetNet2, testGetNet3, testNetIO, testGUI, testNetUpload, testNetUpload2, testMongIO, testMongNetIO, testMongBetterNetIO, testNetPage, testPuxi, testHtmlEls, testHtmlEls2, testGradus, testAdParnassum, testWorldPropertyPage, testAudio, testJQueryFontsAwesome, testObj, testColors, testMusic, testLooper, testSeq, testSync, testPattern, testRec, testRec2, testRecCanvas, testRecAudio, testRecAudioAndCanvas, testRecAudioAndCanvas2 }

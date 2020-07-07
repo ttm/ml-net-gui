@@ -1,4 +1,4 @@
-/* global wand, performance */
+/* global wand, performance, SpeechSynthesisUtterance */
 
 const netmetrics = require('graphology-metrics')
 const netdegree = require('graphology-metrics/degree')
@@ -20,6 +20,9 @@ class AdParnassum {
   // Tithorea and Lycoreia.
   constructor (settings = {}) {
     const self = this
+    if (settings.muted) {
+      SpeechSynthesisUtterance.volume = 0
+    }
     const defaultSettings = {
       currentLevel: 0,
       fontSize: 20,
@@ -187,18 +190,21 @@ class AdParnassum {
                 id: 'explorer-button',
                 click: () => {
                   self.increment('explorer')
-                  if (wand.extra.instruments && wand.extra.instruments.membSynth) {
-                    wand.extra.instruments.membSynth.dispose()
-                    delete wand.extra.instruments.membSynth
-                  }
-                  if (wand.extra.patterns && wand.extra.patterns.seq2) {
-                    wand.extra.pattern.seq2.dispose()
-                    delete wand.extra.pattern.seq2
-                  }
+                  this.disposeDiffusionPattern()
                 }
               }).attr('atitle', 'change explorer').insertAfter('#pallete-button')
             )
             self.state.explorer.update()
+          },
+          disposeDiffusionPattern: function () {
+            if (wand.extra.instruments && wand.extra.instruments.membSynth) {
+              wand.extra.instruments.membSynth.dispose()
+              delete wand.extra.instruments.membSynth
+            }
+            if (wand.extra.patterns && wand.extra.patterns.seq2) {
+              wand.extra.patterns.seq2.dispose()
+              delete wand.extra.patterns.seq2
+            }
           },
           getMemberSets: () => {
             const seeds = []
@@ -248,13 +254,16 @@ class AdParnassum {
               return { activated, deactivated }
             },
             seeded: function () {
-              console.log('seeded loaded')
+              self.state.explorer.disposeDiffusionPattern()
               const net = wand.currentNetwork
               let seeds = self.state.explorer.seeds
               if (seeds.length === 0) {
                 seeds = wand.utils.chooseUnique(net.nodes(), 4)
               }
-              const progression = wand.net.use.diffusion.use.seededNeighbors(net, 2, seeds)
+              console.log('seeded loaded, seeds:', seeds)
+              // note: low values for nneighbors may lead to incomplete cover of the network:
+              const progression = wand.net.use.diffusion.use.seededNeighbors(net, 4, seeds)
+              console.log('progression:', progression)
               const Tone = wand.maestro.base.Tone
               // todo:
               //  change membrane to poly, play all degrees or chord in range
@@ -280,6 +289,7 @@ class AdParnassum {
               }, progression)
               seq2.interval = '1n'
               seq2.start()
+              wand.extra.progression = progression
               wand.extra.instruments = {
                 ...wand.extra.instruments,
                 membSynth
@@ -296,18 +306,20 @@ class AdParnassum {
           currentExplorerNumber: 0
         },
         player: {
-          count: 1,
+          count: 0,
           max: 1,
           min: 0,
           steps: 2,
           current: 0,
+          iconId: 'player-button',
           update: function () {
             console.log('player update')
             this.currentPlayer = this.playerAlgs[this.algs[this.current]]()
           },
-          algs: ['threeSectors'],
+          algs: ['threeSectors', 'silence'],
           playerAlgs: {
             threeSectors: function () {
+              console.log('in three sectors')
               if (this.seqs) {
                 this.seqs.seq.dispose()
                 this.seqs.seq2.dispose()
@@ -388,6 +400,15 @@ class AdParnassum {
 
               this.nodesDegrees = nodesDegrees
               this.partition = { hubs, periphery, intermediary }
+            },
+            silence: function () {
+              console.log('in silence!')
+              if (this.seqs) {
+                console.log('player seqs exist!')
+                this.seqs.seq.stop()
+                this.seqs.seq2.stop()
+                this.seqs.seq3.stop()
+              }
             }
           },
           bindPlayer: function () {
@@ -397,15 +418,7 @@ class AdParnassum {
                 class: 'btn',
                 id: 'player-button',
                 click: () => {
-                  console.log(this.count, 'COUNT')
-                  if (this.count++ % 3 < 2) {
-                    console.log('TOGGLE')
-                    wand.maestro.base.Tone.Transport.toggle()
-                  } else {
-                    console.log('INCREMENT')
-                    this.current = (this.current + 1) % 2
-                    this.update()
-                  }
+                  self.increment('player')
                 }
               }).attr('atitle', 'change player').insertAfter('#explorer-button')
             )

@@ -371,7 +371,7 @@ const seededNeighbors = (net, nneighbors, seeds) => {
           candidates.push({ n: nn, d: na.degree })
         }
       })
-      candidates.sort((i, j) => Math.random()).sort((i, j) => i.d - j.d).slice(0, nneighbors).forEach(c => {
+      candidates.sort((i, j) => i.d - j.d).slice(0, nneighbors).forEach(c => {
         net.setNodeAttribute(c.n, 'started', true)
         newSeeds.push(c.n)
       })

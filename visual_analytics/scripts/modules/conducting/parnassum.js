@@ -270,10 +270,16 @@ class AdParnassum {
               // todo:
               //  change membrane to poly, play all degrees or chord in range
               const membSynth = new Tone.MembraneSynth().toMaster()
+              membSynth.volume.value = 10
+              const lengths = progression.map(i => i.length)
+              const maxl = Math.max(...lengths)
+              const minl = Math.min(...lengths)
               const d = (f, time) => Tone.Draw.schedule(f, time)
               const seq2 = new Tone.Pattern((time, nodes) => {
                 // console.log('bass', time, a.degree, node)
-                membSynth.triggerAttackRelease(10 + nodes.length, 0.01, time)
+                const nval = 20 + 60 * (nodes.length - minl) / (maxl - minl)
+                membSynth.triggerAttackRelease(nval, 1, time)
+                membSynth.triggerAttackRelease(nval, 1, time + Tone.Time('2n.').toSeconds())
                 if (nodes.length === 0) {
                   self.resetNetwork()
                 } else {
@@ -356,18 +362,30 @@ class AdParnassum {
                   // a.textElement.tint = c.n
                   a.textElement.alpha = 0
                   a.textElement.zIndex = 1000
-                }, time + 1)
+                }, time + 0.2)
               }
 
-              const membSynth = new Tone.MembraneSynth().toMaster()
+              const membSynth = new Tone.Noise('brown').toMaster()
+              membSynth.volume.value = -10
+              window.membSynth = membSynth
+              // const membSynth = new Tone.MembraneSynth().toMaster()
               // const plucky = new Tone.PluckSynth({ volume: 10 }).toMaster()
               const metal = new Tone.MetalSynth({ resonance: 100, octaves: 0.01, harmonicity: 10, frequency: 500, volume: 10 }).toMaster()
               const plucky2 = new Tone.PluckSynth({ volume: 10 }).toMaster()
 
+              const hdegrees = hubs.map(i => i.d)
+              const maxhd = Math.max(...hdegrees)
+              const minhd = Math.min(...hdegrees)
               const seq2 = new Tone.Pattern((time, node) => {
                 const a = net.getNodeAttributes(node)
                 // console.log('bass', time, a.degree, node)
-                membSynth.triggerAttackRelease(a.degree, 0.01, time)
+                // membSynth.triggerAttackRelease(a.degree, 0.01, time)
+                // membSynth.playbackRate = 1 // 1 - a.degreeCentrality ** 3
+                membSynth.playbackRate = 0.1 + (a.degree - minhd) / (maxhd - minhd)
+                membSynth.volume.value = -10 + a.degreeCentrality
+                // membSynth.triggerAttackRelease(0.01, time)
+                membSynth.start()
+                membSynth.stop('+8n')
                 b(a, time, 'more')
               }, hubs.map(i => i.n), 'upDown')
               seq2.interval = '2n'

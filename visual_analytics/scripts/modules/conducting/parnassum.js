@@ -184,18 +184,20 @@ class AdParnassum {
                 console.log(n, this.progression, this.current, this.algs[this.current], 'Explorer info')
               })
             })
-            const $ = wand.$
-            $('<i/>', { class: 'fa fa-users', id: 'explorer-icon' }).appendTo(
-              $('<button/>', {
-                class: 'btn',
-                id: 'explorer-button',
-                click: () => {
-                  self.increment('explorer')
-                  this.disposeDiffusionPattern()
-                }
-              }).attr('atitle', 'change explorer').insertAfter('#pallete-button')
-            )
-            self.state.explorer.update()
+            if (!self.friendsExplorerActivated) {
+              const $ = wand.$
+              $('<i/>', { class: 'fa fa-users', id: 'explorer-icon' }).appendTo(
+                $('<button/>', {
+                  class: 'btn',
+                  id: 'explorer-button',
+                  click: () => {
+                    self.increment('explorer')
+                    this.disposeDiffusionPattern()
+                  }
+                }).attr('atitle', 'change explorer').insertAfter('#pallete-button')
+              )
+              self.state.explorer.update()
+            }
           },
           disposeDiffusionPattern: function () {
             self.resetNetwork()
@@ -742,6 +744,7 @@ class AdParnassum {
           this.allNetworks.forEach((n, i) => {
             s.append($('<option/>').val(i).html(n.name))
           })
+          s.append($('<option/>').val('upload').html('upload'))
 
           $('<div/>').addClass('loader').prependTo('body')
           const loader = wand.$('.loader')
@@ -766,9 +769,11 @@ class AdParnassum {
             }).attr('atitle', 'load or upload network').prependTo('body')
           )
 
-          const uel = $('#file-input')
+          // const uel = $('#file-input')
           const self = this // fixme: really necessary?
-          uel.change(res => {
+          const uel = document.getElementById('file-input')
+          uel.onchange = res => {
+          // uel.change(res => {
             const f = uel.files[0]
             f.text().then(t => {
               // fixme: ensure not fetching whole network if already there
@@ -776,7 +781,7 @@ class AdParnassum {
               transfer.mong.writeNetIfNotThereReadIfThere(t, f.name, f.lastModified, r => console.log(r))
               self.visualizeNetwork(t)
             })
-          })
+          }
           $('#loadnet-button').click()
           $('#names-button').click()
         }

@@ -19,6 +19,7 @@ class Speaker {
       ttext = chooseUnique(this.sentences, 1)[0]
     }
     const utterThis = new SpeechSynthesisUtterance(ttext)
+    utterThis.volume = this.volume || 1
     if (!lang) {
       lang = chooseUnique(this.languages, 1)[0]
     } else {

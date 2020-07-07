@@ -1,4 +1,4 @@
-/* global wand, performance, SpeechSynthesisUtterance */
+/* global wand, performance */
 
 const netmetrics = require('graphology-metrics')
 const netdegree = require('graphology-metrics/degree')
@@ -21,7 +21,7 @@ class AdParnassum {
   constructor (settings = {}) {
     const self = this
     if (settings.muted) {
-      SpeechSynthesisUtterance.volume = 0
+      wand.maestro.synths.speaker.volume = -1 // 1 or 0 is 1, [0, 1] is ok range
     }
     const defaultSettings = {
       currentLevel: 0,
@@ -138,6 +138,7 @@ class AdParnassum {
               throw new Error('Mismatch of icons and explorer algorithms')
             }
             this.currentExplorerAlg = this.explorerAlgs[this.algs[this.current]]
+            self.resetNetwork()
           },
           considerSeed: function (a) {
             if (a.seed) {
@@ -197,6 +198,7 @@ class AdParnassum {
             self.state.explorer.update()
           },
           disposeDiffusionPattern: function () {
+            self.resetNetwork()
             if (wand.extra.instruments && wand.extra.instruments.membSynth) {
               wand.extra.instruments.membSynth.dispose()
               delete wand.extra.instruments.membSynth
@@ -273,18 +275,18 @@ class AdParnassum {
                 // console.log('bass', time, a.degree, node)
                 membSynth.triggerAttackRelease(10 + nodes.length, 0.01, time)
                 if (nodes.length === 0) {
-                  d(() => net.forEachNode((n, a) => {
-                    a.pixiElement.tint = 0xff0000
-                  }), time)
+                  self.resetNetwork()
                 } else {
                   d(() => nodes.forEach(n => {
                     const a = net.getNodeAttributes(n)
-                    a.pixiElement.tint = 0xffffff
+                    a.activated = true
+                    self.styleNode(a)
                   }), time)
                   d(() => nodes.forEach(n => {
                     const a = net.getNodeAttributes(n)
-                    a.pixiElement.tint = 0xffff00
-                  }), time + 2)
+                    a.seed = true
+                    self.styleNode(a)
+                  }), time + 0.5)
                 }
               }, progression)
               seq2.interval = '1n'
@@ -307,16 +309,16 @@ class AdParnassum {
         },
         player: {
           count: 0,
-          max: 1,
+          max: 2,
           min: 0,
-          steps: 2,
+          steps: 3,
           current: 0,
-          iconId: 'player-button',
+          iconId: '#player-button',
           update: function () {
             console.log('player update')
             this.currentPlayer = this.playerAlgs[this.algs[this.current]]()
           },
-          algs: ['threeSectors', 'silence'],
+          algs: ['threeSectors', 'silence', 'silenceAll'],
           playerAlgs: {
             threeSectors: function () {
               console.log('in three sectors')
@@ -409,6 +411,16 @@ class AdParnassum {
                 this.seqs.seq2.stop()
                 this.seqs.seq3.stop()
               }
+            },
+            silenceAll: function () {
+              console.log('in silence!')
+              if (this.seqs) {
+                console.log('player seqs exist!')
+                this.seqs.seq.stop()
+                this.seqs.seq2.stop()
+                this.seqs.seq3.stop()
+              }
+              self.state.explorer.disposeDiffusionPattern()
             }
           },
           bindPlayer: function () {
@@ -422,7 +434,6 @@ class AdParnassum {
                 }
               }).attr('atitle', 'change player').insertAfter('#explorer-button')
             )
-            // this.playerAlgs.threeSectors()
           }
         },
         recorder: {
@@ -1243,7 +1254,7 @@ class AdParnassum {
   resetNetwork () {
     wand.currentNetwork.forEachNode((_, a) => {
       a.seed = a.activated = false
-      this.style(a)
+      this.styleNode(a)
     })
   }
 

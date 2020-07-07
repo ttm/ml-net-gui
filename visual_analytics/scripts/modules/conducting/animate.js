@@ -228,11 +228,13 @@ function blinkChangeColorsAndSayNames () {
 }
 
 const playProgression = (progression, funcs) => {
+  // todo: implement
   // progression is an array of arrays of notes
   // iterate through progression applying each func in funcs
 }
 
 const playSets = (sets, funcs) => {
+  // todo: implement
   // sets is an array of arrays of notes
   // apply funcs respectivelly to each array in sets
 }

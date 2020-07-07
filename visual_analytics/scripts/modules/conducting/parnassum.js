@@ -127,19 +127,35 @@ class AdParnassum {
           iconId: '#explorer-icon',
           iconChange: 'toggle',
           icons: ['fa-user', 'fa-users', 'fa-universal-access'],
-          algs: ['union', 'xor', 'spread'],
+          algs: ['union', 'xor', 'seeded'],
           current: 0,
+          seeds: [],
           update: function () {
             if (this.icons.length !== this.algs.length) {
               throw new Error('Mismatch of icons and explorer algorithms')
             }
             this.currentExplorerAlg = this.explorerAlgs[this.algs[this.current]]
           },
+          considerSeed: function (a) {
+            if (a.seed) {
+              this.seeds.push(a.id)
+            } else {
+              const index = this.seeds.indexOf(a.id)
+              if (index !== -1) this.seeds.splice(index, 1)
+            }
+            this.explorerAlgs.seeded()
+            wand.maestro.base.Tone.Transport.start()
+          },
           bindExplorer: function () {
+            console.log('explorer set')
             const net = wand.currentNetwork
             net.forEachNode((n, a) => {
               a.pixiElement.on('pointerdown', () => {
                 a.seed = !a.seed
+                if (this.algs[this.current] === 'seeded') {
+                  this.considerSeed(a)
+                  return
+                }
                 self.styleNode(a)
                 this.totalSeeds += a.seed ? 1 : -1
                 let activated = 0
@@ -164,6 +180,25 @@ class AdParnassum {
                 console.log(n, this.progression, this.current, this.algs[this.current], 'Explorer info')
               })
             })
+            const $ = wand.$
+            $('<i/>', { class: 'fa fa-users', id: 'explorer-icon' }).appendTo(
+              $('<button/>', {
+                class: 'btn',
+                id: 'explorer-button',
+                click: () => {
+                  self.increment('explorer')
+                  if (wand.extra.instruments && wand.extra.instruments.membSynth) {
+                    wand.extra.instruments.membSynth.dispose()
+                    delete wand.extra.instruments.membSynth
+                  }
+                  if (wand.extra.patterns && wand.extra.patterns.seq2) {
+                    wand.extra.pattern.seq2.dispose()
+                    delete wand.extra.pattern.seq2
+                  }
+                }
+              }).attr('atitle', 'change explorer').insertAfter('#pallete-button')
+            )
+            self.state.explorer.update()
           },
           getMemberSets: () => {
             const seeds = []
@@ -212,9 +247,47 @@ class AdParnassum {
               })
               return { activated, deactivated }
             },
-            spread: node => { // dummy for now
-              self.resetNetwork()
-              return { activated: 0, deactivated: 0 }
+            seeded: function () {
+              console.log('seeded loaded')
+              const net = wand.currentNetwork
+              let seeds = self.state.explorer.seeds
+              if (seeds.length === 0) {
+                seeds = wand.utils.chooseUnique(net.nodes(), 4)
+              }
+              const progression = wand.net.use.diffusion.use.seededNeighbors(net, 2, seeds)
+              const Tone = wand.maestro.base.Tone
+              // todo:
+              //  change membrane to poly, play all degrees or chord in range
+              const membSynth = new Tone.MembraneSynth().toMaster()
+              const d = (f, time) => Tone.Draw.schedule(f, time)
+              const seq2 = new Tone.Pattern((time, nodes) => {
+                // console.log('bass', time, a.degree, node)
+                membSynth.triggerAttackRelease(10 + nodes.length, 0.01, time)
+                if (nodes.length === 0) {
+                  d(() => net.forEachNode((n, a) => {
+                    a.pixiElement.tint = 0xff0000
+                  }), time)
+                } else {
+                  d(() => nodes.forEach(n => {
+                    const a = net.getNodeAttributes(n)
+                    a.pixiElement.tint = 0xffffff
+                  }), time)
+                  d(() => nodes.forEach(n => {
+                    const a = net.getNodeAttributes(n)
+                    a.pixiElement.tint = 0xffff00
+                  }), time + 2)
+                }
+              }, progression)
+              seq2.interval = '1n'
+              seq2.start()
+              wand.extra.instruments = {
+                ...wand.extra.instruments,
+                membSynth
+              }
+              wand.extra.patterns = {
+                ...wand.extra.patterns,
+                seq2
+              }
             }
           },
           progression: [],
@@ -232,45 +305,13 @@ class AdParnassum {
             console.log('player update')
             this.currentPlayer = this.playerAlgs[this.algs[this.current]]()
           },
-          algs: ['seeded', 'threeSectors'],
+          algs: ['threeSectors'],
           playerAlgs: {
-            seeded: function () {
-              const net = wand.currentNetwork
-              const nodesDegrees = {}
-              net.forEachNode((n, a) => {
-                nodesDegrees[n] = a.degree
-              })
-
-              const seed = wand.utils.chooseUnique(net.nodes(), 1)
-              net.setNodeAttribute(seed, 'started', true)
-              this.progression = []
-              let seeds = [seed]
-              while (seeds.length !== 0) {
-                const newSeeds = []
-                seeds.forEach(s => {
-                  const candidates = []
-                  net.forEachNeighbor(s, (nn, na) => {
-                    if (!na.started) {
-                      candidates.push({ n: nn, d: na.degree })
-                    }
-                  })
-                  candidates.sort((i, j) => i.d - j.d).slice(0, 4).forEach(c => {
-                    net.setNodeAttribute(c.n, 'started', true)
-                    newSeeds.push(c.n)
-                  })
-                })
-                this.progression.push(newSeeds)
-                seeds = newSeeds
-              }
-              net.forEachNode((n, a) => {
-                delete a.started
-              })
-            },
             threeSectors: function () {
               if (this.seqs) {
-                this.seqs.seq.stop()
-                this.seqs.seq2.stop()
-                this.seqs.seq3.stop()
+                this.seqs.seq.dispose()
+                this.seqs.seq2.dispose()
+                this.seqs.seq3.dispose()
               }
               // console.log('three sectors song')
               const net = wand.currentNetwork
@@ -734,7 +775,7 @@ class AdParnassum {
       nodeInfoClick: {
         achievement: 'click node to explore in network',
         alg: () => {
-          this.setExplorer()
+          this.state.explorer.bindExplorer()
           this.friendsExplorerActivated = true
         }
       },
@@ -1131,22 +1172,6 @@ class AdParnassum {
         })
       })
     })
-  }
-
-  setExplorer () {
-    console.log('explorer set')
-    const $ = wand.$
-    $('<i/>', { class: 'fa fa-users', id: 'explorer-icon' }).appendTo(
-      $('<button/>', {
-        class: 'btn',
-        id: 'explorer-button',
-        click: () => {
-          this.increment('explorer')
-        }
-      }).attr('atitle', 'change explorer').insertAfter('#pallete-button')
-    )
-    this.state.explorer.update()
-    this.state.explorer.bindExplorer()
   }
 
   increment (attr) {

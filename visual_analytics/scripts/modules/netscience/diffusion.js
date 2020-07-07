@@ -351,7 +351,9 @@ class MultilevelDiffusionSketch {
 }
 
 const seededNeighbors = (net, nneighbors, seeds) => {
-  require('graphology-metrics/degree').assign(net)
+  if (net.getNodeAttribute(net.nodes()[0], 'degree') === undefined) {
+    require('graphology-metrics/degree').assign(net)
+  }
   nneighbors = nneighbors || 4
   if (seeds === undefined || seeds.length === 0) {
     seeds = [wand.utils.chooseUnique(net.nodes(), 1)]
@@ -369,7 +371,7 @@ const seededNeighbors = (net, nneighbors, seeds) => {
           candidates.push({ n: nn, d: na.degree })
         }
       })
-      candidates.sort((i, j) => i.d - j.d).slice(0, nneighbors).forEach(c => {
+      candidates.sort((i, j) => Math.random()).sort((i, j) => i.d - j.d).slice(0, nneighbors).forEach(c => {
         net.setNodeAttribute(c.n, 'started', true)
         newSeeds.push(c.n)
       })

@@ -7,6 +7,15 @@ const netdegree = require('graphology-metrics/degree')
 //    a feature it enables
 //    a condition to complete, which triggers its
 
+const copyToClipboard = str => {
+  const el = document.createElement('textarea')
+  el.value = str
+  document.body.appendChild(el)
+  el.select()
+  document.execCommand('copy')
+  document.body.removeChild(el)
+}
+
 class AdParnassum {
   // each gradus/level has a UI feature
   // and a use condition to pass the gradus.
@@ -487,6 +496,57 @@ class AdParnassum {
               }).attr('atitle', 'start recording').insertAfter('#player-button')
             )
           }
+        },
+        info: {
+          count: 0, // interactions count
+          max: 1,
+          min: 0,
+          steps: 2,
+          current: 0,
+          update: function () {
+            self.setInfoPage(this.current)
+            this.rect.alpha = this.current
+            this.rect.interactive = Boolean(this.current)
+            this.rect.zIndex = 10 + 2000 * this.current
+            this.texts.main.alpha = this.current
+            this.texts.main.interactive = Boolean(this.current)
+            this.texts.main.buttonMode = Boolean(this.current)
+            for (const t in this.texts) {
+              this.texts[t].alpha = this.current
+            }
+          },
+          iconId: '#info-button',
+          bindInfo: function () {
+            const $ = wand.$
+            $('<i/>', { class: 'fa fa-info', id: 'info-icon' }).appendTo(
+              $('<button/>', {
+                class: 'btn',
+                id: 'info-button',
+                click: () => {
+                  self.increment('info')
+                }
+              }).attr('atitle', 'access info pages').insertAfter('#recorder-button')
+            )
+            const a = wand.artist.use
+            this.rect = a.mkRectangle({
+              wh: [a.width, a.height], zIndex: 1, color: 0xaaaaaa, alpha: 0.95
+            })
+            const f = self.settings.fontSize
+            const p = f / 2
+            const x = self.scalex(p)
+            const y = self.scaley(p)
+            const fs = self.scaley(f)
+            this.texts = []
+            const mkElement = (pos, color, element, zIndex, alpha, text) => {
+              this.texts[element] = a.mkTextFancy(text, [pos[0] * x, pos[1] * y], fs, color, zIndex, alpha)
+              return this.texts[element]
+            }
+            mkElement([1, 2.2], 0x777733, 'main', 3000, 0, 'click HERE to copy URL to browser extension.').on('click', () => {
+              console.log('click and copy man')
+              copyToClipboard('https://oa.zip')
+            })
+            mkElement([1, 5.2], 0x337733, 'extra', 3000, 0, 'read the README to know how to install/use!')
+          }
         }
       }
     }
@@ -541,9 +601,8 @@ class AdParnassum {
     const y = this.scaley(p)
     const fs = this.scaley(f)
 
-    const t = a.mkTextFancy
     const mkElement = (pos, color, element, zIndex = 300, alpha = 1) => {
-      this.texts[element] = t('', [pos[0] * x, pos[1] * y], fs, color, zIndex, alpha)
+      this.texts[element] = a.mkTextFancy('', [pos[0] * x, pos[1] * y], fs, color, zIndex, alpha)
     }
 
     mkElement([1, 2.2], 0x777733, 'adParnassum')
@@ -645,7 +704,8 @@ class AdParnassum {
       { feature: 'games', condition: 'activate3Access2' },
       { feature: 'games2', condition: 'activate2Access9' }, // 10
       { feature: 'player', condition: 'playSome' },
-      { feature: 'recorder', condition: 'recordSome' }
+      { feature: 'recorder', condition: 'recordSome' },
+      { feature: 'info', condition: 'someSecondsOnInfoPages' }
     ]
   }
 
@@ -849,6 +909,15 @@ class AdParnassum {
         alg: () => {
           this.state.recorder.bindRecorder()
         }
+      },
+      info: {
+        achievement: 'button with info, browser extension',
+        alg: () => {
+          this.state.info.bindInfo()
+          // add button to set zindex of correct rectangle and text
+          // if url to extension is visible, set it to interactive,
+          // copies the url on click, messages
+        }
       }
     }
   }
@@ -968,6 +1037,14 @@ class AdParnassum {
         condition: () => {
           const r = s.recorder
           if (r.count > 10) {
+            this.conditionMet = true
+          }
+        }
+      },
+      someSecondsOnInfoPages: {
+        tip: '',
+        condition: () => {
+          if (s.info.count > 7) {
             this.conditionMet = true
           }
         }
@@ -1385,6 +1462,14 @@ class AdParnassum {
     } else {
       this.restyleNode({ a }) // default non seed or activated attribute
     }
+  }
+
+  setInfoPage (i) {
+    console.log('info page:', i)
+    // if 0, no zIndex, not interactive
+    // if 1, show info on the extension
+    // if 2, show info on this gradus ad parnassum
+    // if 3, show info on info on why get network (what unlocks, what is the use)
   }
 }
 

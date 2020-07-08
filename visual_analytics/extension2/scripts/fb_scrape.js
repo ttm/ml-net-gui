@@ -16,7 +16,14 @@ const scrapeNameId = () => {
   const url = e.href
   const nid = url.match(/\/profile.php\?id=(\d+)/)
   const sid = url.match(/facebook.com\/(.*)\b/)
-  console.log(nid, sid, name, url, 'HEY')
+  let id = nid
+  if (!nid) {
+    id = sid
+  }
+  id = id[1]
+  console.log(nid, sid, name, url)
+  chrome.storage.sync.set({ name, sid, nid, url, id })
+  chrome.runtime.sendMessage({ message: 'client_msg' })
 }
 
 const getElementsByXPath = (xpath, parent) => {

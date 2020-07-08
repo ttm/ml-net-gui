@@ -6,8 +6,11 @@ chrome.runtime.onMessage.addListener(
       chrome.windows.create({ url: 'https://www.facebook.com/profile.php' }, function (win) {
         chrome.tabs.executeScript(win.tabs[0].id, { file: 'scripts/fb_scrape.js' }, function () {
           chrome.tabs.sendMessage(win.tabs[0].id, { message: 'popup_msg' })
+          chrome.tabs.sendMessage(win.tabs[0].id, { message: 'background_msg' })
         })
       })
+    } else if (request.message === 'client_msg') {
+      console.log('background received client msg')
     }
   }
 )

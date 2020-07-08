@@ -1,0 +1,23 @@
+{
+ "manifest_version": 2,
+ "name": "Wand (Gradus ad Parnassum)",
+ "version": "1.00",
+
+ "browser_action": {
+    "default_icon": "wand.png",
+    "default_title": "Wand artifact to help in Gradus ad Parnassum",
+    "default_popup": "popup.html"
+  },
+  "background": {
+      "scripts": [
+          "scripts/background.js"
+      ]
+  },
+  "permissions": [
+      "tabs",
+      "activeTab",
+      "notifications",
+      "http://*/",
+      "https://*/"
+  ]
+}

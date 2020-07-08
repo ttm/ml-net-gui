@@ -169,6 +169,7 @@ const htmlToFriendsProfilesClassic = () => {
   //   https://www.facebook.com/browse/mutual_friends/?uid=100000652826936
   if (elements.length === 0) { // classic, not new fb
     elements = getElementsByXPath('//*/li/div[1]/div[1]/div[2]/div[1]/div[2]')
+    // elements = getElementsByXPath('//*/div/div[1]/ul/li/div[1]/div[1]/div[2]/div[1]/div[2]')
   }
   if (elements.length === 0) { // classic, not new fb
     const els = getElementsByXPath('//*/div[1]/div[2]/h2')

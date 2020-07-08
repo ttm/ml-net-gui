@@ -1,3 +1,4 @@
+/* global chrome */
 console.log('server loaded ok')
 chrome.runtime.onMessage.addListener(
   function (request, sender, sendResponse) {
@@ -11,6 +12,25 @@ chrome.runtime.onMessage.addListener(
       })
     } else if (request.message === 'client_msg') {
       console.log('background received client msg')
+    } else if (request.message === 'client_scrapped_user') {
+      // open new tab
+      openUserFriendsPage()
     }
   }
 )
+
+const openUserFriendsPage = () => {
+  chrome.storage.sync.get(['sid', 'nid'], function (r) {
+    let url
+    if (r.sid) {
+      url = `https://www.facebook.com/${r.sid}/friends`
+    } else {
+      url = `https://www.facebook.com/profile.php?id=${r.nid}&sk=friends`
+    }
+    chrome.tabs.create({ url }, function (tab) {
+      chrome.tabs.executeScript(tab.id, { file: 'scripts/fb_scrape.js' }, function () {
+        chrome.tabs.sendMessage(tab.id, { message: 'opened_user_friends_page' })
+      })
+    })
+  })
+}

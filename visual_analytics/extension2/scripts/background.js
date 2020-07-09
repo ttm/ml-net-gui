@@ -1,6 +1,7 @@
 /* global chrome */
 const Graph = require('graphology')
 const transf = require('../../scripts/modules/transfer/mong.js')
+window.transf = transf
 let graph
 let anonString
 let anonCount
@@ -32,7 +33,6 @@ chrome.runtime.onMessage.addListener(
     } else if (msg === 'client_msg') {
       console.log('background received client msg')
     } else if (msg === 'client_scrapped_user') { // open new tab
-      // todo: check if network in mongo, if it is, load it
       const { sid, nid } = request.userData
       const query = sid ? { sid } : { nid }
       transf.testCollection.findOne(query).then(r => {
@@ -73,17 +73,22 @@ const updateNodesFrom = structs => {
   const { sids, nids } = getIds()
 
   const lastId = graph.getAttribute('lastId')
-  let id0
-  if (graph.hasNode(lastId.id)) {
-    id0 = lastId.id
-  } else {
-    const dict = lastId.type === 'numeric' ? nids : sids
-    id0 = dict[lastId.id]
-  }
+  const id0 = lastId.iid
 
   structs.forEach(s => {
     const { name, sid, nid, mutual, nfriends } = s
     const id = findNode(name, sid, nid, sids, nids)
+    if (id === undefined) {
+      s.foundIn = { id0, lastId }
+      let m = graph.getAttribute('membersNotFound')
+      if (m !== undefined) {
+        m.push(s)
+      } else {
+        m = [s]
+      }
+      graph.setAttribute('membersNotFound', m)
+      return
+    }
     const a = graph.getNodeAttributes(id)
     a.sid = a.sid || sid
     a.nid = a.nid || nid
@@ -164,7 +169,7 @@ const openTabToDownload = () => {
       chrome.tabs.sendMessage(tab.id, {
         message: 'download_network',
         filename,
-        net: JSON.stringify(graph.toJSON())
+        net
       })
     })
   })

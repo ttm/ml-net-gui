@@ -10,7 +10,7 @@
     "build": "browserify -b esmify scripts/main.js -o scripts/main_ok.js",
     "buildExt": "browserify -b esmify extension/scripts/background.js -o extension/scripts/background_ok.js",
     "buildExt2": "browserify -b esmify extension2/scripts/background.js -o extension2/scripts/background_ok.js",
-    "devExt2": "nodemon app.js --exec 'npm run test && npm run buildExt2 && node'",
+    "devExt2": "nodemon app.js --exec 'npm run test && npm run build && npm run buildExt2 && node'",
     "runme": "nodemon app.js --exec 'npm run test && npm run build && node'",
     "fixme": "standard --fix",
     "x": "nodemon app.js --exec 'npm run build && node'"

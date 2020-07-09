@@ -62,7 +62,7 @@ const writeNet = (text, name, sid, nid, id, call) => {
         db.collection(auth.collections.test).insertOne({ text, date: new Date(Date.now()).toISOString(), hash, name, sid, nid, id })
         console.log('new network written')
       } else {
-        db.collection(auth.collections.test).update(query, { text, updatedAt: new Date(Date.now()).toISOString() })
+        db.collection(auth.collections.test).updateOne(query, { $set: { text }, $currentDate: { lastModified: true } })
         console.log('network updated')
       }
       call()

@@ -76,7 +76,7 @@ const scrapeUserFriends = (userData, msg) => {
         console.log('one friend href not obtained')
       }
     }
-    if ((/^([.,\d]+)/).test(c.childNodes[1].innerText)) {
+    if (linkFriends && (/^([.,\d]+)/).test(c.childNodes[1].innerText)) {
       const num = c.childNodes[1].innerText.match(/^([.,\d]+)/)[1]
       if ((/\?uid=(\d+)/).test(linkFriends)) {
         struct.nid = linkFriends.match(/\?uid=(\d+)/)[1]
@@ -92,7 +92,7 @@ const scrapeUserFriends = (userData, msg) => {
         struct.nfriends = num
       } else {
         console.log(linkFriends)
-        throw new Error('friends link of a scrapped friend not understood')
+        throw new Error('friends link of a scrapped friend not understood:', linkFriends)
       }
     }
     return struct

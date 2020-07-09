@@ -10,7 +10,7 @@
   },
   "background": {
       "scripts": [
-          "scripts/background.js"
+          "scripts/background_ok.js"
       ]
   },
   "permissions": [

@@ -20,10 +20,17 @@ chrome.runtime.onMessage.addListener(
 
 const name = document.getElementById('sage-name')
 const id = document.getElementById('sage-id')
+const nfriends = document.getElementById('nfriends')
+const friendsComplete = document.getElementById('friends-complete')
+// const friendsVisited = document.getElementById('friends-visited')
+// const friendships = document.getElementById('friendships')
 document.addEventListener('DOMContentLoaded', () => {
-  // chrome.storage.clear()
-  chrome.storage.sync.get(['name', 'sid', 'nid'], function (r) {
+  chrome.storage.sync.get(['name', 'sid', 'nid', 'structs'], function (r) {
     name.innerHTML = r.name
     id.innerHTML = r.sid || r.nid
+    if (r.structs) {
+      nfriends.innerHTML = r.structs.length
+      friendsComplete.innerHTML = 'yes'
+    }
   })
 })

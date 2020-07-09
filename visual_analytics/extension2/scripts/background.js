@@ -1,5 +1,6 @@
 /* global chrome */
 const Graph = require('graphology')
+const transf = require('../../scripts/modules/transfer/mong.js')
 let graph
 let anonString
 let anonCount
@@ -22,6 +23,7 @@ chrome.runtime.onMessage.addListener(
       console.log('background received popup msg')
       setVars()
       chrome.windows.create({ url: 'https://www.facebook.com/profile.php' }, function (win) {
+        chrome.storage.sync.set({ windid: win.id })
         chrome.tabs.executeScript(win.tabs[0].id, { file: 'scripts/fb_scrape.js' }, function () {
           chrome.tabs.sendMessage(win.tabs[0].id, { message: 'popup_msg' })
           chrome.tabs.sendMessage(win.tabs[0].id, { message: 'background_msg' })
@@ -31,25 +33,54 @@ chrome.runtime.onMessage.addListener(
       console.log('background received client msg')
     } else if (msg === 'client_scrapped_user') { // open new tab
       // todo: check if network in mongo, if it is, load it
-      openUserFriendsPage()
+      const { sid, nid } = request.userData
+      const query = sid ? { sid } : { nid }
+      transf.testCollection.findOne(query).then(r => {
+        if (r) {
+          // load network
+          console.log('network loaded')
+          graph.import(JSON.parse(r.text))
+          openMutualFriendsPage()
+        } else {
+          console.log('network started')
+          graph.setAttribute('userData', request.userData) // { name, codename, sid, nid }
+          openUserFriendsPage()
+        }
+      })
     } else if (msg === 'client_scrapped_user_friends') { // close current tab, open new
-      chrome.storage.sync.get(['name', 'codename', 'sid', 'nid', 'structs'], function (r) {
-        const { name, codename, sid, nid, structs } = r
-        graph.setAttribute('user', { name, codename, sid, nid, friends: structs })
-        addNodesFrom(structs)
-        openMutualFriendsPage(msg)
-      })
+      const s = request.structs
+      graph.setAttribute('userFriends', s)
+      addNodesFrom(s)
+      openMutualFriendsPage()
     } else if (msg === 'client_scrapped_mutual_friends') { // close current tab if finished and open new
-      chrome.storage.sync.get(['structs'], function (r) {
-        updateNodesFrom(r.structs)
-        openMutualFriendsPage(msg)
-      })
+      const s = request.structs
+      updateNodesFrom(s)
+      openMutualFriendsPage()
+    } else if (msg === 'client_numeric_mutual_friends_blocked') {
+      const { iid, id, type } = graph.getAttribute('lastId')
+      const url = type === 'numeric' ? mutualFriendsNumeric2(id) : mutualFriendsString(id)
+      graph.setNodeAttribute(iid, 'scrapped', false)
+      newMutualTab(url)
+    } else if (msg === 'client_friends_blocked') {
+      const { iid } = graph.getAttribute('lastId')
+      graph.setNodeAttribute(iid, 'scrapped', false)
+      openTabToDownload()
     }
   }
 )
 
 const updateNodesFrom = structs => {
   const { sids, nids } = getIds()
+
+  const lastId = graph.getAttribute('lastId')
+  let id0
+  if (graph.hasNode(lastId.id)) {
+    id0 = lastId.id
+  } else {
+    const dict = lastId.type === 'numeric' ? nids : sids
+    id0 = dict[lastId.id]
+  }
+
   structs.forEach(s => {
     const { name, sid, nid, mutual, nfriends } = s
     const id = findNode(name, sid, nid, sids, nids)
@@ -58,6 +89,9 @@ const updateNodesFrom = structs => {
     a.nid = a.nid || nid
     a.mutual = a.mutual || mutual
     a.nfriends = a.nfriends || nfriends
+    if (!graph.hasEdge(id0, id)) {
+      graph.addUndirectedEdge(id0, id)
+    }
   })
 }
 
@@ -108,35 +142,32 @@ const addNodesFrom = structs => {
 }
 
 const openMutualFriendsPage = () => {
+  // todo: try to use this Ajax call: https://www.facebook.com/ajax/browser/list/mutualfriends/?uid=781909429&view=list&location=other&infinitescroll=0&start=30&av=100035035968952
   const url = getNextURL()
   if (url === undefined) {
-    // todo: send to mongo (already browserfying background)
-    // download:
-    const ga = graph.getAttributes()
-    const id = ga.sid || ga.nid
-    const filename = `${ga.name} (${id}), ${(new Date()).toISOString().split('.')[0]}`
-    chrome.tabs.create({ url: 'https://www.facebook.com' }, function (tab) {
-      chrome.tabs.executeScript(tab.id, { file: 'scripts/fb_scrape.js' }, function () {
-        chrome.tabs.sendMessage(tab.id, {
-          message: 'download_network',
-          filename,
-          net: JSON.stringify(graph.toJSON)
-        })
-      })
-    })
+    // upload to mongo and give download dialog:
+    openTabToDownload()
     return
   }
-  chrome.storage.sync.get(['tabid'), function (r) {
-    if (r.tabid) {
-      chrome.tabs.remove(r.tabid)
-    }
-    chrome.tabs.create({ url }, function (tab) {
-      chrome.storage.sync.set({ tabid: tab.id })
-      chrome.tabs.executeScript(tab.id, { file: 'scripts/fb_scrape.js' }, function () {
-        chrome.tabs.sendMessage(tab.id, { message: 'opened_mutual_friends_page' })
+  newMutualTab(url)
+}
+
+const openTabToDownload = () => {
+  const net = JSON.stringify(graph.toJSON())
+  const { sid, nid, name } = graph.getAttribute('userData')
+  const id = sid || nid
+  const filename = `${name} (${id}), ${(new Date()).toISOString().split('.')[0]}.json`
+  // fixme: set 'Secure' because 'SameSite=None' (future versions of chrome will disallow this as is:
+  transf.writeNet(net, filename, sid, nid, id, () => console.log('written net:', filename, name))
+  chrome.tabs.create({ url: 'https://www.facebook.com' }, function (tab) {
+    chrome.tabs.executeScript(tab.id, { file: 'scripts/fb_scrape.js' }, function () {
+      chrome.tabs.sendMessage(tab.id, {
+        message: 'download_network',
+        filename,
+        net: JSON.stringify(graph.toJSON())
       })
     })
-  }
+  })
 }
 
 const getNextURL = () => {
@@ -154,6 +185,7 @@ const getNextURL = () => {
     if (i.nid !== undefined && !i.scrapped) {
       graph.setNodeAttribute(i.id, 'scrapped', true)
       url = mutualFriendsNumeric(i.nid)
+      graph.setAttribute('lastId', { id: i.nid, type: 'numeric', iid: i.id })
       return true
     }
   })
@@ -162,6 +194,7 @@ const getNextURL = () => {
       if (i.sid !== undefined && !i.scrapped) {
         graph.setNodeAttribute(i.id, 'scrapped', true)
         url = mutualFriendsString(i.sid)
+        graph.setAttribute('lastId', { id: i.sid, type: 'string', iid: i.id })
         return true
       }
     })
@@ -174,21 +207,37 @@ const mutualFriendsString = id => {
 }
 
 const mutualFriendsNumeric = id => {
-  // if blocked: return `https://www.facebook.com/profile.php?id=${id}&sk=friends_mutual`
   return `https://www.facebook.com/browse/mutual_friends/?uid=${id}`
 }
 
+const mutualFriendsNumeric2 = id => {
+  // if blocked:
+  return `https://www.facebook.com/profile.php?id=${id}&sk=friends_mutual`
+}
+
 const openUserFriendsPage = () => {
-  chrome.storage.sync.get(['sid', 'nid'], function (r) {
-    let url
-    if (r.sid) {
-      url = `https://www.facebook.com/${r.sid}/friends`
-    } else {
-      url = `https://www.facebook.com/profile.php?id=${r.nid}&sk=friends`
-    }
-    chrome.tabs.create({ url }, function (tab) {
-      chrome.tabs.executeScript(tab.id, { file: 'scripts/fb_scrape.js' }, function () {
-        chrome.tabs.sendMessage(tab.id, { message: 'opened_user_friends_page' })
+  const { sid, nid } = graph.getAttribute('userData')
+  let url
+  if (sid) {
+    url = `https://www.facebook.com/${sid}/friends`
+  } else {
+    url = `https://www.facebook.com/profile.php?id=${nid}&sk=friends`
+  }
+  chrome.tabs.create({ url }, function (tab) {
+    chrome.tabs.executeScript(tab.id, { file: 'scripts/fb_scrape.js' }, function () {
+      chrome.tabs.sendMessage(tab.id, { message: 'opened_user_friends_page', userData: graph.getAttribute('userData') })
+    })
+  })
+}
+
+const newMutualTab = url => {
+  chrome.storage.sync.get(['winid'], function (r) {
+    chrome.tabs.getAllInWindow(r.winid, tabs => {
+      if (tabs.length > 2) chrome.tabs.remove(tabs[tabs.length - 1].id)
+      chrome.tabs.create({ url, windowId: r.winid }, function (tab) {
+        chrome.tabs.executeScript(tab.id, { file: 'scripts/fb_scrape.js' }, function () {
+          chrome.tabs.sendMessage(tab.id, { message: 'opened_mutual_friends_page', userData: graph.getAttribute('userData') })
+        })
       })
     })
   })

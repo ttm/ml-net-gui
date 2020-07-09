@@ -53,10 +53,29 @@ const writeNetIfNotThereReadIfThere = (text, name, lastModified, call) => {
   })
 }
 
+const writeNet = (text, name, sid, nid, id, call) => {
+  client.auth.loginWithCredential(new s.AnonymousCredential()).then(user => {
+    const query = sid ? { sid } : { nid }
+    db.collection(auth.collections.test).findOne(query).then(res => {
+      if (!res) {
+        const hash = String(sha.hash(text))
+        db.collection(auth.collections.test).insertOne({ text, date: new Date(Date.now()).toISOString(), hash, name, sid, nid, id })
+        console.log('new network written')
+      } else {
+        db.collection(auth.collections.test).update(query, { text, updatedAt: new Date(Date.now()).toISOString() })
+        console.log('network updated')
+      }
+      call()
+    })
+  })
+}
+
 const findAllNetworks = () => {
   return client.auth.loginWithCredential(new s.AnonymousCredential()).then(user => {
     return db.collection(auth.collections.test).find({ hash: { $exists: true }, lastModified: { $exists: true } }).asArray()
   })
 }
 
-module.exports = { client, db, auth, writeIfNotThereReadIfThere, writeNetIfNotThereReadIfThere, findAllNetworks }
+const testCollection = db.collection(auth.collections.test)
+
+module.exports = { client, db, auth, writeIfNotThereReadIfThere, writeNetIfNotThereReadIfThere, findAllNetworks, writeNet, testCollection }

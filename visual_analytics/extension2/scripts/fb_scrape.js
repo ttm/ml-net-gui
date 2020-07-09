@@ -1,25 +1,38 @@
-/* global chrome, XPathResult */
+/* global chrome, XPathResult, alert */
 console.log('client load ok')
-let userData = {}
 
 chrome.runtime.onMessage.addListener(
   function (request, sender, sendResponse) {
-    if (request.message === 'popup_msg') {
+    const msg = request.message
+    if (msg === 'popup_msg') {
       console.log('client received popup msg, routed from background')
       scrapeNameId()
-      // chrome.runtime.sendMessage({ message: 'client_msg' }) // acts on popup
-      // todo: check if network in mongo, if it is, load it
-    } else if (request.message === 'opened_user_friends_page') {
-      // scroll till end (find out if end reached)
-      // scrape friends
-      scrollTillEnd(() => { scrapeUserFriends() })
+    } else if (msg === 'opened_user_friends_page' || msg === 'opened_mutual_friends_page') {
+      scrollTillEnd(() => {
+        chrome.storage.sync.get(['sid', 'nid'], userData => {
+          scrapeUserFriends(userData, msg)
+        })
+      })
+    } else if (request.message === 'download_network') {
+      saveText(request.filename, request.net)
     } else if (request.message === 'background_msg') {
       console.log('client received message from background')
     }
   }
 )
 
-const scrapeUserFriends = () => {
+function saveText (filename, text) {
+  if (this.executed === undefined) {
+    this.executed = true
+    document.createElement('a')
+      .setAttribute('href', 'data:text/json;charset=utf-8,' + encodeURIComponent(text))
+      .setAttribute('download', filename)
+      .click()
+    alert('E-mail the downloaded file to: ' + emailAddress)
+  }
+}
+
+const scrapeUserFriends = (userData, msg) => {
   const elements = getElementsByXPath('//*/div/div[1]/ul/li/div[1]/div[1]/div[2]/div[1]/div[2]') // classic
   const structs = elements.map(c => {
     const struct = { name: c.children[0].innerText }
@@ -31,6 +44,7 @@ const scrapeUserFriends = () => {
       return struct
     }
     const numericMatch = linkName.match(/\?uid=(\d+)/) || linkName.match(/\/profile.php\?id=(\d+)/)
+
     if (numericMatch) {
       const nid = numericMatch[1]
       if (nid !== userData.nid) {
@@ -80,7 +94,11 @@ const scrapeUserFriends = () => {
   })
   console.log(structs)
   chrome.storage.sync.set({ structs })
-  chrome.runtime.sendMessage({ message: 'client_scrapped_user_friends' })
+  if (msg === 'opened_user_friends_page') {
+    chrome.runtime.sendMessage({ message: 'client_scrapped_user_friends' })
+  } else if (msg === 'opened_mutual_friends_page') {
+    chrome.runtime.sendMessage({ message: 'client_scrapped_mutual_friends' })
+  }
 }
 
 const scrapeNameId = () => {
@@ -101,9 +119,8 @@ const scrapeNameId = () => {
     codename = parts[1]
   }
   console.log(nid, sid, name, url)
-  userData = { name, codename, sid, nid, url }
-  window.userData = userData
-  chrome.storage.sync.set({ name, codename, sid, nid, url })
+  const userData = { name, codename, sid, nid, url }
+  chrome.storage.sync.set(userData)
   chrome.runtime.sendMessage({ message: 'client_scrapped_user' })
 }
 
@@ -119,7 +136,7 @@ const getElementsByXPath = (xpath, parent) => {
 
 const scrollDelayInMilliSeconds = 300
 const scrollMagnitude = 1000
-// const emailAddress = 'renato.fabbri@gmail.com'
+const emailAddress = 'renato.fabbri@gmail.com'
 
 const scrollTillEnd = (call = () => console.log('scrolling complete')) => {
   const time = setInterval(function () {

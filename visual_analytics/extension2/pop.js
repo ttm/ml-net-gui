@@ -21,16 +21,15 @@ chrome.runtime.onMessage.addListener(
 const name = document.getElementById('sage-name')
 const id = document.getElementById('sage-id')
 const nfriends = document.getElementById('nfriends')
-const friendsComplete = document.getElementById('friends-complete')
-// const friendsVisited = document.getElementById('friends-visited')
-// const friendships = document.getElementById('friendships')
+const friendsVisited = document.getElementById('friends-visited')
+const friendships = document.getElementById('friendships')
 document.addEventListener('DOMContentLoaded', () => {
-  chrome.storage.sync.get(['name', 'sid', 'nid', 'structs'], function (r) {
-    name.innerHTML = r.name
-    id.innerHTML = r.sid || r.nid
-    if (r.structs) {
-      nfriends.innerHTML = r.structs.length
-      friendsComplete.innerHTML = 'yes'
-    }
+  chrome.storage.sync.get(['scrapeStatus'], r => {
+    const i = r.scrapeStatus
+    name.innerHTML = i.name
+    id.innerHTML = i.sid || i.nid
+    nfriends.innerHTML = i.nfriends
+    friendsVisited.innerHTML = i.friendsVisited
+    friendships.innerHTML = i.friendships
   })
 })

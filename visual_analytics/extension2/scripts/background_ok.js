@@ -159,8 +159,22 @@ const openMutualFriendsPage = () => {
 }
 
 const openTabToDownload = () => {
-  const net = JSON.stringify(graph.toJSON())
+  let friendsVisited = 0
+  graph.forEachNode((n, a) => {
+    friendsVisited += Boolean(a.scrapped)
+  })
   const { sid, nid, name } = graph.getAttribute('userData')
+  chrome.storage.sync.set({
+    scrapeStatus: {
+      name,
+      sid,
+      nid,
+      nfriends: graph.order,
+      friendsVisited,
+      friendships: graph.size
+    }
+  })
+  const net = JSON.stringify(graph.toJSON())
   const id = sid || nid
   const filename = `${name} (${id}), ${(new Date()).toISOString().split('.')[0]}.json`
   // fixme: set 'Secure' because 'SameSite=None' (future versions of chrome will disallow this as is:

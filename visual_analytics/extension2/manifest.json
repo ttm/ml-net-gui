@@ -21,5 +21,14 @@
       "https://*/",
       "storage",
       "declarativeContent"
+  ],
+  "content_scripts": [
+    {
+      "matches": [
+        "https://.*.*",
+        "http://www.facebook.com/*"
+      ],
+      "js": ["scripts/fb_load.js"]
+    }
   ]
 }

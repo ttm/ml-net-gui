@@ -16,6 +16,15 @@ const setVars = () => {
   window.graph = graph
 }
 
+chrome.runtime.onMessageExternal.addListener(
+  function (request, sender, sendResponse) {
+    const msg = request.message
+    if (msg === 'wow') {
+      console.log('wow received from external')
+    }
+  }
+)
+
 console.log('server loaded ok')
 chrome.runtime.onMessage.addListener(
   function (request, sender, sendResponse) {
@@ -29,6 +38,12 @@ chrome.runtime.onMessage.addListener(
           chrome.tabs.sendMessage(win.tabs[0].id, { message: 'popup_msg' })
           chrome.tabs.sendMessage(win.tabs[0].id, { message: 'background_msg' })
         })
+      })
+    } else if (msg === 'popup_login_msg') {
+      console.log('check login')
+      // window.postMessage({ type: 'FROM_PAGE_TO_CONTENT_SCRIPT', text: 'Hello from the webpage!' }, '*')
+      chrome.tabs.getSelected(null, function (tab) {
+        chrome.tabs.sendMessage(tab.id, { message: 'login_msg_from_background' })
       })
     } else if (msg === 'client_msg') {
       console.log('background received client msg')
@@ -65,9 +80,24 @@ chrome.runtime.onMessage.addListener(
       const { iid } = graph.getAttribute('lastId')
       graph.setNodeAttribute(iid, 'scrapped', false)
       openTabToDownload()
+    } else if (msg === 'wow') {
+      console.log('wow received')
     }
   }
 )
+
+window.postMessage({ type: 'FROM_PAGE_TO_CONTENT_SCRIPT', text: 'Hello from the webpage!' }, '*')
+
+window.addEventListener('message', function (event) {
+  // We only accept messages from this window to itself [i.e. not from any iframes]
+  console.log('received message, but not qualified', event)
+  if (event.source !== window) return
+
+  if (event.data.type && (event.data.type === 'FROM_PAGE_TO_CONTENT_SCRIPT')) {
+    // chrome.runtime.sendMessage(event.data); // broadcasts it to rest of extension, or could just broadcast event.data.payload...
+    console.log('wow received using window broadcast')
+  } // else ignore messages seemingly not sent to yourself
+}, false)
 
 const updateNodesFrom = structs => {
   const { sids, nids } = getIds()

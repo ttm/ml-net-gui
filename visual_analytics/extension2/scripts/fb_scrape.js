@@ -101,6 +101,8 @@ const scrapeUserFriends = (userData, msg) => {
     chrome.runtime.sendMessage({ message: 'client_scrapped_user_friends', structs })
   } else if (msg === 'opened_mutual_friends_page') {
     chrome.runtime.sendMessage({ message: 'client_scrapped_mutual_friends', structs })
+  } else if (msg === 'login_msg_from_background') {
+    console.log('mk login')
   }
 }
 
@@ -164,3 +166,16 @@ const scrollTillEnd = (call = () => console.log('scrolling complete')) => {
     }
   }, scrollDelayInMilliSeconds)
 }
+
+window.postMessage({ type: 'FROM_PAGE_TO_CONTENT_SCRIPT', text: 'Hello from the !' }, '*')
+
+window.addEventListener('message', function (event) {
+  // We only accept messages from this window to itself [i.e. not from any iframes]
+  console.log('received message, but not qualified', event)
+  if (event.source !== window) return
+
+  if (event.data.type && (event.data.type === 'FROM_PAGE_TO_CONTENT_SCRIPT')) {
+    // chrome.runtime.sendMessage(event.data); // broadcasts it to rest of extension, or could just broadcast event.data.payload...
+    console.log('wow received using window broadcast')
+  } // else ignore messages seemingly not sent to yourself
+}, false)

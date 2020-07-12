@@ -1,10 +1,17 @@
 /* global chrome */
 const checkPageButton = document.getElementById('magic')
-window.cccc = checkPageButton
 checkPageButton.style.backgroundColor = '#ff0000'
 checkPageButton.onclick = function (element) {
   checkPageButton.style.backgroundColor = '#00ff00'
   chrome.runtime.sendMessage({ message: 'popup_msg' })
+}
+
+const loginBtn = document.getElementById('login')
+loginBtn.style.backgroundColor = '#00ff00'
+loginBtn.onclick = function (element) {
+  loginBtn.style.backgroundColor = '#ffff00'
+  window.postMessage({ type: 'FROM_PAGE_TO_CONTENT_SCRIPT', text: 'Hello from the webpage!' }, '*')
+  chrome.runtime.sendMessage({ message: 'popup_login_msg' })
 }
 
 chrome.runtime.onMessage.addListener(

@@ -12,6 +12,19 @@ window.wand = {
   extra: {}
 }
 
+// window.postMessage({ type: 'FROM_PAGE_TO_CONTENT_SCRIPT', text: 'Hello from the webpage!' }, '*')
+
+window.addEventListener('message', function (event) {
+  // We only accept messages from this window to itself [i.e. not from any iframes]
+  console.log('received message, but not qualified', event)
+  if (event.source !== window) return
+
+  if (event.data.type && (event.data.type === 'FROM_PAGE_TO_CONTENT_SCRIPT')) {
+    // chrome.runtime.sendMessage(event.data); // broadcasts it to rest of extension, or could just broadcast event.data.payload...
+    console.log('wow received using window broadcast')
+  } // else ignore messages seemingly not sent to yourself
+}, false)
+
 wand.magic = {
   Gradus: wand.conductor.use.gradus.Gradus,
   AdParnassum: wand.conductor.use.parnassum.AdParnassum,

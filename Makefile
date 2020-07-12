@@ -65,6 +65,9 @@ va-ext-zip:
 va-ext-build:
 	cd visual_analytics && npm run buildExt
 
+va-ext2-zip:
+	cd visual_analytics && npm run buildExt2 && zip -vr wand.zip extension2/
+
 va-ext2-build:
 	cd visual_analytics && npm run buildExt2
 

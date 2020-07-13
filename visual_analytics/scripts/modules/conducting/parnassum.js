@@ -759,6 +759,7 @@ class AdParnassum {
         achievement: 'loading networks',
         alg: () => {
           if (!wand.sageInfo) {
+            // todo: choose networks by name input or by IP geographical proximity
             wand.transfer.mong.findAllNetworks().then(r => {
               this.allNetworks = r
               this.conditionMet = true
@@ -818,8 +819,14 @@ class AdParnassum {
             })
             s.append($('<option/>').val('upload').html('upload'))
           } else { // make network from sage's network
+            const jsonGraph = JSON.parse(this.allNetworks[0].text)
+            wand.graphAttributes = jsonGraph.attributes // fixme: in graphology, it should not get lost (bug)
+            const ls = this.allNetworks[0].lastModified.toLocaleString()
+            const { name, sid, nid } = wand.graphAttributes.userData
+            const id = sid || nid
+            const str = `${name} (${id}) - ${ls} `;
             ['visited', 'full'].forEach((n, i) => {
-              s.append($('<option/>').val(i).html(n))
+              s.append($('<option/>').val(i).html(str + n))
             })
           }
 
@@ -1373,6 +1380,8 @@ class AdParnassum {
       netdegree.assign(wand.currentNetwork)
       netmetrics.centrality.degree.assign(wand.currentNetwork)
     } else { // make network from sage's network
+      const jsonGraph = JSON.parse(this.allNetworks[0].text)
+      wand.graphAttributes = jsonGraph.attributes // fixme: in graphology, it should not get lost (bug)
       const g = wand.net.use.utils.loadJsonString(this.allNetworks[0].text)
       if (option === 0) {
         console.log('option:', 0)

@@ -28,7 +28,42 @@ chrome.runtime.onMessage.addListener(
         chrome.storage.sync.set({ windid: win.id })
         chrome.tabs.executeScript(win.tabs[0].id, { file: 'scripts/fb_scrape.js' }, function () {
           chrome.tabs.sendMessage(win.tabs[0].id, { message: 'popup_msg' })
-          chrome.tabs.sendMessage(win.tabs[0].id, { message: 'background_msg' })
+        })
+      })
+    } else if (msg === 'popup_login_msg') {
+      chrome.tabs.getSelected(null, function (tab) {
+        window.tabkeep = tab
+        chrome.tabs.create({ url: 'https://www.facebook.com/profile.php' }, function (tab) {
+          chrome.tabs.executeScript(tab.id, { file: 'scripts/fb_scrape.js' }, function () {
+            chrome.tabs.sendMessage(tab.id, { message: 'popup_login_msg' })
+          })
+        })
+      })
+      // create tab to profile to get id
+      // return message to page with id
+      // page handles it
+    } else if (msg === 'popup_login_performed') {
+      chrome.tabs.getSelected(null, function (tab) {
+        chrome.tabs.remove(tab.id)
+        console.log('HEY JUDE')
+        // const dataToWebPage = { text: 'test', foo: 1, bar: false }
+        chrome.tabs.create({ url: window.tabkeep.url }, function (tab) {
+          setTimeout(() => {
+            chrome.tabs.executeScript(tab.id, {
+              code: '(' + function (params) {
+                // This function will  work in webpage
+                console.log(params, 'JOWWWW') // logs in webpage console
+                window.theSage = params
+                document.theSage = params
+                window.postMessage({ type: 'FROM_CONTENT', text: 'Something message here', params }, '*')
+                return { success: true, response: 'This is from webpage.' }
+              } + ')(' + JSON.stringify(request.userData) + ');'
+            }, function (results) {
+              // This is the callback response from webpage
+              window.theSage_ = results
+              console.log(results[0]) // logs in extension console
+            })
+          }, 5000)
         })
       })
     } else if (msg === 'client_msg') {

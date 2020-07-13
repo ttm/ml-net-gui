@@ -11,10 +11,10 @@ chrome.runtime.onMessage.addListener(
       scrollTillEnd(() => {
         scrapeUserFriends(request.userData, msg)
       })
+    } else if (request.message === 'popup_login_msg') {
+      scrapeId()
     } else if (request.message === 'download_network') {
       saveText(request.filename, request.net)
-    } else if (request.message === 'background_msg') {
-      console.log('client received message from background')
     }
   }
 )
@@ -102,6 +102,28 @@ const scrapeUserFriends = (userData, msg) => {
   } else if (msg === 'opened_mutual_friends_page') {
     chrome.runtime.sendMessage({ message: 'client_scrapped_mutual_friends', structs })
   }
+}
+
+const scrapeId = () => {
+  const e = getElementsByXPath('//*/h1/span[1]/a')[0]
+  let name = e.innerText
+  const url = e.href
+  let nid = url.match(/\/profile.php\?id=(\d+)/)
+  let sid = url.match(/facebook.com\/(.*)\b/)
+  if (sid) {
+    sid = sid[1]
+  } else if (nid) {
+    nid = nid[1]
+  }
+  const parts = name.match(/[^\r\n]+/g)
+  name = parts[0]
+  let codename
+  if (parts.length > 1) {
+    codename = parts[1]
+  }
+  console.log(nid, sid, name, url)
+  const userData = { name, codename, sid, nid }
+  chrome.runtime.sendMessage({ message: 'popup_login_performed', userData })
 }
 
 const scrapeNameId = () => {

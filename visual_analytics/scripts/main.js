@@ -20,6 +20,23 @@ wand.magic = {
   tint: wand.artist.use.tincture
 }
 
+wand.$('html').append(`
+    <script>
+
+      window.addEventListener("message", function(event) {
+       // We only accept messages from ourselves
+       if (event.source != window)
+         return;
+
+        if (event.data.type && (event.data.type == "FROM_CONTENT")) {
+          console.log("Page script received: " + event.data.text)
+          console.log("User data received: " + event.data.params)
+          wand.sageInfo = event.data.params
+          console.log(event.data.text) // "Something message here"
+        }
+      }, false)
+    </script>`)
+
 const artist = wand.artist
 wand.extra.winDim = [artist.use.width, artist.use.height]
 

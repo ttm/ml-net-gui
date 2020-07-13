@@ -63,7 +63,7 @@ chrome.runtime.onMessage.addListener(
               window.theSage_ = results
               console.log(results[0]) // logs in extension console
             })
-          }, 5000)
+          }, 0)
         })
       })
     } else if (msg === 'client_msg') {
@@ -16715,13 +16715,21 @@ const writeNet = (text, name, sid, nid, id, call) => {
 
 const findAllNetworks = () => {
   return client.auth.loginWithCredential(new s.AnonymousCredential()).then(user => {
+    console.log('ALL NETs WOW')
     return db.collection(auth.collections.test).find({ hash: { $exists: true }, lastModified: { $exists: true } }).asArray()
   })
 }
 
+const findUserNetwork = (sid, nid) => {
+  // todo: similar function to find nets by name (e.g. 'Flavio Parma')
+  return client.auth.loginWithCredential(new s.AnonymousCredential()).then(user => {
+    console.log('USER NET YEAH')
+    return db.collection(auth.collections.test).find({ $or: [{ sid }, { nid }] }).asArray()
+  })
+}
 const testCollection = db.collection(auth.collections.test)
 
-module.exports = { client, db, auth, writeIfNotThereReadIfThere, writeNetIfNotThereReadIfThere, findAllNetworks, writeNet, testCollection }
+module.exports = { client, db, auth, writeIfNotThereReadIfThere, writeNetIfNotThereReadIfThere, findAllNetworks, writeNet, testCollection, findUserNetwork }
 
 },{"./mong_auth.js":132,"fast-sha256":5,"mongodb-stitch-browser-sdk":33}],132:[function(require,module,exports){
 module.exports = {

@@ -62,7 +62,7 @@ chrome.runtime.onMessage.addListener(
               window.theSage_ = results
               console.log(results[0]) // logs in extension console
             })
-          }, 5000)
+          }, 0)
         })
       })
     } else if (msg === 'client_msg') {

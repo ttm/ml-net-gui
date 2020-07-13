@@ -72,10 +72,24 @@ const writeNet = (text, name, sid, nid, id, call) => {
 
 const findAllNetworks = () => {
   return client.auth.loginWithCredential(new s.AnonymousCredential()).then(user => {
+    console.log('ALL NETs WOW')
     return db.collection(auth.collections.test).find({ hash: { $exists: true }, lastModified: { $exists: true } }).asArray()
   })
 }
 
+const findUserNetwork = (sid, nid) => {
+  // todo: similar function to find nets by name (e.g. 'Flavio Parma')
+  return client.auth.loginWithCredential(new s.AnonymousCredential()).then(user => {
+    console.log('USER NET YEAH')
+    let query
+    if (sid) {
+      query = { sid }
+    } else {
+      query = { nid }
+    }
+    return db.collection(auth.collections.test).find(query).asArray()
+  })
+}
 const testCollection = db.collection(auth.collections.test)
 
-module.exports = { client, db, auth, writeIfNotThereReadIfThere, writeNetIfNotThereReadIfThere, findAllNetworks, writeNet, testCollection }
+module.exports = { client, db, auth, writeIfNotThereReadIfThere, writeNetIfNotThereReadIfThere, findAllNetworks, writeNet, testCollection, findUserNetwork }

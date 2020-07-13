@@ -1,4 +1,5 @@
 /* global wand, performance */
+// sageInfo is input when extension login is performed
 
 const netmetrics = require('graphology-metrics')
 const netdegree = require('graphology-metrics/degree')
@@ -754,10 +755,17 @@ class AdParnassum {
       loadDatata: { // special feature, has to wait loading and solves condition:
         achievement: 'loading networks',
         alg: () => {
-          wand.transfer.mong.findAllNetworks().then(r => {
-            this.allNetworks = r
-            this.conditionMet = true
-          })
+          if (!wand.sageInfo) {
+            wand.transfer.mong.findAllNetworks().then(r => {
+              this.allNetworks = r
+              this.conditionMet = true
+            })
+          } else {
+            wand.transfer.mong.findUserNetwork(wand.sageInfo.sid, wand.sageInfo.nid).then(r => {
+              this.allNetworks = r
+              this.conditionMet = true
+            })
+          }
         }
       },
       visualizeNetworks: { // multiple features: network menu and names
@@ -1042,7 +1050,7 @@ class AdParnassum {
         }
       },
       someSecondsOnInfoPages: {
-        tip: '',
+        tip: 'read/click the info pages',
         condition: () => {
           if (s.info.count > 7) {
             this.conditionMet = true

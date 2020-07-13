@@ -3,6 +3,9 @@
 
 const netmetrics = require('graphology-metrics')
 const netdegree = require('graphology-metrics/degree')
+const components = require('graphology-components')
+const subGraph = require('graphology-utils/subgraph')
+window.components = components
 
 // each gradus has:
 //    a feature it enables
@@ -809,10 +812,16 @@ class AdParnassum {
 
           const s = $('<select/>', { id: 'file-select' })
             .prop('atitle', 'select network').prependTo('body')
-          this.allNetworks.forEach((n, i) => {
-            s.append($('<option/>').val(i).html(n.name))
-          })
-          s.append($('<option/>').val('upload').html('upload'))
+          if (!wand.sageInfo) { // load one of the networks
+            this.allNetworks.forEach((n, i) => {
+              s.append($('<option/>').val(i).html(n.name))
+            })
+            s.append($('<option/>').val('upload').html('upload'))
+          } else { // make network from sage's network
+            ['visited', 'full'].forEach((n, i) => {
+              s.append($('<option/>').val(i).html(n))
+            })
+          }
 
           $('<div/>').addClass('loader').prependTo('body')
           const loader = wand.$('.loader')
@@ -1351,12 +1360,44 @@ class AdParnassum {
   loadNetwork () {
     console.log('load net loaded')
     const $ = wand.$
-    const option = $('#file-select').val()
+    const option = Number($('#file-select').val())
     if (option === 'upload') { // if upload
       $('#file-input').click()
       return
     }
-    this.visualizeNetwork(this.allNetworks[option].text)
+    this.destroyNetwork()
+    if (!wand.sageInfo) { // load one of the networks
+      const jsonGraph = JSON.parse(this.allNetworks[option].text)
+      wand.graphAttributes = jsonGraph.attributes // fixme: in graphology, it should not get lost (bug)
+      wand.currentNetwork = wand.net.use.utils.loadJsonString(this.allNetworks[option].text)
+      netdegree.assign(wand.currentNetwork)
+      netmetrics.centrality.degree.assign(wand.currentNetwork)
+    } else { // make network from sage's network
+      const g = wand.net.use.utils.loadJsonString(this.allNetworks[0].text)
+      if (option === 0) {
+        console.log('option:', 0)
+        const nodesToRemove = []
+        g.forEachNode((n, a) => {
+          if (!a.scrapped) {
+            nodesToRemove.push(n)
+          }
+        })
+        nodesToRemove.forEach(n => {
+          g.dropNode(n)
+        })
+      } else if (option === 1) {
+        console.log('option:', 1)
+        // pass
+      }
+      const gg = components.connectedComponents(g)[0]
+      const sg = subGraph(g, gg)
+      if (option !== 3) {
+        netdegree.assign(sg)
+      }
+      netmetrics.centrality.degree.assign(sg)
+      wand.currentNetwork = sg
+    }
+    this.visualizeNetwork()
   }
 
   resetNetwork () {
@@ -1366,10 +1407,8 @@ class AdParnassum {
     })
   }
 
-  visualizeNetwork (string) {
-    const { conductor, artist, net } = wand
-    this.destroyNetwork()
-    wand.currentNetwork = net.use.utils.loadJsonString(string)
+  visualizeNetwork () {
+    const { conductor, artist } = wand
     wand.extra.drawnNet = new conductor.use.DrawnNet(artist.use, wand.currentNetwork, [artist.use.width, artist.use.height * 0.9])
     wand.magic.showMembers = conductor.use.showMembers(wand.currentNetwork, artist, true)
     this.state.colors.update()
@@ -1377,8 +1416,6 @@ class AdParnassum {
       a.pixiElement.alpha = this.state.edgesAlpha.current
     })
     // wand.magic.showMembers.sayNames(0.01)
-    netmetrics.centrality.degree.assign(wand.currentNetwork)
-    netdegree.assign(wand.currentNetwork)
     const norm = v => v === Math.round(v) ? v : v.toFixed(3)
     const mString = metric => {
       const s = netmetrics.extent(wand.currentNetwork, metric).map(i => norm(i))

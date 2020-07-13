@@ -16724,7 +16724,13 @@ const findUserNetwork = (sid, nid) => {
   // todo: similar function to find nets by name (e.g. 'Flavio Parma')
   return client.auth.loginWithCredential(new s.AnonymousCredential()).then(user => {
     console.log('USER NET YEAH')
-    return db.collection(auth.collections.test).find({ $or: [{ sid }, { nid }] }).asArray()
+    let query
+    if (sid) {
+      query = { sid }
+    } else {
+      query = { nid }
+    }
+    return db.collection(auth.collections.test).find(query).asArray()
   })
 }
 const testCollection = db.collection(auth.collections.test)

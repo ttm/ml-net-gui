@@ -546,8 +546,8 @@ class AdParnassum {
               return this.texts[element]
             }
             mkElement([1, 2.2], 0x777733, 'main', 3000, 0, 'click HERE to copy URL to browser extension.').on('click', () => {
-              console.log('click and copy man')
-              copyToClipboard('https://oa.zip')
+              console.log('click and copy')
+              copyToClipboard('https://github.com/ttm/ml-net-gui/raw/master/visual_analytics/wand.zip')
             })
             mkElement([1, 5.2], 0x337733, 'extra', 3000, 0, 'read the README to know how to install/use!')
           }
@@ -985,8 +985,8 @@ class AdParnassum {
           if (
             this.counter.networksVisualized >= 3 &&
             s.nodesAlpha.count >= 5 &&
-            s.edgesVisible.count >= 5 &&
-            s.namesVisible.count >= 6
+            s.edgesAlpha.count >= 5 &&
+            s.namesAlpha.count >= 6
           ) {
             this.conditionMet = true
           }
@@ -1023,7 +1023,7 @@ class AdParnassum {
           // keep track of total activations
           // and of activated nodes in currentNetwork
           const e = s.explorer
-          if (e.totalActivated + e.totalAccessed >= wand.currentNetwork.order) {
+          if (e.totalActivated + e.totalSeeds >= wand.currentNetwork.order) {
             console.log('all activated or accessed, gradus achieved')
             this.conditionMet = true
           }

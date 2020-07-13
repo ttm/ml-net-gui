@@ -9,11 +9,15 @@ class Router {
   }
 
   loadCurrent () {
-    let path = window.location.pathname.split('/')
-    if (path.length > 2) {
-      console.log('subpath addresses not implemented')
+    const pn = window.location.href
+    let path
+    if (pn.includes('?')) {
+      path = pn.split('?')
+      path = path[1]
+    } else {
+      path = pn.split('/')
+      path = path[path.length - 1]
     }
-    path = path[1]
     this.loadPath(path)
   }
 

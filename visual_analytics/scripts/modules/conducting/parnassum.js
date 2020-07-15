@@ -613,6 +613,9 @@ class AdParnassum {
             this.arrows.forEach(a => {
               a.destroy()
             })
+            this.arrows = []
+            this.seeds = []
+            if (this.current === 0) return
             // get seeds from seeded explorer
             // make sync structure, sequence of sets of links
             let seeds = this.seeds = self.state.explorer.seeds
@@ -629,12 +632,14 @@ class AdParnassum {
               const a = net.getNodeAttributes(s)
               a.seed = true
               self.styleNode(a)
+              a.textElement.alpha = 0
             })
             for (let i = 1; i < this.sync.progression.length; i++) {
               this.sync.progression[i].forEach(n => {
                 const a = net.getNodeAttributes(n)
                 a.activated = true
                 self.styleNode(a)
+                a.textElement.alpha = 0
               })
             }
             const arrows = []
@@ -1421,9 +1426,9 @@ class AdParnassum {
           this.texts[t[0]].text = t[1]
           this.texts[t[0]].alpha = 1
         })
-        if (a.seed || a.activated) {
-          return
-        }
+        // if (a.seed || a.activated) {
+        //   return
+        // }
         a.hovered = true
         this.styleNode(a)
         net.forEachNeighbor(n, (nn, na) => {
@@ -1614,19 +1619,7 @@ class AdParnassum {
 
   styleNode (a) { // apply standard styling giving node's attributes { seed, activated }
     const c = this.settings.state.colors.currentColors
-    if (a.seed || a.activated) {
-      const [nodeTint, nameTint] = a.seed ? [c.hl.more, c.hl.less] : [c.hl.less, c.hl.more]
-      window.aa = a
-      this.restyleNode({
-        a,
-        colorBlocked: true,
-        scale: this.settings.state.nodesSize.current * 1.5,
-        nodeTint,
-        nodeAlpha: 1,
-        nameTint,
-        nameAlpha: 1
-      })
-    } else if (a.hovered || a.hoveredNeighbor) {
+    if (a.hovered || a.hoveredNeighbor) {
       const [nodeTint, nameTint] = a.hovered ? [c.hl.more2, c.hl.less2] : [c.hl.less2, c.hl.more2]
       window.aa = a
       this.restyleNode({
@@ -1637,6 +1630,18 @@ class AdParnassum {
         nodeAlpha: 1,
         nameTint,
         nameAlpha: 1
+      })
+    } else if (a.seed || a.activated) {
+      const [nodeTint, nameTint] = a.seed ? [c.hl.more, c.hl.less] : [c.hl.less, c.hl.more]
+      const talpha = 1 - this.state.sync.current
+      this.restyleNode({
+        a,
+        colorBlocked: true,
+        scale: this.settings.state.nodesSize.current * 1.5,
+        nodeTint,
+        nodeAlpha: 1,
+        nameTint,
+        nameAlpha: talpha
       })
     } else {
       this.restyleNode({ a }) // default non seed or activated attribute

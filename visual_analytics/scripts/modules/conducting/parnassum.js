@@ -20,6 +20,55 @@ const copyToClipboard = str => {
   document.body.removeChild(el)
 }
 
+function defaultLinkRenderer (link) {
+  // first, let's compute normalized vector for our link:
+  const p1 = wand.currentNetwork.getNodeAttribute(link.from, 'pixiElement')
+  const p2 = wand.currentNetwork.getNodeAttribute(link.to, 'pixiElement')
+  const dx = p2.x - p1.x
+  const dy = p2.y - p1.y
+  const l = Math.sqrt(dx * dx + dy * dy)
+
+  if (l === 0) return // if length is 0 - can't render arrows
+
+  // This is our normal vector. It describes direction of the graph
+  // link, and has length == 1:
+  const nx = dx / l
+  const ny = dy / l
+
+  // Now let's draw the arrow:
+  const arrowLength = 26 // Length of the arrow
+  const arrowWingsLength = 12 // How far arrow wings are from the link?
+
+  // This is where arrow should end. We do `(l - NODE_WIDTH)` to
+  // make sure it ends before the node UI element.
+  const NODE_WIDTH = 15
+  const ex = p1.x + nx * (l - NODE_WIDTH)
+  const ey = p1.y + ny * (l - NODE_WIDTH)
+
+  // Offset on the graph link, where arrow wings should be
+  const sx = p1.x + nx * (l - NODE_WIDTH - arrowLength)
+  const sy = p1.y + ny * (l - NODE_WIDTH - arrowLength)
+
+  // orthogonal vector to the link vector is easy to compute:
+  const topX = -ny
+  const topY = nx
+
+  // Let's draw the arrow:
+  const graphics = new wand.magic.PIXI.Graphics()
+  // graphics.lineStyle(1, 0xcccccc, 1)
+  graphics.lineStyle(1, 0xcccccc)
+
+  graphics.moveTo(ex, ey)
+  graphics.lineTo(sx + topX * arrowWingsLength, sy + topY * arrowWingsLength)
+  graphics.moveTo(ex, ey)
+  graphics.lineTo(sx - topX * arrowWingsLength, sy - topY * arrowWingsLength)
+  wand.magic.app.stage.addChild(graphics)
+  window.ggg = graphics
+  return graphics
+}
+
+window.defaultLinkRenderer = defaultLinkRenderer
+
 class AdParnassum {
   // each gradus/level has a UI feature
   // and a use condition to pass the gradus.
@@ -533,7 +582,7 @@ class AdParnassum {
             )
             const a = wand.artist.use
             this.rect = a.mkRectangle({
-              wh: [a.width, a.height], zIndex: 1, color: 0xaaaaaa, alpha: 0.95
+              wh: [a.width, a.height], zIndex: 1, color: 0xffaaaa, alpha: 0
             })
             const f = self.settings.fontSize
             const p = f / 2
@@ -550,6 +599,67 @@ class AdParnassum {
               copyToClipboard('https://github.com/ttm/ml-net-gui/raw/master/visual_analytics/wand.zip')
             })
             mkElement([1, 5.2], 0x337733, 'extra', 3000, 0, 'read the README to know how to install/use!')
+          }
+        },
+        sync: {
+          count: 0, // interactions count
+          max: 1,
+          min: 0,
+          steps: 2,
+          current: 0,
+          arrows: [], // for arrow heads
+          update: function () {
+            self.resetNetwork()
+            this.arrows.forEach(a => {
+              a.destroy()
+            })
+            // get seeds from seeded explorer
+            // make sync structure, sequence of sets of links
+            let seeds = this.seeds = self.state.explorer.seeds
+            const net = wand.currentNetwork
+            if (seeds.length === 0) {
+              seeds = wand.utils.chooseUnique(net.nodes(), 4)
+            }
+            const diffusion = wand.net.use.diffusion.use.seededNeighborsLinks(net, 4, seeds)
+            this.sync = diffusion
+            // show the seeds
+            // attach link to each node
+            // each of them, if opened, show the music of the person
+            seeds.forEach(s => {
+              const a = net.getNodeAttributes(s)
+              a.seed = true
+              self.styleNode(a)
+            })
+            for (let i = 1; i < this.sync.progression.length; i++) {
+              this.sync.progression[i].forEach(n => {
+                const a = net.getNodeAttributes(n)
+                a.activated = true
+                self.styleNode(a)
+              })
+            }
+            const arrows = []
+            this.sync.progressionLinks.forEach(step => {
+              step.forEach(link => {
+                // console.log('TLINK:', link.from, link.to, 'pixiElement')
+                // const l = net.getEdgeAttribute(link.from, link.to, 'pixiElement')
+                // arrows.push(defaultLinkRenderer(l))
+                arrows.push(defaultLinkRenderer(link))
+              })
+            })
+            this.arrows = arrows
+          },
+          iconId: '#sync-button',
+          bindSync: function () {
+            const $ = wand.$
+            $('<i/>', { class: 'fa fa-users-cog', id: 'info-sync' }).appendTo(
+              $('<button/>', {
+                class: 'btn',
+                id: 'sync-button',
+                click: () => {
+                  self.increment('sync')
+                }
+              }).attr('atitle', 'synchronization mode').insertAfter('#info-button')
+            )
           }
         }
       }
@@ -709,7 +819,8 @@ class AdParnassum {
       { feature: 'games2', condition: 'activate2Access9' }, // 10
       { feature: 'player', condition: 'playSome' },
       { feature: 'recorder', condition: 'recordSome' },
-      { feature: 'info', condition: 'someSecondsOnInfoPages' }
+      { feature: 'info', condition: 'someSecondsOnInfoPages' },
+      { feature: 'sync', condition: 'startASync' }
     ]
   }
 
@@ -942,6 +1053,12 @@ class AdParnassum {
           // if url to extension is visible, set it to interactive,
           // copies the url on click, messages
         }
+      },
+      sync: {
+        achievement: 'button to start synchronization',
+        alg: () => {
+          this.state.sync.bindSync()
+        }
       }
     }
   }
@@ -1069,6 +1186,14 @@ class AdParnassum {
         tip: 'read/click the info pages',
         condition: () => {
           if (s.info.count > 7) {
+            this.conditionMet = true
+          }
+        }
+      },
+      startASync: {
+        tip: 'start a synchronization',
+        condition: () => {
+          if (s.sync.count > 2) {
             this.conditionMet = true
           }
         }

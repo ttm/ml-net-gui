@@ -356,7 +356,7 @@ const seededNeighbors = (net, nneighbors, seeds) => {
   }
   nneighbors = nneighbors || 4
   if (seeds === undefined || seeds.length === 0) {
-    seeds = [wand.utils.chooseUnique(net.nodes(), 1)]
+    seeds = wand.utils.chooseUnique(net.nodes(), 1)
   }
   seeds.forEach(s => {
     net.setNodeAttribute(s, 'started', true)
@@ -386,4 +386,45 @@ const seededNeighbors = (net, nneighbors, seeds) => {
   return progression
 }
 
-module.exports = { use: { Diffusion, MultilevelDiffusionSketch, MultilevelDiffusionMinimalFunctional, seededNeighbors } }
+const seededNeighborsLinks = (net, nneighbors, seeds) => {
+  if (net.getNodeAttribute(net.nodes()[0], 'degree') === undefined) {
+    require('graphology-metrics/degree').assign(net)
+  }
+  nneighbors = nneighbors || 4
+  if (seeds === undefined || seeds.length === 0) {
+    seeds = wand.utils.chooseUnique(net.nodes(), 1)
+  }
+  seeds.forEach(s => {
+    net.setNodeAttribute(s, 'started', true)
+  })
+  const originalSeeds = seeds.slice()
+  const progression = [seeds]
+  const progressionLinks = []
+  while (seeds.length !== 0) {
+    const newSeeds = []
+    const progressionLinks_ = []
+    seeds.forEach(s => {
+      const candidates = []
+      net.forEachNeighbor(s, (nn, na) => {
+        if (!na.started) {
+          candidates.push({ n: nn, d: na.degree })
+        }
+      })
+      candidates.sort((i, j) => Math.random()).sort((i, j) => i.d - j.d).slice(0, nneighbors).forEach(c => {
+        net.setNodeAttribute(c.n, 'started', true)
+        newSeeds.push(c.n)
+        progressionLinks_.push({ from: s, to: c.n })
+      })
+      console.log(candidates, 'CANDIDATES')
+    })
+    progression.push(newSeeds)
+    progressionLinks.push(progressionLinks_)
+    seeds = newSeeds
+  }
+  net.forEachNode((n, a) => {
+    delete a.started
+  })
+  return { seeds: originalSeeds, progression, progressionLinks }
+}
+
+module.exports = { use: { Diffusion, MultilevelDiffusionSketch, MultilevelDiffusionMinimalFunctional, seededNeighbors, seededNeighborsLinks } }

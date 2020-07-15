@@ -67,8 +67,6 @@ function defaultLinkRenderer (link) {
   return graphics
 }
 
-window.defaultLinkRenderer = defaultLinkRenderer
-
 class AdParnassum {
   // each gradus/level has a UI feature
   // and a use condition to pass the gradus.
@@ -330,46 +328,47 @@ class AdParnassum {
               // note: low values for nneighbors may lead to incomplete cover of the network:
               const progression = wand.net.use.diffusion.use.seededNeighbors(net, 4, seeds)
               console.log('progression:', progression)
-              const Tone = wand.maestro.base.Tone
-              // todo:
-              //  change membrane to poly, play all degrees or chord in range
-              const membSynth = new Tone.MembraneSynth().toMaster()
-              membSynth.volume.value = 10
-              const lengths = progression.map(i => i.length)
-              const maxl = Math.max(...lengths)
-              const minl = Math.min(...lengths)
-              const d = (f, time) => Tone.Draw.schedule(f, time)
-              const seq2 = new Tone.Pattern((time, nodes) => {
-                // console.log('bass', time, a.degree, node)
-                const nval = 20 + 60 * (nodes.length - minl) / (maxl - minl)
-                membSynth.triggerAttackRelease(nval, 1, time)
-                membSynth.triggerAttackRelease(nval, 1, time + Tone.Time('2n.').toSeconds())
-                if (nodes.length === 0) {
-                  self.resetNetwork()
-                } else {
-                  d(() => nodes.forEach(n => {
-                    const a = net.getNodeAttributes(n)
-                    a.activated = true
-                    self.styleNode(a)
-                  }), time)
-                  d(() => nodes.forEach(n => {
-                    const a = net.getNodeAttributes(n)
-                    a.seed = true
-                    self.styleNode(a)
-                  }), time + 0.5)
-                }
-              }, progression)
-              seq2.interval = '1n'
-              seq2.start()
-              wand.extra.progression = progression
-              wand.extra.instruments = {
-                ...wand.extra.instruments,
-                membSynth
-              }
-              wand.extra.patterns = {
-                ...wand.extra.patterns,
-                seq2
-              }
+              self.playSync(progression)
+              // const Tone = wand.maestro.base.Tone
+              // // todo:
+              // //  change membrane to poly, play all degrees or chord in range
+              // const membSynth = new Tone.MembraneSynth().toMaster()
+              // membSynth.volume.value = 10
+              // const lengths = progression.map(i => i.length)
+              // const maxl = Math.max(...lengths)
+              // const minl = Math.min(...lengths)
+              // const d = (f, time) => Tone.Draw.schedule(f, time)
+              // const seq2 = new Tone.Pattern((time, nodes) => {
+              //   // console.log('bass', time, a.degree, node)
+              //   const nval = 20 + 60 * (nodes.length - minl) / (maxl - minl)
+              //   membSynth.triggerAttackRelease(nval, 1, time)
+              //   membSynth.triggerAttackRelease(nval, 1, time + Tone.Time('2n.').toSeconds())
+              //   if (nodes.length === 0) {
+              //     self.resetNetwork()
+              //   } else {
+              //     d(() => nodes.forEach(n => {
+              //       const a = net.getNodeAttributes(n)
+              //       a.activated = true
+              //       self.styleNode(a)
+              //     }), time)
+              //     d(() => nodes.forEach(n => {
+              //       const a = net.getNodeAttributes(n)
+              //       a.seed = true
+              //       self.styleNode(a)
+              //     }), time + 0.5)
+              //   }
+              // }, progression)
+              // seq2.interval = '1n'
+              // seq2.start()
+              // wand.extra.progression = progression
+              // wand.extra.instruments = {
+              //   ...wand.extra.instruments,
+              //   membSynth
+              // }
+              // wand.extra.patterns = {
+              //   ...wand.extra.patterns,
+              //   seq2
+              // }
             }
           },
           progression: [],
@@ -652,6 +651,7 @@ class AdParnassum {
               })
             })
             this.arrows = arrows
+            self.playSync2(this.sync.progressionLinks)
           },
           iconId: '#sync-button',
           bindSync: function () {
@@ -1654,6 +1654,96 @@ class AdParnassum {
     // if 1, show info on the extension
     // if 2, show info on this gradus ad parnassum
     // if 3, show info on info on why get network (what unlocks, what is the use)
+  }
+
+  playSync (progression) {
+    const self = this
+    const net = wand.currentNetwork
+    const Tone = wand.maestro.base.Tone
+    // todo:
+    //  change membrane to poly, play all degrees or chord in range
+    const membSynth = new Tone.MembraneSynth().toMaster()
+    membSynth.volume.value = 10
+    const lengths = progression.map(i => i.length)
+    const maxl = Math.max(...lengths)
+    const minl = Math.min(...lengths)
+    const d = (f, time) => Tone.Draw.schedule(f, time)
+    const seq2 = new Tone.Pattern((time, nodes) => {
+      // console.log('bass', time, a.degree, node)
+      const nval = 20 + 60 * (nodes.length - minl) / (maxl - minl)
+      membSynth.triggerAttackRelease(nval, 1, time)
+      membSynth.triggerAttackRelease(nval, 1, time + Tone.Time('2n.').toSeconds())
+      if (nodes.length === 0) {
+        self.resetNetwork()
+      } else {
+        d(() => nodes.forEach(n => {
+          const a = net.getNodeAttributes(n)
+          a.activated = true
+          self.styleNode(a)
+        }), time)
+        d(() => nodes.forEach(n => {
+          const a = net.getNodeAttributes(n)
+          a.seed = true
+          self.styleNode(a)
+        }), time + 0.5)
+      }
+    }, progression)
+    seq2.interval = '1n'
+    seq2.start()
+    wand.extra.progression = progression
+    wand.extra.instruments = {
+      ...wand.extra.instruments,
+      membSynth
+    }
+    wand.extra.patterns = {
+      ...wand.extra.patterns,
+      seq2
+    }
+  }
+
+  playSync2 (progression) {
+    const self = this
+    const net = wand.currentNetwork
+    const Tone = wand.maestro.base.Tone
+    // todo:
+    //  change membrane to poly, play all degrees or chord in range
+    const membSynth = new Tone.MembraneSynth().toMaster()
+    membSynth.volume.value = 10
+    const lengths = progression.map(i => i.length)
+    const maxl = Math.max(...lengths)
+    const minl = Math.min(...lengths)
+    const d = (f, time) => Tone.Draw.schedule(f, time)
+    const seq2 = new Tone.Pattern((time, nodes) => {
+      // console.log('bass', time, a.degree, node)
+      const nval = 20 + 60 * (nodes.length - minl) / (maxl - minl)
+      membSynth.triggerAttackRelease(nval, 1, time)
+      membSynth.triggerAttackRelease(nval, 1, time + Tone.Time('2n.').toSeconds())
+      if (nodes.length === 0) {
+        self.resetNetwork()
+      } else {
+        d(() => nodes.forEach(n => {
+          const a = net.getNodeAttributes(n.from)
+          a.activated = true
+          self.styleNode(a)
+        }), time)
+        d(() => nodes.forEach(n => {
+          const a = net.getNodeAttributes(n.to)
+          a.seed = true
+          self.styleNode(a)
+        }), time + 0.5)
+      }
+    }, progression)
+    seq2.interval = '1n'
+    seq2.start()
+    wand.extra.progression = progression
+    wand.extra.instruments = {
+      ...wand.extra.instruments,
+      membSynth
+    }
+    wand.extra.patterns = {
+      ...wand.extra.patterns,
+      seq2
+    }
   }
 }
 

@@ -70,17 +70,19 @@ chrome.runtime.onMessage.addListener(
     } else if (msg === 'client_scrapped_user') { // open new tab
       const { sid, nid } = request.userData
       const query = sid ? { sid } : { nid }
-      transf.testCollection.findOne(query).then(r => {
-        if (r) {
-          // load network
-          console.log('network loaded')
-          graph.import(JSON.parse(r.text))
-          openMutualFriendsPage()
-        } else {
-          console.log('network started')
-          graph.setAttribute('userData', request.userData) // { name, codename, sid, nid }
-          openUserFriendsPage()
-        }
+      transf.client.auth.loginWithCredential(new transf.s.AnonymousCredential()).then(user => {
+        transf.testCollection.findOne(query).then(r => {
+          if (r) {
+            // load network
+            console.log('network loaded')
+            graph.import(JSON.parse(r.text))
+            openMutualFriendsPage()
+          } else {
+            console.log('network started')
+            graph.setAttribute('userData', request.userData) // { name, codename, sid, nid }
+            openUserFriendsPage()
+          }
+        })
       })
     } else if (msg === 'client_scrapped_user_friends') { // close current tab, open new
       const s = request.structs

@@ -92,4 +92,4 @@ const findUserNetwork = (sid, nid) => {
 }
 const testCollection = db.collection(auth.collections.test)
 
-module.exports = { client, db, auth, writeIfNotThereReadIfThere, writeNetIfNotThereReadIfThere, findAllNetworks, writeNet, testCollection, findUserNetwork }
+module.exports = { client, db, auth, writeIfNotThereReadIfThere, writeNetIfNotThereReadIfThere, findAllNetworks, writeNet, testCollection, findUserNetwork, s }

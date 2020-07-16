@@ -26,7 +26,7 @@ function saveText (filename, text) {
     a.setAttribute('href', 'data:text/json;charset=utf-8,' + encodeURIComponent(text))
     a.setAttribute('download', filename)
     a.click()
-    alert('E-mail the downloaded file to: ' + emailAddress)
+    alert('Wait ~1h to cast spell again. Go to Ankh page and Login to see your network. E-mail the downloaded file to: ' + emailAddress)
   }
 }
 

@@ -16718,7 +16718,7 @@ const writeNet = (text, name, sid, nid, id, call) => {
 const findAllNetworks = () => {
   return client.auth.loginWithCredential(new s.AnonymousCredential()).then(user => {
     console.log('ALL NETs WOW')
-    return db.collection(auth.collections.test).find({ hash: { $exists: true }, lastModified: { $exists: true } }).asArray()
+    return db.collection(auth.collections.test).find({ hash: { $exists: true }, lastModified: { $exists: true }, sid: { $exists: false } }).asArray()
   })
 }
 

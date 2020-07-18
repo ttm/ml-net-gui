@@ -15,6 +15,7 @@ window.wand = {
 wand.magic = {
   Gradus: wand.conductor.use.gradus.Gradus,
   AdParnassum: wand.conductor.use.parnassum.AdParnassum,
+  Lycoreia: wand.conductor.use.lycoreia.Lycoreia,
   PIXI: wand.artist.share.draw.base.PIXI,
   app: wand.artist.share.draw.base.app,
   tint: wand.artist.use.tincture
@@ -91,6 +92,7 @@ const routes = {
   'recAudioAndCanvas.html': test.testRecAudioAndCanvas,
   'recAudioAndCanvas2.html': test.testRecAudioAndCanvas2,
   'diffusionLimited.html': test.testDiffusionLimited,
+  'lycoreia.html': test.testLycoreia,
   'data_donated.html': () => console.log('a summary of the data donated in usage, upload and scrapping')
 }
 

@@ -15,6 +15,7 @@ module.exports = {
     jgui,
     gradus: require('./conducting/gradus.js'),
     parnassum: require('./conducting/parnassum.js'),
+    lycoreia: require('./conducting/lycoreia.js'),
     pages
   },
   gui

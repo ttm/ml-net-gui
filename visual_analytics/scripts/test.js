@@ -367,6 +367,7 @@ const testAdParnassum = () => {
   if (items.length > 2) {
     level = items[2]
   }
+  // fixme: add URL options for muted and timestrech:
   wand.magic.adParnassum = new wand.magic.AdParnassum({ currentLevel: level, timeStreach: 0.01, counter: { colorChange: 60, hoverNode: 19 }, state: {}, muted: true })
 }
 
@@ -984,4 +985,14 @@ const testDiffusionLimited = () => {
 const testNoise = () => {
 }
 
-module.exports = { testPlot, testRotateLayouts, testBlink, testExhibition1, testDiffusion, testMultilevelDiffusion, testMetaNetwork, testSparkMin, testSparkLosd, testMong, testGetNet0, testGetNet1, testGetNet2, testGetNet3, testNetIO, testGUI, testNetUpload, testNetUpload2, testMongIO, testMongNetIO, testMongBetterNetIO, testNetPage, testPuxi, testHtmlEls, testHtmlEls2, testGradus, testAdParnassum, testWorldPropertyPage, testAudio, testJQueryFontsAwesome, testObj, testColors, testMusic, testLooper, testSeq, testSync, testPattern, testRec, testRec2, testRecCanvas, testRecAudio, testRecAudioAndCanvas, testRecAudioAndCanvas2, testDiffusionLimited, testNoise }
+const testLycoreia = () => {
+  const pn = window.location.href
+  const items = pn.split('?')
+  let level = 0
+  if (items.length > 2) {
+    level = items[2]
+  }
+  wand.magic.lycoreia = new wand.magic.Lycoreia({ currentLevel: level, timeStreach: 0.01, counter: { colorChange: 60, hoverNode: 19 }, state: {}, muted: true })
+}
+
+module.exports = { testPlot, testRotateLayouts, testBlink, testExhibition1, testDiffusion, testMultilevelDiffusion, testMetaNetwork, testSparkMin, testSparkLosd, testMong, testGetNet0, testGetNet1, testGetNet2, testGetNet3, testNetIO, testGUI, testNetUpload, testNetUpload2, testMongIO, testMongNetIO, testMongBetterNetIO, testNetPage, testPuxi, testHtmlEls, testHtmlEls2, testGradus, testAdParnassum, testWorldPropertyPage, testAudio, testJQueryFontsAwesome, testObj, testColors, testMusic, testLooper, testSeq, testSync, testPattern, testRec, testRec2, testRecCanvas, testRecAudio, testRecAudioAndCanvas, testRecAudioAndCanvas2, testDiffusionLimited, testNoise, testLycoreia }

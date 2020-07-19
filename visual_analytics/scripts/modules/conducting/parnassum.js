@@ -1536,6 +1536,9 @@ class AdParnassum {
       netmetrics.centrality.degree.assign(sg)
       wand.currentNetwork = sg
     }
+    wand.currentNetwork.forEachNode((n, a) => {
+      a.id = n
+    })
     this.visualizeNetwork()
   }
 

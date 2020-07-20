@@ -248,7 +248,12 @@ const scrollTillEnd = (call = () => console.log('scrolling complete')) => {
     criterion = () => document.getElementsByClassName('morePager').length === 0
   } else { // usual mutual friends page:
     // fixme: use browser mutual friends page, at least for string ids at the end
-    return chrome.runtime.sendMessage({ message: 'client_friends_blocked' })
+    const e = document.getElementById('pagelet_timeline_medley_friends')
+    if (e === null) {
+      chrome.runtime.sendMessage({ message: 'client_friends_blocked' })
+      return
+    }
+    criterion = () => e.getElementsByClassName('_359').length === 0
     // // getElementsByXPath('//*/div[2]/div[3]/div[1]/div[3]').length > 0
     // if (getElementsByXPath('//*/h1/span[1]/a').length === 0) { // new fb:
     //   criterion = () => getElementsByXPath('//*/div[4]/div[1]/div[1]/div[1]/div[1]/div[1]/div[3]/div/div[@role]').length === 0

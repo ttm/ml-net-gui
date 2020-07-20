@@ -254,6 +254,8 @@ const scrollTillEnd = (call = () => console.log('scrolling complete')) => {
       return
     }
     criterion = () => e.getElementsByClassName('_359').length === 0
+    // if (getElementsByXPath('//*/h1/span[1]/a').length > 0) { // classic fb:
+    // }
     // // getElementsByXPath('//*/div[2]/div[3]/div[1]/div[3]').length > 0
     // if (getElementsByXPath('//*/h1/span[1]/a').length === 0) { // new fb:
     //   criterion = () => getElementsByXPath('//*/div[4]/div[1]/div[1]/div[1]/div[1]/div[1]/div[3]/div/div[@role]').length === 0
@@ -269,14 +271,14 @@ const scrollTillEnd = (call = () => console.log('scrolling complete')) => {
     //   criterion = () => e.getElementsByClassName('_359').length === 0
     // }
   }
-  setTimeout(() => { // fixme: needed or not?
-    const time = setInterval(function () {
-      document.documentElement.scrollTop += scrollMagnitude
-      if (criterion()) {
-        console.log('finished scrolling')
-        clearInterval(time)
-        call()
-      }
-    }, scrollDelayInMilliSeconds)
-  }, 5000)
+  // setTimeout(() => { // fixme: needed or not?
+  const time = setInterval(function () {
+    document.documentElement.scrollTop += scrollMagnitude
+    if (criterion()) {
+      console.log('finished scrolling')
+      clearInterval(time)
+      call()
+    }
+  }, scrollDelayInMilliSeconds)
+  // }, 5000)
 }

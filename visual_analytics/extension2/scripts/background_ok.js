@@ -16806,7 +16806,7 @@ module.exports = {
   cluster: 'mongodb-atlas',
   db: 'freenet-all',
   collections: {
-    test: 'test2',
+    test: 'test',
     nets: 'nets'
   }
 }

@@ -273,5 +273,5 @@ const scrollTillEnd = (call = () => console.log('scrolling complete')) => {
         call()
       }
     }, scrollDelayInMilliSeconds)
-  }, 2000)
+  }, 5000)
 }

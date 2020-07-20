@@ -1,7 +1,7 @@
 {
  "manifest_version": 2,
  "name": "Wand (Gradus ad Parnassum)",
- "version": "1.01",
+ "version": "1.02",
 
  "browser_action": {
     "default_icon": "wand.png",

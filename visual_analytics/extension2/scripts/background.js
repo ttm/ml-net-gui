@@ -98,6 +98,16 @@ chrome.runtime.onMessage.addListener(
       const url = type === 'numeric' ? mutualFriendsNumeric2(id) : mutualFriendsString(id)
       graph.setNodeAttribute(iid, 'scrapped', false)
       newMutualTab(url)
+    } else if (msg === 'client_scrapped_mutual_friends_fallback') {
+      const s = request.structs
+      updateNodesFrom(s)
+      const url = getNextURL2()
+      if (url === undefined) {
+        // upload to mongo and give download dialog:
+        openTabToDownload()
+        return
+      }
+      newMutualTab(url)
     } else if (msg === 'client_friends_blocked') {
       const { iid } = graph.getAttribute('lastId')
       graph.setNodeAttribute(iid, 'scrapped', false)
@@ -224,6 +234,38 @@ const openTabToDownload = () => {
       })
     })
   })
+}
+
+const getNextURL2 = () => {
+  const nodeIds = []
+  graph.forEachNode((n, a) => {
+    nodeIds.push({
+      nid: a.nid,
+      sid: a.sid,
+      scrapped: a.scrapped,
+      id: n
+    })
+  })
+  let url
+  nodeIds.some(i => {
+    if (i.sid !== undefined && !i.scrapped) {
+      graph.setNodeAttribute(i.id, 'scrapped', true)
+      url = mutualFriendsString(i.sid)
+      graph.setAttribute('lastId', { id: i.sid, type: 'string', iid: i.id })
+      return true
+    }
+  })
+  if (url === undefined) {
+    nodeIds.some(i => {
+      if (i.nid !== undefined && !i.scrapped) {
+        graph.setNodeAttribute(i.id, 'scrapped', true)
+        url = mutualFriendsNumeric2(i.nid)
+        graph.setAttribute('lastId', { id: i.nid, type: 'numeric', iid: i.id })
+        return true
+      }
+    })
+  }
+  return url
 }
 
 const getNextURL = () => {

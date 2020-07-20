@@ -18,6 +18,8 @@ function chooseUnique (marray, nelements) {
 }
 
 function chunkArray (array, chunkSize) {
+  // Split in group of 3 items
+  // var result = chunkArray([1,2,3,4,5,6,7,8], 3)
   var results = []
   while (array.length) {
     results.push(array.splice(0, chunkSize))
@@ -50,8 +52,13 @@ function randChunkSplit (arr, min, max, inplace = true) {
   return arrs
 }
 
-window.chunkArray = chunkArray
-// Split in group of 3 items
-// var result = chunkArray([1,2,3,4,5,6,7,8], 3)
+const copyToClipboard = str => {
+  const el = document.createElement('textarea')
+  el.value = str
+  document.body.appendChild(el)
+  el.select()
+  document.execCommand('copy')
+  document.body.removeChild(el)
+}
 
-module.exports = { chooseUnique, chunkArray, inplaceShuffle, randChunkSplit }
+module.exports = { chooseUnique, chunkArray, inplaceShuffle, randChunkSplit, copyToClipboard }

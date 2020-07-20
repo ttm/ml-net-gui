@@ -1,3 +1,5 @@
+const { copyToClipboard } = require('../utils.js')
+
 class Lycoreia {
   constructor (settings = {}) {
     // it has all the resources given by gradus
@@ -14,6 +16,7 @@ class Lycoreia {
     //    shows tool option chosen in the tooltip
     //  networks available are derived from scrapped network (communities, members visited or found)
     console.log('lycorea started')
+    this.copyToClipboard = copyToClipboard
   }
 }
 

@@ -17,6 +17,8 @@ class Lycoreia {
     //  networks available are derived from scrapped network (communities, members visited or found)
     console.log('lycorea started')
     this.copyToClipboard = copyToClipboard
+    // if not logged in, only show the info button
+    // if logged in, get network
   }
 }
 

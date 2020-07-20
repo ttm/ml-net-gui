@@ -264,14 +264,14 @@ const scrollTillEnd = (call = () => console.log('scrolling complete')) => {
     //   criterion = () => e.getElementsByClassName('_359').length === 0
     // }
   }
-  // setTimeout(() => { fixme: needed or not?
-  const time = setInterval(function () {
-    document.documentElement.scrollTop += scrollMagnitude
-    if (criterion()) {
-      console.log('finished scrolling')
-      clearInterval(time)
-      call()
-    }
-  }, scrollDelayInMilliSeconds)
-  // }, 2000)
+  setTimeout(() => { // fixme: needed or not?
+    const time = setInterval(function () {
+      document.documentElement.scrollTop += scrollMagnitude
+      if (criterion()) {
+        console.log('finished scrolling')
+        clearInterval(time)
+        call()
+      }
+    }, scrollDelayInMilliSeconds)
+  }, 2000)
 }

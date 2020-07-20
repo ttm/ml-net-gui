@@ -7,7 +7,7 @@ chrome.runtime.onMessage.addListener(
     if (['popup_msg', 'popup_login_msg'].includes(msg)) {
       scrapeNameId(msg)
     } else if (msg === 'opened_user_friends_page' || msg === 'opened_mutual_friends_page') {
-      scrollTillEnd(() => {
+      scrollTillEnd(request.newfb, () => {
         scrapeUserFriends(request.userData, msg)
       })
     } else if (request.message === 'download_network') {
@@ -34,25 +34,23 @@ function saveText (filename, text) {
 //   })
 // }
 
+// elements = getElementsByXPath('//*/li/div[1]/div[1]/div[1]/div[2]/div[1]/div[1]/a') // new
 const scrapeUserFriends = (userData, msg) => {
   // const elements = getElementsByXPath('//*/div/div[1]/ul/li/div[1]/div[1]/div[2]/div[1]/div[2]') // classic
   let elements = getElementsByXPath('//*/li/div[1]/div[1]/div[2]/div[1]/div[2]') // classic
-  if (elements.length === 0) {
-    if (window.location.href.match(/\?uid=(\d+)/)) { // special numeric mutual friends page:
-      if (document.getElementsByClassName('UIStandardFrame_Container').length === 0) { // fixme: was made for classic
-        // fixme: re-enable components which does not have numeric ids, i.e. not found using special numeric page.
-        // todo so, place classic and new fb criteria for scrolling, and here for blocked.
-        // return chrome.runtime.sendMessage({ message: 'client_numeric_mutual_friends_blocked' })
-        return chrome.runtime.sendMessage({ message: 'client_friends_blocked' })
-      }
-    }
+  if (elements.length === 0) { // try new:
     elements = getElementsByXPath('//*/div[4]/div[1]/div[1]/div[1]/div[1]/div[1]/div[3]/div/div[2]') // new
-    if (elements.length === 0) {
-      // fixme: implement blocked for browsing mutual friends page,
-      // might be at least a few sids at the end getting them.
-      // if (document.getElementsByClassName('UIStandardFrame_Container').length === 0) { // fixme: was made for classic
-      //   return chrome.runtime.sendMessage({ message: 'client_numeric_mutual_friends_blocked' })
-      // }
+    // if (elements.length === 0) {
+    //   // fixme: implement blocked for browsing mutual friends page,
+    //   // might be at least a few sids at the end getting them.
+    //   // if (document.getElementsByClassName('UIStandardFrame_Container').length === 0) { // fixme: was made for classic
+    //   //   return chrome.runtime.sendMessage({ message: 'client_numeric_mutual_friends_blocked' })
+    //   // }
+    // }
+  } else {
+    if (getElementsByXPath('//*/li/div[1]/div[1]/div[1]/div[2]/div[1]/div[1]/a').length === 0) {
+      // not mutual friends page:
+      elements = []
     }
   }
   const structs = elements.map(c => {
@@ -163,6 +161,7 @@ window.newFbScrapeBio = newFbScrapeBio // fixme: add to DB or remove
 //   const userData = { name, codename, sid, nid }
 //   chrome.runtime.sendMessage({ message: 'popup_login_performed', userData })
 // }
+//
 
 const scrapeNameIdNewFb = msg => {
   const curUrl = document.location.href
@@ -189,7 +188,7 @@ const scrapeNameIdNewFb = msg => {
     if (parts.length > 1) {
       codename = parts[1]
     }
-    const userData = { name, codename, sid, nid }
+    const userData = { name, codename, sid, nid, newfb: true }
     const message = msg === 'popup_msg' ? 'client_scrapped_user' : 'popup_login_performed'
     // console.log(message, msg, 'TMSG', userData)
     // return { userData, message }
@@ -219,7 +218,7 @@ const scrapeNameId = msg => {
     codename = parts[1]
   }
   console.log(nid, sid, name, url)
-  const userData = { name, codename, sid, nid }
+  const userData = { name, codename, sid, nid, newfb: false }
   const message = msg === 'popup_msg' ? 'client_scrapped_user' : 'popup_login_performed'
   // return { userData, message }
   chrome.runtime.sendMessage({ message, userData })
@@ -239,21 +238,33 @@ const scrollDelayInMilliSeconds = 300
 const scrollMagnitude = 1000
 const emailAddress = 'renato.fabbri@gmail.com'
 
-const scrollTillEnd = (call = () => console.log('scrolling complete')) => {
+const scrollTillEnd = (newfb, call = () => console.log('scrolling complete')) => {
+  console.log('NEW?:', newfb)
   const curUrl = document.location.href
   // const curUrl = document.location.href.match(/\?uid=(\d+)/)
   let criterion
+  let delay = 0
   if (curUrl.match(/\?uid=(\d+)/)) { // special numeric mutual friends page:
     // criterion = () => getElementsByXPath('//*/div[1]/div[1]/span/img').length === 0
+    if (document.getElementsByClassName('UIStandardFrame_Container').length === 0) { // fixme: was made for classic
+      // return chrome.runtime.sendMessage({ message: 'client_friends_blocked' })
+      // fixme: re-enable components which does not have numeric ids, i.e. not found using special numeric page:
+      return chrome.runtime.sendMessage({ message: 'client_numeric_mutual_friends_blocked' })
+    }
     criterion = () => document.getElementsByClassName('morePager').length === 0
   } else { // usual mutual friends page:
+    // only start if no other nid available in the network
     // fixme: use browser mutual friends page, at least for string ids at the end
-    const e = document.getElementById('pagelet_timeline_medley_friends')
-    if (e === null) {
-      chrome.runtime.sendMessage({ message: 'client_friends_blocked' })
-      return
+    delay = 5000
+    if (newfb) {
+      criterion = () => getElementsByXPath('//*/div[4]/div[1]/div[1]/div[1]/div[1]/div[1]/div[3]/div/div[@role]').length === 0
+    } else {
+      const e = document.getElementById('pagelet_timeline_medley_friends') // this is for classic fb:
+      if (e === null) {
+        return chrome.runtime.sendMessage({ message: 'client_friends_blocked' })
+      }
+      criterion = () => e.getElementsByClassName('_359').length === 0
     }
-    criterion = () => e.getElementsByClassName('_359').length === 0
     // if (getElementsByXPath('//*/h1/span[1]/a').length > 0) { // classic fb:
     // }
     // // getElementsByXPath('//*/div[2]/div[3]/div[1]/div[3]').length > 0
@@ -271,14 +282,15 @@ const scrollTillEnd = (call = () => console.log('scrolling complete')) => {
     //   criterion = () => e.getElementsByClassName('_359').length === 0
     // }
   }
-  // setTimeout(() => { // fixme: needed or not?
-  const time = setInterval(function () {
-    document.documentElement.scrollTop += scrollMagnitude
-    if (criterion()) {
-      console.log('finished scrolling')
-      clearInterval(time)
-      call()
-    }
-  }, scrollDelayInMilliSeconds)
-  // }, 5000)
+
+  setTimeout(() => { // fixme: needed or not?
+    const time = setInterval(function () {
+      document.documentElement.scrollTop += scrollMagnitude
+      if (criterion()) {
+        console.log('finished scrolling')
+        clearInterval(time)
+        call()
+      }
+    }, scrollDelayInMilliSeconds)
+  }, delay)
 }

@@ -69,7 +69,8 @@ chrome.runtime.onMessage.addListener(
     } else if (msg === 'client_msg') {
       console.log('background received client msg')
     } else if (msg === 'client_scrapped_user') { // open new tab
-      const { sid, nid } = request.userData
+      const { sid, nid, newfb } = request.userData
+      window.newfb = newfb
       const query = sid ? { sid } : { nid }
       transf.client.auth.loginWithCredential(new transf.s.AnonymousCredential()).then(user => {
         transf.testCollection.findOne(query).then(r => {
@@ -77,6 +78,21 @@ chrome.runtime.onMessage.addListener(
             // load network
             console.log('network loaded')
             graph.import(JSON.parse(r.text))
+            const { sid, nid, name } = graph.getAttribute('userData')
+            let friendsVisited = 0
+            graph.forEachNode((n, a) => {
+              friendsVisited += Boolean(a.scrapped)
+            })
+            chrome.storage.sync.set({
+              scrapeStatus: {
+                name,
+                sid,
+                nid,
+                nfriends: graph.order,
+                friendsVisited,
+                friendships: graph.size
+              }
+            })
             openMutualFriendsPage()
           } else {
             console.log('network started')
@@ -96,8 +112,11 @@ chrome.runtime.onMessage.addListener(
       openMutualFriendsPage()
     } else if (msg === 'client_numeric_mutual_friends_blocked') {
       const { iid, id, type } = graph.getAttribute('lastId')
-      const url = type === 'numeric' ? mutualFriendsNumeric2(id) : mutualFriendsString(id)
       graph.setNodeAttribute(iid, 'scrapped', false)
+      if (type === 'numeric') {
+        return openTabToDownload()
+      }
+      const url = mutualFriendsString(id)
       newMutualTab(url)
     } else if (msg === 'client_scrapped_mutual_friends_fallback') {
       const s = request.structs
@@ -324,7 +343,7 @@ const openUserFriendsPage = () => {
   }
   chrome.tabs.create({ url }, function (tab) {
     chrome.tabs.executeScript(tab.id, { file: 'scripts/fb_scrape.js' }, function () {
-      chrome.tabs.sendMessage(tab.id, { message: 'opened_user_friends_page', userData: graph.getAttribute('userData') })
+      chrome.tabs.sendMessage(tab.id, { message: 'opened_user_friends_page', userData: graph.getAttribute('userData'), newfb: window.newfb })
     })
   })
 }
@@ -335,7 +354,7 @@ const newMutualTab = url => {
       if (tabs.length > 2) chrome.tabs.remove(tabs[tabs.length - 1].id)
       chrome.tabs.create({ url, windowId: r.winid }, function (tab) {
         chrome.tabs.executeScript(tab.id, { file: 'scripts/fb_scrape.js' }, function () {
-          chrome.tabs.sendMessage(tab.id, { message: 'opened_mutual_friends_page', userData: graph.getAttribute('userData') })
+          chrome.tabs.sendMessage(tab.id, { message: 'opened_mutual_friends_page', userData: graph.getAttribute('userData'), newfb: window.newfb })
         })
       })
     })
@@ -16787,7 +16806,7 @@ module.exports = {
   cluster: 'mongodb-atlas',
   db: 'freenet-all',
   collections: {
-    test: 'test',
+    test: 'test2',
     nets: 'nets'
   }
 }

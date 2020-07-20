@@ -937,7 +937,8 @@ class AdParnassum {
           } else { // make network from sage's network
             const jsonGraph = JSON.parse(this.allNetworks[0].text)
             wand.graphAttributes = jsonGraph.attributes // fixme: in graphology, it should not get lost (bug)
-            const ls = this.allNetworks[0].lastModified.toLocaleString()
+            const adate = this.allNetworks[0].lastModified ? this.allNetworks[0].lastModified : this.allNetworks[0].date
+            const ls = adate.toLocaleString()
             const { name, sid, nid } = wand.graphAttributes.userData
             const id = sid || nid
             const str = `${name} (${id}) - ${ls} `;

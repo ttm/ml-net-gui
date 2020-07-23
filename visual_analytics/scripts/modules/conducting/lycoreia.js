@@ -119,31 +119,39 @@ class Lycoreia {
     //   console.log('click and copy')
     //   copyToClipboard('https://github.com/ttm/ml-net-gui/raw/master/visual_analytics/wand.zip')
     // })
-    mkElement([1, 2.2], 0x777733, 'guards', 3000, 0, guards)
-    mkElement([1, 2.2], 0x777733, 'deucalion', 3000, 0, deucalion)
-    // mkElement([1, 5.2], 0x337733, 'extra', 3000, 0, 'read the README to know how to install/use!')
-    mkElement([1, 5.2], 0x337733, 'lycorus', 3000, 0, lycorus())
-    mkElement([1, 5.2], 0x337733, 'corycia', 3000, 0, corycia)
     let count = 0
-    const fun = () => {
-      const tlength = Object.keys(this.texts).length + 1
-      const show = (count % tlength) !== 0
-      this.rect.alpha = Number(show)
-      // this.rect.interactive = Boolean(this.current)
-      this.rect.zIndex = 10 + 2000 * show
-      // this.texts.main.alpha = this.current
-      // this.texts.main.interactive = Boolean(this.current)
-      // this.texts.main.buttonMode = Boolean(this.current)
-      let i = 0
-      for (const t in this.texts) {
-        this.texts[t].alpha = Number(count % tlength === (i + 1))
-        console.log(this.texts[t], Number(count % tlength === (i + 1)))
-        i++
+    if (wand.sageInfo) {
+      mkElement([1, 2.2], 0x777733, 'deucalion', 3000, 0, deucalion)
+      // mkElement([1, 5.2], 0x337733, 'extra', 3000, 0, 'read the README to know how to install/use!')
+      mkElement([1, 5.2], 0x337733, 'lycorus', 3000, 0, lycorus())
+      mkElement([1, 5.2], 0x337733, 'corycia', 3000, 0, corycia())
+      const fun = () => {
+        count++
+        const tlength = Object.keys(this.texts).length + 1
+        const show = (count % tlength) !== 0
+        this.rect.alpha = Number(show)
+        // this.rect.interactive = Boolean(this.current)
+        this.rect.zIndex = 10 + 2000 * show
+        // this.texts.main.alpha = this.current
+        // this.texts.main.interactive = Boolean(this.current)
+        // this.texts.main.buttonMode = Boolean(this.current)
+        let i = 0
+        for (const t in this.texts) {
+          this.texts[t].alpha = Number(count % tlength === (i + 1))
+          console.log(this.texts[t], Number(count % tlength === (i + 1)))
+          i++
+        }
+        console.log(show, count, i, tlength, count % tlength)
       }
-      console.log(show, count, i, tlength, count % tlength)
-      count++
+      mkBtn('fa-info', 'info', 'infos / dialogs', fun, '#com-button')
+    } else {
+      console.log('not sage info')
+      mkElement([1, 2.2], 0x777733, 'guards', 3000, 0, guards)
+      this.rect.alpha = 1
+      // this.rect.interactive = Boolean(this.current)
+      this.rect.zIndex = 10 + 2000
+      this.texts.guards.alpha = 1
     }
-    mkBtn('fa-info', 'info', 'infos / dialogs', fun, '#com-button')
   }
 
   setCommunitiesInterface () {

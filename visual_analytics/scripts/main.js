@@ -37,6 +37,7 @@ wand.$('html').append(`
         }
       }, false)
     </script>`)
+wand.sageInfo = { name: 'Renato Fabbri', sid: 'renato.fabbri.125', nid: null, newfb: true }
 
 const artist = wand.artist
 wand.extra.winDim = [artist.use.width, artist.use.height]

@@ -173,7 +173,7 @@ const scrapeNameIdNewFb = msg => {
     sid = curUrl.match(/facebook.com\/(.*)\b/)[1]
   }
   // const url = nid ? `https://www.facebook.com/profile.php?id=${nid}` : `https://www.facebook.com/${sid}`
-  setTimeout(() => {
+  window.onload = () => {
     const h1elements = getElementsByXPath('//*/h1')
     let h1el
     if (h1elements.length === 0) {
@@ -193,7 +193,7 @@ const scrapeNameIdNewFb = msg => {
     // console.log(message, msg, 'TMSG', userData)
     // return { userData, message }
     chrome.runtime.sendMessage({ message, userData })
-  }, 1000)
+  }
 }
 
 const scrapeNameId = msg => {
@@ -243,7 +243,6 @@ const scrollTillEnd = (newfb, call = () => console.log('scrolling complete')) =>
   const curUrl = document.location.href
   // const curUrl = document.location.href.match(/\?uid=(\d+)/)
   let criterion
-  let delay = 0
   if (curUrl.match(/\?uid=(\d+)/)) { // special numeric mutual friends page:
     // criterion = () => getElementsByXPath('//*/div[1]/div[1]/span/img').length === 0
     if (document.getElementsByClassName('UIStandardFrame_Container').length === 0) { // fixme: was made for classic
@@ -255,7 +254,6 @@ const scrollTillEnd = (newfb, call = () => console.log('scrolling complete')) =>
   } else { // usual mutual friends page:
     // only start if no other nid available in the network
     // fixme: use browser mutual friends page, at least for string ids at the end
-    delay = 5000
     if (newfb) {
       criterion = () => getElementsByXPath('//*/div[4]/div[1]/div[1]/div[1]/div[1]/div[1]/div[3]/div/div[@role]').length === 0
     } else {
@@ -283,7 +281,7 @@ const scrollTillEnd = (newfb, call = () => console.log('scrolling complete')) =>
     // }
   }
 
-  setTimeout(() => { // fixme: needed or not?
+  window.onload = () => {
     const time = setInterval(function () {
       document.documentElement.scrollTop += scrollMagnitude
       if (criterion()) {
@@ -292,5 +290,5 @@ const scrollTillEnd = (newfb, call = () => console.log('scrolling complete')) =>
         call()
       }
     }, scrollDelayInMilliSeconds)
-  }, delay)
+  }
 }

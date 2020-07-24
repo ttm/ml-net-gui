@@ -28,31 +28,26 @@ const mkBtn = (iclass, fid, title, fun, ref) => {
 }
 
 class Lycoreia {
+  // ::: idealization:
+  // it has all the resources given by gradus
+  // but only loads if person login
+  // focused in starting a diffusion
+  // and is tutored by Deucalion, Lycorus and nymph Corycia, and the Dorians
+  // leads to Thitorea and some of the muses
+
+  // load one button, alternates entities speaking to the visitor
+  // then load the rest:
+  //  network loads when selected. Button to load is info button to the tutors messages
+  //  all buttons as are as is, except explorer:
+  //    the balls draws the arrows, makes the succession, starts with randomized seeds or random if none selected
+  //    shows tool option chosen in the tooltip
+  //  networks available are derived from scrapped network (communities, members visited or found)
+
+  // makes multilevel strategy using community detection
+  // can explode supernode into nodes by clicking
+
+  // hide & show communities and subcommunities
   constructor (settings = {}) {
-    const Tone = wand.maestro.base.Tone
-
-    const d = (f, time) => Tone.Draw.schedule(f, time)
-    window.dddd = d
-
-    // it has all the resources given by gradus
-    // but only loads if person login
-    // focused in starting a diffusion
-    // and is tutored by Deucalion, Lycorus and nymph Corycia, and the Dorians
-    // leads to Thitorea and some of the muses
-
-    // load one button, alternates entities speaking to the visitor
-    // then load the rest:
-    //  network loads when selected. Button to load is info button to the tutors messages
-    //  all buttons as are as is, except explorer:
-    //    the balls draws the arrows, makes the succession, starts with randomized seeds or random if none selected
-    //    shows tool option chosen in the tooltip
-    //  networks available are derived from scrapped network (communities, members visited or found)
-
-    // makes multilevel strategy using community detection
-    // can explode supernode into nodes by clicking
-
-    // hide & show communities and subcommunities
-    //
     const defaultSettings = {
       fontSize: 20
     }
@@ -62,20 +57,13 @@ class Lycoreia {
     this.settings.heightProportion = wand.artist.use.height / refHeight
     this.settings.widthProportion = wand.artist.use.width / refWidth
     this.copyToClipboard = copyToClipboard
-    // if not logged in, only show the info button
-    // if logged in, get network
     this.instruments = {}
     this.setCommunitiesInterface()
     this.setSubComInterface()
     window.onload = () => {
       this.setDialogs()
       if (!wand.sageInfo) {
-        // todo: choose networks by name input or by IP geographical proximity
-        // wand.transfer.mong.findAllNetworks().then(r => {
-        //   this.allNetworks = r
-        //   this.conditionMet = true
-        // })
-        console.log('Deucalion sayings')
+        console.log('Guards should be saying things')
       } else {
         wand.transfer.mong.findUserNetwork(wand.sageInfo.sid, wand.sageInfo.nid).then(r => {
           console.log('loaded user network')
@@ -94,12 +82,6 @@ class Lycoreia {
           this.registerNetwork(g, 'current')
           this.drawnNet = new wand.conductor.use.DrawnNet(wand.artist.use, wand.currentNetwork, [])
           wand.drawnNet = this.drawnNet
-          // const gg = components.connectedComponents(g)[0]
-          // const sg = subGraph(g, gg)
-          // netdegree.assign(sg)
-          // netmetrics.centrality.degree.assign(sg)
-          // wand.currentNetwork = sg
-          // wand.communities = louvain.detailed(wand.currentNetwork)
         })
       }
     }
@@ -121,14 +103,9 @@ class Lycoreia {
       this.texts[element] = a.mkTextFancy(text, [pos[0] * x, pos[1] * y], fs, color, zIndex, alpha)
       return this.texts[element]
     }
-    // mkElement([1, 2.2], 0x777733, 'main', 3000, 0, 'click HERE to copy URL to browser extension.').on('click', () => {
-    //   console.log('click and copy')
-    //   copyToClipboard('https://github.com/ttm/ml-net-gui/raw/master/visual_analytics/wand.zip')
-    // })
     let count = 0
     if (wand.sageInfo) {
       mkElement([1, 2.2], 0x777733, 'deucalion', 3000, 0, deucalion)
-      // mkElement([1, 5.2], 0x337733, 'extra', 3000, 0, 'read the README to know how to install/use!')
       mkElement([1, 5.2], 0x337733, 'lycorus', 3000, 0, lycorus())
       mkElement([1, 5.2], 0x337733, 'corycia', 3000, 0, corycia())
       const fun = () => {
@@ -136,11 +113,7 @@ class Lycoreia {
         const tlength = Object.keys(this.texts).length + 1
         const show = (count % tlength) !== 0
         this.rect.alpha = Number(show)
-        // this.rect.interactive = Boolean(this.current)
         this.rect.zIndex = 10 + 2000 * show
-        // this.texts.main.alpha = this.current
-        // this.texts.main.interactive = Boolean(this.current)
-        // this.texts.main.buttonMode = Boolean(this.current)
         let i = 0
         for (const t in this.texts) {
           this.texts[t].alpha = Number(count % tlength === (i + 1))
@@ -154,33 +127,29 @@ class Lycoreia {
       console.log('not sage info')
       mkElement([1, 2.2], 0x777733, 'guards', 3000, 0, guards)
       this.rect.alpha = 1
-      // this.rect.interactive = Boolean(this.current)
       this.rect.zIndex = 10 + 2000
       this.texts.guards.alpha = 1
     }
   }
 
   setCommunitiesInterface () {
-    // const $ = wand.$
+    this.instruments.plucky = new Tone.PluckSynth({ volume: 10 }).toMaster()
     let count = 0
-    const fun = () => {
+    mkBtn('fa-users-cog', 'com', 'communities', () => {
       count = (++count) % (wand.currentNetwork.communities.count + 1)
       this.showCommunity(count)
-    }
-    this.instruments.plucky = new Tone.PluckSynth({ volume: 10 }).toMaster()
-    mkBtn('fa-users-cog', 'com', 'communities', fun)
+    })
   }
 
   setSubComInterface () {
+    this.instruments.membrane = new Tone.MembraneSynth({ volume: -20 }).toMaster()
     let count = 0
-    const fun = () => {
+    mkBtn('fa-users', 'sub', 'sub communities', () => {
       const cIndex = wand.currentNetwork.communityIndex
       const g = wand.currentNetwork.communityGraphs[cIndex]
       count = (++count) % (g.communities.count + 1)
       this.showSubCommunity(count, g)
-    }
-    this.instruments.membrane = new Tone.MembraneSynth({ volume: -20 }).toMaster()
-    mkBtn('fa-users', 'sub', 'sub communities', fun)
+    })
   }
 
   showSubCommunity (index, g) {

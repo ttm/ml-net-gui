@@ -1,12 +1,15 @@
 function chooseUnique (marray, nelements) {
-  // fixme: ensure this is not scrambling marray input
   let i = marray.length
+  if (nelements >= i) {
+    console.log(`chooseUnique received nelements ${nelements}, and array with length ${i}. Returning scrambled array`)
+  }
+  marray = [...marray]
   if (i === 0) { return false }
   let c = 0
   const choice = []
-  while (--i) {
-    const j = Math.floor(Math.random() * (i + 1))
-    const tempi = marray[i]
+  while (i) {
+    const j = Math.floor(Math.random() * i)
+    const tempi = marray[--i]
     const tempj = marray[j]
     choice.push(tempj)
     marray[i] = tempj

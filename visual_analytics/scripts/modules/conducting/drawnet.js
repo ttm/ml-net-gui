@@ -86,6 +86,15 @@ class DrawnNet {
       node.x = layout[key].x
       node.y = layout[key].y
       attr.pixiElement = node
+      if (attr.name) {
+        const text = drawer.mkTextBetter({
+          text: attr.name,
+          pos: [attr.pixiElement.x, attr.pixiElement.y],
+          fontSize: 35,
+          alpha: 0
+        })
+        attr.textElement = text
+      }
     })
     net.forEachEdge((key, attr, source, target, sourceAttr, targetAttr) => {
       attr.pixiElement = drawer.mkLink(

@@ -1,6 +1,6 @@
 /* global wand */
 const { Tone } = require('../maestro/all.js').base
-const { copyToClipboard } = require('../utils.js')
+const { copyToClipboard, chooseUnique } = require('../utils.js')
 const { guards, deucalion, lycorus, corycia } = require('./sayings.js')
 const louvain = require('graphology-communities-louvain')
 const netmetrics = require('graphology-metrics')
@@ -153,16 +153,24 @@ class Lycoreia {
   }
 
   showSubCommunity (index, g) {
+    if (this.nameShown) {
+      this.nameShown.alpha = 0
+    }
     index--
+    const nodes = []
     g.forEachNode((n, a) => {
       const pe = wand.currentNetwork.getNodeAttribute(n, 'pixiElement')
       if (a.community === index) {
         pe.tint = 0x00ff00
+        nodes.push(n)
       } else {
         pe.tint = 0x0000ff
       }
     })
     if (index !== -1) {
+      const node = chooseUnique(nodes, 1)[0]
+      this.nameShown = wand.currentNetwork.getNodeAttribute(node, 'textElement')
+      this.nameShown.alpha = 1
       this.sonifySubCommunity(index)
     }
     wand.currentNetwork.subCommunityIndex = index
@@ -170,15 +178,22 @@ class Lycoreia {
 
   showCommunity (index) {
     console.log('show community:', index)
+    if (this.nameShown) {
+      this.nameShown.alpha = 0
+    }
     index--
+    const names = []
     wand.currentNetwork.forEachNode((n, a) => {
       if (a.community === index) {
         a.pixiElement.tint = 0x0000ff
+        names.push(a.textElement)
       } else {
         a.pixiElement.tint = 0xff0000
       }
     })
     if (index !== -1) {
+      this.nameShown = chooseUnique(names, 1)[0]
+      this.nameShown.alpha = 1
       this.sonifyCommunity(index)
     }
     wand.currentNetwork.communityIndex = index

@@ -123,6 +123,7 @@ function mkTextBetter (
   texto.x = pos[0]
   texto.y = pos[1]
   texto.zIndex = zIndex
+  texto.alpha = alpha
   app.stage.addChild(texto)
   return texto
 }

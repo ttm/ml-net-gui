@@ -1,4 +1,5 @@
 /* global wand */
+const { Tone } = require('../maestro/all.js').base
 const { copyToClipboard } = require('../utils.js')
 const { guards, deucalion, lycorus, corycia } = require('./sayings.js')
 const louvain = require('graphology-communities-louvain')
@@ -28,6 +29,11 @@ const mkBtn = (iclass, fid, title, fun, ref) => {
 
 class Lycoreia {
   constructor (settings = {}) {
+    const Tone = wand.maestro.base.Tone
+
+    const d = (f, time) => Tone.Draw.schedule(f, time)
+    window.dddd = d
+
     // it has all the resources given by gradus
     // but only loads if person login
     // focused in starting a diffusion
@@ -58,7 +64,7 @@ class Lycoreia {
     this.copyToClipboard = copyToClipboard
     // if not logged in, only show the info button
     // if logged in, get network
-    window.louvain = louvain
+    this.instruments = {}
     this.setCommunitiesInterface()
     this.setSubComInterface()
     window.onload = () => {
@@ -158,39 +164,27 @@ class Lycoreia {
     // const $ = wand.$
     let count = 0
     const fun = () => {
-      count = (++count) % wand.currentNetwork.communities.count
+      count = (++count) % (wand.currentNetwork.communities.count + 1)
       this.showCommunity(count)
     }
+    this.instruments.plucky = new Tone.PluckSynth({ volume: 10 }).toMaster()
     mkBtn('fa-users-cog', 'com', 'communities', fun)
   }
 
   setSubComInterface () {
     let count = 0
-    const subComGraphs = {}
     const fun = () => {
       const cIndex = wand.currentNetwork.communityIndex
-      let g
-      if (cIndex in subComGraphs) {
-        g = subComGraphs[cIndex]
-      } else {
-        const nodes = []
-        wand.currentNetwork.forEachNode((n, a) => {
-          if (a.community === cIndex) {
-            nodes.push(n)
-          }
-        })
-        g = subGraph(wand.currentNetwork, nodes).copy()
-        louvain.assign(g)
-        g.communities = louvain.detailed(g)
-        subComGraphs[cIndex] = g
-      }
-      count = (++count) % g.communities.count
+      const g = wand.currentNetwork.communityGraphs[cIndex]
+      count = (++count) % (g.communities.count + 1)
       this.showSubCommunity(count, g)
     }
+    this.instruments.membrane = new Tone.MembraneSynth({ volume: -20 }).toMaster()
     mkBtn('fa-users', 'sub', 'sub communities', fun)
   }
 
   showSubCommunity (index, g) {
+    index--
     g.forEachNode((n, a) => {
       const pe = wand.currentNetwork.getNodeAttribute(n, 'pixiElement')
       if (a.community === index) {
@@ -199,11 +193,15 @@ class Lycoreia {
         pe.tint = 0x0000ff
       }
     })
+    if (index !== -1) {
+      this.sonifySubCommunity(index)
+    }
     wand.currentNetwork.subCommunityIndex = index
   }
 
   showCommunity (index) {
     console.log('show community:', index)
+    index--
     wand.currentNetwork.forEachNode((n, a) => {
       if (a.community === index) {
         a.pixiElement.tint = 0x0000ff
@@ -211,7 +209,23 @@ class Lycoreia {
         a.pixiElement.tint = 0xff0000
       }
     })
+    if (index !== -1) {
+      this.sonifyCommunity(index)
+    }
     wand.currentNetwork.communityIndex = index
+  }
+
+  sonifySubCommunity (index) {
+    const g = wand.currentNetwork.communityGraphs[wand.currentNetwork.communityIndex]
+    const s = g.communities.sizes
+    const note = 90 + 30 * (s.all[index] - s.min) / (s.max - s.min)
+    this.instruments.membrane.triggerAttackRelease(Tone.Midi(note).toNote(), 0.01)
+  }
+
+  sonifyCommunity (index) {
+    const s = wand.currentNetwork.communities.sizes
+    const note = 50 + 30 * (s.all[index] - s.min) / (s.max - s.min)
+    this.instruments.plucky.triggerAttackRelease(Tone.Midi(note).toNote(), 0.01)
   }
 
   registerNetwork (graph, avarname) {
@@ -222,6 +236,38 @@ class Lycoreia {
     netmetrics.centrality.degree.assign(sg)
     louvain.assign(sg)
     sg.communities = louvain.detailed(sg)
+    const communitySizes = new Array(sg.communities.count).fill(0)
+    sg.forEachNode((n, a) => {
+      communitySizes[a.community]++
+    })
+    sg.communities.sizes = {
+      all: communitySizes,
+      max: Math.max(...communitySizes),
+      min: Math.min(...communitySizes)
+    }
+    const subComGraphs = {}
+    for (let i = 0; i < sg.communities.count; i++) {
+      const nodes = []
+      sg.forEachNode((n, a) => {
+        if (a.community === i) {
+          nodes.push(n)
+        }
+      })
+      const cg = subGraph(sg, nodes).copy()
+      louvain.assign(cg)
+      cg.communities = louvain.detailed(cg)
+      const communitySizes = new Array(cg.communities.count).fill(0)
+      cg.forEachNode((n, a) => {
+        communitySizes[a.community]++
+      })
+      cg.communities.sizes = {
+        all: communitySizes,
+        max: Math.max(...communitySizes),
+        min: Math.min(...communitySizes)
+      }
+      subComGraphs[i] = cg
+    }
+    sg.communityGraphs = subComGraphs
     wand[avarname + 'Network'] = sg
     // wand[avarname + 'NetworkCommunities'] = louvain.detailed(sg)
   }

@@ -992,6 +992,14 @@ const testLycoreia = () => {
   if (items.length > 2) {
     level = items[2]
   }
+  if (items.length > 3) {
+    if (items[3] === 'bana') {
+      wand.sageInfo = { name: 'Renato Fabbri', sid: 'renato.fabbri.125', nid: null, newfb: true }
+    } else if (items[3] === 'urania') {
+      console.log('starting urania dialog')
+      wand.sageInfo = { sid: '__thisIsAllOfTheSagesMan__' }
+    }
+  }
   wand.magic.lycoreia = new wand.magic.Lycoreia({ currentLevel: level, timeStreach: 0.01, counter: { colorChange: 60, hoverNode: 19 }, state: {}, muted: true })
 }
 

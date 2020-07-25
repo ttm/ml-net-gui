@@ -26,4 +26,23 @@ const loadJsonString = s => {
   return agraph
 }
 
-module.exports = { nodesDegreeOrder, loadJsonString }
+const mergeGraphs = graphSequence => {
+  const g = new Graph.UndirectedGraph({ multi: false, allowSelfLoops: false })
+  window.gggg = g
+  graphSequence.forEach(ag => {
+    ag.forEachNode((n, a) => {
+      // console.log('merging node', n, a.name)
+      g.mergeNode(n, a)
+    })
+    ag.forEachEdge((e, ea, s, t, sa, ta) => {
+      // console.log('merging edge', a)
+      // console.log('edge:', e, ea, s, sa, t, ta)
+      if (!g.hasEdge(s, t) && s !== t) {
+        g.addUndirectedEdge(s, t)
+      }
+    })
+  })
+  return g
+}
+
+module.exports = { nodesDegreeOrder, loadJsonString, mergeGraphs }

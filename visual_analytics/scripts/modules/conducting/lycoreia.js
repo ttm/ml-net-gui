@@ -68,6 +68,31 @@ class Lycoreia {
       if (!wand.sageInfo) {
         console.log('Guards should be saying things')
       } else {
+        if (wand.sageInfo.sid === '__thisIsAllOfTheSagesMan__') {
+          // get all networks, merge scrapped and register as current
+          // merge everything and merge as full
+          // consider stars, or donators, nor meta-social-organisms (or beings, or social bodies)
+          wand.transfer.mong.findAllScrappedNetworks().then(r => {
+            wand.allNetworks = r
+            wand.allGraphs = r.map(anet => wand.net.use.utils.loadJsonString(anet.text))
+            this.mergeAllGraphs()
+            const g = wand.mergedGraph = wand.net.use.utils.mergeGraphs(wand.allGraphs)
+            this.registerNetwork(g, 'full')
+            const nodesToRemove = []
+            g.forEachNode((n, a) => {
+              if (!a.scrapped) {
+                nodesToRemove.push(n)
+              }
+            })
+            nodesToRemove.forEach(n => {
+              g.dropNode(n)
+            })
+            this.registerNetwork(g, 'current')
+            this.drawnNet = new wand.conductor.use.DrawnNet(wand.artist.use, wand.currentNetwork, [])
+            wand.drawnNet = this.drawnNet
+          })
+          return
+        }
         wand.transfer.mong.findUserNetwork(wand.sageInfo.sid, wand.sageInfo.nid).then(r => {
           console.log('loaded user network')
           this.allNetworks = r
@@ -382,6 +407,11 @@ class Lycoreia {
       }
       count++
     })
+  }
+
+  mergeAllGraphs () {
+    console.log('on merge graphs jow')
+    wand.mergedGraph = wand.net.use.utils.mergeGraphs(wand.allGraphs)
   }
 }
 

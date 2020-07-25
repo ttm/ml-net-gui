@@ -185,7 +185,7 @@ class Lycoreia {
         wand.currentNetwork.getNodeAttribute(n, 'pixiElement').tint = color
         names.push(wand.currentNetwork.getNodeAttribute(n, 'textElement'))
       } else {
-        wand.currentNetwork.getNodeAttribute(n, 'pixiElement').tint = 0xff0000
+        wand.currentNetwork.getNodeAttribute(n, 'pixiElement').tint = g === wand.currentNetwork ? 0xff0000 : 0x0000ff
       }
     })
     if (index !== -1) {

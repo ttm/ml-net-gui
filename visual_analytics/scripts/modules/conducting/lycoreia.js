@@ -61,6 +61,7 @@ class Lycoreia {
     this.setCommunitiesInterface()
     this.setSubComInterface()
     this.setPlayer()
+    this.setMute()
     window.onload = () => {
       this.setDialogs()
       if (!wand.sageInfo) {
@@ -154,51 +155,43 @@ class Lycoreia {
   }
 
   showSubCommunity (index, g) {
-    if (this.nameShown) {
-      this.nameShown.forEach(i => { i.alpha = 0 })
-    }
     index--
     console.log('show subcommunity:', index)
-    const nodes = []
-    g.forEachNode((n, a) => {
-      const pe = wand.currentNetwork.getNodeAttribute(n, 'pixiElement')
-      if (a.community === index) {
-        pe.tint = 0x00ff00
-        nodes.push(n)
-      } else {
-        pe.tint = 0x0000ff
-      }
-    })
+    this.visCommnunity(index, g, 0x00ff00)
     if (index !== -1) {
-      const nodes_ = chooseUnique(nodes, 3)
-      this.nameShown = nodes_.map(node => wand.currentNetwork.getNodeAttribute(node, 'textElement'))
-      this.nameShown.forEach(i => { i.alpha = 1 })
       this.sonifySubCommunity(index)
     }
     wand.currentNetwork.subCommunityIndex = index
   }
 
   showCommunity (index) {
+    index--
+    console.log('show community:', index)
+    this.visCommnunity(index, wand.currentNetwork, 0x0000ff)
+    if (index !== -1) {
+      this.sonifyCommunity(index)
+    }
+    wand.currentNetwork.communityIndex = index
+    delete wand.currentNetwork.subCommunityIndex
+  }
+
+  visCommnunity (index, g, color) {
     if (this.nameShown) {
       this.nameShown.forEach(i => { i.alpha = 0 })
     }
-    index--
-    console.log('show community:', index)
     const names = []
-    wand.currentNetwork.forEachNode((n, a) => {
+    g.forEachNode((n, a) => {
       if (a.community === index) {
-        a.pixiElement.tint = 0x0000ff
-        names.push(a.textElement)
+        wand.currentNetwork.getNodeAttribute(n, 'pixiElement').tint = color
+        names.push(wand.currentNetwork.getNodeAttribute(n, 'textElement'))
       } else {
-        a.pixiElement.tint = 0xff0000
+        wand.currentNetwork.getNodeAttribute(n, 'pixiElement').tint = 0xff0000
       }
     })
     if (index !== -1) {
       this.nameShown = chooseUnique(names, 3)
       this.nameShown.forEach(i => { i.alpha = 1 })
-      this.sonifyCommunity(index)
     }
-    wand.currentNetwork.communityIndex = index
   }
 
   sonifySubCommunity (index) {
@@ -209,17 +202,27 @@ class Lycoreia {
       note = 90 + 30 * (s.all[index] - s.min) / (s.max - s.min)
     } else {
       if (s.all[index]) {
-        note = 90 + 30 * s.all[index]
+        note = 90 + 3 * s.all[index]
       } else {
         note = 90 + 30
       }
     }
     this.instruments.membrane.triggerAttackRelease(Tone.Midi(note).toNote(), 0.01)
+    console.log('sonify subcom:', note, this.instruments.membrane)
   }
 
   sonifyCommunity (index) {
     const s = wand.currentNetwork.communities.sizes
-    const note = 50 + 30 * (s.all[index] - s.min) / (s.max - s.min)
+    let note
+    if (s.max - s.min) {
+      note = 50 + 30 * (s.all[index] - s.min) / (s.max - s.min)
+    } else {
+      if (s.all[index]) {
+        note = 50 + 30 * s.all[index]
+      } else {
+        note = 50 + 30
+      }
+    }
     this.instruments.plucky.triggerAttackRelease(Tone.Midi(note).toNote(), 0.01)
   }
 
@@ -235,7 +238,7 @@ class Lycoreia {
     sg.forEachNode((n, a) => {
       communitySizes[a.community]++
     })
-    const communitySizes_ = communitySizes.filter(i => i !== NaN)
+    const communitySizes_ = communitySizes.filter(i => !isNaN(i))
     sg.communities.sizes = {
       all: communitySizes,
       max: Math.max(...communitySizes_),
@@ -253,10 +256,10 @@ class Lycoreia {
       louvain.assign(cg)
       cg.communities = louvain.detailed(cg)
       const communitySizes = new Array(cg.communities.count).fill(0)
-      const communitySizes_ = communitySizes.filter(i => i !== NaN)
       cg.forEachNode((n, a) => {
         communitySizes[a.community]++
       })
+      const communitySizes_ = communitySizes.filter(i => !isNaN(i))
       cg.communities.sizes = {
         all: communitySizes,
         max: Math.max(...communitySizes_),
@@ -290,14 +293,63 @@ class Lycoreia {
   }
 
   mkVoice (voice) {
-    // let count = 0
     // make the synth and pattern
-    // create a button, which if clicked removes them
-    const fid = 'voice-' + this.voiceCounter
+    let instrument
+    let progression
+    let g
+    if (voice.subcommunity !== undefined) {
+      instrument = new Tone.MembraneSynth({ volume: -20 }).toMaster()
+      g = wand.currentNetwork.communityGraphs[wand.currentNetwork.communityIndex]
+      const s = g.communities.sizes
+      progression = s.all.map((i, ii) => {
+        let note
+        if (s.max - s.min) {
+          note = 90 + 30 * (i - s.min) / (s.max - s.min)
+        } else {
+          if (i) {
+            note = 90 + 30 * i
+          } else {
+            note = 90 + 30
+          }
+        }
+        return { note, ii }
+      })
+    } else {
+      instrument = new Tone.PluckSynth({ volume: 10 }).toMaster()
+      g = wand.currentNetwork
+      const s = g.communities.sizes
+      progression = s.all.map((i, ii) => {
+        let note
+        if (s.max - s.min) {
+          note = 50 + 30 * (i - s.min) / (s.max - s.min)
+        } else {
+          if (i) {
+            note = 50 + 30 * i
+          } else {
+            note = 50 + 30
+          }
+        }
+        return { note, ii }
+      })
+    }
+    const seq = new Tone.Pattern((time, info) => {
+      console.log('in pattern', info)
+      instrument.triggerAttackRelease(Tone.Midi(info.note).toNote(), 0.01, time)
+      this.visCommnunity(info.ii, g, voice.subcommunity ? 0xffff00 : 0x00ffff)
+    }, progression)
+    seq.interval = voice.duration
+    console.log('creating voice:', progression, g, voice, seq, instrument)
+    seq.start()
+    Tone.Transport.start()
+    const fid = 'voice-' + this.voiceCounter++
     mkBtn('fa-microphone-alt-slash', fid, 'remove voice', () => {
-      console.log(voice)
-      wand.$('#' + fid + '-icon').remove()
-      wand.$('#' + fid + '-button').remove()
+      console.log('clearing voice:', progression, g, voice, seq, instrument)
+      wand.$(`#${fid}-icon`).remove()
+      wand.$(`#${fid}-button`).remove()
+      seq.dispose()
+      instrument.dispose()
+      // then restyle nodes in g
+      // remove names
     }, '#info-button')
   }
   //     setInterval(() => {
@@ -307,6 +359,13 @@ class Lycoreia {
   //     }, 500)
   //   })
   // }
+
+  setMute () {
+    let muted = false
+    mkBtn('fa-volume-mute', 'mute', 'mute sounds', () => {
+      Tone.Master.mute = muted = !muted
+    })
+  }
 }
 
 module.exports = { Lycoreia }

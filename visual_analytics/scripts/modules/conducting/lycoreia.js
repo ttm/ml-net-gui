@@ -62,6 +62,7 @@ class Lycoreia {
     this.setSubComInterface()
     this.setPlayer()
     this.setMute()
+    this.setRecorder()
     window.onload = () => {
       this.setDialogs()
       if (!wand.sageInfo) {
@@ -332,10 +333,11 @@ class Lycoreia {
         return { note, ii }
       })
     }
+    const d = (f, time) => Tone.Draw.schedule(f, time)
     const seq = new Tone.Pattern((time, info) => {
       console.log('in pattern', info)
       instrument.triggerAttackRelease(Tone.Midi(info.note).toNote(), 0.01, time)
-      this.visCommnunity(info.ii, g, voice.subcommunity ? 0xffff00 : 0x00ffff)
+      d(() => this.visCommnunity(info.ii, g, voice.subcommunity ? 0xffff00 : 0x00ffff), time)
     }, progression)
     seq.interval = voice.duration
     console.log('creating voice:', progression, g, voice, seq, instrument)
@@ -364,6 +366,21 @@ class Lycoreia {
     let muted = false
     mkBtn('fa-volume-mute', 'mute', 'mute sounds', () => {
       Tone.Master.mute = muted = !muted
+    })
+  }
+
+  setRecorder () {
+    const rec = wand.transfer.rec.rec()
+    let count = 0
+    mkBtn('fa-record-vinyl', 'record', 'record performance', () => {
+      if (count % 2 === 0) {
+        rec.astart()
+        wand.$('#record-button').css('background-color', '#ff0000')
+      } else {
+        rec.stop()
+        wand.$('#record-button').css('background-color', '#ffffff')
+      }
+      count++
     })
   }
 }

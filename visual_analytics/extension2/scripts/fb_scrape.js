@@ -174,25 +174,27 @@ const scrapeNameIdNewFb = msg => {
   }
   // const url = nid ? `https://www.facebook.com/profile.php?id=${nid}` : `https://www.facebook.com/${sid}`
   window.onload = () => {
-    const h1elements = getElementsByXPath('//*/h1')
-    let h1el
-    if (h1elements.length === 0) {
-      h1el = getElementsByXPath('//*/h2/div')[0]
-    } else {
-      h1el = h1elements.length > 1 ? h1elements[1] : h1elements[0]
-    }
-    const membername = h1el.innerText
-    const parts = membername.match(/[^\r\n]+/g)
-    const name = parts[0]
-    let codename
-    if (parts.length > 1) {
-      codename = parts[1]
-    }
-    const userData = { name, codename, sid, nid, newfb: true }
-    const message = msg === 'popup_msg' ? 'client_scrapped_user' : 'popup_login_performed'
-    // console.log(message, msg, 'TMSG', userData)
-    // return { userData, message }
-    chrome.runtime.sendMessage({ message, userData })
+    setTimeout(() => {
+      const h1elements = getElementsByXPath('//*/h1')
+      let h1el
+      if (h1elements.length === 0) {
+        h1el = getElementsByXPath('//*/h2/div')[0]
+      } else {
+        h1el = h1elements.length > 1 ? h1elements[1] : h1elements[0]
+      }
+      const membername = h1el.innerText
+      const parts = membername.match(/[^\r\n]+/g)
+      const name = parts[0]
+      let codename
+      if (parts.length > 1) {
+        codename = parts[1]
+      }
+      const userData = { name, codename, sid, nid, newfb: true }
+      const message = msg === 'popup_msg' ? 'client_scrapped_user' : 'popup_login_performed'
+      // console.log(message, msg, 'TMSG', userData)
+      // return { userData, message }
+      chrome.runtime.sendMessage({ message, userData })
+    }, 4000)
   }
 }
 

@@ -16783,6 +16783,13 @@ const findAllNetworks = () => {
   })
 }
 
+const findAllScrappedNetworks = () => {
+  return client.auth.loginWithCredential(new s.AnonymousCredential()).then(user => {
+    console.log('ALL NETs WOW')
+    return db.collection(auth.collections.test).find({ sid: { $exists: true } }).asArray()
+  })
+}
+
 const findUserNetwork = (sid, nid) => {
   // todo: similar function to find nets by name (e.g. 'Flavio Parma')
   return client.auth.loginWithCredential(new s.AnonymousCredential()).then(user => {
@@ -16798,7 +16805,7 @@ const findUserNetwork = (sid, nid) => {
 }
 const testCollection = db.collection(auth.collections.test)
 
-module.exports = { client, db, auth, writeIfNotThereReadIfThere, writeNetIfNotThereReadIfThere, findAllNetworks, writeNet, testCollection, findUserNetwork, s }
+module.exports = { client, db, auth, writeIfNotThereReadIfThere, writeNetIfNotThereReadIfThere, findAllNetworks, writeNet, testCollection, findUserNetwork, findAllScrappedNetworks, s }
 
 },{"./mong_auth.js":132,"fast-sha256":5,"mongodb-stitch-browser-sdk":33}],132:[function(require,module,exports){
 module.exports = {

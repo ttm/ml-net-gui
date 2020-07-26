@@ -9,7 +9,7 @@ class Router {
   }
 
   loadCurrent () {
-    const pn = window.location.href
+    const pn = decodeURIComponent(window.location.href)
     let path
     if (pn.includes('?')) {
       path = pn.split('?')

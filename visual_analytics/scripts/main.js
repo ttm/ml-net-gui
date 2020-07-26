@@ -37,6 +37,7 @@ wand.$('html').append(`
         }
       }, false)
     </script>`)
+// wand.sageInfo = { name: 'Renato Fabbri', sid: 'renato.fabbri.125', nid: null, newfb: true }
 
 const artist = wand.artist
 wand.extra.winDim = [artist.use.width, artist.use.height]
@@ -93,6 +94,8 @@ const routes = {
   'recAudioAndCanvas2.html': test.testRecAudioAndCanvas2,
   'diffusionLimited.html': test.testDiffusionLimited,
   'lycoreia.html': test.testLycoreia,
+  '♁⚜⚛⚧.html': () => console.log('YO JOW'),
+  // '%E2%99%81%E2%9A%9C%E2%9A%9B%E2%9A%A7.html': () => console.log('YOU MAN'),
   'data_donated.html': () => console.log('a summary of the data donated in usage, upload and scrapping')
 }
 

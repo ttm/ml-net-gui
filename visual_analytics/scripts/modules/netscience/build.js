@@ -18,4 +18,4 @@ const buildFromSparql = (members, friendships) => {
   return net
 }
 
-module.exports = { buildFromSparql }
+module.exports = { buildFromSparql, graphology: Graph }

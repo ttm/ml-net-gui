@@ -51,7 +51,7 @@ const testExhibition1 = (mode = 'test') => {
   const r = {
     drawnNet,
     rotatorTicker: conductor.use.rotateLayouts(
-      drawnNet, artist.share.draw.base.app, artist, 900
+      drawnNet, artist.share.draw.base.app, artist, 600
     ),
     blinkTicker: conductor.use.blink(
       drawnNet.net, artist.share.draw.base.app
@@ -985,22 +985,31 @@ const testDiffusionLimited = () => {
 const testNoise = () => {
 }
 
-const testLycoreia = () => {
+const testLycoreia = () => { // http://localhost:8080/?lycoreia.html?11?bana?0.001?adalberto.ferroz
   const pn = window.location.href
   const items = pn.split('?')
   let level = 0
   if (items.length > 2) {
     level = items[2]
   }
+  console.log('items:', items)
   if (items.length > 3) {
     if (items[3] === 'bana') {
-      wand.sageInfo = { name: 'Renato Fabbri', sid: 'renato.fabbri.125', nid: null, newfb: true }
+      wand.sageInfo = { name: 'Renato Fabbri', sid: 'renato.fabbri.125', nid: null }
     } else if (items[3] === 'urania') {
       console.log('starting urania dialog')
       wand.sageInfo = { sid: '__thisIsAllOfTheSagesMan__' }
+    } else {
+      const sid = items[3]
+      console.log('yeah, got the id:', sid)
+      wand.sageInfo = { name: 'XXX', sid, nid: null }
     }
   }
-  wand.magic.lycoreia = new wand.magic.Lycoreia({ currentLevel: level, timeStreach: 0.01, counter: { colorChange: 60, hoverNode: 19 }, state: {}, muted: true })
+  let timeStreach = 1
+  if (items.length > 4) {
+    timeStreach = items[4]
+  }
+  wand.magic.lycoreia = new wand.magic.Lycoreia({ currentLevel: level, timeStreach, counter: { colorChange: 60, hoverNode: 19 }, state: {}, muted: true })
 }
 
 module.exports = { testPlot, testRotateLayouts, testBlink, testExhibition1, testDiffusion, testMultilevelDiffusion, testMetaNetwork, testSparkMin, testSparkLosd, testMong, testGetNet0, testGetNet1, testGetNet2, testGetNet3, testNetIO, testGUI, testNetUpload, testNetUpload2, testMongIO, testMongNetIO, testMongBetterNetIO, testNetPage, testPuxi, testHtmlEls, testHtmlEls2, testGradus, testAdParnassum, testWorldPropertyPage, testAudio, testJQueryFontsAwesome, testObj, testColors, testMusic, testLooper, testSeq, testSync, testPattern, testRec, testRec2, testRecCanvas, testRecAudio, testRecAudioAndCanvas, testRecAudioAndCanvas2, testDiffusionLimited, testNoise, testLycoreia }

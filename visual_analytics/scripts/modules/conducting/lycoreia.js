@@ -49,7 +49,8 @@ class Lycoreia {
   // hide & show communities and subcommunities
   constructor (settings = {}) {
     const defaultSettings = {
-      fontSize: 20
+      fontSize: 20,
+      timeStreach: 1
     }
     this.settings = { ...defaultSettings, ...settings }
     const refHeight = 833
@@ -57,13 +58,18 @@ class Lycoreia {
     this.settings.heightProportion = wand.artist.use.height / refHeight
     this.settings.widthProportion = wand.artist.use.width / refWidth
     this.copyToClipboard = copyToClipboard
-    this.instruments = {}
-    this.setCommunitiesInterface()
-    this.setSubComInterface()
-    this.setPlayer()
-    this.setMute()
-    this.setRecorder()
-    window.onload = () => {
+    wand.extra.exhibition = wand.test.testExhibition1('gradus')
+    wand.currentNetwork = wand.extra.exhibition.drawnNet.net
+    setTimeout(() => {
+      wand.extra.exhibition.remove()
+      delete wand.extra.exhibition
+      delete wand.currentNetwork
+      this.instruments = {}
+      this.setCommunitiesInterface()
+      this.setSubComInterface()
+      this.setPlayer()
+      this.setMute()
+      this.setRecorder()
       this.setDialogs()
       if (!wand.sageInfo) {
         console.log('Guards should be saying things')
@@ -112,7 +118,7 @@ class Lycoreia {
           wand.drawnNet = this.drawnNet
         })
       }
-    }
+    }, 10000 * this.settings.timeStreach) // fixme: make better loading
   }
 
   setDialogs () {
@@ -279,8 +285,13 @@ class Lycoreia {
         }
       })
       const cg = subGraph(sg, nodes).copy()
-      louvain.assign(cg)
-      cg.communities = louvain.detailed(cg)
+      if (nodes.length !== 0) {
+        louvain.assign(cg)
+        cg.communities = louvain.detailed(cg)
+      } else {
+        console.log('EMPTY COMMUNITY FOUND!!', i)
+        cg.communities = { count: 0 }
+      }
       const communitySizes = new Array(cg.communities.count).fill(0)
       cg.forEachNode((n, a) => {
         communitySizes[a.community]++

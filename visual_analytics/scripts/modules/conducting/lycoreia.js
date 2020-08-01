@@ -48,6 +48,7 @@ class Lycoreia {
 
   // hide & show communities and subcommunities
   constructor (settings = {}) {
+    document.title = 'Sirian tribe'
     const defaultSettings = {
       fontSize: 20,
       timeStreach: 1
@@ -64,16 +65,16 @@ class Lycoreia {
       wand.extra.exhibition.remove()
       delete wand.extra.exhibition
       delete wand.currentNetwork
-      this.instruments = {}
-      this.setCommunitiesInterface()
-      this.setSubComInterface()
-      this.setPlayer()
-      this.setMute()
-      this.setRecorder()
       this.setDialogs()
       if (!wand.sageInfo) {
         console.log('Guards should be saying things')
       } else {
+        this.instruments = {}
+        this.setCommunitiesInterface()
+        this.setSubComInterface()
+        this.setPlayer()
+        this.setMute()
+        this.setRecorder()
         if (wand.sageInfo.sid === '__thisIsAllOfTheSagesMan__') {
           // get all networks, merge scrapped and register as current
           // merge everything and merge as full

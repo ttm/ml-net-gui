@@ -67,4 +67,55 @@ Have this magic lyre, with which you shall exercise to meet them.
 (click the info button again)
 `
 
-module.exports = { deucalion, corycia, lycorus, guards }
+const andromedans0 = `
+You are now seeing andromedans.
+
+The smallest of them are like building-sized butterflies.
+Their wings move very gently while they glide through space,
+healing every body and soul which are near or within.
+
+Their energy (or material support) is spread and subtle.
+In fact, having their body goes through humans and human constructions.
+You can sometimes feel their presence through emotions, intuitions,
+or very suble perception cues, such as though the skin and hair body.
+
+Please be attentive to your synchronization because later on
+you will meet Sananda to synchronize the Universe.
+
+Don't fear the reptilians, or as you name/conceive, or any other challenge.
+These palpations of your social structures will cast pure healing light on all.
+
+Pray using the wand to load your network.
+`
+
+// https://en.wikipedia.org/wiki/Bahamut
+const arcturians0 = `
+This is a call from and visit by al-Rayan and Balhu.
+They are our mammal-like and fish-like ancestors in the multiverse.
+
+The Angel invites to the riches from the ruby.
+
+Hope you meet Sananda, he can synchronize your social structures
+to further well being and abuncancy for all in your inner and social selves and beyond.
+Humanity will suffer sorely if we do not succeed.
+
+First, you need to massage your social structures.
+A social do-in, acumputure or shiatsu.
+
+You now receive the Ankh, the key to immortality.
+Use it well. You can use it at any time, and thorough deeds
+lie ahead of you.
+
+When you hit the info button above,
+keep track of the instructions (tips) and
+the features achieved.
+For now, you will thrive among the Arcturians,
+and will heal your social structures using their music
+and dances.
+
+Welcome. """
+
+Says the Arcturian Council representative to you.
+`
+
+module.exports = { deucalion, corycia, lycorus, guards, andromedans0, arcturians0 }

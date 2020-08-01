@@ -1,27 +1,15 @@
 /* global chrome */
 const checkPageButton = document.getElementById('magic')
-checkPageButton.style.backgroundColor = '#ff0000'
+checkPageButton.style.backgroundColor = '#ffaaaa'
 checkPageButton.onclick = function (element) {
-  checkPageButton.style.backgroundColor = '#00ff00'
   chrome.runtime.sendMessage({ message: 'popup_msg' })
 }
 
 const loginButton = document.getElementById('mlogin')
+loginButton.style.backgroundColor = '#ffffaa'
 loginButton.onclick = function (element) {
-  loginButton.style.backgroundColor = '#00ff00'
   chrome.runtime.sendMessage({ message: 'popup_login_msg' })
 }
-
-chrome.runtime.onMessage.addListener(
-  function (request, sender, sendResponse) {
-    if (request.message === 'client_msg') {
-      checkPageButton.style.backgroundColor = '#ffff00'
-      console.log('popup received client msg')
-    } else if (request.message === 'background_msg') { // never received
-      checkPageButton.style.backgroundColor = '#00ffff'
-    }
-  }
-)
 
 const name = document.getElementById('sage-name')
 const id = document.getElementById('sage-id')

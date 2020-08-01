@@ -79,6 +79,7 @@ class AdParnassum {
   // this class has all gradus ad Parnassum and leads to
   // Tithorea and Lycoreia.
   constructor (settings = {}) {
+    document.title = 'Arcturian tribe'
     const self = this
     if (settings.muted) {
       wand.maestro.synths.speaker.volume = -1 // 1 or 0 is 1, [0, 1] is ok range

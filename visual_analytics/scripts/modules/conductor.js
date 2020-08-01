@@ -1,9 +1,5 @@
 const drawnet = require('./conducting/drawnet.js')
 const animate = require('./conducting/animate.js')
-const ui = require('./conducting/ui.js')
-const gui = require('./conducting/gui.js')
-const jgui = require('./conducting/jgui.js')
-const pages = require('./conducting/pages.js')
 
 module.exports = {
   use: {
@@ -11,12 +7,13 @@ module.exports = {
     rotateLayouts: animate.use.rotateLayouts,
     blink: animate.use.blink,
     showMembers: animate.use.showMembers,
-    ui: ui.use,
-    jgui,
+    ui: require('./conducting/ui.js').use,
+    jgui: require('./conducting/jgui.js'),
     gradus: require('./conducting/gradus.js'),
     parnassum: require('./conducting/parnassum.js'),
     lycoreia: require('./conducting/lycoreia.js'),
-    pages
+    tithorea: require('./conducting/tithorea.js'),
+    pages: require('./conducting/pages.js')
   },
-  gui
+  gui: require('./conducting/gui.js')
 }

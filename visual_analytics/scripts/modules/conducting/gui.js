@@ -151,4 +151,23 @@ function basicStats () {
   return this
 }
 
-module.exports = { setMinimal, St, dat, atest, basicStats, NetGUI }
+const mkBtn = (iclass, fid, title, fun, ref) => {
+  const $ = wand.$
+  const btn = $('<button/>', {
+    class: 'btn',
+    id: `${fid}-button`,
+    click: () => {
+      fun()
+    }
+  }).attr('atitle', title)
+  if (!ref) {
+    btn.prependTo('body')
+  } else {
+    btn.insertAfter(ref)
+  }
+  $('<i/>', { class: 'fa ' + iclass, id: `${fid}-icon` }).appendTo(
+    btn
+  )
+}
+
+module.exports = { setMinimal, St, dat, atest, basicStats, NetGUI, mkBtn }

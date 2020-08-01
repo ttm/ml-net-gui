@@ -1,29 +1,11 @@
 /* global wand */
+const { mkBtn } = require('./gui.js')
 const { Tone } = require('../maestro/all.js').base
 const louvain = require('graphology-communities-louvain')
 const netmetrics = require('graphology-metrics')
 const netdegree = require('graphology-metrics/degree')
 const components = require('graphology-components')
 const subGraph = require('graphology-utils/subgraph')
-
-const mkBtn = (iclass, fid, title, fun, ref) => {
-  const $ = wand.$
-  const btn = $('<button/>', {
-    class: 'btn',
-    id: `${fid}-button`,
-    click: () => {
-      fun()
-    }
-  }).attr('atitle', title)
-  if (!ref) {
-    btn.prependTo('body')
-  } else {
-    btn.insertAfter(ref)
-  }
-  $('<i/>', { class: 'fa ' + iclass, id: `${fid}-icon` }).appendTo(
-    btn
-  )
-}
 
 class Tithorea {
   // andromedan and dedicated to synchronization
@@ -143,15 +125,15 @@ class Tithorea {
   }
 
   mkSync () {
-    this.resetNetwork()
-    if (wand.extra.instruments && wand.extra.instruments.membSynth) {
-      wand.extra.instruments.membSynth.dispose()
-      delete wand.extra.instruments.membSynth
-    }
-    if (wand.extra.patterns && wand.extra.patterns.seq2) {
-      wand.extra.patterns.seq2.dispose()
-      delete wand.extra.patterns.seq2
-    }
+    // this.resetNetwork()
+    // if (wand.extra.instruments && wand.extra.instruments.membSynth) {
+    //   wand.extra.instruments.membSynth.dispose()
+    //   delete wand.extra.instruments.membSynth
+    // }
+    // if (wand.extra.patterns && wand.extra.patterns.seq2) {
+    //   wand.extra.patterns.seq2.dispose()
+    //   delete wand.extra.patterns.seq2
+    // }
     this.sync = wand.net.use.diffusion.use.seededNeighborsLinks(wand.currentNetwork, 4, this.seeds)
     this.playSync2(this.sync.progressionLinks)
   }
@@ -198,7 +180,7 @@ class Tithorea {
         }), time + seq2.interval / 2)
       }
     }, progression)
-    seq2.interval = '2n'
+    seq2.interval = '1n'
     seq2.start()
     wand.extra.progression = progression
     wand.extra.instruments = {

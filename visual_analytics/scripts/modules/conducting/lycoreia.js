@@ -1,31 +1,13 @@
 /* global wand */
 const { Tone } = require('../maestro/all.js').base
 const { copyToClipboard, chooseUnique } = require('../utils.js')
+const { mkBtn } = require('./gui.js')
 const { guards, deucalion, lycorus, corycia } = require('./sayings.js')
 const louvain = require('graphology-communities-louvain')
 const netmetrics = require('graphology-metrics')
 const netdegree = require('graphology-metrics/degree')
 const components = require('graphology-components')
 const subGraph = require('graphology-utils/subgraph')
-
-const mkBtn = (iclass, fid, title, fun, ref) => {
-  const $ = wand.$
-  const btn = $('<button/>', {
-    class: 'btn',
-    id: `${fid}-button`,
-    click: () => {
-      fun()
-    }
-  }).attr('atitle', title)
-  if (!ref) {
-    btn.prependTo('body')
-  } else {
-    btn.insertAfter(ref)
-  }
-  $('<i/>', { class: 'fa ' + iclass, id: `${fid}-icon` }).appendTo(
-    btn
-  )
-}
 
 class Lycoreia {
   // ::: idealization:
@@ -157,7 +139,7 @@ class Lycoreia {
         }
         console.log(show, count, i, tlength, count % tlength)
       }
-      mkBtn('fa-info', 'info', 'infos / dialogs', fun, '#com-button')
+      mkBtn('fa-info', 'info', 'infos / dialogs', fun)
     } else {
       console.log('not sage info')
       mkElement([1, 2.2], 0x777733, 'guards', 3000, 0, guards)
@@ -372,7 +354,6 @@ class Lycoreia {
     }
     const d = (f, time) => Tone.Draw.schedule(f, time)
     const seq = new Tone.Pattern((time, info) => {
-      console.log('in pattern', info)
       instrument.triggerAttackRelease(Tone.Midi(info.note).toNote(), 0.01, time)
       d(() => this.visCommnunity(info.ii, g, voice.subcommunity ? 0xffff00 : 0x00ffff), time)
     }, progression)
@@ -381,6 +362,7 @@ class Lycoreia {
     seq.start()
     Tone.Transport.start()
     const fid = 'voice-' + this.voiceCounter++
+    console.log('YEAH MAN, MAKING MIC', fid)
     mkBtn('fa-microphone-alt-slash', fid, 'remove voice', () => {
       console.log('clearing voice:', progression, g, voice, seq, instrument)
       wand.$(`#${fid}-icon`).remove()
@@ -390,6 +372,7 @@ class Lycoreia {
       // then restyle nodes in g
       // remove names
     }, '#info-button')
+    console.log('finished: MAKING MIC')
   }
   //     setInterval(() => {
   //       this.showCommunity(

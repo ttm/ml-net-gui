@@ -1,5 +1,6 @@
 /* global wand */
 const { mkBtn } = require('./gui.js')
+const { guards, deucalion, lycorus, corycia } = require('./sayings.js')
 const { Tone } = require('../maestro/all.js').base
 const louvain = require('graphology-communities-louvain')
 const netmetrics = require('graphology-metrics')
@@ -51,9 +52,11 @@ class Tithorea {
       if (!wand.sageInfo) {
         console.log('Andromedans request for praying the invitation')
       } else {
+        this.setDialogs()
         this.instruments = {}
         this.setPlay()
         this.setMute()
+        this.setRecorder()
         wand.transfer.mong.findUserNetwork(wand.sageInfo.sid, wand.sageInfo.nid).then(r => {
           console.log('loaded user network')
           this.allNetworks = r
@@ -101,6 +104,7 @@ class Tithorea {
     // click node to add node as seed
     // and update the synchronization
     this.seeds = []
+    this.voiceCounter = 0
     wand.currentNetwork.forEachNode((n, a) => {
       a.pixiElement.on('pointerdown', () => {
         if (this.seeds.includes(n)) {
@@ -183,14 +187,24 @@ class Tithorea {
     seq2.interval = '1n'
     seq2.start()
     wand.extra.progression = progression
-    wand.extra.instruments = {
-      ...wand.extra.instruments,
-      membSynth
-    }
-    wand.extra.patterns = {
-      ...wand.extra.patterns,
-      seq2
-    }
+    // wand.extra.instruments = {
+    //   ...wand.extra.instruments,
+    //   membSynth
+    // }
+    // wand.extra.patterns = {
+    //   ...wand.extra.patterns,
+    //   seq2
+    // }
+    const fid = 'voice-' + this.voiceCounter++
+    mkBtn('fa-microphone-alt-slash', fid, 'remove voice', () => {
+      // console.log('clearing voice:', progression, g, voice, seq, instrument)
+      wand.$(`#${fid}-icon`).remove()
+      wand.$(`#${fid}-button`).remove()
+      seq2.dispose()
+      membSynth.dispose()
+      // then restyle nodes in g
+      // remove names
+    }, '#info-button')
   }
 
   restyleNode (attr = { }) { // set node style with input attributes
@@ -308,6 +322,66 @@ class Tithorea {
 
   scalex (val) {
     return this.settings.widthProportion * val
+  }
+
+  setRecorder () {
+    const rec = wand.transfer.rec.rec()
+    let count = 0
+    mkBtn('fa-record-vinyl', 'record', 'record performance', () => {
+      if (count % 2 === 0) {
+        rec.astart()
+        wand.$('#record-button').css('background-color', '#ff0000')
+      } else {
+        rec.stop()
+        wand.$('#record-button').css('background-color', '#ffffff')
+      }
+      count++
+    })
+  }
+
+  setDialogs () {
+    const a = wand.artist.use
+    this.rect = a.mkRectangle({
+      // wh: [a.width, a.height], zIndex: 1, color: 0xffaaaa, alpha: 0
+      wh: [a.width, a.height], zIndex: 1, color: 0x9c9c9c, alpha: 0
+    })
+    const f = this.settings.fontSize
+    const p = f / 2
+    const x = this.scalex(p)
+    const y = this.scaley(p)
+    const fs = this.scaley(f)
+    this.texts = []
+    const mkElement = (pos, color, element, zIndex, alpha, text) => {
+      this.texts[element] = a.mkTextFancy(text, [pos[0] * x, pos[1] * y], fs, color, zIndex, alpha)
+      return this.texts[element]
+    }
+    let count = 0
+    if (wand.sageInfo) {
+      mkElement([1, 2.2], 0x777733, 'deucalion', 3000, 0, deucalion)
+      mkElement([1, 5.2], 0x337733, 'lycorus', 3000, 0, lycorus())
+      mkElement([1, 5.2], 0x337733, 'corycia', 3000, 0, corycia())
+      const fun = () => {
+        count++
+        const tlength = Object.keys(this.texts).length + 1
+        const show = (count % tlength) !== 0
+        this.rect.alpha = Number(show)
+        this.rect.zIndex = 10 + 2000 * show
+        let i = 0
+        for (const t in this.texts) {
+          this.texts[t].alpha = Number(count % tlength === (i + 1))
+          console.log(this.texts[t], Number(count % tlength === (i + 1)))
+          i++
+        }
+        console.log(show, count, i, tlength, count % tlength)
+      }
+      mkBtn('fa-info', 'info', 'infos / dialogs', fun)
+    } else {
+      console.log('not sage info')
+      mkElement([1, 2.2], 0x777733, 'guards', 3000, 0, guards)
+      this.rect.alpha = 1
+      this.rect.zIndex = 10 + 2000
+      this.texts.guards.alpha = 1
+    }
   }
 }
 

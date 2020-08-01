@@ -34,7 +34,7 @@ class Tithorea {
       timeStreach: 1,
       state: {
         nodesSize: {
-          current: 1
+          current: 0.7
         },
         namesSize: {
           current: 1
@@ -43,7 +43,7 @@ class Tithorea {
           current: 0.9
         },
         namesAlpha: {
-          current: 0.9
+          current: 0.1
         },
         edgesAlpha: {
           current: 0.9
@@ -125,14 +125,33 @@ class Tithorea {
           this.seeds = this.seeds.filter(i => i !== n)
         } else {
           this.seeds.push(n)
-          this.mkSync()
         }
+        this.mkSync()
+        const arrows = []
+        this.sync.progressionLinks.forEach(step => {
+          step.forEach(link => {
+            // console.log('TLINK:', link.from, link.to, 'pixiElement')
+            // const l = net.getEdgeAttribute(link.from, link.to, 'pixiElement')
+            // arrows.push(defaultLinkRenderer(l))
+            arrows.push(wand.artist.use.defaultLinkRenderer(link))
+          })
+        })
+        this.arrows = arrows
         this.resetNetwork()
       })
     })
   }
 
   mkSync () {
+    this.resetNetwork()
+    if (wand.extra.instruments && wand.extra.instruments.membSynth) {
+      wand.extra.instruments.membSynth.dispose()
+      delete wand.extra.instruments.membSynth
+    }
+    if (wand.extra.patterns && wand.extra.patterns.seq2) {
+      wand.extra.patterns.seq2.dispose()
+      delete wand.extra.patterns.seq2
+    }
     this.sync = wand.net.use.diffusion.use.seededNeighborsLinks(wand.currentNetwork, 4, this.seeds)
     this.playSync2(this.sync.progressionLinks)
   }
@@ -153,23 +172,33 @@ class Tithorea {
       // console.log('bass', time, a.degree, node)
       const nval = 20 + 60 * (nodes.length - minl) / (maxl - minl)
       membSynth.triggerAttackRelease(nval, 1, time)
-      membSynth.triggerAttackRelease(nval, 1, time + Tone.Time('2n.').toSeconds())
+      membSynth.triggerAttackRelease(nval, 1, time + 0.75 * seq2.interval)
       if (nodes.length === 0) {
         self.resetNetwork()
       } else {
         d(() => nodes.forEach(n => {
           const a = net.getNodeAttributes(n.from)
           a.activated = true
+          a.seed = false
           self.styleNode(a)
+          d(() => {
+            a.seed = true
+            self.styleNode(a)
+          }, time + seq2.interval / 2)
         }), time)
         d(() => nodes.forEach(n => {
           const a = net.getNodeAttributes(n.to)
           a.seed = true
+          a.activated = false
           self.styleNode(a)
-        }), time + 0.5)
+          d(() => {
+            a.activated = true
+            self.styleNode(a)
+          }, time + seq2.interval * 0.75)
+        }), time + seq2.interval / 2)
       }
     }, progression)
-    seq2.interval = '1n'
+    seq2.interval = '2n'
     seq2.start()
     wand.extra.progression = progression
     wand.extra.instruments = {
@@ -219,7 +248,7 @@ class Tithorea {
       })
     } else if (a.seed || a.activated) {
       const [nodeTint, nameTint] = a.seed ? [c.hl.more, c.hl.less] : [c.hl.less, c.hl.more]
-      const talpha = 1 - this.state.sync.current
+      // const talpha = 1 - this.state.sync.current
       this.restyleNode({
         a,
         colorBlocked: true,
@@ -227,7 +256,7 @@ class Tithorea {
         nodeTint,
         nodeAlpha: 1,
         nameTint,
-        nameAlpha: talpha
+        nameAlpha: ((a.seed && a.activated) ? 0.2 : this.settings.state.namesAlpha)
       })
     } else {
       this.restyleNode({ a }) // default non seed or activated attribute

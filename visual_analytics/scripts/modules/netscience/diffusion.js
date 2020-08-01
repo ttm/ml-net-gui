@@ -375,7 +375,6 @@ const seededNeighbors = (net, nneighbors, seeds) => {
         net.setNodeAttribute(c.n, 'started', true)
         newSeeds.push(c.n)
       })
-      console.log(candidates, 'CANDIDATES')
     })
     progression.push(newSeeds)
     seeds = newSeeds
@@ -415,7 +414,6 @@ const seededNeighborsLinks = (net, nneighbors, seeds) => {
         newSeeds.push(c.n)
         progressionLinks_.push({ from: s, to: c.n })
       })
-      console.log(candidates, 'CANDIDATES')
     })
     progression.push(newSeeds)
     progressionLinks.push(progressionLinks_)

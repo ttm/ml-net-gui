@@ -8,6 +8,7 @@ const use = {
   mkNode: base.use.mkNode,
   mkRectangle: utils.mkRectangle,
   mkLink: base.use.mkLink,
+  defaultLinkRenderer: base.use.defaultLinkRenderer,
   mkArrow: base.use.mkArrow,
   mkText: base.use.mkText,
   mkTextFancy: base.use.mkTextFancy,

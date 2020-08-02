@@ -52,6 +52,7 @@ class Tithorea {
       if (!wand.sageInfo) {
         console.log('Andromedans request for praying the invitation')
       } else {
+        this.setStage()
         this.setDialogs()
         this.instruments = {}
         this.setPlay()
@@ -72,7 +73,9 @@ class Tithorea {
             g.dropNode(n)
           })
           this.registerNetwork(g, 'current')
-          this.drawnNet = new wand.conductor.use.DrawnNet(wand.artist.use, wand.currentNetwork, [])
+          // this.drawnNet = new wand.conductor.use.DrawnNet(wand.artist.use, wand.currentNetwork, [])
+          const { conductor, artist } = wand
+          wand.extra.drawnNet = new conductor.use.DrawnNet(artist.use, wand.currentNetwork, [artist.use.width, artist.use.height * 0.9])
           wand.drawnNet = this.drawnNet
           this.setSyncBuilder()
         })
@@ -406,6 +409,40 @@ class Tithorea {
       this.rect.zIndex = 10 + 2000
       this.texts.guards.alpha = 1
     }
+  }
+
+  setStage () {
+    this.texts = {} // pixi elements
+    const a = wand.artist.use
+    wand.rect1 = a.mkRectangle({
+      wh: [a.width, a.height * 0.055], zIndex: 200, color: 0xffffff, alpha: 0.85
+    })
+    wand.rect2 = a.mkRectangle({
+      wh: [a.width, a.height * 0.055], zIndex: 100, color: 0xbbbbbb, alpha: 1
+    })
+
+    const f = this.settings.fontSize
+    const p = f / 2
+    const x = this.scalex(p)
+    const y = this.scaley(p)
+    const fs = this.scaley(f)
+
+    const mkElement = (pos, color, element, zIndex = 300, alpha = 1) => {
+      this.texts[element] = a.mkTextFancy('', [pos[0] * x, pos[1] * y], fs, color, zIndex, alpha)
+    }
+
+    mkElement([1, 2.2], 0x777733, 'adParnassum')
+    this.texts.adParnassum.text = 'ad parnassum: > 1'
+    mkElement([1, 0.2], 0x333377, 'gradus')
+    mkElement([21, 2.2], 0x666600, 'achievement')
+    mkElement([21, 0.2], 0x333377, 'tip')
+    mkElement([54, 2.2], 0x337777, 'interactionCount')
+    mkElement([54, 0.2], 0x773377, 'orderSize')
+
+    mkElement([1, 0.1], 0x333377, 'nodeId', 600, 0)
+    mkElement([1, 2.2], 0x777733, 'nodeName', 600, 0)
+    mkElement([41, 0.2], 0x666600, 'nodeDegree', 600, 0)
+    mkElement([41, 2.2], 0x555599, 'nodeDegreeCentrality', 600, 0)
   }
 }
 

@@ -682,7 +682,6 @@ class AdParnassum {
     this.settings.heightProportion = wand.artist.use.height / refHeight
     this.settings.widthProportion = wand.artist.use.width / refWidth
 
-    this.texts = {} // pixi elements
     this.achievements = [] // list of strings (sentences in natural language)
     this.setStage()
     this.start()
@@ -707,6 +706,7 @@ class AdParnassum {
   }
 
   setStage () {
+    this.texts = {} // pixi elements
     const a = wand.artist.use
     wand.rect1 = a.mkRectangle({
       wh: [a.width, a.height * 0.055], zIndex: 200, color: 0xffffff, alpha: 0.85

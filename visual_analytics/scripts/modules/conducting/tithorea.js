@@ -52,8 +52,8 @@ class Tithorea {
       if (!wand.sageInfo) {
         console.log('Andromedans request for praying the invitation')
       } else {
-        this.setStage()
         this.setDialogs()
+        this.setStage()
         this.instruments = {}
         this.setPlay()
         this.setMute()
@@ -77,10 +77,19 @@ class Tithorea {
           const { conductor, artist } = wand
           wand.extra.drawnNet = new conductor.use.DrawnNet(artist.use, wand.currentNetwork, [artist.use.width, artist.use.height * 0.9])
           wand.drawnNet = this.drawnNet
+          this.setNetInfo()
           this.setSyncBuilder()
         })
       }
     }, 10000 * this.settings.timeStreach) // fixme: make better loading
+  }
+
+  setNetInfo () {
+    this.texts.gradus.text = `name, id: ${wand.sageInfo.name}, ${wand.sageInfo.sid || wand.sageInfo.nid}`
+    this.texts.achievement.text = `friends, friendships: ${wand.currentNetwork.order}, ${wand.currentNetwork.size}`
+    if (this.sync) {
+      this.texts.tip.text = `seeds, steps: ${this.sync.seeds.length}, ${this.sync.progression.length}`
+    }
   }
 
   setPlay () {
@@ -153,6 +162,7 @@ class Tithorea {
         net.getNodeAttribute(n, 'pixiElement').alpha = 1
       })
     })
+    this.setNetInfo()
   }
 
   mkSync () {
@@ -166,7 +176,11 @@ class Tithorea {
     //   delete wand.extra.patterns.seq2
     // }
     this.sync = wand.net.use.diffusion.use.seededNeighborsLinks(wand.currentNetwork, 4, this.seeds)
+    this.setSyncInfo()
     this.playSync2(this.sync.progressionLinks)
+  }
+
+  setSyncInfo () {
   }
 
   playSync2 (progression) {
@@ -377,10 +391,10 @@ class Tithorea {
     const x = this.scalex(p)
     const y = this.scaley(p)
     const fs = this.scaley(f)
-    this.texts = []
+    const texts = {}
     const mkElement = (pos, color, element, zIndex, alpha, text) => {
-      this.texts[element] = a.mkTextFancy(text, [pos[0] * x, pos[1] * y], fs, color, zIndex, alpha)
-      return this.texts[element]
+      texts[element] = a.mkTextFancy(text, [pos[0] * x, pos[1] * y], fs, color, zIndex, alpha)
+      return texts[element]
     }
     let count = 0
     if (wand.sageInfo) {
@@ -389,14 +403,14 @@ class Tithorea {
       mkElement([1, 5.2], 0x337733, 'corycia', 3000, 0, corycia())
       const fun = () => {
         count++
-        const tlength = Object.keys(this.texts).length + 1
+        const tlength = Object.keys(texts).length + 1
         const show = (count % tlength) !== 0
         this.rect.alpha = Number(show)
         this.rect.zIndex = 10 + 2000 * show
         let i = 0
-        for (const t in this.texts) {
-          this.texts[t].alpha = Number(count % tlength === (i + 1))
-          console.log(this.texts[t], Number(count % tlength === (i + 1)))
+        for (const t in texts) {
+          texts[t].alpha = Number(count % tlength === (i + 1))
+          console.log(texts[t], Number(count % tlength === (i + 1)))
           i++
         }
         console.log(show, count, i, tlength, count % tlength)
@@ -407,7 +421,7 @@ class Tithorea {
       mkElement([1, 2.2], 0x777733, 'guards', 3000, 0, guards)
       this.rect.alpha = 1
       this.rect.zIndex = 10 + 2000
-      this.texts.guards.alpha = 1
+      texts.guards.alpha = 1
     }
   }
 
@@ -432,7 +446,7 @@ class Tithorea {
     }
 
     mkElement([1, 2.2], 0x777733, 'adParnassum')
-    this.texts.adParnassum.text = 'ad parnassum: > 1'
+    this.texts.adParnassum.text = 'at Tithorea with Andromedas'
     mkElement([1, 0.2], 0x333377, 'gradus')
     mkElement([21, 2.2], 0x666600, 'achievement')
     mkElement([21, 0.2], 0x333377, 'tip')

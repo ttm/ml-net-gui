@@ -11,15 +11,6 @@ window.components = components
 //    a feature it enables
 //    a condition to complete, which triggers its
 
-const copyToClipboard = str => {
-  const el = document.createElement('textarea')
-  el.value = str
-  document.body.appendChild(el)
-  el.select()
-  document.execCommand('copy')
-  document.body.removeChild(el)
-}
-
 function defaultLinkRenderer (link) {
   // first, let's compute normalized vector for our link:
   const p1 = wand.currentNetwork.getNodeAttribute(link.from, 'pixiElement')
@@ -594,9 +585,10 @@ class AdParnassum {
               this.texts[element] = a.mkTextFancy(text, [pos[0] * x, pos[1] * y], fs, color, zIndex, alpha)
               return this.texts[element]
             }
-            mkElement([1, 2.2], 0x777733, 'main', 3000, 0, 'click HERE to copy URL to browser extension.').on('click', () => {
+            mkElement([1, 2.2], 0x777733, 'main', 3000, 0, 'click HERE to get browser extension.').on('click', () => {
               console.log('click and copy')
-              copyToClipboard('https://github.com/ttm/ml-net-gui/raw/master/visual_analytics/wand.zip')
+              const wandUrl = 'https://github.com/ttm/ml-net-gui/raw/master/visual_analytics/wand.zip' // fixme: use wand from preset?
+              window.open(wandUrl, '_blank')
             })
             mkElement([1, 5.2], 0x337733, 'extra', 3000, 0, 'read the README to know how to install/use!')
           }

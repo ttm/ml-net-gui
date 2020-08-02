@@ -68,16 +68,16 @@ Have this magic lyre, with which you shall exercise to meet them.
 `
 
 const andromedans0 = `
-You are now seeing andromedans.
+You are now seeing andromedas.
 
 The smallest of them are like building-sized butterflies.
 Their wings move very gently while they glide through space,
 healing every body and soul which are near or within.
 
 Their energy (or material support) is spread and subtle.
-In fact, having their body goes through humans and human constructions.
+In fact, their body goes through humans and human constructions.
 You can sometimes feel their presence through emotions, intuitions,
-or very suble perception cues, such as though the skin and hair body.
+or very suble perception cues, such as though the skin and body hair.
 
 Please be attentive to your synchronization because later on
 you will meet Sananda to synchronize the Universe.
@@ -85,7 +85,7 @@ you will meet Sananda to synchronize the Universe.
 Don't fear the reptilians, or as you name/conceive, or any other challenge.
 These palpations of your social structures will cast pure healing light on all.
 
-Pray using the wand to load your network.
+(Pray using the wand to load your network).
 `
 
 // https://en.wikipedia.org/wiki/Bahamut

@@ -113,6 +113,11 @@ class Tithorea {
           this.seeds.push(n)
         }
         this.mkSync()
+        if (this.arrows) {
+          this.arrows.forEach(a => {
+            a.destroy()
+          })
+        }
         const arrows = []
         this.sync.progressionLinks.forEach(step => {
           step.forEach(link => {

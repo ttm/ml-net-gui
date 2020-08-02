@@ -6,12 +6,12 @@ You stand by the gates of Lycorea.
 The wind is strong, but you are confortable in your vestments, you knew that you
 would be for some time at ~2,500 meters above the ocean.
 
-Five guards come near you, inspects your clothes, and, with respect the chief says:
+Five guards come near you, inspect your clothes, and, with respect the chief says:
 
 "Congratulation on reaching Lycorea, dear sage.
 We cannot allow you any further without knowing who you are.
-Please identify yourself ('login' using the wand extension).
-Thus please visit the 'Gradus ad Parnassum' (and install the chrome extension)
+Please identify yourself ('login or pray' using the wand extension).
+Thus visit the 'Gradus ad Parnassum' (and install the chrome extension)
 if you cannot identify yourself.
 "
 

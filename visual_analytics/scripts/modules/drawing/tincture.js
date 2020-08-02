@@ -118,4 +118,4 @@ const handPicked = { // made with:https://gka.github.io/palettes (chroma.js)
   black3: basicStruct(bezier(['white', 'red', 'green', 'black']))
 }
 
-module.exports = { handPicked, random, scale, basicStruct, bezier, s, randomPalette, randomPalette2 }
+module.exports = { handPicked, random, scale, basicStruct, bezier, s, randomPalette, randomPalette2, c, S }

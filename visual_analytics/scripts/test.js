@@ -477,7 +477,10 @@ const testColors = () => {
   text.scale.set(3)
   let colors
   const getColors = (scheme = 'triade', variation) => {
-    let colors = ss.from_hue(++current).scheme(scheme)
+    // let colors = ss.from_hue(++current).scheme(scheme)
+    window.cccccc = current++
+    // let colors = ss.from_hue(0).scheme(scheme)
+    let colors = ss.from_hex('ff0000').scheme(scheme)
     console.log('SCHEME', scheme, ', VARIATION:', variation)
     if (variation !== undefined) {
       colors = colors.variation(variation)

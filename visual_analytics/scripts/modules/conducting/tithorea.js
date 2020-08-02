@@ -109,26 +109,45 @@ class Tithorea {
       a.pixiElement.on('pointerdown', () => {
         if (this.seeds.includes(n)) {
           this.seeds = this.seeds.filter(i => i !== n)
+          a.seed = false
         } else {
           this.seeds.push(n)
+          a.seed = true
         }
         this.mkSync()
-        if (this.arrows) {
-          this.arrows.forEach(a => {
-            a.destroy()
-          })
-        }
-        const arrows = []
-        this.sync.progressionLinks.forEach(step => {
-          step.forEach(link => {
-            // console.log('TLINK:', link.from, link.to, 'pixiElement')
-            // const l = net.getEdgeAttribute(link.from, link.to, 'pixiElement')
-            // arrows.push(defaultLinkRenderer(l))
-            arrows.push(wand.artist.use.defaultLinkRenderer(link))
-          })
-        })
-        this.arrows = arrows
-        this.resetNetwork()
+        // this.resetNetwork()
+        this.resetSyncMap()
+      })
+    })
+  }
+
+  resetSyncMap () {
+    if (this.arrows) {
+      this.arrows.forEach(a => {
+        a.destroy()
+      })
+    }
+    const arrows = []
+    const { progression, progressionLinks } = this.sync
+    progressionLinks.forEach(step => {
+      step.forEach(link => {
+        // console.log('TLINK:', link.from, link.to, 'pixiElement')
+        // const l = net.getEdgeAttribute(link.from, link.to, 'pixiElement')
+        // arrows.push(defaultLinkRenderer(l))
+        arrows.push(wand.artist.use.defaultLinkRenderer(link))
+      })
+    })
+    this.arrows = arrows
+    const net = wand.currentNetwork
+    this.seeds.forEach(n => {
+      net.setNodeAttribute(n, 'seed', true)
+    })
+    const cs = wand.artist.use.tincture.c.scale(['red', 'cyan']).colors(progression.length, 'num')
+    progression.forEach((nodes, i) => {
+      const c = cs[i]
+      nodes.forEach(n => {
+        net.getNodeAttribute(n, 'pixiElement').tint = c
+        net.getNodeAttribute(n, 'pixiElement').alpha = 1
       })
     })
   }

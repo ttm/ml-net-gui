@@ -1403,12 +1403,12 @@ class AdParnassum {
   setNodeInfo () {
     // fixme: separate in new step and make neat, put modes:
     const net = wand.currentNetwork
+    const tf = v => v.toFixed(3)
     net.forEachNode((n, a) => {
-      const tf = v => v.toFixed(3)
       const texts = [
         ['nodeId', `id: ${a.id}, x: ${tf(a.pixiElement.x)}, y: ${tf(a.pixiElement.y)}`],
         ['nodeName', `name: ${a.name}`],
-        ['nodeDegree', `degree: ${a.degree} in ${net.degree}`],
+        ['nodeDegree', `degree: ${a.degree} in ${net.degree_}`],
         ['nodeDegreeCentrality',
           `degree centrality: ${tf(a.degreeCentrality)} in ${net.degreeCentrality}`]
       ]

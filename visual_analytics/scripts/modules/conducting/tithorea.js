@@ -88,7 +88,7 @@ class Tithorea {
     this.texts.gradus.text = `name, id: ${wand.sageInfo.name}, ${wand.sageInfo.sid || wand.sageInfo.nid}`
     this.texts.achievement.text = `friends, friendships: ${wand.currentNetwork.order}, ${wand.currentNetwork.size}`
     if (this.sync) {
-      this.texts.tip.text = `seeds, steps: ${this.sync.seeds.length}, ${this.sync.progression.length}`
+      this.texts.tip.text = `seeds, steps: ${this.sync.seeds.length}, ${this.sync.progression.length - 1}`
     }
   }
 
@@ -154,7 +154,7 @@ class Tithorea {
     this.seeds.forEach(n => {
       net.setNodeAttribute(n, 'seed', true)
     })
-    const cs = wand.artist.use.tincture.c.scale(['red', 'cyan']).colors(progression.length, 'num')
+    const cs = wand.artist.use.tincture.c.scale(['red', 'yellow', 'green', 'cyan', 'blue', '#ff00ff']).colors(progression.length, 'num')
     progression.forEach((nodes, i) => {
       const c = cs[i]
       nodes.forEach(n => {
@@ -163,6 +163,7 @@ class Tithorea {
       })
     })
     this.setNetInfo()
+    this.setNodeInfo()
   }
 
   mkSync () {
@@ -348,6 +349,13 @@ class Tithorea {
     }
     sg.communityGraphs = subComGraphs
     wand[avarname + 'Network'] = sg
+    const norm = v => v === Math.round(v) ? v : v.toFixed(3)
+    const mString = metric => {
+      const s = netmetrics.extent(wand[avarname + 'Network'], metric).map(i => norm(i))
+      return `[${s[0]}, ${s[1]}]`
+    }
+    wand[avarname + 'Network'].degreeCentrality = mString('degreeCentrality')
+    wand[avarname + 'Network'].degree_ = mString('degree')
   }
 
   resetNetwork () {
@@ -455,8 +463,60 @@ class Tithorea {
 
     mkElement([1, 0.1], 0x333377, 'nodeId', 600, 0)
     mkElement([1, 2.2], 0x777733, 'nodeName', 600, 0)
-    mkElement([41, 0.2], 0x666600, 'nodeDegree', 600, 0)
-    mkElement([41, 2.2], 0x555599, 'nodeDegreeCentrality', 600, 0)
+    mkElement([21, 0.2], 0x666600, 'nodeDegree', 600, 0)
+    mkElement([21, 2.2], 0x555599, 'nodeDegreeCentrality', 600, 0)
+    mkElement([54, 2.2], 0x555599, 'step', 600, 0)
+  }
+
+  setNodeInfo () {
+    const net = wand.currentNetwork
+    this.sync.progression.forEach((step, i) => {
+      step.forEach(node => {
+        net.setNodeAttribute(node, 'step', i + 1)
+      })
+    })
+    net.forEachNode((n, a) => {
+      console.log('yey', n, a)
+      const tf = v => v.toFixed(3)
+      const texts = [
+        ['nodeId', `id: ${a.sid || a.nid}, x: ${tf(a.pixiElement.x)}, y: ${tf(a.pixiElement.y)}`],
+        ['nodeName', `name: ${a.name}`],
+        ['nodeDegree', `degree: ${a.degree} in ${net.degree}`],
+        ['nodeDegreeCentrality',
+          `degree centrality: ${tf(a.degreeCentrality)} in ${net.degreeCentrality}`],
+        ['step', `step: ${a.step}`]
+      ]
+      a.pixiElement.on('pointerover', () => {
+        console.log(n, a, 'NODE HOVERED')
+        wand.rect2.zIndex = 500
+        texts.forEach(t => {
+          this.texts[t[0]].text = t[1]
+          this.texts[t[0]].alpha = 1
+        })
+        // if (a.seed || a.activated) {
+        //   return
+        // }
+        a.hovered = true
+        this.styleNode(a)
+        net.forEachNeighbor(n, (nn, na) => {
+          na.hoveredNeighbor = true
+          this.styleNode(na)
+        })
+      })
+      a.pixiElement.on('pointerout', () => {
+        wand.rect2.zIndex = 100
+        texts.forEach(t => {
+          this.texts[t[0]].alpha = 0
+        })
+        delete a.colorBlocked
+        a.hovered = false
+        this.styleNode(a)
+        net.forEachNeighbor(n, (nn, na) => {
+          na.hoveredNeighbor = false
+          this.styleNode(na)
+        })
+      })
+    })
   }
 }
 

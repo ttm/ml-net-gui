@@ -243,12 +243,21 @@ class Lycoreia {
 
   registerNetwork (graph, avarname) {
     const g = graph
-    const gg = components.connectedComponents(g)[0]
-    const sg = subGraph(g, gg).copy()
+    const gg = components.connectedComponents(g)
+    let gg_ = []
+    for (let i = 0; i < gg.length; i++) {
+      if (gg[i].length > gg_.length) {
+        gg_ = gg[i]
+      }
+    }
+    const sg = subGraph(g, gg_).copy()
     netdegree.assign(sg)
     netmetrics.centrality.degree.assign(sg)
-    louvain.assign(sg)
+    // louvain.assign(sg)
     sg.communities = louvain.detailed(sg)
+    for (const key in sg.communities.communities) {
+      sg.setNodeAttribute(key, 'community', sg.communities.communities[key])
+    }
     const communitySizes = new Array(sg.communities.count).fill(0)
     sg.forEachNode((n, a) => {
       communitySizes[a.community]++
@@ -269,8 +278,11 @@ class Lycoreia {
       })
       const cg = subGraph(sg, nodes).copy()
       if (nodes.length !== 0) {
-        louvain.assign(cg)
+        // louvain.assign(cg)
         cg.communities = louvain.detailed(cg)
+        for (const key in cg.communities.communities) {
+          cg.setNodeAttribute(key, 'community', cg.communities.communities[key])
+        }
       } else {
         console.log('EMPTY COMMUNITY FOUND!!', i)
         cg.communities = { count: 0 }
@@ -279,7 +291,7 @@ class Lycoreia {
       cg.forEachNode((n, a) => {
         communitySizes[a.community]++
       })
-      const communitySizes_ = communitySizes.filter(i => !isNaN(i))
+      const communitySizes_ = communitySizes.filter(ii => !isNaN(ii))
       cg.communities.sizes = {
         all: communitySizes,
         max: Math.max(...communitySizes_),

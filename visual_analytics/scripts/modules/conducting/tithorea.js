@@ -20,7 +20,7 @@ class Tithorea {
           current: 0.7
         },
         namesSize: {
-          current: 1
+          current: 0.5
         },
         nodesAlpha: {
           current: 0.9
@@ -160,6 +160,7 @@ class Tithorea {
       nodes.forEach(n => {
         net.getNodeAttribute(n, 'pixiElement').tint = c
         net.getNodeAttribute(n, 'pixiElement').alpha = 1
+        net.setNodeAttribute(n, 'stepColor', c)
       })
     })
     this.setNetInfo()
@@ -177,8 +178,46 @@ class Tithorea {
     //   delete wand.extra.patterns.seq2
     // }
     this.sync = wand.net.use.diffusion.use.seededNeighborsLinks(wand.currentNetwork, 4, this.seeds)
+    this.mkSyncNet()
     this.setSyncInfo()
     this.playSync2(this.sync.progressionLinks)
+  }
+
+  mkSyncNet () {
+    const net = new wand.net.use.build.graphology.DirectedGraph()
+    this.sync.progression.forEach(step => {
+      step.forEach((node, i) => {
+        net.addNode(node)
+        net.setNodeAttribute(node, 'step', i + 1)
+      })
+    })
+    this.sync.progressionLinks.forEach(step => {
+      step.forEach(link => {
+        net.addDirectedEdge(link.from, link.to)
+      })
+    })
+    if (this.snet) {
+      this.snet.forEachEdge((e, a, n1, n2) => {
+        wand.currentNetwork.getEdgeAttribute(n1, n2, 'pixiElement').alpha = 0
+      })
+    }
+    this.snet = net
+    wand.snet = net
+    this.drawSyncNet()
+  }
+
+  drawSyncNet () {
+    // only keep links of the original network which are in the snet
+    // const snetu = this.snet.
+    if (!this.edgesErased) {
+      wand.currentNetwork.forEachEdge((e, a) => {
+        a.pixiElement.alpha = 0
+      })
+      this.edgesErased = true
+    }
+    this.snet.forEachEdge((e, a, n1, n2) => {
+      wand.currentNetwork.getEdgeAttribute(n1, n2, 'pixiElement').alpha = 1
+    })
   }
 
   setSyncInfo () {
@@ -254,7 +293,7 @@ class Tithorea {
     attr = {
       ...{
         scale: this.scaley(s.nodesSize.current),
-        nodeTint: s.colors.currentColors.v,
+        nodeTint: attr.a.stepColor || s.colors.currentColors.v,
         nodeAlpha: s.nodesAlpha.current,
         nameTint: s.colors.currentColors.n,
         nameAlpha: s.namesAlpha.current // * Math.random()
@@ -268,20 +307,21 @@ class Tithorea {
     a.pixiElement.alpha = nodeAlpha
     a.textElement.tint = nameTint
     a.textElement.alpha = nameAlpha
+    a.textElement.scale.set(this.settings.state.namesSize.current)
   }
 
   styleNode (a) { // apply standard styling giving node's attributes { seed, activated }
     const c = this.settings.state.colors.currentColors
     if (a.hovered || a.hoveredNeighbor) {
-      const [nodeTint, nameTint] = a.hovered ? [c.hl.more2, c.hl.less2] : [c.hl.less2, c.hl.more2]
+      const [nodeTint, nameTint] = a.hovered ? [c.hl.more, c.hl.less] : [c.hl.less, c.hl.more]
       window.aa = a
       this.restyleNode({
         a,
         colorBlocked: true,
         scale: this.settings.state.nodesSize.current * 2.7,
-        nodeTint,
+        nodeTint: a.stepColor || nodeTint,
         nodeAlpha: 1,
-        nameTint,
+        nameTint: nameTint,
         nameAlpha: 1
       })
     } else if (a.seed || a.activated) {
@@ -291,7 +331,7 @@ class Tithorea {
         a,
         colorBlocked: true,
         scale: this.settings.state.nodesSize.current * 1.5,
-        nodeTint,
+        nodeTint: a.stepColor || nodeTint,
         nodeAlpha: 1,
         nameTint,
         nameAlpha: ((a.seed && a.activated) ? 0.2 : this.settings.state.namesAlpha)
@@ -303,8 +343,14 @@ class Tithorea {
 
   registerNetwork (graph, avarname) {
     const g = graph
-    const gg = components.connectedComponents(g)[0]
-    const sg = subGraph(g, gg).copy()
+    const gg = components.connectedComponents(g)
+    let gg_ = []
+    for (let i = 0; i < gg.length; i++) {
+      if (gg[i].length > gg_.length) {
+        gg_ = gg[i]
+      }
+    }
+    const sg = subGraph(g, gg_).copy()
     netdegree.assign(sg)
     netmetrics.centrality.degree.assign(sg)
     louvain.assign(sg)
@@ -341,7 +387,7 @@ class Tithorea {
       })
       const communitySizes_ = communitySizes.filter(i => !isNaN(i))
       cg.communities.sizes = {
-        all: communitySizes,
+        all: communitySizes_,
         max: Math.max(...communitySizes_),
         min: Math.min(...communitySizes_)
       }

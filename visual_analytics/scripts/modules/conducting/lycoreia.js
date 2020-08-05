@@ -255,18 +255,19 @@ class Lycoreia {
     netmetrics.centrality.degree.assign(sg)
     // louvain.assign(sg)
     sg.communities = louvain.detailed(sg)
-    for (const key in sg.communities.communities) {
-      sg.setNodeAttribute(key, 'community', sg.communities.communities[key])
-    }
     const communitySizes = new Array(sg.communities.count).fill(0)
-    sg.forEachNode((n, a) => {
-      communitySizes[a.community]++
-    })
-    const communitySizes_ = communitySizes.filter(i => !isNaN(i))
+    for (const key in sg.communities.communities) {
+      const index = sg.communities.communities[key]
+      sg.setNodeAttribute(key, 'community', index)
+      communitySizes[index]++
+    }
+    // const communitySizes_ = communitySizes.filter(i => !isNaN(i))
     sg.communities.sizes = {
       all: communitySizes,
-      max: Math.max(...communitySizes_),
-      min: Math.min(...communitySizes_)
+      // max: Math.max(...communitySizes_),
+      // min: Math.min(...communitySizes_)
+      max: Math.max(...communitySizes),
+      min: Math.min(...communitySizes)
     }
     const subComGraphs = {}
     for (let i = 0; i < sg.communities.count; i++) {
@@ -280,22 +281,23 @@ class Lycoreia {
       if (nodes.length !== 0) {
         // louvain.assign(cg)
         cg.communities = louvain.detailed(cg)
+        const communitySizes = new Array(cg.communities.count).fill(0)
         for (const key in cg.communities.communities) {
-          cg.setNodeAttribute(key, 'community', cg.communities.communities[key])
+          const index = cg.communities.communities[key]
+          cg.setNodeAttribute(key, 'community', index)
+          communitySizes[index]++
+        }
+        // const communitySizes_ = communitySizes.filter(ii => !isNaN(ii))
+        cg.communities.sizes = {
+          all: communitySizes,
+          // max: Math.max(...communitySizes_),
+          // min: Math.min(...communitySizes_)
+          max: Math.max(...communitySizes),
+          min: Math.min(...communitySizes)
         }
       } else {
         console.log('EMPTY COMMUNITY FOUND!!', i)
         cg.communities = { count: 0 }
-      }
-      const communitySizes = new Array(cg.communities.count).fill(0)
-      cg.forEachNode((n, a) => {
-        communitySizes[a.community]++
-      })
-      const communitySizes_ = communitySizes.filter(ii => !isNaN(ii))
-      cg.communities.sizes = {
-        all: communitySizes,
-        max: Math.max(...communitySizes_),
-        min: Math.min(...communitySizes_)
       }
       subComGraphs[i] = cg
     }

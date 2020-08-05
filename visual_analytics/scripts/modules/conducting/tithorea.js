@@ -353,47 +353,51 @@ class Tithorea {
     const sg = subGraph(g, gg_).copy()
     netdegree.assign(sg)
     netmetrics.centrality.degree.assign(sg)
-    louvain.assign(sg)
+    // louvain.assign(sg)
     sg.communities = louvain.detailed(sg)
     const communitySizes = new Array(sg.communities.count).fill(0)
-    sg.forEachNode((n, a) => {
-      communitySizes[a.community]++
-    })
-    const communitySizes_ = communitySizes.filter(i => !isNaN(i))
+    for (const key in sg.communities.communities) {
+      const index = sg.communities.communities[key]
+      sg.setNodeAttribute(key, 'community', index)
+      communitySizes[index]++
+    }
+    // const communitySizes_ = communitySizes.filter(i => !isNaN(i))
     sg.communities.sizes = {
       all: communitySizes,
-      max: Math.max(...communitySizes_),
-      min: Math.min(...communitySizes_)
+      // max: Math.max(...communitySizes_),
+      // min: Math.min(...communitySizes_)
+      max: Math.max(...communitySizes),
+      min: Math.min(...communitySizes)
     }
-    const subComGraphs = {}
-    for (let i = 0; i < sg.communities.count; i++) {
-      const nodes = []
-      sg.forEachNode((n, a) => {
-        if (a.community === i) {
-          nodes.push(n)
-        }
-      })
-      const cg = subGraph(sg, nodes).copy()
-      if (nodes.length !== 0) {
-        louvain.assign(cg)
-        cg.communities = louvain.detailed(cg)
-      } else {
-        console.log('EMPTY COMMUNITY FOUND!!', i)
-        cg.communities = { count: 0 }
-      }
-      const communitySizes = new Array(cg.communities.count).fill(0)
-      cg.forEachNode((n, a) => {
-        communitySizes[a.community]++
-      })
-      const communitySizes_ = communitySizes.filter(i => !isNaN(i))
-      cg.communities.sizes = {
-        all: communitySizes_,
-        max: Math.max(...communitySizes_),
-        min: Math.min(...communitySizes_)
-      }
-      subComGraphs[i] = cg
-    }
-    sg.communityGraphs = subComGraphs
+    // const subComGraphs = {}
+    // for (let i = 0; i < sg.communities.count; i++) {
+    //   const nodes = []
+    //   sg.forEachNode((n, a) => {
+    //     if (a.community === i) {
+    //       nodes.push(n)
+    //     }
+    //   })
+    //   const cg = subGraph(sg, nodes).copy()
+    //   if (nodes.length !== 0) {
+    //     louvain.assign(cg)
+    //     cg.communities = louvain.detailed(cg)
+    //   } else {
+    //     console.log('EMPTY COMMUNITY FOUND!!', i)
+    //     cg.communities = { count: 0 }
+    //   }
+    //   const communitySizes = new Array(cg.communities.count).fill(0)
+    //   cg.forEachNode((n, a) => {
+    //     communitySizes[a.community]++
+    //   })
+    //   const communitySizes_ = communitySizes.filter(i => !isNaN(i))
+    //   cg.communities.sizes = {
+    //     all: communitySizes_,
+    //     max: Math.max(...communitySizes_),
+    //     min: Math.min(...communitySizes_)
+    //   }
+    //   subComGraphs[i] = cg
+    // }
+    // sg.communityGraphs = subComGraphs
     wand[avarname + 'Network'] = sg
     const norm = v => v === Math.round(v) ? v : v.toFixed(3)
     const mString = metric => {
@@ -404,12 +408,19 @@ class Tithorea {
     wand[avarname + 'Network'].degree_ = mString('degree')
   }
 
-  resetNetwork () {
-    wand.currentNetwork.forEachNode((_, a) => {
-      a.seed = a.activated = false
-      this.styleNode(a)
-    })
-  }
+  //   const norm = v => v === Math.round(v) ? v : v.toFixed(3)
+  //   const mString = metric => {
+  //     const s = netmetrics.extent(wand.currentNetwork, metric).map(i => norm(i))
+  //     return `[${s[0]}, ${s[1]}]`
+  //   }
+  //   wand.currentNetwork.degreeCentrality = mString('degreeCentrality')
+  //   wand.currentNetwork.degree = mString('degree')
+  // resetNetwork () {
+  //   wand.currentNetwork.forEachNode((_, a) => {
+  //     a.seed = a.activated = false
+  //     this.styleNode(a)
+  //   })
+  // }
 
   scaley (val) {
     return this.settings.heightProportion * val

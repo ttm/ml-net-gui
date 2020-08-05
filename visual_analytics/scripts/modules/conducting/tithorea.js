@@ -169,13 +169,13 @@ class Tithorea {
 
   mkSync () {
     // this.resetNetwork()
-    // if (wand.extra.instruments && wand.extra.instruments.membSynth) {
-    //   wand.extra.instruments.membSynth.dispose()
-    //   delete wand.extra.instruments.membSynth
-    // }
     // if (wand.extra.patterns && wand.extra.patterns.seq2) {
     //   wand.extra.patterns.seq2.dispose()
     //   delete wand.extra.patterns.seq2
+    // }
+    // if (wand.extra.instruments && wand.extra.instruments.membSynth) {
+    //   wand.extra.instruments.membSynth.dispose()
+    //   delete wand.extra.instruments.membSynth
     // }
     this.sync = wand.net.use.diffusion.use.seededNeighborsLinks(wand.currentNetwork, 4, this.seeds)
     this.mkSyncNet()
@@ -266,26 +266,38 @@ class Tithorea {
       }
     }, progression)
     seq2.interval = '1n'
-    seq2.start()
+    setTimeout(() => {
+      seq2.start()
+    }, seq2.interval * 1000)
     wand.extra.progression = progression
-    // wand.extra.instruments = {
-    //   ...wand.extra.instruments,
-    //   membSynth
-    // }
-    // wand.extra.patterns = {
-    //   ...wand.extra.patterns,
-    //   seq2
-    // }
+    wand.extra.instruments = {
+      ...wand.extra.instruments,
+      membSynth
+    }
+    wand.extra.patterns = {
+      ...wand.extra.patterns,
+      seq2
+    }
     const fid = 'voice-' + this.voiceCounter++
-    mkBtn('fa-microphone-alt-slash', fid, 'remove voice', () => {
+    const btn = mkBtn('fa-microphone-alt-slash', fid, 'remove voice', () => {
       // console.log('clearing voice:', progression, g, voice, seq, instrument)
       wand.$(`#${fid}-icon`).remove()
       wand.$(`#${fid}-button`).remove()
-      seq2.dispose()
-      membSynth.dispose()
+      seq2.stop()
+      setTimeout(() => {
+        seq2.dispose()
+        membSynth.dispose()
+      }, seq2.interval * 1000) // max interval having instrument events (drawing can get past duration)
       // then restyle nodes in g
       // remove names
     }, '#info-button')
+    if (!window.location.href.includes('?advanced')) {
+      btn.hide()
+      if (this.voiceCounter > 1) {
+        const fid_ = 'voice-' + (this.voiceCounter - 2)
+        wand.$(`#${fid_}-button`).click()
+      }
+    }
   }
 
   restyleNode (attr = { }) { // set node style with input attributes
@@ -415,12 +427,12 @@ class Tithorea {
   //   }
   //   wand.currentNetwork.degreeCentrality = mString('degreeCentrality')
   //   wand.currentNetwork.degree = mString('degree')
-  // resetNetwork () {
-  //   wand.currentNetwork.forEachNode((_, a) => {
-  //     a.seed = a.activated = false
-  //     this.styleNode(a)
-  //   })
-  // }
+  resetNetwork () {
+    wand.currentNetwork.forEachNode((_, a) => {
+      a.seed = a.activated = false
+      this.styleNode(a)
+    })
+  }
 
   scaley (val) {
     return this.settings.heightProportion * val
@@ -475,10 +487,10 @@ class Tithorea {
         let i = 0
         for (const t in texts) {
           texts[t].alpha = Number(count % tlength === (i + 1))
-          console.log(texts[t], Number(count % tlength === (i + 1)))
+          // console.log(texts[t], Number(count % tlength === (i + 1)))
           i++
         }
-        console.log(show, count, i, tlength, count % tlength)
+        // console.log(show, count, i, tlength, count % tlength)
       }
       mkBtn('fa-info', 'info', 'infos / dialogs', fun)
     } else {
@@ -533,7 +545,7 @@ class Tithorea {
       })
     })
     net.forEachNode((n, a) => {
-      console.log('yey', n, a)
+      // console.log('yey', n, a)
       const tf = v => v.toFixed(3)
       const texts = [
         ['nodeId', `id: ${a.sid || a.nid}, x: ${tf(a.pixiElement.x)}, y: ${tf(a.pixiElement.y)}`],
@@ -544,7 +556,7 @@ class Tithorea {
         ['step', `step: ${a.step}`]
       ]
       a.pixiElement.on('pointerover', () => {
-        console.log(n, a, 'NODE HOVERED')
+        // console.log(n, a, 'NODE HOVERED')
         wand.rect2.zIndex = 500
         texts.forEach(t => {
           this.texts[t[0]].text = t[1]

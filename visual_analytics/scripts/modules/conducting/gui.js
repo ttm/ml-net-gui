@@ -168,6 +168,7 @@ const mkBtn = (iclass, fid, title, fun, ref) => {
   $('<i/>', { class: 'fa ' + iclass, id: `${fid}-icon` }).appendTo(
     btn
   )
+  return btn
 }
 
 module.exports = { setMinimal, St, dat, atest, basicStats, NetGUI, mkBtn }

@@ -1015,7 +1015,9 @@ const testLycoreia = () => { // http://localhost:8080/?lycoreia.html?11?bana?0.0
   wand.magic.lycoreia = new wand.magic.Lycoreia({ currentLevel: level, timeStreach, counter: { colorChange: 60, hoverNode: 19 }, state: {}, muted: true })
 }
 
-const testTithorea = () => { // http://localhost:8080/?lycoreia.html?11?bana?0.001?adalberto.ferroz
+const testTithorea = () => {
+  // http://localhost:8080/?lis.html?13?renato.fabbri.125?0.001?advanced
+  // http://localhost:8080/?lis.html?13?renato.fabbri.125?0.001
   const pn = window.location.href
   const items = pn.split('?')
   let level = 0

@@ -1522,8 +1522,14 @@ class AdParnassum {
         console.log('option:', 1)
         // pass
       }
-      const gg = components.connectedComponents(g)[0]
-      const sg = subGraph(g, gg)
+      const gg = components.connectedComponents(g)
+      let gg_ = []
+      for (let i = 0; i < gg.length; i++) {
+        if (gg[i].length > gg_.length) {
+          gg_ = gg[i]
+        }
+      }
+      const sg = subGraph(g, gg_).copy()
       if (option !== 3) {
         netdegree.assign(sg)
       }

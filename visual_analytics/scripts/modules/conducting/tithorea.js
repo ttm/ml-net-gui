@@ -58,6 +58,7 @@ class Tithorea {
         this.setPlay()
         this.setMute()
         this.setRecorder()
+        this.setSyncConsolidate()
         wand.transfer.mong.findUserNetwork(wand.sageInfo.sid, wand.sageInfo.nid).then(r => {
           console.log('loaded user network')
           this.allNetworks = r
@@ -129,6 +130,7 @@ class Tithorea {
         this.mkSync()
         // this.resetNetwork()
         this.resetSyncMap()
+        wand.$('#pin-button').show()
       })
     })
   }
@@ -586,6 +588,25 @@ class Tithorea {
         })
       })
     })
+  }
+
+  setSyncConsolidate () {
+    mkBtn('fa-map-pin', 'pin', 'consolidate synchronization', () => {
+      console.log('sync man')
+      // add this progression links to the network,
+      // or add the snet (sync net) to the network,
+      // or open a new collection
+      // each node becomes attached to a link, which is a gradus link,
+      // starting with its music on the network
+      // and evolving to the start of gradus
+      const ustr = wand.utils.rot(wand.sageInfo.sid || wand.sageInfo.nid)
+      wand.currentNetwork.forEachNode((n, a) => {
+        const mstr = wand.utils.rot(a.sid || a.nid)
+        a.mstr = mstr
+        a.mstr_ = wand.utils.rot(mstr)
+        a.urlStr = `--usid:${ustr}--msid:${mstr}`
+      })
+    }, '#info-button').hide()
   }
 }
 

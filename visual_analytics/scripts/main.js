@@ -17,6 +17,7 @@ wand.magic = {
   AdParnassum: wand.conductor.use.parnassum.AdParnassum,
   Lycoreia: wand.conductor.use.lycoreia.Lycoreia,
   Tithorea: wand.conductor.use.tithorea.Tithorea,
+  SyncParnassum: wand.conductor.use.syncParnassum.SyncParnassum,
   PIXI: wand.artist.share.draw.base.PIXI,
   app: wand.artist.share.draw.base.app,
   tint: wand.artist.use.tincture
@@ -99,6 +100,7 @@ const routes = {
   'lycoreia.html': test.testLycoreia,
   '☥.html': test.testAdParnassum,
   'ankh.html': test.testAdParnassum,
+  'ankh_.html': test.testSyncParnassum,
   '⚧.html': test.testLycoreia,
   'transgender.html': test.testLycoreia,
   '⚜.html': test.testTithorea,

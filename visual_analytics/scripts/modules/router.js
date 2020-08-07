@@ -1,3 +1,4 @@
+/* global wand */
 // to change navigation history and (previsous, next) pages:
 // window.history.pushState({ data: 'some data' },'Some history entry title', '/some-path');
 // to get current URL:
@@ -11,7 +12,21 @@ class Router {
   loadCurrent () {
     const pn = decodeURIComponent(window.location.href)
     let path
-    if (pn.includes('?')) {
+    if (pn.includes('?page=')) {
+      const a = new URLSearchParams(pn)
+      const u = new URL(pn)
+      window.aaa = a
+      window.uuu = u
+      wand.syncInfo = {
+        page: u.searchParams.get('page'),
+        usid: wand.utils.rot(u.searchParams.get('usid')),
+        msid: wand.utils.rot(u.searchParams.get('msid')),
+        unid: wand.utils.rot(u.searchParams.get('unid')),
+        mnid: wand.utils.rot(u.searchParams.get('mnid')),
+        syncCount: u.searchParams.get('s')
+      }
+      this.loadPath(wand.syncInfo.page + '.html')
+    } else if (pn.includes('?')) {
       path = pn.split('?')
       path = path[1]
     } else {

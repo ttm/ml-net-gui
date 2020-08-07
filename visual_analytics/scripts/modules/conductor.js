@@ -13,6 +13,7 @@ module.exports = {
     parnassum: require('./conducting/parnassum.js'),
     lycoreia: require('./conducting/lycoreia.js'),
     tithorea: require('./conducting/tithorea.js'),
+    syncParnassum: require('./conducting/syncParnassum.js'),
     pages: require('./conducting/pages.js'),
     utils: require('./conducting/utils.js')
   },

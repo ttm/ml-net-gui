@@ -120,6 +120,10 @@ class Tithorea {
     this.voiceCounter = 0
     wand.currentNetwork.forEachNode((n, a) => {
       a.pixiElement.on('pointerdown', () => {
+        if (this.syncCount > 0) {
+          window.open(a.urlStr)
+          return
+        }
         if (this.seeds.includes(n)) {
           this.seeds = this.seeds.filter(i => i !== n)
           a.seed = false
@@ -591,6 +595,7 @@ class Tithorea {
   }
 
   setSyncConsolidate () {
+    this.syncCount = 0
     mkBtn('fa-map-pin', 'pin', 'consolidate synchronization', () => {
       console.log('sync man')
       // add this progression links to the network,
@@ -599,12 +604,13 @@ class Tithorea {
       // each node becomes attached to a link, which is a gradus link,
       // starting with its music on the network
       // and evolving to the start of gradus
+      this.syncCount = (++this.syncCount) % 4
       const ustr = wand.utils.rot(wand.sageInfo.sid || wand.sageInfo.nid)
+      const ufield = wand.sageInfo.sid ? 'usid' : 'unid'
       wand.currentNetwork.forEachNode((n, a) => {
         const mstr = wand.utils.rot(a.sid || a.nid)
-        a.mstr = mstr
-        a.mstr_ = wand.utils.rot(mstr)
-        a.urlStr = `--usid:${ustr}--msid:${mstr}`
+        const mfield = a.sid ? 'msid' : 'mnid'
+        a.urlStr = `?page=ankh_&${ufield}=${ustr}&${mfield}=${mstr}&s=${this.syncCount}`
       })
     }, '#info-button').hide()
   }

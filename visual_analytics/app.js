@@ -22,7 +22,7 @@ http.createServer(function (req, res) {
   //   filePath = './public/index.html'
   // }
   // console.log('AFT', filePath)
-  const filePath = req.url.includes('.html') ? './public/index.html' : '.' + req.url
+  const filePath = req.url.includes('.html') || req.url.includes('?page=') ? './public/index.html' : '.' + req.url
 
   // fixme: is this really needed? are we not only using html or should we keep these to obtain data and files directly?
   // maybe also image files?

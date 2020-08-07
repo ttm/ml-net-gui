@@ -72,10 +72,13 @@ rot13Fast.output = 'NOPQRSTUVWXYZABCDEFGHIJKLMnopqrstuvwxyzabcdefghijklm'.split(
 rot13Fast.lookup = rot13Fast.input.reduce((m, k, i) => Object.assign(m, { [k]: rot13Fast.output[i] }), {})
 
 function rot (str) {
+  if (!str) {
+    return
+  }
   return str.split('').map(x => rot.lookup[x] || x).join('')
 }
-rot.input = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz01234'.split('')
-rot.output = 'NOPQRSTUVWXYZABCDEFGHIJKLMnopqrstuvwxyzabcdefghijklm56789'.split('')
+rot.input = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'.split('')
+rot.output = 'NOPQRSTUVWXYZABCDEFGHIJKLMnopqrstuvwxyzabcdefghijklm5678901234'.split('')
 rot.lookup = rot13Fast.input.reduce((m, k, i) => Object.assign(m, { [k]: rot13Fast.output[i] }), {})
 
 module.exports = { chooseUnique, chunkArray, inplaceShuffle, randChunkSplit, copyToClipboard, rot13Fast, rot }

@@ -419,7 +419,8 @@ class Tithorea {
     wand[avarname + 'Network'] = sg
     const norm = v => v === Math.round(v) ? v : v.toFixed(3)
     const mString = metric => {
-      const s = netmetrics.extent(wand[avarname + 'Network'], metric).map(i => norm(i))
+      wand[avarname + 'Network'][metric + 'Extent'] = netmetrics.extent(wand[avarname + 'Network'], metric)
+      const s = wand[avarname + 'Network'][metric + 'Extent'].map(i => norm(i))
       return `[${s[0]}, ${s[1]}]`
     }
     wand[avarname + 'Network'].degreeCentrality = mString('degreeCentrality')
@@ -554,9 +555,9 @@ class Tithorea {
       // console.log('yey', n, a)
       const tf = v => v.toFixed(3)
       const texts = [
-        ['nodeId', `id: ${a.sid || a.nid}, x: ${tf(a.pixiElement.x)}, y: ${tf(a.pixiElement.y)}`],
+        ['nodeId', `id: ${a.sid || a.nid}`],
         ['nodeName', `name: ${a.name}`],
-        ['nodeDegree', `degree: ${a.degree} in ${net.degree}`],
+        ['nodeDegree', `degree: ${a.degree} in ${net.degree_}`],
         ['nodeDegreeCentrality',
           `degree centrality: ${tf(a.degreeCentrality)} in ${net.degreeCentrality}`],
         ['step', `step: ${a.step}`]

@@ -44,7 +44,22 @@ class SyncParnassum {
     console.log('HEY MAN')
     let allNodes = []
     const d = (f, time) => Tone.Draw.schedule(f, time)
-    const instrument = new Tone.PluckSynth({ volume: 10 }).toMaster()
+    const instrument = new Tone.PluckSynth({ volume: 0 }).toMaster()
+    const membSynth = new Tone.MembraneSynth({ volume: -10 }).toMaster()
+    const membSynth2 = new Tone.MembraneSynth({ volume: 0 }).toMaster()
+    const extent = wand.currentNetwork.degreeExtent
+    const ambit = extent[1] - extent[0]
+    const pambit = this.sync.progression.reduce((a, i) => {
+      if (i.length < a.min) {
+        a.min = i.length
+      }
+      if (i.length > a.max) {
+        a.max = i.length
+      }
+      return a
+    }, { min: 100000, max: 0 })
+    pambit.ambit = pambit.max - pambit.min
+    console.log('PAMBIT:', pambit)
     const seq = new Tone.Pattern((time, step) => {
       console.log(step)
       if (step.length === 0) {
@@ -59,17 +74,31 @@ class SyncParnassum {
       }
       step.forEach((n, i) => {
         // instrument.triggerAttackRelease(Tone.Midi(info.note).toNote(), 0.01, time + i * 0.5 / step.length)
-        instrument.triggerAttackRelease(Tone.Midi(60).toNote(), 0.01, time + i * 2 / step.length)
+        const note = 40 + 40 * (wand.currentNetwork.getNodeAttribute(n, 'degree') - extent[0]) / ambit
+        instrument.triggerAttackRelease(Tone.Midi(note).toNote(), 0.01, time + i * 2 / step.length)
         d(() => { wand.currentNetwork.getNodeAttribute(n, 'pixiElement').alpha = 1 }, time + i * 2 / step.length)
         allNodes.push(n)
       })
+      const t = seq.interval / 4
+      console.log('TTTTT:', t)
+      const note = 90 - 20 * (step.length - pambit.min) / pambit.ambit
+      membSynth.triggerAttackRelease(Tone.Midi(note).toNote(), 1, time)
+      membSynth.triggerAttackRelease(Tone.Midi(note).toNote(), 1, time + t)
+      // membSynth.triggerAttackRelease(Tone.Midi(note).toNote(), 1, time + t * 2)
+      membSynth.triggerAttackRelease(Tone.Midi(note).toNote(), 1, time + t * 3)
+
+      membSynth2.triggerAttackRelease(Tone.Midi(30).toNote(), 1, time)
+      // membSynth2.triggerAttackRelease(Tone.Midi(30).toNote(), 1, time + t)
+      membSynth2.triggerAttackRelease(Tone.Midi(30).toNote(), 1, time + t * 2)
+      membSynth2.triggerAttackRelease(Tone.Midi(30).toNote(), 1, time + t * 3)
       wand.currentNetwork.forEachEdge((e, a, n1, n2) => {
         // if (wand.currentNetwork.hasEdge(n1, n2)) {
         if (allNodes.includes(n1) && allNodes.includes(n2)) {
-          a.pixiElement.alpha = 1
+          a.pixiElement.alpha = 0.6
         }
       })
     }, this.sync.progression)
+    console.log('COME ON MAN')
     seq.interval = '1n'
     this.seq = wand.seq = seq
     console.log('HEY MAN', seq)
@@ -96,7 +125,8 @@ class SyncParnassum {
     wand[avarname + 'Network'] = sg
     const norm = v => v === Math.round(v) ? v : v.toFixed(3)
     const mString = metric => {
-      const s = netmetrics.extent(wand[avarname + 'Network'], metric).map(i => norm(i))
+      wand[avarname + 'Network'][metric + 'Extent'] = netmetrics.extent(wand[avarname + 'Network'], metric)
+      const s = wand[avarname + 'Network'][metric + 'Extent'].map(i => norm(i))
       return `[${s[0]}, ${s[1]}]`
     }
     wand[avarname + 'Network'].degreeCentrality = mString('degreeCentrality')

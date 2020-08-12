@@ -24,6 +24,7 @@ class Router {
         unid: wand.utils.rot(u.searchParams.get('unid')),
         mnid: wand.utils.rot(u.searchParams.get('mnid')),
         ts: wand.utils.rot(u.searchParams.get('ts')),
+        muted: wand.utils.rot(u.searchParams.get('muted')),
         syncCount: u.searchParams.get('s')
       }
       this.loadPath(wand.syncInfo.page + '.html')

@@ -1,7 +1,8 @@
-/* global wand, performance */
+/* global wand, performance, alert */
 
+const { OABase } = require('./oabase')
 const { mkBtn } = require('./gui.js')
-const { gradus1 } = require('./instructions.js')
+const { gradus1, gradusRec } = require('./instructions.js')
 const { Tone } = require('../maestro/all.js').base
 const netmetrics = require('graphology-metrics')
 const netdegree = require('graphology-metrics/degree')
@@ -12,44 +13,50 @@ window.ggg = Graph
 
 const d = (f, time) => Tone.Draw.schedule(f, time)
 
-class SyncParnassum {
+class SyncParnassum extends OABase {
   constructor (settings = {}) {
     // wand.$('#favicon').attr('href', 'faviconbr.ico')
     // wand.$('#favicon').attr('href', 'log3.png')
     // wand.$('#favicon').attr('href', 'faviconMade2.ico')
-    document.title = 'Andromedan tribe'
-    const defaultSettings = {
-      fontSize: 20,
-      timeStreach: 1,
-      state: {
-        nodesSize: {
-          current: 0.7
-        },
-        namesSize: {
-          current: 0.5
-        },
-        nodesAlpha: {
-          current: 0.9
-        },
-        namesAlpha: {
-          current: 0.1
-        },
-        edgesAlpha: {
-          current: 0.9
-        },
-        colors: {
-          currentColors: wand.magic.tint.handPicked.black
-        }
-      }
-    }
-    this.settings = { ...defaultSettings, ...settings }
-    this.settings.state = { ...defaultSettings.state, ...settings.state }
-    const refHeight = 833
-    const refWidth = 884
-    this.settings.heightProportion = wand.artist.use.height / refHeight
-    this.settings.widthProportion = wand.artist.use.width / refWidth
-
+    document.title = 'OA: Gradus ad Parnassum'
     wand.$('#favicon').attr('href', 'faviconMade.ico')
+    super(settings)
+
+    // if (wand.syncInfo.muted) {
+    //   wand.maestro.synths.speaker.volume = -1 // 1 or 0 is 1, [0, 1] is ok range
+    // }
+
+    // const defaultSettings = {
+    //   fontSize: 20,
+    //   timeStreach: 1,
+    //   state: {
+    //     nodesSize: {
+    //       current: 0.7
+    //     },
+    //     namesSize: {
+    //       current: 0.5
+    //     },
+    //     nodesAlpha: {
+    //       current: 0.9
+    //     },
+    //     namesAlpha: {
+    //       current: 0.1
+    //     },
+    //     edgesAlpha: {
+    //       current: 0.9
+    //     },
+    //     colors: {
+    //       currentColors: wand.magic.tint.handPicked.black
+    //     }
+    //   }
+    // }
+    // this.settings = { ...defaultSettings, ...settings }
+    // this.settings.state = { ...defaultSettings.state, ...settings.state }
+    // const refHeight = 833
+    // const refWidth = 884
+    // this.settings.heightProportion = wand.artist.use.height / refHeight
+    // this.settings.widthProportion = wand.artist.use.width / refWidth
+
     // wand.$('#favicon').attr('href', 'favicon3_.png')
     console.log('inside sync parnassum:', wand.syncInfo)
     wand.extra.exhibition = wand.test.testExhibition1('gradus')
@@ -342,7 +349,7 @@ class SyncParnassum {
         wand.$('#play-button').css('background-color', 'white')
         wand.maestro.base.Tone.Transport.stop()
         wand.$('#record-button').click()
-        this.resetNetwork()
+        // this.resetNetwork()
       }
     }).hide()
   }
@@ -382,6 +389,7 @@ class SyncParnassum {
       // console.log(show, count, i, tlength, count % tlength)
       if (count === 2) {
         wand.$('#info-button').hide()
+        this.rect.alpha = 0
         wand.$('#play-button').click()
         const seq = this.seqs[this.seqs.length - 1]
         d(() => {
@@ -394,20 +402,14 @@ class SyncParnassum {
               a.pixiElement.visible = false
             })
           })
+          alert(gradusRec())
           wand.$('#info-button').show()
+          wand.$('#play-button').click()
         }, seq.dur + seq.seq.interval * 0.3)
       }
     }
     mkBtn('fa-info', 'info', 'infos / dialogs', fun)
     wand.$('#info-button').click()
-  }
-
-  scaley (val) {
-    return this.settings.heightProportion * val
-  }
-
-  scalex (val) {
-    return this.settings.widthProportion * val
   }
 }
 

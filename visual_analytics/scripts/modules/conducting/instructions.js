@@ -27,6 +27,13 @@ Good luck.
 // Click at any node
 // `
 
+const gradusRec = () => `
+You have recorded your music, ${wand.fullNetwork.getNodeAttribute(wand.syncInfo.msid || wand.syncInfo.mnid, 'name')}.
+Save the video file locally and upload it to a video platform (such as youtube). Keep the link at hand.
+You can also send the video to OA curators.
+A video link sent to the curators might appear in the OA newsletter.
+`
+
 const lycoreia1 = `
 Welcome to Lycoreia.
 
@@ -70,4 +77,4 @@ After three musical pieces input, you will be able to perform one and only netwo
 This is your utmost goal at this stage.
 `
 
-module.exports = { tithorea1, lycoreia1, gradus1 }
+module.exports = { tithorea1, lycoreia1, gradus1, gradusRec }

@@ -25,6 +25,7 @@ class Router {
         mnid: wand.utils.rot(u.searchParams.get('mnid')),
         ts: wand.utils.rot(u.searchParams.get('ts')),
         muted: wand.utils.rot(u.searchParams.get('muted')),
+        bypassMusic: wand.utils.rot(u.searchParams.get('bypassMusic')),
         syncCount: u.searchParams.get('s')
       }
       this.loadPath(wand.syncInfo.page + '.html')

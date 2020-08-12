@@ -22,45 +22,9 @@ class SyncParnassum extends OABase {
     wand.$('#favicon').attr('href', 'faviconMade.ico')
     super(settings)
 
-    // if (wand.syncInfo.muted) {
-    //   wand.maestro.synths.speaker.volume = -1 // 1 or 0 is 1, [0, 1] is ok range
-    // }
-
-    // const defaultSettings = {
-    //   fontSize: 20,
-    //   timeStreach: 1,
-    //   state: {
-    //     nodesSize: {
-    //       current: 0.7
-    //     },
-    //     namesSize: {
-    //       current: 0.5
-    //     },
-    //     nodesAlpha: {
-    //       current: 0.9
-    //     },
-    //     namesAlpha: {
-    //       current: 0.1
-    //     },
-    //     edgesAlpha: {
-    //       current: 0.9
-    //     },
-    //     colors: {
-    //       currentColors: wand.magic.tint.handPicked.black
-    //     }
-    //   }
-    // }
-    // this.settings = { ...defaultSettings, ...settings }
-    // this.settings.state = { ...defaultSettings.state, ...settings.state }
-    // const refHeight = 833
-    // const refWidth = 884
-    // this.settings.heightProportion = wand.artist.use.height / refHeight
-    // this.settings.widthProportion = wand.artist.use.width / refWidth
-
-    // wand.$('#favicon').attr('href', 'favicon3_.png')
-    console.log('inside sync parnassum:', wand.syncInfo)
     wand.extra.exhibition = wand.test.testExhibition1('gradus')
     wand.$('#loading').hide()
+
     const now = performance.now()
     wand.transfer.mong.findUserNetwork(wand.syncInfo.usid, wand.syncInfo.unid).then(r => {
       let wait = performance.now() - now
@@ -210,13 +174,13 @@ class SyncParnassum extends OABase {
       })
     }, dur + seq.interval * 0.1)
     // console.log('HEY MAN', seq)
-    return { dur, sync, net, seq }
     // const fun = () => {
     //   seq.start()
     //   Tone.Transport.start()
     //   // Tone.Transport.stop(seq.interval * this.sync.progression.length * 0.99)
     // }
     // mkBtn('fa-info', 'info', 'infos / dialogs', fun)
+    return { dur, sync, net, seq }
   }
 
   registerNetwork (graph, avarname) {
@@ -374,6 +338,8 @@ class SyncParnassum extends OABase {
     mkElement([1, 2.2], 0x777733, '1', 3000, 0, gradus1())
     // mkElement([1, 5.2], 0x337733, 'lycorus', 3000, 0, lycorus())
     // mkElement([1, 5.2], 0x337733, 'corycia', 3000, 0, corycia())
+    console.log('YEAH MAN, HERE YEAH')
+    wand.theNetwork = wand.starNetwork
     const fun = () => {
       count++
       const tlength = Object.keys(texts).length + 1
@@ -388,24 +354,29 @@ class SyncParnassum extends OABase {
       }
       // console.log(show, count, i, tlength, count % tlength)
       if (count === 2) {
-        wand.$('#info-button').hide()
-        this.rect.alpha = 0
-        wand.$('#play-button').click()
-        const seq = this.seqs[this.seqs.length - 1]
-        d(() => {
-          wand.magic.syncParnassum.nets.forEach(net => {
-            net.forEachNode((n, a) => {
-              a.pixiElement.visible = false
-              a.textElement.visible = false
-            })
-            net.forEachEdge((e, a) => {
-              a.pixiElement.visible = false
-            })
-          })
-          alert(gradusRec())
-          wand.$('#info-button').show()
+        if (wand.syncInfo.bypassMusic) {
+          this.start()
+        } else {
+          wand.$('#info-button').hide()
+          this.rect.alpha = 0
           wand.$('#play-button').click()
-        }, seq.dur + seq.seq.interval * 0.3)
+          const seq = this.seqs[this.seqs.length - 1]
+          d(() => {
+            wand.magic.syncParnassum.nets.forEach(net => {
+              net.forEachNode((n, a) => {
+                a.pixiElement.visible = false
+                a.textElement.visible = false
+              })
+              net.forEachEdge((e, a) => {
+                a.pixiElement.visible = false
+              })
+            })
+            alert(gradusRec())
+            wand.$('#info-button').show()
+            wand.$('#play-button').click()
+            this.start()
+          }, seq.dur + seq.seq.interval * 0.3)
+        }
       }
     }
     mkBtn('fa-info', 'info', 'infos / dialogs', fun)

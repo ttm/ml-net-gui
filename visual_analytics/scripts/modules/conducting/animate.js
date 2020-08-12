@@ -108,16 +108,17 @@ const blink = (net, app) => {
 }
 
 function showMembers (net, artist, alternate = false) {
-  net.forEachNode((key, attr) => {
-    const text = artist.use.mkTextBetter({
-      text: attr.name,
-      pos: [attr.pixiElement.x, attr.pixiElement.y],
-      fontSize: 35
-    })
-    attr.textElement = text
-  })
+  // net.forEachNode((key, attr) => {
+  //   const text = artist.use.mkTextBetter({
+  //     text: attr.name,
+  //     pos: [attr.pixiElement.x, attr.pixiElement.y],
+  //     fontSize: 35
+  //   })
+  //   attr.textElement = text
+  // })
   if (alternate) {
-    wand.extra.namesAlpha = wand.magic.adParnassum.state.namesAlpha.current || 0.5
+    wand.extra.namesAlpha = wand.magic.adParnassum ? wand.magic.adParnassum.state.namesAlpha.current : 0.5
+    wand.extra.namesAlpha = wand.magic.syncParnassum ? wand.magic.syncParnassum.state.namesAlpha.current : 0.5
     const colorLoop = delta => {
       // delta is 1 for 60 fps
       if (Math.random() < 0.1 && !wand.extra.showNameBlock) {

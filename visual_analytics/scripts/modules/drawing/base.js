@@ -9,6 +9,16 @@ const app = new PIXI.Application({
 })
 app.stage.sortableChildren = true
 
+// const sprites = new PIXI.ParticleContainer(10000, {
+//   scale: true,
+//   position: true,
+//   rotation: true,
+//   uvs: true,
+//   alpha: true
+// })
+// app.stage.addChild(sprites)
+// app.psys = sprites
+
 const mkPaths = function (radius) {
   const dx = Math.cos(Math.PI / 6) * radius
   const dy = Math.sin(Math.PI / 6) * radius
@@ -61,6 +71,7 @@ function mkNode (ntype = 'tri', color = 0xff0000, version = 1) {
   v.interactive = true
   v.mpath = path
   app.stage.addChild(v) // fixme: use internal container?
+  // app.psys.addChild(v) // fixme: use internal container?
 
   if (version === 1) {
     v.on('pointerover', () => {

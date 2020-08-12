@@ -4,6 +4,7 @@
     <link id="favicon" rel="shortcut icon" type="image/png" href="favicon.ico" />
   </head>
 <body style="margin:0">
+    <div id="loading"><br/><br/>LOADING...</div>
     <script type="module" src="scripts/main_ok.js"></script>
     <input id="file-input" type="file" name="name" style="display: none;" />
 </body>
@@ -48,6 +49,22 @@
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
+}
+
+#loading {
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 100;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(192, 192, 192, 0.5);
+  background-image: url("https://i.stack.imgur.com/MnyxU.gif");
+  background-repeat: no-repeat;
+  background-position: center;
+  text-align: center;
+  font-size: 24px;
 }
 </style>
 </html>

@@ -1,7 +1,8 @@
-/* global wand */
+/* global wand, performance */
 
-const { Tone } = require('../maestro/all.js').base
 const { mkBtn } = require('./gui.js')
+const { gradus1 } = require('./instructions.js')
+const { Tone } = require('../maestro/all.js').base
 const netmetrics = require('graphology-metrics')
 const netdegree = require('graphology-metrics/degree')
 const components = require('graphology-components')
@@ -9,36 +10,87 @@ const subGraph = require('graphology-utils/subgraph')
 const Graph = require('graphology')
 window.ggg = Graph
 
+const d = (f, time) => Tone.Draw.schedule(f, time)
+
 class SyncParnassum {
   constructor (settings = {}) {
     // wand.$('#favicon').attr('href', 'faviconbr.ico')
     // wand.$('#favicon').attr('href', 'log3.png')
     // wand.$('#favicon').attr('href', 'faviconMade2.ico')
+    document.title = 'Andromedan tribe'
+    const defaultSettings = {
+      fontSize: 20,
+      timeStreach: 1,
+      state: {
+        nodesSize: {
+          current: 0.7
+        },
+        namesSize: {
+          current: 0.5
+        },
+        nodesAlpha: {
+          current: 0.9
+        },
+        namesAlpha: {
+          current: 0.1
+        },
+        edgesAlpha: {
+          current: 0.9
+        },
+        colors: {
+          currentColors: wand.magic.tint.handPicked.black
+        }
+      }
+    }
+    this.settings = { ...defaultSettings, ...settings }
+    this.settings.state = { ...defaultSettings.state, ...settings.state }
+    const refHeight = 833
+    const refWidth = 884
+    this.settings.heightProportion = wand.artist.use.height / refHeight
+    this.settings.widthProportion = wand.artist.use.width / refWidth
+
     wand.$('#favicon').attr('href', 'faviconMade.ico')
     // wand.$('#favicon').attr('href', 'favicon3_.png')
     console.log('inside sync parnassum:', wand.syncInfo)
+    wand.extra.exhibition = wand.test.testExhibition1('gradus')
+    wand.$('#loading').hide()
+    const now = performance.now()
     wand.transfer.mong.findUserNetwork(wand.syncInfo.usid, wand.syncInfo.unid).then(r => {
-      console.log('loaded user network')
-      this.allNetworks = r
-      const g = wand.net.use.utils.loadJsonString(this.allNetworks[0].text)
-      this.registerNetwork(g, 'full')
-      const nodesToRemove = []
-      g.forEachNode((n, a) => {
-        if (!a.scrapped) {
-          nodesToRemove.push(n)
-        }
-      })
-      nodesToRemove.forEach(n => {
-        g.dropNode(n)
-      })
-      this.registerNetwork(g, 'current') // make the small networks derived from the person
-      this.setRecorder()
-      this.makeMemberNetworks()
-      this.seqs = [this.makeMemberMusic(0, 0)]
-      for (let i = 1; i < this.plots.length; i++) {
-        this.seqs.push(this.makeMemberMusic(i, this.seqs[i - 1].dur))
+      let wait = performance.now() - now
+      if (wait > 10000) {
+        wait = 0
+      } else {
+        wait = (10000 - wait) * (wand.syncInfo.ts || 1)
       }
-      this.setPlay()
+      console.log('loaded user network', wait)
+      setTimeout(() => {
+        this.allNetworks = r
+        console.log('timeout finished, parse json -> graphology')
+        const g = wand.net.use.utils.loadJsonString(this.allNetworks[0].text)
+        this.registerNetwork(g, 'full')
+        const nodesToRemove = []
+        g.forEachNode((n, a) => {
+          if (!a.scrapped) {
+            nodesToRemove.push(n)
+          }
+        })
+        nodesToRemove.forEach(n => {
+          g.dropNode(n)
+        })
+        this.registerNetwork(g, 'current') // make the small networks derived from the person
+        this.setRecorder()
+        console.log('memb nets')
+        this.makeMemberNetworks()
+        console.log('memb mus')
+        this.seqs = [this.makeMemberMusic(0, 0)]
+        for (let i = 1; i < this.plots.length; i++) {
+          this.seqs.push(this.makeMemberMusic(i, this.seqs[i - 1].dur))
+        }
+        this.setPlay()
+        this.setInfo()
+        console.log('finished initialization')
+        wand.extra.exhibition.remove()
+      }, wait)
       // this.drawnNet = new wand.conductor.use.DrawnNet(wand.artist.use, wand.currentNetwork, [])
       // const { conductor, artist } = wand
       // wand.extra.drawnNet = new conductor.use.DrawnNet(artist.use, wand.currentNetwork, [artist.use.width, artist.use.height * 0.9])
@@ -55,7 +107,6 @@ class SyncParnassum {
     // use this.sync to make all nodes into visible with music
     console.log('HEY MAN')
     let allNodes = []
-    const d = (f, time) => Tone.Draw.schedule(f, time)
     const instrument = new Tone.PluckSynth({ volume: 0 }).toMaster()
     const membSynth = new Tone.MembraneSynth({ volume: -10 }).toMaster()
     const membSynth2 = new Tone.MembraneSynth({ volume: 0 }).toMaster()
@@ -71,10 +122,8 @@ class SyncParnassum {
       return a
     }, { min: 100000, max: 0 })
     pambit.ambit = pambit.max - pambit.min || 1
-    console.log('PAMBIT:', pambit)
     const id = wand.syncInfo.msid || wand.syncInfo.mnid
     const seq = new Tone.Pattern((time, step) => {
-      console.log(step)
       if (step.length === 0) {
         net.forEachNode((n, a) => {
           a.pixiElement.alpha = 0
@@ -100,7 +149,6 @@ class SyncParnassum {
         allNodes.push(n)
       })
       const t = seq.interval / 4
-      console.log('TTTTT:', t)
       const note = 90 - 20 * (step.length - pambit.min) / pambit.ambit
       membSynth.triggerAttackRelease(Tone.Midi(note).toNote(), 1, time)
       membSynth.triggerAttackRelease(Tone.Midi(note).toNote(), 1, time + t)
@@ -141,7 +189,6 @@ class SyncParnassum {
         }
       })
     }, sync.progression)
-    console.log('COME ON MAN')
     seq.interval = '1n'
     seq.start(adur)
     const dur = seq.interval * (sync.progression.length - 1) + adur
@@ -156,7 +203,7 @@ class SyncParnassum {
       })
     }, dur + seq.interval * 0.1)
     // console.log('HEY MAN', seq)
-    return { dur, sync, net }
+    return { dur, sync, net, seq }
     // const fun = () => {
     //   seq.start()
     //   Tone.Transport.start()
@@ -201,7 +248,6 @@ class SyncParnassum {
     this.registerNetwork(sg, 'star')
 
     const rsize = (size, lastnet) => {
-      console.log('RSIZE', size, lastnet)
       const nodes = lastnet ? lastnet.nodes() : [id]
       let lastnodes = nodes.slice()
       while (true) {
@@ -209,13 +255,11 @@ class SyncParnassum {
         lastnodes.forEach(nn => {
           wand.currentNetwork.forEachNeighbor(nn, n => {
             if (nodes.length < size && !nodes.includes(n)) {
-              console.log('PUT NODE', nodes.length)
               nodes.push(n)
             }
           })
         })
         if (nodes.length >= size || nodes.length === nodesSize) {
-          console.log('PUT NODE BREAK', nodes.length)
           break
         }
         lastnodes = nodes.slice()
@@ -225,7 +269,8 @@ class SyncParnassum {
       // console.log('FINISH RSIZE', size, lastnet)
     }
 
-    const sizes = [0.1, 0.3, 0.6, 0.8, 1].map(prop => Math.floor(wand.currentNetwork.order * prop))
+    const max = wand.currentNetwork.order > 500 ? 500 : wand.currentNetwork.order
+    const sizes = [0.1, 0.3, 0.6, 0.8, 1].map(prop => Math.floor(max * prop))
     const nets = [wand.starNetwork]
     nets.push(rsize(sizes[0], undefined))
     for (let i = 1; i < sizes.length; i++) {
@@ -235,7 +280,6 @@ class SyncParnassum {
 
     const { conductor, artist } = wand
     const plotNet = net => {
-      console.log(net, net.order, net.size, 'PLOTNET')
       const drawnNet = new conductor.use.DrawnNet(artist.use, net, [artist.use.width, artist.use.height * 0.9])
       const sync = wand.net.use.diffusion.use.seededNeighborsLinks(net, 10000, [id])
 
@@ -300,7 +344,70 @@ class SyncParnassum {
         wand.$('#record-button').click()
         this.resetNetwork()
       }
+    }).hide()
+  }
+
+  setInfo () {
+    const a = wand.artist.use
+    this.rect = a.mkRectangle({
+      // wh: [a.width, a.height], zIndex: 1, color: 0xffaaaa, alpha: 0
+      wh: [a.width, a.height], zIndex: 1, color: 0x9c9c9c, alpha: 0
     })
+    const f = this.settings.fontSize
+    const p = f / 2
+    const x = this.scalex(p)
+    const y = this.scaley(p)
+    const fs = this.scaley(f)
+    const texts = {}
+    const mkElement = (pos, color, element, zIndex, alpha, text) => {
+      texts[element] = a.mkTextFancy(text, [pos[0] * x, pos[1] * y], fs, color, zIndex, alpha)
+      return texts[element]
+    }
+    let count = 0
+    mkElement([1, 2.2], 0x777733, '1', 3000, 0, gradus1())
+    // mkElement([1, 5.2], 0x337733, 'lycorus', 3000, 0, lycorus())
+    // mkElement([1, 5.2], 0x337733, 'corycia', 3000, 0, corycia())
+    const fun = () => {
+      count++
+      const tlength = Object.keys(texts).length + 1
+      const show = (count % tlength) !== 0
+      this.rect.alpha = Number(show)
+      this.rect.zIndex = 10 + 2000 * show
+      let i = 0
+      for (const t in texts) {
+        texts[t].alpha = Number(count % tlength === (i + 1))
+        // console.log(texts[t], Number(count % tlength === (i + 1)))
+        i++
+      }
+      // console.log(show, count, i, tlength, count % tlength)
+      if (count === 2) {
+        wand.$('#info-button').hide()
+        wand.$('#play-button').click()
+        const seq = this.seqs[this.seqs.length - 1]
+        d(() => {
+          wand.magic.syncParnassum.nets.forEach(net => {
+            net.forEachNode((n, a) => {
+              a.pixiElement.visible = false
+              a.textElement.visible = false
+            })
+            net.forEachEdge((e, a) => {
+              a.pixiElement.visible = false
+            })
+          })
+          wand.$('#info-button').show()
+        }, seq.dur + seq.seq.interval * 0.3)
+      }
+    }
+    mkBtn('fa-info', 'info', 'infos / dialogs', fun)
+    wand.$('#info-button').click()
+  }
+
+  scaley (val) {
+    return this.settings.heightProportion * val
+  }
+
+  scalex (val) {
+    return this.settings.widthProportion * val
   }
 }
 

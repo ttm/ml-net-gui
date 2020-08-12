@@ -23,6 +23,7 @@ class Router {
         msid: wand.utils.rot(u.searchParams.get('msid')),
         unid: wand.utils.rot(u.searchParams.get('unid')),
         mnid: wand.utils.rot(u.searchParams.get('mnid')),
+        ts: wand.utils.rot(u.searchParams.get('ts')),
         syncCount: u.searchParams.get('s')
       }
       this.loadPath(wand.syncInfo.page + '.html')

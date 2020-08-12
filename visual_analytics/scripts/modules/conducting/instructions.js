@@ -1,16 +1,19 @@
+/* global wand */
 // to be shown in the canvas
 // if clicked, speech synthesis
 // there is a button to toggle portuguese and english
 // only the instructions, no entity or myth
 // not on first interfaces / interactions
 
-const gradus1 = `
-Welcome to the Gradus.
+const gradus1 = () => `
+Welcome to the Gradus, ${wand.fullNetwork.getNodeAttribute(wand.syncInfo.msid || wand.syncInfo.mnid, 'name')}.
 
-In this page, keep track of the "tips" until you reach your own social structure.
+First, hear your music in the network of ${wand.fullNetwork.getAttribute('userData').name}.
+
+Then, keep track of the "tips" until you reach your own social structure.
 You will make audiovisual music with it in order to acquire intimacy with the framework.
 
-Then, there will be other interfaces for community detection, synchronization and diffusion,
+You will reach other interfaces for community detection, synchronization and diffusion,
 merging structures, and other functionalities.
 Hope you reach the interaction networks from Twitter, Instagram, and other communication platforms.
 

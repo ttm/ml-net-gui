@@ -1,5 +1,5 @@
 /* global wand, MediaRecorder, MediaStream, Blob */
-const rec = () => {
+function rec () {
   // records audio and canvas,
   // for more examples and audio/canvas separately, se tests.js
 
@@ -16,7 +16,7 @@ const rec = () => {
 
   let chunks = []
   recorder.ondataavailable = evt => chunks.push(evt.data)
-  recorder.onstop = evt => {
+  recorder.onstop = function () {
     const blob = new Blob(chunks, { type: 'video/webm' })
     // audio.src = URL.createObjectURL(blob)
     var url = URL.createObjectURL(blob)
@@ -24,7 +24,7 @@ const rec = () => {
     document.body.appendChild(a)
     a.style = 'display: none'
     a.href = url
-    a.download = 'test.webm'
+    a.download = (this.filename || 'test') + '.webm'
     a.click()
     window.URL.revokeObjectURL(url)
   }

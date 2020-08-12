@@ -70,6 +70,7 @@ class AdParnassum {
   // this class has all gradus ad Parnassum and leads to
   // Tithorea and Lycoreia.
   constructor (settings = {}) {
+    wand.$('#favicon').attr('href', 'faviconMade.ico')
     document.title = 'Arcturian tribe'
     const self = this
     if (settings.muted) {

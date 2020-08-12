@@ -12,8 +12,7 @@ Five guards come near you, inspect your clothes, and, with respect the chief say
 We cannot allow you any further without knowing who you are.
 Please identify yourself ('login or pray' using the wand extension).
 Thus visit the 'Gradus ad Parnassum' (and install the chrome extension)
-if you cannot identify yourself.
-"
+if you cannot identify yourself."
 
 `
 const deucalion = `
@@ -118,4 +117,27 @@ Welcome. """
 Says the Arcturian Council representative to you.
 `
 
-module.exports = { deucalion, corycia, lycorus, guards, andromedans0, arcturians0 }
+const arcturians1 = `
+You can understand your interaction with your networks
+as exploration:
+  . with analyzis; or with
+  . midia generation / absorption,
+or as synergy:
+  . by diffusion; or by
+  . syncronization.
+
+Synchronization meaning a process in which you have
+an expected (or idealized) result, such as maturing a concept or framework,
+building a community, getting a project done, having an event happen.
+
+A diffusion is most often a synchronization: you want feedback messages,
+you want to create derivatives.
+A synchronization most often involves a fund, a monetary crowdsourcing (crowdfunding).
+A synchronization often involves an information crowdsourcing, for example
+to mature an idea, to find partners or sponsors, to understand how a proposal is accepted.
+
+The diffusion of goods may be essentially a diffusion (e.g. selling a product),
+although it most often is a synchronization (e.g. a community of buyers).
+`
+
+module.exports = { deucalion, corycia, lycorus, guards, andromedans0, arcturians0, arcturians1 }

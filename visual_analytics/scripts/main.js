@@ -41,7 +41,7 @@ wand.$('html').append(`
     </script>`)
 // wand.sageInfo = { name: 'Renato Fabbri', sid: 'renato.fabbri.125', nid: null, newfb: true }
 // wand.sageInfo = { name: 'Cris', sid: 'cristiane.godoytargon', nid: null, newfb: true }
-wand.sageInfo = { name: 'AV', sid: 'alanvalejo', nid: null, newfb: true }
+// wand.sageInfo = { name: 'AV', sid: 'alanvalejo', nid: null, newfb: true }
 
 const artist = wand.artist
 wand.extra.winDim = [artist.use.width, artist.use.height]

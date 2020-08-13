@@ -15,8 +15,7 @@ class Router {
     if (pn.includes('?page=')) {
       const a = new URLSearchParams(pn)
       const u = new URL(pn)
-      window.aaa = a
-      window.uuu = u
+      // http://localhost:8080/?page=ankh_&usid=erangb.snooev.125&mnid=1537120300&s=1&ts=0.001&bypassMusic=1&muted=1&clevel=7
       wand.syncInfo = {
         page: u.searchParams.get('page'),
         usid: wand.utils.rot(u.searchParams.get('usid')),
@@ -26,6 +25,7 @@ class Router {
         ts: wand.utils.rot(u.searchParams.get('ts')),
         muted: wand.utils.rot(u.searchParams.get('muted')),
         bypassMusic: wand.utils.rot(u.searchParams.get('bypassMusic')),
+        clevel: wand.utils.rot(u.searchParams.get('clevel')),
         syncCount: u.searchParams.get('s')
       }
       this.loadPath(wand.syncInfo.page + '.html')

@@ -1,4 +1,4 @@
-/* global wand, performance, alert */
+/* global wand, alert */
 
 const { OABase } = require('./oabase')
 const { mkBtn } = require('./gui.js')
@@ -22,47 +22,47 @@ class SyncParnassum extends OABase {
     wand.$('#favicon').attr('href', 'faviconMade.ico')
     super(settings)
 
-    wand.extra.exhibition = wand.test.testExhibition1('gradus')
-    wand.currentNetwork = wand.extra.exhibition.drawnNet.net
+    // wand.extra.exhibition = wand.test.testExhibition1('gradus')
+    // wand.currentNetwork = wand.extra.exhibition.drawnNet.net
     wand.$('#loading').hide()
 
-    const now = performance.now()
+    // const now = performance.now()
     wand.transfer.mong.findUserNetwork(wand.syncInfo.usid, wand.syncInfo.unid).then(r => {
-      let wait = performance.now() - now
-      if (wait > 10000) {
-        wait = 0
-      } else {
-        wait = (10000 - wait) * (wand.syncInfo.ts || 1)
-      }
-      console.log('loaded user network', wait)
-      setTimeout(() => {
-        this.allNetworks = r
-        console.log('timeout finished, parse json -> graphology')
-        const g = wand.net.use.utils.loadJsonString(this.allNetworks[0].text)
-        this.registerNetwork(g, 'full')
-        const nodesToRemove = []
-        g.forEachNode((n, a) => {
-          if (!a.scrapped) {
-            nodesToRemove.push(n)
-          }
-        })
-        nodesToRemove.forEach(n => {
-          g.dropNode(n)
-        })
-        this.registerNetwork(g, 'current') // make the small networks derived from the person
-        this.setRecorder()
-        console.log('memb nets')
-        this.makeMemberNetworks()
-        console.log('memb mus')
-        this.seqs = [this.makeMemberMusic(0, 0)]
-        for (let i = 1; i < this.plots.length; i++) {
-          this.seqs.push(this.makeMemberMusic(i, this.seqs[i - 1].dur))
+      // let wait = performance.now() - now
+      // if (wait > 10000) {
+      //   wait = 0
+      // } else {
+      //   wait = (10000 - wait) * (wand.syncInfo.ts || 1)
+      // }
+      // setTimeout(() => {
+      console.log('loaded user network')
+      this.allNetworks = r
+      console.log('timeout finished, parse json -> graphology')
+      const g = wand.net.use.utils.loadJsonString(this.allNetworks[0].text)
+      this.registerNetwork(g, 'full')
+      const nodesToRemove = []
+      g.forEachNode((n, a) => {
+        if (!a.scrapped) {
+          nodesToRemove.push(n)
         }
-        this.setPlay()
-        this.setInfo()
-        console.log('finished initialization')
-        wand.extra.exhibition.remove()
-      }, wait)
+      })
+      nodesToRemove.forEach(n => {
+        g.dropNode(n)
+      })
+      this.registerNetwork(g, 'current') // make the small networks derived from the person
+      this.setRecorder()
+      console.log('memb nets')
+      this.makeMemberNetworks()
+      console.log('memb mus')
+      this.seqs = [this.makeMemberMusic(0, 0)]
+      for (let i = 1; i < this.plots.length; i++) {
+        this.seqs.push(this.makeMemberMusic(i, this.seqs[i - 1].dur))
+      }
+      this.setPlay()
+      this.setInfo()
+      console.log('finished initialization')
+      // wand.extra.exhibition.remove()
+      // }, wait)
       // this.drawnNet = new wand.conductor.use.DrawnNet(wand.artist.use, wand.currentNetwork, [])
       // const { conductor, artist } = wand
       // wand.extra.drawnNet = new conductor.use.DrawnNet(artist.use, wand.currentNetwork, [artist.use.width, artist.use.height * 0.9])
@@ -377,6 +377,7 @@ class SyncParnassum extends OABase {
             wand.$('#play-button').click()
             this.start()
           }, seq.dur + seq.seq.interval * 0.3)
+          console.log('MUSIC DURATION:', (seq.dur + seq.seq.interval * 0.3))
         }
       }
     }

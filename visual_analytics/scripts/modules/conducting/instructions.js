@@ -6,9 +6,10 @@
 // not on first interfaces / interactions
 
 const gradus1 = () => `
-Welcome to the Gradus, ${wand.fullNetwork.getNodeAttribute(wand.syncInfo.msid || wand.syncInfo.mnid, 'name')}.
+Welcome to the Gradus.
 
-First, hear your music in the network of ${wand.fullNetwork.getAttribute('userData').name}.
+Hear your music, ${wand.fullNetwork.getNodeAttribute(wand.syncInfo.msid || wand.syncInfo.mnid, 'name')}.
+in the network of ${wand.fullNetwork.getAttribute('userData').name}.
 
 Then, keep track of the "tips" until you reach your own social structure.
 You will make audiovisual music with it in order to acquire intimacy with the framework.

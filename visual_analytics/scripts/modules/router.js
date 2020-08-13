@@ -13,7 +13,7 @@ class Router {
     const pn = decodeURIComponent(window.location.href)
     let path
     if (pn.includes('?page=')) {
-      const a = new URLSearchParams(pn)
+      // const a = new URLSearchParams(pn)
       const u = new URL(pn)
       // http://localhost:8080/?page=ankh_&usid=erangb.snooev.125&mnid=1537120300&s=1&ts=0.001&bypassMusic=1&muted=1&clevel=7
       wand.syncInfo = {

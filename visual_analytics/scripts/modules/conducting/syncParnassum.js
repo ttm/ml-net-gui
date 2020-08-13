@@ -181,7 +181,7 @@ class SyncParnassum extends OABase {
     //   // Tone.Transport.stop(seq.interval * this.sync.progression.length * 0.99)
     // }
     // mkBtn('fa-info', 'info', 'infos / dialogs', fun)
-    return { dur, sync, net, seq }
+    return { dur, sync, net, seq, membSynth, membSynth2 }
   }
 
   registerNetwork (graph, avarname) {
@@ -197,6 +197,9 @@ class SyncParnassum extends OABase {
     netdegree.assign(sg)
     netmetrics.centrality.degree.assign(sg)
     sg.setAttribute('userData', g.getAttribute('userData'))
+    sg.forEachNode((n, a) => {
+      a.id = n
+    })
     wand[avarname + 'Network'] = sg
     const norm = v => v === Math.round(v) ? v : v.toFixed(3)
     const mString = metric => {

@@ -98,7 +98,7 @@ const blink = (net, app) => {
       net.forEachNode((key, attr) => {
         if (Math.random() < 0.4) {
           attr.pixiElement.tint = 0xffffff * Math.random()
-          attr.pixiElement.alpha = Math.random()
+          attr.pixiElement.alpha = Math.random() * (attr.pixiElement.balpha === undefined ? 1 : attr.pixiElement.balpha)
         }
       })
     }

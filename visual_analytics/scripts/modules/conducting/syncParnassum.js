@@ -23,6 +23,7 @@ class SyncParnassum extends OABase {
     super(settings)
 
     wand.extra.exhibition = wand.test.testExhibition1('gradus')
+    wand.currentNetwork = wand.extra.exhibition.drawnNet.net
     wand.$('#loading').hide()
 
     const now = performance.now()

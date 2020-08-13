@@ -177,7 +177,7 @@ function updateLink (l) {
   l.clear()
   l.lineStyle(1, 0xffffff)
   // l.tint = l.mtint, not necessary, preserved
-  l.alpha = 0.2
+  l.alpha = l.balpha === undefined ? 0.2 : l.balpha
   l.zIndex = 1
   l.moveTo(l.p1.x, l.p1.y)
   l.lineTo(l.p2.x, l.p2.y)

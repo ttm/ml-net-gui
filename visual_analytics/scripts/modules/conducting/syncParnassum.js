@@ -327,13 +327,10 @@ class SyncParnassum extends OABase {
       return texts[element]
     }
     let count = 0
-    this.mkNames()
     mkElement([1, 2.2], 0x777733, '1', 3000, 0, gradus1())
     mkElement([1, 2.2], 0x777733, '1', 3000, 0, gradus2())
-    // mkElement([1, 5.2], 0x337733, 'lycorus', 3000, 0, lycorus())
-    // mkElement([1, 5.2], 0x337733, 'corycia', 3000, 0, corycia())
-    console.log('YEAH MAN, HERE YEAH')
     wand.theNetwork = wand.starNetwork
+    this.mkNames()
     const fun = () => {
       count++
       const tlength = Object.keys(texts).length + 1
@@ -343,7 +340,6 @@ class SyncParnassum extends OABase {
       let i = 0
       for (const t in texts) {
         texts[t].alpha = Number(count % tlength === (i + 1))
-        // console.log(texts[t], Number(count % tlength === (i + 1)))
         i++
       }
       // console.log(show, count, i, tlength, count % tlength)

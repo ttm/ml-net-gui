@@ -135,6 +135,7 @@ const testGetNet2 = () => {
 const testGetNet3 = () => {
   // plots network and alternate names of participants
   // fixme: emphasize neighbors if 'onclick' event
+  // transfer.spark.getNetMembersLinks('facebook-legacy-AntonioAnzoategui18022013')
   transfer.spark.getNetMembersLinks('facebook-legacy-AntonioAnzoategui18022013')
   const call = res => {
     const net_ = net.use.build.buildFromSparql(res.members, res.friendships)

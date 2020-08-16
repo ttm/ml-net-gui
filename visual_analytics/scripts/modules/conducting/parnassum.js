@@ -1582,7 +1582,7 @@ class AdParnassum {
     wand.extra.loadingNetInScreen = false
     this.state.namesSize.update()
     this.state.nodesSize.update()
-    this.state.player.playerAlgs.threeSectors()
+    this.state.player.playerAlgs.threeSectors() // fixme: threeSectors should not be loaded when instantiating a network
   }
 
   destroyNetwork () {

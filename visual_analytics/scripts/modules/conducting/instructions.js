@@ -5,34 +5,52 @@
 // only the instructions, no entity or myth
 // not on first interfaces / interactions
 
+// starting message:
 const gradus1 = () => `
 Welcome to the Gradus.
 
-Hear your music, ${wand.fullNetwork.getNodeAttribute(wand.syncInfo.msid || wand.syncInfo.mnid, 'name')}.
-in the network of ${wand.fullNetwork.getAttribute('userData').name}.
+Hear your music, ${wand.syncInfo.pageMemberName}.
+in the network of ${wand.syncInfo.syncMemberName}.
 
-Then, keep track of the "tips" until you reach your own social structure.
-You will make audiovisual music with it in order to acquire intimacy with the framework.
+Then, keep track of the "tips" until you reach your own social organism.
+You will make art, audiovisual music, with it in order to acquire intimacy with the framework.
 
 You will reach other interfaces for community detection, synchronization and diffusion,
-merging structures, and other functionalities.
+merging structures, and other modes of performance.
 Hope you reach the interaction networks from Twitter, Instagram, and other communication platforms.
+Hope you reach the concept networks and the oracles (such as the chatter bots).
 
-Good luck.
+Also, the OA software is GPL @ FSF. So you can install an instance of your own or yield derivatives.
 
-(press the [i] button)
+Now with your friendship networks.
+Good luck!
+
+OA @ ${wand.syncInfo.pageMemberName}/${wand.syncInfo.syncMemberName}, ${wand.syncInfo.date}.
+(press the [i] button above or login with the chrome extension if you have it)
 `
 
-// const gradus2 = `
-// You have reached the audiovisualization of the network.
-// Click at any node
-// `
+// after the exhibition with the music from the person:
+const gradus2 = () => `
+${wand.syncInfo.syncDescription || 'no description for the sync provided'}
+
+(press the [i] button above)
+`
+
+// final message, with the link to open extension:
+const gradus3 = () => `
+You near the Mount Parnassum.
+
+You should install the extension, load this page, and hit login
+to know your network self, and make art, analyses, synchronizations
+such as this, on your social body, ${wand.syncInfo.pageMemberName}.
+The performance modes and features you will unblock progressivelly.
+What modes and features is dependent on the version of OA you are using and your usage.
+`
 
 const gradusRec = () => `
-You have recorded your music, ${wand.fullNetwork.getNodeAttribute(wand.syncInfo.msid || wand.syncInfo.mnid, 'name')}.
-Save the video file locally and upload it to a video platform (such as youtube). Keep the link at hand.
-You can also send the video to OA curators.
-A video link sent to the curators might appear in the OA newsletter.
+You have recorded your music, ${wand.syncInfo.pageMemberName}.
+Save the video file locally and upload it to a video platform (such as youtube).
+You will need the link to reach the Mount Parnassum.
 `
 
 const lycoreia1 = `
@@ -78,4 +96,4 @@ After three musical pieces input, you will be able to perform one and only netwo
 This is your utmost goal at this stage.
 `
 
-module.exports = { tithorea1, lycoreia1, gradus1, gradusRec }
+module.exports = { tithorea1, lycoreia1, gradus1, gradus2, gradus3, gradusRec }

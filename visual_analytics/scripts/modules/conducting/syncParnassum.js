@@ -2,7 +2,7 @@
 
 const { OABase } = require('./oabase')
 const { mkBtn } = require('./gui.js')
-const { gradus1, gradusRec } = require('./instructions.js')
+const { gradus1, gradus2, gradusRec } = require('./instructions.js')
 const { Tone } = require('../maestro/all.js').base
 const netmetrics = require('graphology-metrics')
 const netdegree = require('graphology-metrics/degree')
@@ -54,9 +54,9 @@ class SyncParnassum extends OABase {
       console.log('memb nets')
       this.makeMemberNetworks()
       console.log('memb mus')
-      this.seqs = [this.makeMemberMusic(0, 0)]
+      this.memberMusicSeqs = [this.makeMemberMusic(0, 0)]
       for (let i = 1; i < this.plots.length; i++) {
-        this.seqs.push(this.makeMemberMusic(i, this.seqs[i - 1].dur))
+        this.memberMusicSeqs.push(this.makeMemberMusic(i, this.memberMusicSeqs[i - 1].dur))
       }
       this.setPlay()
       this.setInfo()
@@ -95,6 +95,7 @@ class SyncParnassum extends OABase {
     }, { min: 100000, max: 0 })
     pambit.ambit = pambit.max - pambit.min || 1
     const id = wand.syncInfo.msid || wand.syncInfo.mnid
+    let stepCounter = 0
     const seq = new Tone.Pattern((time, step) => {
       if (step.length === 0) {
         net.forEachNode((n, a) => {
@@ -160,6 +161,22 @@ class SyncParnassum extends OABase {
           a.pixiElement.alpha = 0.4
         }
       })
+      stepCounter++
+      if (stepCounter === sync.progression.length) {
+        d(() => {
+          membSynth.dispose()
+          membSynth2.dispose()
+          net.forEachNode((n, a) => {
+            a.pixiElement.visible = false
+            a.pixiElement.interactive = false
+            a.textElement.visible = false
+          })
+          net.forEachEdge((e, a) => {
+            a.pixiElement.visible = false
+          })
+        }, seq.interval)
+        seq.dispose()
+      }
     }, sync.progression)
     seq.interval = '1n'
     seq.start(adur)
@@ -322,6 +339,11 @@ class SyncParnassum extends OABase {
     }).hide()
   }
 
+  mkNames () {
+    wand.syncInfo.pageMemberName = wand.fullNetwork.getNodeAttribute(wand.syncInfo.msid || wand.syncInfo.mnid, 'name')
+    wand.syncInfo.syncMemberName = wand.fullNetwork.getAttribute('userData').name
+  }
+
   setInfo () {
     const a = wand.artist.use
     this.rect = a.mkRectangle({
@@ -339,7 +361,9 @@ class SyncParnassum extends OABase {
       return texts[element]
     }
     let count = 0
+    this.mkNames()
     mkElement([1, 2.2], 0x777733, '1', 3000, 0, gradus1())
+    mkElement([1, 2.2], 0x777733, '1', 3000, 0, gradus2())
     // mkElement([1, 5.2], 0x337733, 'lycorus', 3000, 0, lycorus())
     // mkElement([1, 5.2], 0x337733, 'corycia', 3000, 0, corycia())
     console.log('YEAH MAN, HERE YEAH')
@@ -364,17 +388,8 @@ class SyncParnassum extends OABase {
           wand.$('#info-button').hide()
           this.rect.alpha = 0
           wand.$('#play-button').click()
-          const seq = this.seqs[this.seqs.length - 1]
+          const seq = this.memberMusicSeqs[this.memberMusicSeqs.length - 1]
           d(() => {
-            wand.magic.syncParnassum.nets.forEach(net => {
-              net.forEachNode((n, a) => {
-                a.pixiElement.visible = false
-                a.textElement.visible = false
-              })
-              net.forEachEdge((e, a) => {
-                a.pixiElement.visible = false
-              })
-            })
             alert(gradusRec())
             wand.$('#info-button').show()
             wand.$('#play-button').click()

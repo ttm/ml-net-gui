@@ -86,7 +86,6 @@ const losdCall = (query, callback) => {
   )
 }
 
-// const getNetMembersLinks = (netid, callback) => {
 const getNetMembersLinks = (netid, call = console.log) => {
   const qmembers = `SELECT DISTINCT ?p ?n WHERE {
     ?s po:snapshotID '${netid}' .

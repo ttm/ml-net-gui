@@ -29,8 +29,10 @@ function rec () {
     window.URL.revokeObjectURL(url)
   }
   recorder.astart = function () {
-    chunks = []
-    this.start()
+    if (recorder.state === 'inactive') {
+      chunks = []
+      this.start()
+    }
   }
   return recorder // use start(), stop() (which will trigger download)
 }

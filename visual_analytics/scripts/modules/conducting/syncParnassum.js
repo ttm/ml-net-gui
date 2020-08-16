@@ -58,18 +58,8 @@ class SyncParnassum extends OABase {
       for (let i = 1; i < this.plots.length; i++) {
         this.memberMusicSeqs.push(this.makeMemberMusic(i, this.memberMusicSeqs[i - 1].dur))
       }
-      this.setPlay()
       this.setInfo()
       console.log('finished initialization')
-      // wand.extra.exhibition.remove()
-      // }, wait)
-      // this.drawnNet = new wand.conductor.use.DrawnNet(wand.artist.use, wand.currentNetwork, [])
-      // const { conductor, artist } = wand
-      // wand.extra.drawnNet = new conductor.use.DrawnNet(artist.use, wand.currentNetwork, [artist.use.width, artist.use.height * 0.9])
-      // wand.drawnNet = this.drawnNet
-      // make exhibition with the small nets and the member visited
-      // this.setNetInfo()
-      // this.setSyncBuilder()
     })
   }
 
@@ -162,10 +152,13 @@ class SyncParnassum extends OABase {
         }
       })
       stepCounter++
-      if (stepCounter === sync.progression.length) {
+      console.log(stepCounter, sync.progression.length)
+      if (stepCounter === sync.progression.length - 1) {
         d(() => {
           membSynth.dispose()
           membSynth2.dispose()
+          seq.stop()
+          seq.dispose()
           net.forEachNode((n, a) => {
             a.pixiElement.visible = false
             a.pixiElement.interactive = false
@@ -174,30 +167,12 @@ class SyncParnassum extends OABase {
           net.forEachEdge((e, a) => {
             a.pixiElement.visible = false
           })
-        }, seq.interval)
-        seq.dispose()
+        }, time + seq.interval)
       }
     }, sync.progression)
     seq.interval = '1n'
     seq.start(adur)
     const dur = seq.interval * (sync.progression.length - 1) + adur
-    seq.stop(dur)
-    d(() => {
-      net.forEachEdge((e, a, n1, n2) => {
-        a.pixiElement.alpha = 0
-      })
-      net.forEachNode((e, a, n1, n2) => {
-        a.pixiElement.alpha = 0
-        a.textElement.alpha = 0
-      })
-    }, dur + seq.interval * 0.1)
-    // console.log('HEY MAN', seq)
-    // const fun = () => {
-    //   seq.start()
-    //   Tone.Transport.start()
-    //   // Tone.Transport.stop(seq.interval * this.sync.progression.length * 0.99)
-    // }
-    // mkBtn('fa-info', 'info', 'infos / dialogs', fun)
     return { dur, sync, net, seq, membSynth, membSynth2 }
   }
 
@@ -287,15 +262,6 @@ class SyncParnassum extends OABase {
           net.setNodeAttribute(node, 'step', i)
         })
       })
-      // sync.progressionLinks.forEach((step, i) => {
-      //   const c = cs[i]
-      //   step.forEach(link => {
-      //     const a = net.getEdgeAttributes(link.from, link.to).pixiElement
-      //     console.log('LINK', link, a)
-      //     a.alpha = 0
-      //     a.tint = c
-      //   })
-      // })
       net.forEachEdge((e, a) => {
         a.pixiElement.alpha = 0
       })
@@ -383,8 +349,14 @@ class SyncParnassum extends OABase {
       // console.log(show, count, i, tlength, count % tlength)
       if (count === 2) {
         if (wand.syncInfo.bypassMusic) {
+          this.memberMusicSeqs.forEach(s => {
+            s.seq.dispose()
+            s.membSynth.dispose()
+            s.membSynth2.dispose()
+          })
           this.start()
         } else {
+          this.setPlay()
           wand.$('#info-button').hide()
           this.rect.alpha = 0
           wand.$('#play-button').click()

@@ -25,7 +25,7 @@ Also, the OA software is GPL @ FSF. So you can install an instance of your own o
 Now with your friendship networks.
 Good luck!
 
-OA @ ${wand.syncInfo.pageMemberName}/${wand.syncInfo.syncMemberName}, ${wand.syncInfo.date}.
+OA @ ${wand.syncInfo.pageMemberName}/${wand.syncInfo.syncMemberName}, ${(new Date()).toISOString().split('.')[0]}.
 (press the [i] button above or login with the chrome extension if you have it)
 `
 

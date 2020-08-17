@@ -1048,6 +1048,7 @@ const testTithorea = () => {
 const testSyncParnassum = () => {
   console.log(window.syncInfo)
   console.log('go Parnassum!')
+  // http://localhost:8080/?page=ankh_&usid=erangb.snooev.125&mnid=1537120300&s=1&mute=1&muteMusic=1&bypassMusic=1&ts=0.001&clevel=7
   wand.magic.syncParnassum = new wand.magic.SyncParnassum()
 }
 

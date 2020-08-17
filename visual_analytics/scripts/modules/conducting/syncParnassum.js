@@ -28,18 +28,12 @@ class SyncParnassum extends OABase {
 
     // const now = performance.now()
     wand.transfer.mong.findUserNetwork(wand.syncInfo.usid, wand.syncInfo.unid).then(r => {
-      // let wait = performance.now() - now
-      // if (wait > 10000) {
-      //   wait = 0
-      // } else {
-      //   wait = (10000 - wait) * (wand.syncInfo.ts || 1)
-      // }
-      // setTimeout(() => {
       console.log('loaded user network')
       this.allNetworks = r
       console.log('timeout finished, parse json -> graphology')
       const g = wand.net.use.utils.loadJsonString(this.allNetworks[0].text)
       this.registerNetwork(g, 'full')
+      this.mkNames()
       const nodesToRemove = []
       g.forEachNode((n, a) => {
         if (!a.scrapped) {
@@ -292,14 +286,15 @@ class SyncParnassum extends OABase {
     let playing = false
     mkBtn('fa-play', 'play', 'play your music', () => {
       playing = !playing
+      console.log('hidden play pressed')
       if (playing) {
         wand.maestro.base.Tone.Transport.start()
         wand.$('#play-button').css('background-color', 'red')
-        wand.$('#record-button').click()
+        wand.$('#record-button').click() // start recording
       } else {
         wand.$('#play-button').css('background-color', 'white')
         wand.maestro.base.Tone.Transport.stop()
-        wand.$('#record-button').click()
+        wand.$('#record-button').click() // stop recording
         // this.resetNetwork()
       }
     }).hide()
@@ -326,24 +321,42 @@ class SyncParnassum extends OABase {
       texts[element] = a.mkTextFancy(text, [pos[0] * x, pos[1] * y], fs, color, zIndex, alpha)
       return texts[element]
     }
-    let count = 0
     mkElement([1, 2.2], 0x777733, '1', 3000, 0, gradus1())
-    mkElement([1, 2.2], 0x777733, '1', 3000, 0, gradus2())
+    mkElement([1, 2.2], 0x777733, '2', 3000, 0, gradus2())
     wand.theNetwork = wand.starNetwork
-    this.mkNames()
-    const fun = () => {
-      count++
+
+    const showMsg = i => {
+      console.log(i, this.rect, texts, texts[i], 'THE SHOW GUY')
+      this.rect.alpha = 1
+      this.rect.zIndex = 2000
+      texts[i].alpha = 1
+      count = Object.keys(texts).length
+    }
+
+    let count = 0
+    const fun = acount => {
       const tlength = Object.keys(texts).length + 1
-      const show = (count % tlength) !== 0
-      this.rect.alpha = Number(show)
-      this.rect.zIndex = 10 + 2000 * show
-      let i = 0
+      console.log(count, acount, 'THE INFO GUY IN')
+      count = acount === undefined ? count : Object.keys(texts).length
+      acount = acount === undefined ? ++count : acount
+      const show = (acount % tlength) !== 0
+      console.log(count, acount, show, 'THE INFO GUY OUT', tlength, (acount % tlength))
+      if (!show) {
+        this.rect.alpha = 0
+        this.rect.zIndex = 10
+      } else {
+        this.rect.alpha = 1
+        this.rect.zIndex = 2000
+      }
+      let i = 1
       for (const t in texts) {
-        texts[t].alpha = Number(count % tlength === (i + 1))
+        console.log('i, alpha', i, Number(acount % tlength === i))
+        texts[t].alpha = Number(acount % tlength === i)
         i++
       }
-      // console.log(show, count, i, tlength, count % tlength)
-      if (count === 2) {
+      // this.rect.alpha = Number(show)
+      // this.rect.zIndex = 10 + 2000 * show
+      if (!this.isInitialized) {
         if (wand.syncInfo.bypassMusic) {
           this.memberMusicSeqs.forEach(s => {
             s.seq.dispose()
@@ -354,21 +367,24 @@ class SyncParnassum extends OABase {
         } else {
           this.setPlay()
           wand.$('#info-button').hide()
-          this.rect.alpha = 0
-          wand.$('#play-button').click()
+          wand.$('#play-button').click() // start play and record
           const seq = this.memberMusicSeqs[this.memberMusicSeqs.length - 1]
           d(() => {
             alert(gradusRec())
             wand.$('#info-button').show()
-            wand.$('#play-button').click()
+            wand.$('#play-button').click() // stop play and record
+            showMsg(2)
             this.start()
-          }, seq.dur + seq.seq.interval * 0.3)
+          }, seq.dur + seq.seq.interval)
           console.log('MUSIC DURATION:', (seq.dur + seq.seq.interval * 0.3))
         }
+        this.rect.alpha = 0
+        this.isInitialized = true
       }
     }
     mkBtn('fa-info', 'info', 'infos / dialogs', fun)
-    wand.$('#info-button').click()
+    // wand.$('#info-button').click()
+    showMsg(1)
   }
 }
 

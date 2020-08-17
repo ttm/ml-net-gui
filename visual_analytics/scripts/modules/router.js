@@ -4,29 +4,29 @@
 // to get current URL:
 // const pathnameSplit = window.location.pathname.split('/')
 
+const pn = decodeURIComponent(window.location.href)
+const u = new URL(pn)
+
 class Router {
   constructor (routes) {
     this.routes = routes
   }
 
   loadCurrent () {
-    const pn = decodeURIComponent(window.location.href)
     let path
     if (pn.includes('?page=')) {
       // const a = new URLSearchParams(pn)
-      const u = new URL(pn)
       // http://localhost:8080/?page=ankh_&usid=erangb.snooev.125&mnid=1537120300&s=1&ts=0.001&bypassMusic=1&muted=1&clevel=7
       wand.syncInfo = {
-        page: u.searchParams.get('page'),
-        usid: wand.utils.rot(u.searchParams.get('usid')),
-        msid: wand.utils.rot(u.searchParams.get('msid')),
-        unid: wand.utils.rot(u.searchParams.get('unid')),
-        mnid: wand.utils.rot(u.searchParams.get('mnid')),
-        ts: wand.utils.rot(u.searchParams.get('ts')),
-        muted: wand.utils.rot(u.searchParams.get('muted')),
-        bypassMusic: wand.utils.rot(u.searchParams.get('bypassMusic')),
-        clevel: wand.utils.rot(u.searchParams.get('clevel')),
-        syncCount: u.searchParams.get('s')
+        usid: urlArgument('usid', true),
+        msid: urlArgument('msid', true),
+        unid: urlArgument('unid', true),
+        mnid: urlArgument('mnid', true),
+        page: urlArgument('page'),
+        ts: urlArgument('ts'),
+        bypassMusic: urlArgument('bypassMusic'),
+        clevel: urlArgument('clevel'),
+        syncCount: urlArgument('s')
       }
       this.loadPath(wand.syncInfo.page + '.html')
     } else if (pn.includes('?')) {
@@ -36,6 +36,12 @@ class Router {
       path = pn.split('/')
       path = path[path.length - 1]
     }
+    urlArgument('muteMusic', () => {
+      wand.maestro.base.Tone.Master.volume.value = -100
+    })
+    urlArgument('mute', () => {
+      wand.maestro.synths.speaker.volume = -1 // 1 or 0 is 1, [0, 1] is ok range
+    })
     this.loadPath(path)
   }
 
@@ -50,4 +56,19 @@ class Router {
   }
 }
 
-module.exports = { use: { Router } }
+const conditionalArgument = (arg, fun) => {
+  if (u.searchParams.get(arg)) {
+    fun()
+  }
+}
+
+const urlArgument = (arg, rotOrFun) => {
+  const a = u.searchParams.get(arg)
+  if (typeof rotOrFun === 'function' && a) {
+    rotOrFun()
+  } else {
+    return rotOrFun ? wand.utils.rot(a) : a
+  }
+}
+
+module.exports = { use: { Router, urlArgument, conditionalArgument } }

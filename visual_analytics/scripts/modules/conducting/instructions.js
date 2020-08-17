@@ -18,7 +18,7 @@ You will make art, audiovisual music, with it in order to acquire intimacy with 
 You will reach other interfaces for community detection, synchronization and diffusion,
 merging structures, and other modes of performance.
 Hope you reach the interaction networks from Twitter, Instagram, and other communication platforms.
-Hope you reach the concept networks and the oracles (such as the chatter bots).
+Hope you reach the concept networks, oracles (such as the chatter bots), puzzles, and audiovisual instruments.
 
 Also, the OA software is GPL @ FSF. So you can install an instance of your own or yield derivatives.
 
@@ -35,6 +35,32 @@ ${wand.syncInfo.syncDescription || 'no description for the sync provided'}
 
 (press the [i] button above)
 `
+
+const gradusSyncLinks = linksText => `
+Congratulations, ${wand.syncInfo.pageMemberName}, you have reached the links which you should
+send forward to perform this synchronization.
+
+Click on the text below to copy it. Send to these friends through any communication protocol
+(telephone, email, whatsapp, telegram, facebook, twitter, instagram, irc, matrix, ...).
+Maybe take the chance to say hello and talk about life, work, or whatnot:
+
+${linksText}
+
+${wand.syncInfo.syncDescription || 'no description for the sync provided'}
+
+(press the [i] button above)
+`
+// Your music ${this.sync.infoTo[0].name}:
+// http://
+//
+// Your music ${this.sync.infoTo[0].name}:
+// http://
+//
+// Your music ${this.sync.infoTo[0].name}:
+// http://
+//
+// Your music ${this.sync.infoTo[0].name}:
+// http://
 
 // final message, with the link to open extension:
 const gradus3 = () => `
@@ -96,4 +122,4 @@ After three musical pieces input, you will be able to perform one and only netwo
 This is your utmost goal at this stage.
 `
 
-module.exports = { tithorea1, lycoreia1, gradus1, gradus2, gradus3, gradusRec }
+module.exports = { tithorea1, lycoreia1, gradus1, gradus2, gradus3, gradusRec, gradusSyncLinks }

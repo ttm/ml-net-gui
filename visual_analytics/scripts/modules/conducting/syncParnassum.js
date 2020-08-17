@@ -2,8 +2,10 @@
 
 const { OABase } = require('./oabase')
 const { mkBtn } = require('./gui.js')
-const { gradus1, gradus2, gradusRec } = require('./instructions.js')
+const { gradus1, gradus2, gradusRec, gradusSyncLinks } = require('./instructions.js')
 const { Tone } = require('../maestro/all.js').base
+const { copyToClipboard } = require('./utils.js')
+
 const netmetrics = require('graphology-metrics')
 const netdegree = require('graphology-metrics/degree')
 const components = require('graphology-components')
@@ -269,7 +271,13 @@ class SyncParnassum extends OABase {
     let count = 0
     mkBtn('fa-record-vinyl', 'record', 'record performance', () => {
       if (count % 2 === 0) {
-        rec.astart()
+        rec.astart(() => {
+          if (!this.urlConfirmed) {
+            if (/https*:\/\//.test('https://asd')) {
+              this.urlConfirmed = true
+            }
+          }
+        })
         wand.$('#record-button').css('background-color', '#ff0000')
       } else {
         const id = wand.syncInfo.msid || wand.syncInfo.mnid
@@ -280,6 +288,7 @@ class SyncParnassum extends OABase {
       }
       count++
     }).hide()
+    this.recorder = rec
   }
 
   setPlay () {
@@ -323,6 +332,14 @@ class SyncParnassum extends OABase {
     }
     mkElement([1, 2.2], 0x777733, '1', 3000, 0, gradus1())
     mkElement([1, 2.2], 0x777733, '2', 3000, 0, gradus2())
+    const atext = mkElement([1, 2.2], 0x777733, '3', 3000, 0, gradusSyncLinks())
+    atext.interactive = true
+    this.mkSyncLinks()
+    atext.on('pointerdown', () => {
+      window.alert(`links with text copied to your clipboard.
+      Paste on a text editor to read.`)
+      copyToClipboard(gradusSyncLinks(this.syncLinks))
+    })
     wand.theNetwork = wand.starNetwork
 
     const showMsg = i => {
@@ -385,6 +402,24 @@ class SyncParnassum extends OABase {
     mkBtn('fa-info', 'info', 'infos / dialogs', fun)
     // wand.$('#info-button').click()
     showMsg(1)
+  }
+
+  mkSyncLinks () {
+    const seeds = [wand.syncInfo.msid || wand.syncInfo.mnid]
+    this.sync = wand.net.use.diffusion.use.seededNeighborsLinks(wand.currentNetwork, 4, seeds)
+    const memberTexts = []
+    this.sync.progression[1].forEach(n => {
+      const a = wand.fullNetwork.getNodeAttributes(n)
+      const contact = this.getNodeUrl(a)
+      const name = a.name
+      const musicUrl = this.getNodeMusicUrl(a)
+      memberTexts.push(
+        `${name}:
+        -> music: ${musicUrl}
+        -> known contact medium: ${contact}`
+      )
+    })
+    this.syncLinks = memberTexts.join('\n\n')
   }
 }
 

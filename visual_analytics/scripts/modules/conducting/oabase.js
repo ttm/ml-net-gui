@@ -1,6 +1,8 @@
 /* global wand, performance */
-// const { mkBtn } = require('./gui.js')
+const { mkBtn } = require('./gui.js')
 const { Tone } = require('../maestro/all.js').base
+const { gradusSyncLinks } = require('./instructions.js')
+const { copyToClipboard } = require('./utils.js')
 
 const d = (f, time) => Tone.Draw.schedule(f, time)
 
@@ -123,7 +125,14 @@ class OABase {
           algs: ['playAll', 'playSync', 'silenceAll'],
           playerAlgs: {
             playAll: function () {
-              self.rec.astart()
+              self.rec.astart((url) => {
+                if (!this.urlConfirmed) {
+                  console.log('URL2:', url, /^https*:\/\//.test(url.trim()))
+                  if (/^https*:\/\//.test(url.trim())) {
+                    this.urlConfirmed = true
+                  }
+                }
+              })
               const net = wand.currentNetwork
               if (!net.syncProgression) {
                 net.getNodeAttribute(wand.syncInfo.msid || wand.syncInfo.mnid, 'pixiElement').emit('pointerdown')
@@ -146,6 +155,7 @@ class OABase {
               setTimeout(() => {
                 self.resetNetwork()
                 self.rec.stop()
+                // open dialog to input video URL:
               }, wand.currentNetwork.syncProgression.seq.interval * 1000)
             }
           },
@@ -213,6 +223,62 @@ class OABase {
               window.open(wandUrl, '_blank')
             })
             mkElement([1, 5.2], 0x337733, 'extra', 3000, 0, 'read the README to know how to install/use!')
+          }
+        },
+        muter: {
+          // current val = min + (max - min) * (count % step), in increment(attr)
+          count: 0, // interactions count
+          max: 1,
+          min: 0,
+          steps: 2,
+          current: 0,
+          muted: false,
+          iconId: '#muter-button',
+          update: function () {
+            // if (this.current) {
+            //   wand.maestro.base.Tone.Master.volume.value = -100
+            // } else {
+            //   wand.maestro.base.Tone.Master.volume.value = 0
+            // }
+            Tone.Master.mute = this.muted = !this.muted
+          },
+          bind: function () { // todo: conform other binds with this:
+            mkBtn('fa-microphone-alt-slash', 'muter', 'mute (only visual music)', () => {
+              self.increment('muter')
+            }, '#player-button')
+          }
+        },
+        syncMusic: {
+          // current val = min + (max - min) * (count % step), in increment(attr)
+          count: 0, // interactions count
+          max: 1,
+          min: 0,
+          steps: 2,
+          current: 0,
+          muted: false,
+          iconId: '#sync-button',
+          update: function () {
+            console.log(this.current)
+            self.mkSyncMusic()
+            self.resetSyncMap()
+            if (this.current) {
+              this.mute(false)
+              // self.showSync(true)
+            } else {
+              this.mute(true)
+              // self.showSync(false)
+            }
+          },
+          music: { instruments: [] },
+          bind: function () { // todo: conform other binds with this:
+            mkBtn('fa-sync', 'syncMusic', 'mute (only visual music)', () => {
+              self.increment('syncMusic')
+            }, '#player-button')
+          },
+          mute: function (play) {
+            this.music.instruments.forEach(i => {
+              i.mute = play
+            })
           }
         }
       }
@@ -361,8 +427,8 @@ class OABase {
             .prop('atitle', 'select network').prependTo('body')
           window.sss = s
           if (!wand.sageInfo) { // load one of the networks
-            ['star', '10%', '30%', '60%', '80%', '100%'].forEach((ss, i) => {
-              s.append($('<option/>').val(i).html(ss))
+            ['star', '5%', '15%', '30%', '40%', '45%'].forEach((ss, i) => {
+              s.append($('<option/>').val(i).html(`${wand.syncInfo.pageMemberName} - ${ss}`))
             })
             // this.allNetworks.forEach((n, i) => {
             //   s.append($('<option/>').val(i).html(n.name))
@@ -436,11 +502,48 @@ class OABase {
         }
       },
       nodeInfoClick: {
-        achievement: 'click node to explore in network',
+        achievement: 'musical explorer',
         alg: () => {
           this.bindExplorerMusic()
           this.bindThreeSectorsMusic()
           this.state.player.bindPlayer()
+        }
+      },
+      muteButton: {
+        achievement: 'mute button',
+        alg: () => {
+          this.state.muter.bind()
+        }
+      },
+      syncLinks: {
+        achievement: 'access to syncronization links',
+        alg: () => {
+          // this.state.muter.bind()
+          const seeds = [wand.syncInfo.msid || wand.syncInfo.mnid]
+          this.sync = wand.net.use.diffusion.use.seededNeighborsLinks(wand.currentNetwork, 4, seeds)
+          const memberTexts = []
+          this.sync.progression[1].forEach(n => {
+            const a = wand.fullNetwork.getNodeAttributes(n)
+            const contact = this.getNodeUrl(a)
+            const name = a.name
+            const musicUrl = this.getNodeMusicUrl(a)
+            memberTexts.push(
+              `${name}:
+              -> music: ${musicUrl}
+              -> known contact medium: ${contact}`
+            )
+          })
+          const finalText = memberTexts.join('\n\n')
+          console.log(memberTexts, this.sync, seeds, 'MEMBERTEXTS', finalText)
+          copyToClipboard(gradusSyncLinks(finalText))
+          copyToClipboard(gradusSyncLinks(finalText))
+          console.log('show the info page on the links')
+        }
+      },
+      syncMusic: {
+        achievement: 'mute button',
+        alg: () => {
+          this.state.syncMusic.bind()
         }
       },
       games: {
@@ -557,7 +660,40 @@ class OABase {
         }
       },
       activateAll: {
-        tip: 'make music and upload',
+        tip: 'play music, click on the nodes',
+        condition: () => {
+          if (wand.state.player.count === 5) {
+            console.log('mute used')
+            this.conditionMet = true
+          }
+        }
+      },
+      activateAll2: {
+        tip: 'insert video URL',
+        condition: () => {
+          if (wand.magic.syncParnassum.state.player.playerAlgs.urlConfirmed) {
+            this.conditionMet = true
+          }
+        }
+      },
+      goThroughInfoPages: {
+        tip: 'copy the sync links texts',
+        condition: () => {
+          if (this.syncLinksCopied) {
+            this.conditionMet = true
+          }
+        }
+      },
+      recordSyncMusic: {
+        tip: 'send link to your 4 less connected neighbors',
+        condition: () => {
+          if (wand.dialogSyncConfirmed) {
+            this.conditionMet = true
+          }
+        }
+      },
+      loginWithExtension: {
+        tip: 'install extension and login',
         condition: () => {
           if (wand.videoURLsInput) {
             console.log('all activated or accessed, gradus achieved')
@@ -830,12 +966,18 @@ class OABase {
       { feature: 'interactionCount', condition: 'interactMore' }, // 5
       { feature: 'nodeInfo', condition: 'hoverNodes' },
       { feature: 'nodeInfoClick', condition: 'activateAll' },
-      { feature: 'player', condition: 'playSome' },
-      { feature: 'games', condition: 'activate3Access2' },
-      { feature: 'games2', condition: 'activate2Access9' },
-      { feature: 'recorder', condition: 'recordSome' },
-      { feature: 'info', condition: 'someSecondsOnInfoPages' },
-      { feature: 'sync', condition: 'startASync' }
+      { feature: 'muteButton', condition: 'activateAll2' },
+      // just send the links to 4 less connected neighbors and
+      // say that when music button is pinnk, we have one type of syncronization:
+      { feature: 'syncLinks', condition: 'goThroughInfoPages' },
+      { feature: 'syncMusic', condition: 'recordSyncMusic' },
+      { feature: 'extensionInfo', condition: 'loginWithExtension' }
+      // { feature: 'player', condition: 'playSome' },
+      // { feature: 'games', condition: 'activate3Access2' },
+      // { feature: 'games2', condition: 'activate2Access9' },
+      // { feature: 'recorder', condition: 'recordSome' },
+      // { feature: 'info', condition: 'someSecondsOnInfoPages' },
+      // { feature: 'sync', condition: 'startASync' }
     ]
   }
 
@@ -924,9 +1066,12 @@ class OABase {
     if (iconChange === 'toggle') {
       console.log(n, icons, icons[n], 'IOIOI')
       e.toggleClass(() => icons[n])
+      console.log(max, val, 'CLICKED', attr)
     } else if (iconChange === 'toggle-color') {
+      console.log(max, val, 'CLICKED', attr)
     } else if (iconId !== undefined) { // if (iconChange == 'color') {
       let color = '#00ff00'
+      console.log(max, val, 'CLICKED', attr)
       if (max - val > 0.01) {
         color = '#' + Math.floor(0xffffff - 0xffff * val / max).toString(16)
       }
@@ -1269,6 +1414,202 @@ class OABase {
     seq.stop()
     seq2.stop()
     seq3.stop()
+  }
+
+  mkSyncMusic () {
+    const net = wand.currentNetwork
+    // if (net.hasSyncMusic) return
+    net.hasSyncMusic = true
+    this.seeds = [wand.syncInfo.msid || wand.syncInfo.mnid]
+    this.sync = wand.net.use.diffusion.use.seededNeighborsLinks(wand.currentNetwork, 4, this.seeds)
+    this.mkSyncNet()
+    this.playSync2(this.sync.progressionLinks)
+  }
+
+  mkSyncNet () {
+    const net = new wand.net.use.build.graphology.DirectedGraph()
+    this.sync.progression.forEach(step => {
+      step.forEach((node, i) => {
+        net.addNode(node)
+        net.setNodeAttribute(node, 'step', i + 1)
+      })
+    })
+    this.sync.progressionLinks.forEach(step => {
+      step.forEach(link => {
+        net.addDirectedEdge(link.from, link.to)
+      })
+    })
+    if (this.snet) {
+      this.snet.forEachEdge((e, a, n1, n2) => {
+        wand.currentNetwork.getEdgeAttribute(n1, n2, 'pixiElement').alpha = 0
+      })
+    }
+    this.snet = net
+    wand.snet = net
+    this.drawSyncNet()
+  }
+
+  drawSyncNet () {
+    // only keep links of the original network which are in the snet
+    // const snetu = this.snet.
+    if (!this.edgesErased) {
+      wand.currentNetwork.forEachEdge((e, a) => {
+        a.pixiElement.alpha = 0
+      })
+      this.edgesErased = true
+    }
+    this.snet.forEachEdge((e, a, n1, n2) => {
+      wand.currentNetwork.getEdgeAttribute(n1, n2, 'pixiElement').alpha = 1
+    })
+  }
+
+  playSync2 (progression) {
+    const self = this // fixme: really needed?
+    const net = wand.currentNetwork
+    const Tone = wand.maestro.base.Tone
+    // todo:
+    //  change membrane to poly, play all degrees or chord in range
+    const membSynth = new Tone.MembraneSynth().toMaster()
+    membSynth.volume.value = 10
+    const lengths = progression.map(i => i.length)
+    const maxl = Math.max(...lengths)
+    const minl = Math.min(...lengths)
+    const d = (f, time) => Tone.Draw.schedule(f, time)
+    const seq2 = new Tone.Pattern((time, nodes) => {
+      // console.log('bass', time, a.degree, node)
+      const nval = 20 + 60 * (nodes.length - minl) / (maxl - minl)
+      membSynth.triggerAttackRelease(nval, 1, time)
+      membSynth.triggerAttackRelease(nval, 1, time + 0.75 * seq2.interval)
+      if (nodes.length === 0) {
+        self.resetNetwork()
+      } else {
+        d(() => nodes.forEach(n => {
+          const a = net.getNodeAttributes(n.from)
+          a.activated = true
+          a.seed = false
+          self.styleNode(a)
+          d(() => {
+            a.seed = true
+            self.styleNode(a)
+          }, time + seq2.interval / 2)
+        }), time)
+        d(() => nodes.forEach(n => {
+          const a = net.getNodeAttributes(n.to)
+          a.seed = true
+          a.activated = false
+          self.styleNode(a)
+          d(() => {
+            a.activated = true
+            self.styleNode(a)
+          }, time + seq2.interval * 0.75)
+        }), time + seq2.interval / 2)
+      }
+    }, progression)
+    seq2.interval = '1n'
+    setTimeout(() => {
+      seq2.start()
+    }, seq2.interval * 1000)
+    wand.extra.progression = progression
+    wand.extra.instruments = {
+      ...wand.extra.instruments,
+      membSynth
+    }
+    wand.extra.patterns = {
+      ...wand.extra.patterns,
+      seq2
+    }
+    const fid = 'voice-' + this.voiceCounter++
+    const btn = mkBtn('fa-microphone-alt-slash', fid, 'remove voice', () => {
+      // console.log('clearing voice:', progression, g, voice, seq, instrument)
+      wand.$(`#${fid}-icon`).remove()
+      wand.$(`#${fid}-button`).remove()
+      seq2.stop()
+      setTimeout(() => {
+        seq2.dispose()
+        membSynth.dispose()
+      }, seq2.interval * 1000) // max interval having instrument events (drawing can get past duration)
+      // then restyle nodes in g
+      // remove names
+    }, '#info-button')
+    if (!window.location.href.includes('?advanced')) {
+      btn.hide()
+      if (this.voiceCounter > 1) {
+        const fid_ = 'voice-' + (this.voiceCounter - 2)
+        wand.$(`#${fid_}-button`).click()
+      }
+    }
+  }
+
+  resetSyncMap () {
+    if (this.arrows) {
+      this.arrows.forEach(a => {
+        a.destroy()
+      })
+    }
+    const arrows = []
+    const { progression, progressionLinks } = this.sync
+    progressionLinks.forEach(step => {
+      step.forEach(link => {
+        // console.log('TLINK:', link.from, link.to, 'pixiElement')
+        // const l = net.getEdgeAttribute(link.from, link.to, 'pixiElement')
+        // arrows.push(defaultLinkRenderer(l))
+        arrows.push(wand.artist.use.defaultLinkRenderer(link))
+      })
+    })
+    this.arrows = arrows
+    const net = wand.currentNetwork
+    this.seeds.forEach(n => {
+      net.setNodeAttribute(n, 'seed', true)
+    })
+    const cs = wand.artist.use.tincture.c.scale(['red', 'yellow', 'green', 'cyan', 'blue', '#ff00ff']).colors(progression.length, 'num')
+    progression.forEach((nodes, i) => {
+      const c = cs[i]
+      nodes.forEach(n => {
+        net.getNodeAttribute(n, 'pixiElement').tint = c
+        net.getNodeAttribute(n, 'pixiElement').alpha = 1
+        net.setNodeAttribute(n, 'stepColor', c)
+      })
+    })
+    this.setNetInfo()
+    this.setNodeInfo()
+  }
+
+  setNetInfo () {
+    this.texts.gradus.text = `name, id: ${wand.sageInfo.name}, ${wand.sageInfo.sid || wand.sageInfo.nid}`
+    this.texts.achievement.text = `friends, friendships: ${wand.currentNetwork.order}, ${wand.currentNetwork.size}`
+    if (this.sync) {
+      this.texts.tip.text = `seeds, steps: ${this.sync.seeds.length}, ${this.sync.progression.length - 1}`
+    }
+  }
+
+  setPlay () {
+    let playing = false
+    mkBtn('fa-play', 'play', 'play synchronization', () => {
+      playing = !playing
+      if (playing) {
+        wand.maestro.base.Tone.Transport.start()
+      } else {
+        wand.maestro.base.Tone.Transport.stop()
+        this.resetNetwork()
+      }
+    })
+  }
+
+  getNodeUrl (a) {
+    const { sid, nid } = a
+    if (sid) {
+      return `https://www.facebook.com/${sid}/friends`
+    } else {
+      return `https://www.facebook.com/profile.php?id=${nid}&sk=friends`
+    }
+  }
+
+  getNodeMusicUrl (a) {
+    const ustr = wand.utils.rot(wand.syncInfo.usid || wand.syncInfo.unid)
+    const ufield = wand.syncInfo.usid ? 'usid' : 'unid'
+    const mstr = wand.utils.rot(a.sid || a.nid)
+    const mfield = a.sid ? 'msid' : 'mnid'
+    return `${window.location.origin}/?page=ankh_&${ufield}=${ustr}&${mfield}=${mstr}&s=1`
   }
 }
 

@@ -1,8 +1,8 @@
 /* global wand, performance */
 const { mkBtn } = require('./gui.js')
 const { Tone } = require('../maestro/all.js').base
-const { gradusSyncLinks } = require('./instructions.js')
-const { copyToClipboard } = require('./utils.js')
+// const { gradusSyncLinks } = require('./instructions.js')
+// const { copyToClipboard } = require('./utils.js')
 
 const d = (f, time) => Tone.Draw.schedule(f, time)
 
@@ -518,26 +518,8 @@ class OABase {
       syncLinks: {
         achievement: 'access to syncronization links',
         alg: () => {
-          // this.state.muter.bind()
-          const seeds = [wand.syncInfo.msid || wand.syncInfo.mnid]
-          this.sync = wand.net.use.diffusion.use.seededNeighborsLinks(wand.currentNetwork, 4, seeds)
-          const memberTexts = []
-          this.sync.progression[1].forEach(n => {
-            const a = wand.fullNetwork.getNodeAttributes(n)
-            const contact = this.getNodeUrl(a)
-            const name = a.name
-            const musicUrl = this.getNodeMusicUrl(a)
-            memberTexts.push(
-              `${name}:
-              -> music: ${musicUrl}
-              -> known contact medium: ${contact}`
-            )
-          })
-          const finalText = memberTexts.join('\n\n')
-          console.log(memberTexts, this.sync, seeds, 'MEMBERTEXTS', finalText)
-          copyToClipboard(gradusSyncLinks(finalText))
-          copyToClipboard(gradusSyncLinks(finalText))
-          console.log('show the info page on the links')
+          this.infoLength = 3
+          this.showMsg(3)
         }
       },
       syncMusic: {
@@ -1593,23 +1575,6 @@ class OABase {
         this.resetNetwork()
       }
     })
-  }
-
-  getNodeUrl (a) {
-    const { sid, nid } = a
-    if (sid) {
-      return `https://www.facebook.com/${sid}/friends`
-    } else {
-      return `https://www.facebook.com/profile.php?id=${nid}&sk=friends`
-    }
-  }
-
-  getNodeMusicUrl (a) {
-    const ustr = wand.utils.rot(wand.syncInfo.usid || wand.syncInfo.unid)
-    const ufield = wand.syncInfo.usid ? 'usid' : 'unid'
-    const mstr = wand.utils.rot(a.sid || a.nid)
-    const mfield = a.sid ? 'msid' : 'mnid'
-    return `${window.location.origin}/?page=ankh_&${ufield}=${ustr}&${mfield}=${mstr}&s=1`
   }
 }
 

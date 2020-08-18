@@ -229,7 +229,6 @@ class SyncParnassum extends OABase {
       }
       const sg2 = subGraph(wand.currentNetwork, nodes).copy()
       return this.registerNetwork(sg2, 'r' + size)
-      // console.log('FINISH RSIZE', size, lastnet)
     }
 
     const max = wand.currentNetwork.order > 500 ? 500 : wand.currentNetwork.order
@@ -332,9 +331,9 @@ class SyncParnassum extends OABase {
     }
     mkElement([1, 2.2], 0x777733, '1', 3000, 0, gradus1())
     mkElement([1, 2.2], 0x777733, '2', 3000, 0, gradus2())
-    const atext = mkElement([1, 2.2], 0x777733, '3', 3000, 0, gradusSyncLinks())
-    atext.interactive = true
     this.mkSyncLinks()
+    const atext = mkElement([1, 2.2], 0x777733, '3', 3000, 0, gradusSyncLinks(this.syncLinks))
+    atext.interactive = true
     atext.on('pointerdown', () => {
       window.alert(`links with text copied to your clipboard.
       Paste on a text editor to read.`)
@@ -347,32 +346,22 @@ class SyncParnassum extends OABase {
       this.rect.alpha = 1
       this.rect.zIndex = 2000
       texts[i].alpha = 1
-      count = Object.keys(texts).length
+      texts[i].interactive = true
+      count = this.infoLength // Object.keys(texts).length
     }
 
     let count = 0
-    const fun = acount => {
-      const tlength = Object.keys(texts).length + 1
-      console.log(count, acount, 'THE INFO GUY IN')
-      count = acount === undefined ? count : Object.keys(texts).length
-      acount = acount === undefined ? ++count : acount
-      const show = (acount % tlength) !== 0
-      console.log(count, acount, show, 'THE INFO GUY OUT', tlength, (acount % tlength))
-      if (!show) {
-        this.rect.alpha = 0
-        this.rect.zIndex = 10
-      } else {
-        this.rect.alpha = 1
-        this.rect.zIndex = 2000
-      }
+    const fun = () => {
+      const tlength = this.infoLength + 1 // Object.keys(texts).length + 1
+      const show = (++count % tlength) !== 0
+      this.rect.alpha = Number(show)
+      this.rect.zIndex = 10 + 2000 * show
       let i = 1
       for (const t in texts) {
-        console.log('i, alpha', i, Number(acount % tlength === i))
-        texts[t].alpha = Number(acount % tlength === i)
+        texts[t].alpha = Number(count % tlength === i)
+        texts[t].interactive = count % tlength === i
         i++
       }
-      // this.rect.alpha = Number(show)
-      // this.rect.zIndex = 10 + 2000 * show
       if (!this.isInitialized) {
         if (wand.syncInfo.bypassMusic) {
           this.memberMusicSeqs.forEach(s => {
@@ -401,18 +390,31 @@ class SyncParnassum extends OABase {
     }
     mkBtn('fa-info', 'info', 'infos / dialogs', fun)
     // wand.$('#info-button').click()
+    this.infoLength = 2
     showMsg(1)
+    this.showMsg = showMsg
   }
 
   mkSyncLinks () {
+    const getNodeUrl = a => {
+      const { sid, nid } = a
+      return sid ? `https://www.facebook.com/${sid}` : `https://www.facebook.com/profile.php?id=${nid}`
+    }
+    const getNodeMusicUrl = a => {
+      const ustr = wand.utils.rot(wand.syncInfo.usid || wand.syncInfo.unid)
+      const ufield = wand.syncInfo.usid ? 'usid' : 'unid'
+      const mstr = wand.utils.rot(a.sid || a.nid)
+      const mfield = a.sid ? 'msid' : 'mnid'
+      return `${window.location.origin}/?page=ankh_&${ufield}=${ustr}&${mfield}=${mstr}&s=1`
+    }
     const seeds = [wand.syncInfo.msid || wand.syncInfo.mnid]
     this.sync = wand.net.use.diffusion.use.seededNeighborsLinks(wand.currentNetwork, 4, seeds)
     const memberTexts = []
     this.sync.progression[1].forEach(n => {
       const a = wand.fullNetwork.getNodeAttributes(n)
-      const contact = this.getNodeUrl(a)
+      const contact = getNodeUrl(a)
       const name = a.name
-      const musicUrl = this.getNodeMusicUrl(a)
+      const musicUrl = getNodeMusicUrl(a)
       memberTexts.push(
         `${name}:
         -> music: ${musicUrl}

@@ -126,7 +126,7 @@ class OABase {
           playerAlgs: {
             playAll: function () {
               self.rec.astart((url) => {
-                if (!this.urlConfirmed) {
+                if (url !== null && !this.urlConfirmed) {
                   console.log('URL2:', url, /^https*:\/\//.test(url.trim()))
                   if (/^https*:\/\//.test(url.trim())) {
                     this.urlConfirmed = true
@@ -448,8 +448,8 @@ class OABase {
           }
           s.on('change', aa => {
             let delay = 0
-            if (wand.currentNetwork.syncProgression) {
-              delay = wand.currentNetwork.syncProgression.rec.state === 'recording' ? wand.currentNetwork.syncProgression.seq.interval : 0
+            if (this.rec) {
+              delay = this.rec.state === 'recording' ? wand.currentNetwork.syncProgression.seq.interval : 0
             }
             setTimeout(() => {
               this.state.player.playerAlgs.playSync()
@@ -1252,22 +1252,19 @@ class OABase {
       a.pixiElement.on('pointerdown', () => {
         console.log('node clicked:', n, a)
         this.resetNetwork()
-        net.seeds.forEach(s => net.setNodeAttribute(s, 'seed', true))
-        a.seed = !a.seed
-        if (a.seed) {
-          net.seeds.push(a.id)
+        if (!net.seeds.includes(n)) {
+          net.seeds.push(n)
         } else {
-          const index = net.seeds.indexOf(a.id)
+          const index = net.seeds.indexOf(n)
           if (index !== -1) {
             net.seeds.splice(index, 1)
           }
         }
         if (net.seeds.length === 0) {
-          net.seeds = wand.utils.chooseUnique(net.nodes(), 4)
+          net.seeds = [wand.syncInfo.msid || wand.syncInfo.mnid]
         }
-        net.forEachNode((n, a) => {
-          this.styleNode(a)
-        })
+        net.seeds.forEach(s => net.setNodeAttribute(s, 'seed', true))
+        net.forEachNode((n, a) => { this.styleNode(a) })
         const isOn = net.syncProgression ? net.syncProgression.seq.state : false
         this.disposeSyncMusic()
         const progression = wand.net.use.diffusion.use.seededNeighbors(net, 4, net.seeds)

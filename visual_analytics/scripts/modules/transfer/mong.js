@@ -99,4 +99,11 @@ const findUserNetwork = (sid, nid) => {
 }
 const testCollection = db.collection(auth.collections.test)
 
-module.exports = { client, db, auth, writeIfNotThereReadIfThere, writeNetIfNotThereReadIfThere, findAllNetworks, writeNet, testCollection, findUserNetwork, findAllScrappedNetworks, s }
+const writeVideoUrl = data => {
+  // wand.transfer.mong.writeVideoUrl({ url, usid, unid, msid, mnid, syncCount, page, date: new Date(Date.now()).toISOString() })
+  client.auth.loginWithCredential(new s.AnonymousCredential()).then(user => {
+    db.collection(auth.collections.test).insertOne(data)
+  })
+}
+
+module.exports = { client, db, auth, writeIfNotThereReadIfThere, writeNetIfNotThereReadIfThere, findAllNetworks, writeNet, testCollection, findUserNetwork, findAllScrappedNetworks, s, writeVideoUrl }

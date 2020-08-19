@@ -2,7 +2,7 @@
 
 const { OABase } = require('./oabase')
 const { mkBtn } = require('./gui.js')
-const { gradus1, gradus2, gradusRec, gradusSyncLinks } = require('./instructions.js')
+const { gradus1, gradus2, gradusRec, gradusSyncLinks, gradusVideoLink, gradusExtensionInfo } = require('./instructions.js')
 const { Tone } = require('../maestro/all.js').base
 const { copyToClipboard } = require('./utils.js')
 
@@ -20,7 +20,7 @@ class SyncParnassum extends OABase {
     // wand.$('#favicon').attr('href', 'faviconbr.ico')
     // wand.$('#favicon').attr('href', 'log3.png')
     // wand.$('#favicon').attr('href', 'faviconMade2.ico')
-    document.title = 'OA: Gradus ad Parnassum'
+    document.title = 'Gradus (Our Aquarium)'
     wand.$('#favicon').attr('href', 'faviconMade.ico')
     super(settings)
 
@@ -265,23 +265,23 @@ class SyncParnassum extends OABase {
     this.plots = nets.map(net => plotNet(net))
   }
 
+  writeVideoUrl (vurl, desc) {
+    const { usid, unid, msid, mnid, page, syncCount } = wand.syncInfo
+    wand.transfer.mong.writeVideoUrl({ vurl, usid, unid, msid, mnid, syncCount, page, date: new Date(Date.now()).toISOString(), desc })
+  }
+
   setRecorder () {
     const rec = wand.transfer.rec.rec()
     let count = 0
+    this.videoUrls = []
     mkBtn('fa-record-vinyl', 'record', 'record performance', () => {
       if (count % 2 === 0) {
-        rec.astart(() => {
-          if (!this.urlConfirmed) {
-            if (/https*:\/\//.test('https://asd')) {
-              this.urlConfirmed = true
-            }
-          }
-        })
+        rec.astart()
         wand.$('#record-button').css('background-color', '#ff0000')
       } else {
         const id = wand.syncInfo.msid || wand.syncInfo.mnid
         const name = wand.currentNetwork.getNodeAttribute(id, 'name')
-        rec.filename = name + ' & ' + wand.fullNetwork.getAttribute('userData').name + ' (audiovisual music duo - Gradus ad Parnassum / OA) #oa #ourAquarium #oAquario (social network audiovisualization) ' + (new Date()).toISOString().split('.')[0]
+        rec.filename = name + ' & ' + wand.fullNetwork.getAttribute('userData').name + ', audiovisual music #oa #ourAquarium #oAquario ' + (new Date()).toISOString().split('.')[0]
         rec.stop()
         wand.$('#record-button').css('background-color', '#ffffff')
       }
@@ -331,14 +331,38 @@ class SyncParnassum extends OABase {
     }
     mkElement([1, 2.2], 0x777733, '1', 3000, 0, gradus1())
     mkElement([1, 2.2], 0x777733, '2', 3000, 0, gradus2())
+
+    const ltext = mkElement([1, 2.2], 0x777733, '3', 3000, 0, gradusVideoLink)
+    ltext.on('pointerdown', () => {
+      let vurl = window.prompt('Upload the file you downloaded enter video URL here:', 'something as https://www.youtube... (start with https:// or http://)')
+      if (vurl === null) return
+      vurl = vurl.trim()
+      if (/^https*:\/\//.test(vurl)) {
+        this.urlConfirmed = true
+        this.writeVideoUrl(vurl, 'gradus')
+      }
+    })
+    ltext.buttonMode = true
+
     this.mkSyncLinks()
-    const atext = mkElement([1, 2.2], 0x777733, '3', 3000, 0, gradusSyncLinks(this.syncLinks))
-    atext.interactive = true
+    const atext = mkElement([1, 2.2], 0x777733, '4', 3000, 0, gradusSyncLinks(this.syncLinks))
+    // atext.interactive = true
+    atext.buttonMode = true
     atext.on('pointerdown', () => {
       window.alert(`links with text copied to your clipboard.
       Paste on a text editor to read.`)
+      this.syncLinksCopied = true
       copyToClipboard(gradusSyncLinks(this.syncLinks))
     })
+
+    mkElement([1, 2.2], 0x777733, '5', 3000, 0, gradusExtensionInfo).on('pointerdown', () => {
+      const wandUrl = 'https://github.com/ttm/ml-net-gui/raw/master/visual_analytics/wand.zip' // fixme: use wand from preset?
+      window.open('OAextension.zip') // needs to be uploaded to instance. TTM
+      window.open(wandUrl, '_blank')
+    })
+
+    this.tttexts = texts
+
     wand.theNetwork = wand.starNetwork
 
     const showMsg = i => {

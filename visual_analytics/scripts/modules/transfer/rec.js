@@ -15,7 +15,7 @@ function rec () {
   const recorder = new MediaRecorder(combined, { mimeType: 'video/webm' })
 
   let chunks = []
-  recorder.videoUrls = []
+  // recorder.videoUrls = []
   recorder.ondataavailable = evt => chunks.push(evt.data)
   recorder.onstop = function () {
     const blob = new Blob(chunks, { type: 'video/webm' })
@@ -27,18 +27,17 @@ function rec () {
     a.href = url
     a.download = (this.filename || 'test') + '.webm'
     a.click()
-    window.clickedSaveDialog = a
-    const vurl = window.prompt('Upload the file you downloaded enter video URL here:', 'something as https://www.youtube... (start with https:// or http://)')
-    console.log('tURL:', vurl)
-    window.vurl = vurl
-    recorder.videoUrls.push(vurl)
-    if (recorder.callBack) {
-      recorder.callBackResult = recorder.callBack(vurl)
-    }
+    // window.clickedSaveDialog = a
+    // const vurl = window.prompt('Upload the file you downloaded enter video URL here:', 'something as https://www.youtube... (start with https:// or http://)')
+    // console.log('tURL:', vurl)
+    // window.vurl = vurl
+    // recorder.videoUrls.push(vurl)
+    // if (recorder.callBack) {
+    //   recorder.callBackResult = recorder.callBack(vurl)
+    // }
     window.URL.revokeObjectURL(url)
   }
-  recorder.astart = function (callBack) {
-    recorder.callBack = callBack
+  recorder.astart = function () {
     if (recorder.state === 'inactive') {
       chunks = []
       this.start()

@@ -79,6 +79,35 @@ Save the video file locally and upload it to a video platform (such as youtube).
 You will need the link to reach the Mount Parnassum.
 `
 
+const gradusVideoLink = `
+You may register the URLs of videos you uploaded using OA.
+
+Having these videos, and the number of videos, will be accounted for when enabling features.
+
+We recommend you provide at least one URL of a video you downloaded.
+
+Click anywhere in this text to enter the URL.
+
+(press the [i] button above to exit this message)
+`
+
+const gradusExtensionInfo = `
+Hail! You now have access to your browser extension.
+
+The code is scrutinizable and you can be sure it does nothing aside from what is described and you see.
+
+With it, you will be able to view your own network and login to a number of the Our Aquarium gadget.
+
+Just unpack the zip file, go to Chrome -> more tools -> extensions.
+Then enable developer mode, and select the OAextension folder which you unpacked.
+
+If you have any doubts, read the README file inside the unpacked folder.
+
+Click in this text to open the extension.
+
+Cheers.
+`
+
 const lycoreia1 = `
 Welcome to Lycoreia.
 
@@ -122,4 +151,4 @@ After three musical pieces input, you will be able to perform one and only netwo
 This is your utmost goal at this stage.
 `
 
-module.exports = { tithorea1, lycoreia1, gradus1, gradus2, gradus3, gradusRec, gradusSyncLinks }
+module.exports = { tithorea1, lycoreia1, gradus1, gradus2, gradus3, gradusRec, gradusSyncLinks, gradusVideoLink, gradusExtensionInfo }

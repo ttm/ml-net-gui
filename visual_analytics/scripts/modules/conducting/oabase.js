@@ -125,14 +125,7 @@ class OABase {
           algs: ['playAll', 'playSync', 'silenceAll'],
           playerAlgs: {
             playAll: function () {
-              self.rec.astart((url) => {
-                if (url !== null && !this.urlConfirmed) {
-                  console.log('URL2:', url, /^https*:\/\//.test(url.trim()))
-                  if (/^https*:\/\//.test(url.trim())) {
-                    this.urlConfirmed = true
-                  }
-                }
-              })
+              self.rec.astart()
               const net = wand.currentNetwork
               if (!net.syncProgression) {
                 net.getNodeAttribute(wand.syncInfo.msid || wand.syncInfo.mnid, 'pixiElement').emit('pointerdown')
@@ -515,11 +508,35 @@ class OABase {
           this.state.muter.bind()
         }
       },
-      syncLinks: {
-        achievement: 'access to syncronization links',
+      videoLink: {
+        achievement: 'register video URL',
         alg: () => {
           this.infoLength = 3
           this.showMsg(3)
+        }
+      },
+      almostSyncLinks: {
+        achievement: 'nearing access to sync links',
+        alg: () => { // dummy
+        }
+      },
+      syncLinks: {
+        achievement: 'access to syncronization links',
+        alg: () => {
+          this.infoLength = 4
+          this.showMsg(4)
+        }
+      },
+      almostExtensionInfo: {
+        achievement: 'nearing powerful extension',
+        alg: () => { // dummy
+        }
+      },
+      extensionInfo: {
+        achievement: 'access to extension',
+        alg: () => { // dummy
+          this.infoLength = 5
+          this.showMsg(5)
         }
       },
       syncMusic: {
@@ -641,24 +658,46 @@ class OABase {
           }
         }
       },
-      activateAll: {
+      playExplorer: {
         tip: 'play music, click on the nodes',
         condition: () => {
           if (wand.state.player.count === 5) {
-            console.log('mute used')
             this.conditionMet = true
           }
         }
       },
-      activateAll2: {
+      playWithMute: {
+        tip: 'play music with mute',
+        condition: () => {
+          // if (this.urlConfirmed) {
+          const { muter, player } = this.state
+          if (muter.current === 1 && player.current !== 2) {
+            this.conditionMet = true
+          }
+        }
+      },
+      inputUrl: {
         tip: 'insert video URL',
         condition: () => {
-          if (wand.magic.syncParnassum.state.player.playerAlgs.urlConfirmed) {
+          if (this.urlConfirmed) {
             this.conditionMet = true
           }
         }
       },
-      goThroughInfoPages: {
+      interactMore2: {
+        tip: 'interact more, click on buttons',
+        condition: () => {
+          if (!this.ninteractions) {
+            this.ninteractions = Object.values(this.state).reduce((a, v) => a + v.count, 0)
+          }
+          const total = Object.values(this.state).reduce((a, v) => a + v.count, 0)
+          if (total > this.ninteractions + 10) {
+            delete this.ninteractions
+            this.conditionMet = true
+          }
+        }
+      },
+      copyInfoPages: {
         tip: 'copy the sync links texts',
         condition: () => {
           if (this.syncLinksCopied) {
@@ -947,13 +986,18 @@ class OABase {
       { feature: 'randomColors', condition: 'colorChanges' },
       { feature: 'interactionCount', condition: 'interactMore' }, // 5
       { feature: 'nodeInfo', condition: 'hoverNodes' },
-      { feature: 'nodeInfoClick', condition: 'activateAll' },
-      { feature: 'muteButton', condition: 'activateAll2' },
-      // just send the links to 4 less connected neighbors and
-      // say that when music button is pinnk, we have one type of syncronization:
-      { feature: 'syncLinks', condition: 'goThroughInfoPages' },
-      { feature: 'syncMusic', condition: 'recordSyncMusic' },
-      { feature: 'extensionInfo', condition: 'loginWithExtension' }
+      { feature: 'nodeInfoClick', condition: 'playExplorer' }, // put URL upload on info page TTM
+      { feature: 'muteButton', condition: 'playWithMute' },
+      { feature: 'videoLink', condition: 'inputUrl' },
+      // interact some
+      { feature: 'almostSyncLinks', condition: 'interactMore2' },
+      { feature: 'syncLinks', condition: 'copyInfoPages' }, // copy the text to send. Show instructions
+      // interact some
+      { feature: 'almostExtensionInfo', condition: 'interactMore2' },
+      { feature: 'extensionInfo', condition: 'loginWithExtension' } // gradus reached
+      // when logged in with extension, if more than 100 friends scrapped, make Lycoreia available TTM
+      //
+      // { feature: 'syncMusic', condition: 'recordSyncMusic' }, // discarded
       // { feature: 'player', condition: 'playSome' },
       // { feature: 'games', condition: 'activate3Access2' },
       // { feature: 'games2', condition: 'activate2Access9' },

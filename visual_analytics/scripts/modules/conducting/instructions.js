@@ -92,7 +92,7 @@ Click anywhere in this text to enter the URL.
 `
 
 const gradusExtensionInfo = `
-Hail! You now have access to your browser extension.
+Hail! You can now use your browser extension.
 
 The code is scrutinizable and you can be sure it does nothing aside from what is described and you see.
 
@@ -100,10 +100,11 @@ With it, you will be able to view your own network and login to a number of the 
 
 Just unpack the zip file, go to Chrome -> more tools -> extensions.
 Then enable developer mode, and select the OAextension folder which you unpacked.
+Finally, login for further features and to reach your social self (your social organism, body).
 
 If you have any doubts, read the README file inside the unpacked folder.
 
-Click in this text to open the extension.
+Click in this text to access the extension.
 
 Cheers.
 `

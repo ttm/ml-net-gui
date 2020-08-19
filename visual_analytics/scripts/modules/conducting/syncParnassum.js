@@ -356,10 +356,8 @@ class SyncParnassum extends OABase {
     })
 
     mkElement([1, 2.2], 0x777733, '5', 3000, 0, gradusExtensionInfo).on('pointerdown', () => {
-      const wandUrl = 'https://github.com/ttm/ml-net-gui/raw/master/visual_analytics/wand.zip' // fixme: use wand from preset?
-      window.open('OAextension.zip') // needs to be uploaded to instance. TTM
-      window.open(wandUrl, '_blank')
-    })
+      window.open('OAextension.zip', '_blank') // needs to be uploaded to instance. TTM
+    }).buttonMode = true
 
     this.tttexts = texts
 

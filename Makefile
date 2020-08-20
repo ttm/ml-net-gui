@@ -74,6 +74,9 @@ va-ext2-build:
 va-ext2-dev:
 	cd visual_analytics && npm run devExt2
 
+va-e-dev:
+	cd visual_analytics && npm run devE
+
 # testing of the client code must be performed on the client. The /test page should be accessed,
 # e.g. https://0.0.0.0:8080/test/
 

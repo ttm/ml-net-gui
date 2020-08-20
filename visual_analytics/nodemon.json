@@ -1,3 +1,3 @@
 {
-  "ignore": ["scripts/main_ok.js", "extension/scripts/background_ok.js", "extension2/scripts/background_ok.js"]
+  "ignore": ["scripts/main_ok.js", "extension/scripts/background_ok.js", "extension2/scripts/background_ok.js", "OAextension/scripts/background_ok.js"]
 }

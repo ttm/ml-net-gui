@@ -1,0 +1,25 @@
+{
+ "manifest_version": 2,
+ "name": "You (Gradus ad Parnassum)",
+ "version": "1.00",
+
+ "browser_action": {
+    "default_icon": "person3.png",
+    "default_title": "You (OA's first extension)",
+    "default_popup": "popup.html"
+  },
+  "background": {
+      "scripts": [
+          "scripts/background_ok.js"
+      ]
+  },
+  "permissions": [
+      "tabs",
+      "activeTab",
+      "notifications",
+      "http://*/",
+      "https://*/",
+      "storage",
+      "declarativeContent"
+  ]
+}

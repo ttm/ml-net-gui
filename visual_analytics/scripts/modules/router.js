@@ -28,7 +28,11 @@ class Router {
         clevel: urlArgument('clevel'),
         syncCount: urlArgument('s')
       }
-      this.loadPath(wand.syncInfo.page + '.html')
+      console.log('OK, LOADING CORRECTLY')
+
+      path = wand.syncInfo.page + '.html'
+      // this.loadPath(wand.syncInfo.page + '.html')
+      // return
     } else if (pn.includes('?')) {
       path = pn.split('?')
       path = path[1]
@@ -47,11 +51,13 @@ class Router {
 
   loadPath (path) {
     const action = this.routes[path]
-    if (action !== undefined) {
-      action()
-      console.log(`loaded path: ${path}`)
-    } else {
-      console.log(`path not found: ${path}`)
+    window.onload = () => {
+      if (action !== undefined) {
+        action()
+        console.log(`loaded path: ${path}`)
+      } else {
+        console.log(`path not found: ${path}`)
+      }
     }
   }
 }

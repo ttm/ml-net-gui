@@ -128,7 +128,7 @@ class OABase {
               self.rec.astart()
               const net = wand.currentNetwork
               if (!net.syncProgression) {
-                net.getNodeAttribute(wand.syncInfo.msid || wand.syncInfo.mnid, 'pixiElement').emit('pointerdown')
+                net.getNodeAttribute(wand.syncInfo.msid || wand.syncInfo.mnid || wand.utils.chooseUnique(wand.currentNetwork.nodes(), 1)[0], 'pixiElement').emit('pointerdown')
               }
               net.syncProgression.seq.start()
               net.threeSectors.seq.counter = 0
@@ -142,7 +142,13 @@ class OABase {
               wand.currentNetwork.threeSectors.seq3.stop()
             },
             silenceAll: function () {
-              self.rec.filename = wand.syncInfo.pageMemberName + ' @ ' + wand.syncInfo.syncMemberName + ' audiovisual music duo #oa #ourAquarium #oAquario ' + (new Date()).toISOString().split('.')[0]
+              if (!window.oaReceivedMsg) {
+                self.rec.filename = wand.syncInfo.pageMemberName + ' @ ' + wand.syncInfo.syncMemberName + ' audiovisual music duo #oa #ourAquarium #oAquario '
+              } else {
+                const udata = wand.fullNetwork.getAttribute('userData')
+                self.rec.filename = `${udata.name} (${udata.sid || udata.nid}), audiovisual and social music #oa #ourAquarium #oAquario `
+              }
+              self.rec.filename += (new Date()).toISOString().split('.')[0]
               wand.currentNetwork.syncProgression.seq.stop()
               Tone.Transport.stop()
               setTimeout(() => {
@@ -419,7 +425,7 @@ class OABase {
           const s = $('<select/>', { id: 'file-select' })
             .prop('atitle', 'select network').prependTo('body')
           window.sss = s
-          if (!wand.sageInfo) { // load one of the networks
+          if (!window.oaReceivedMsg) { // load one of the networks
             ['star', '5%', '15%', '30%', '40%', '45%'].forEach((ss, i) => {
               s.append($('<option/>').val(i).html(`${wand.syncInfo.pageMemberName} - ${ss}`))
             })
@@ -428,14 +434,16 @@ class OABase {
             // })
             // s.append($('<option/>').val('upload').html('upload'))
           } else { // make network from sage's network
-            const jsonGraph = JSON.parse(this.allNetworks[0].text)
-            wand.graphAttributes = jsonGraph.attributes // fixme: in graphology, it should not get lost (bug)
-            const adate = this.allNetworks[0].lastModified ? this.allNetworks[0].lastModified : this.allNetworks[0].date
-            const ls = adate.toLocaleString()
+            // const jsonGraph = JSON.parse(this.allNetworks[0].text)
+            // wand.graphAttributes = jsonGraph.attributes // fixme: in graphology, it should not get lost (bug)
+            wand.graphAttributes = wand.fullNetwork.getAttributes()
             const { name, sid, nid } = wand.graphAttributes.userData
+            // const adate = this.allNetworks[0].lastModified ? this.allNetworks[0].lastModified : this.allNetworks[0].date
+            // const ls = lastUpdated.toLocaleString()
             const id = sid || nid
-            const str = `${name} (${id}) - ${ls} `;
+            const str = `${name} (${id}) `;
             ['visited', 'full'].forEach((n, i) => {
+              console.log(str + n, '<<<<<-----')
               s.append($('<option/>').val(i).html(str + n))
             })
           }
@@ -1305,7 +1313,7 @@ class OABase {
           }
         }
         if (net.seeds.length === 0) {
-          net.seeds = [wand.syncInfo.msid || wand.syncInfo.mnid]
+          net.seeds = [wand.syncInfo.msid || wand.syncInfo.mnid || wand.utils.chooseUnique(wand.currentNetwork.nodes(), 1)[0]]
         }
         net.seeds.forEach(s => net.setNodeAttribute(s, 'seed', true))
         net.forEachNode((n, a) => { this.styleNode(a) })
@@ -1443,7 +1451,7 @@ class OABase {
     const net = wand.currentNetwork
     // if (net.hasSyncMusic) return
     net.hasSyncMusic = true
-    this.seeds = [wand.syncInfo.msid || wand.syncInfo.mnid]
+    this.seeds = [wand.syncInfo.msid || wand.syncInfo.mnid || wand.utils.chooseUnique(wand.currentNetwork.nodes(), 1)[0]]
     this.sync = wand.net.use.diffusion.use.seededNeighborsLinks(wand.currentNetwork, 4, this.seeds)
     this.mkSyncNet()
     this.playSync2(this.sync.progressionLinks)

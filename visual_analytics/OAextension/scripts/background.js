@@ -206,6 +206,8 @@ const openTabToDownload = () => {
       friendships: graph.size
     }
   })
+  console.log('UPDATING LAST UPDATED MAN')
+  graph.setAttribute('lastUpdated', new Date(Date.now()).toISOString()) // fixme: not working, not writing this attribute
   const net = JSON.stringify(graph.toJSON())
   const id = sid || nid
   const filename = `${name} (${id}), ${(new Date()).toISOString().split('.')[0]}.json`

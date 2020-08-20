@@ -29,13 +29,13 @@ class SyncParnassum extends OABase {
     wand.$('#loading').hide()
 
     // const now = performance.now()
-    wand.transfer.mong.findUserNetwork(wand.syncInfo.usid, wand.syncInfo.unid).then(r => {
-      console.log('loaded user network')
-      this.allNetworks = r
-      console.log('timeout finished, parse json -> graphology')
-      const g = wand.net.use.utils.loadJsonString(this.allNetworks[0].text)
+    if (window.oaReceivedMsg) { // gradus for the user network, from extension:
+      this.settings.timeStreach = 0.001
+      this.settings.currentLevel = 13
+      wand.maestro.synths.speaker.volume = -1 // 1 or 0 is 1, [0, 1] is ok range
+      this.allNetworks = [window.oaReceivedMsg.data.graph]
+      const g = Graph.from(window.oaReceivedMsg.data.graph)
       this.registerNetwork(g, 'full')
-      this.mkNames()
       const nodesToRemove = []
       g.forEachNode((n, a) => {
         if (!a.scrapped) {
@@ -45,18 +45,41 @@ class SyncParnassum extends OABase {
       nodesToRemove.forEach(n => {
         g.dropNode(n)
       })
-      this.registerNetwork(g, 'current') // make the small networks derived from the person
+      this.registerNetwork(g, 'visited') // make the small networks derived from the person
       this.setRecorder()
-      console.log('memb nets')
-      this.makeMemberNetworks()
-      console.log('memb mus')
-      this.memberMusicSeqs = [this.makeMemberMusic(0, 0)]
-      for (let i = 1; i < this.plots.length; i++) {
-        this.memberMusicSeqs.push(this.makeMemberMusic(i, this.memberMusicSeqs[i - 1].dur))
-      }
-      this.setInfo()
+      this.makeUserNetworks()
+      this.setInfo2()
       console.log('finished initialization')
-    })
+    } else { // gradus received through sync:
+      wand.transfer.mong.findUserNetwork(wand.syncInfo.usid, wand.syncInfo.unid).then(r => {
+        console.log('loaded user network')
+        this.allNetworks = r
+        console.log('timeout finished, parse json -> graphology')
+        const g = wand.net.use.utils.loadJsonString(this.allNetworks[0].text)
+        this.registerNetwork(g, 'full')
+        this.mkNames()
+        const nodesToRemove = []
+        g.forEachNode((n, a) => {
+          if (!a.scrapped) {
+            nodesToRemove.push(n)
+          }
+        })
+        nodesToRemove.forEach(n => {
+          g.dropNode(n)
+        })
+        this.registerNetwork(g, 'current') // make the small networks derived from the person
+        this.setRecorder()
+        console.log('memb nets')
+        this.makeMemberNetworks()
+        console.log('memb mus')
+        this.memberMusicSeqs = [this.makeMemberMusic(0, 0)]
+        for (let i = 1; i < this.plots.length; i++) {
+          this.memberMusicSeqs.push(this.makeMemberMusic(i, this.memberMusicSeqs[i - 1].dur))
+        }
+        this.setInfo()
+        console.log('finished initialization')
+      })
+    }
   }
 
   makeMemberMusic (option = 0, adur = 0) {
@@ -313,6 +336,72 @@ class SyncParnassum extends OABase {
     wand.syncInfo.syncMemberName = wand.fullNetwork.getAttribute('userData').name
   }
 
+  setInfo2 () {
+    const a = wand.artist.use
+    this.rect = a.mkRectangle({
+      // wh: [a.width, a.height], zIndex: 1, color: 0xffaaaa, alpha: 0
+      wh: [a.width, a.height], zIndex: 1, color: 0x9c9c9c, alpha: 0
+    })
+    const f = this.settings.fontSize
+    const p = f / 2
+    const x = this.scalex(p)
+    const y = this.scaley(p)
+    const fs = this.scaley(f)
+    const texts = {}
+    const mkElement = (pos, color, element, zIndex, alpha, text) => {
+      texts[element] = a.mkTextFancy(text, [pos[0] * x, pos[1] * y], fs, color, zIndex, alpha)
+      return texts[element]
+    }
+    mkElement([1, 2.2], 0x777733, '1', 3000, 0, gradus1())
+    mkElement([1, 2.2], 0x777733, '2', 3000, 0, gradus2())
+
+    const ltext = mkElement([1, 2.2], 0x777733, '3', 3000, 0, gradusVideoLink)
+    ltext.on('pointerdown', () => {
+      let vurl = window.prompt('Upload the file you downloaded enter video URL here:', 'something as https://www.youtube... (start with https:// or http://)')
+      if (vurl === null) return
+      vurl = vurl.trim()
+      if (/^https*:\/\//.test(vurl)) {
+        this.urlConfirmed = true
+        this.writeVideoUrl(vurl, 'gradus')
+      }
+    })
+    ltext.buttonMode = true
+    mkElement([1, 2.2], 0x777733, '4', 3000, 0, 'something1')
+    mkElement([1, 2.2], 0x777733, '5', 3000, 0, 'something2')
+    wand.theNetwork = wand.visitedNetwork
+    const showMsg = i => {
+      console.log(i, this.rect, texts, texts[i], 'THE SHOW GUY')
+      this.rect.alpha = 1
+      this.rect.zIndex = 2000
+      texts[i].alpha = 1
+      texts[i].interactive = true
+      count = this.infoLength // Object.keys(texts).length
+    }
+    let count = 0
+    const fun = () => {
+      const tlength = this.infoLength + 1 // Object.keys(texts).length + 1
+      const show = (++count % tlength) !== 0
+      this.rect.alpha = Number(show)
+      this.rect.zIndex = 10 + 2000 * show
+      let i = 1
+      for (const t in texts) {
+        texts[t].alpha = Number(count % tlength === i)
+        texts[t].interactive = count % tlength === i
+        i++
+      }
+      if (!this.isInitialized) {
+        this.start()
+        this.rect.alpha = 0
+        this.isInitialized = true
+      }
+    }
+    mkBtn('fa-info', 'info', 'infos / dialogs', fun)
+    // wand.$('#info-button').click()
+    this.infoLength = 2
+    showMsg(1)
+    this.showMsg = showMsg
+  }
+
   setInfo () {
     const a = wand.artist.use
     this.rect = a.mkRectangle({
@@ -444,6 +533,37 @@ class SyncParnassum extends OABase {
       )
     })
     this.syncLinks = memberTexts.join('\n\n')
+  }
+
+  makeUserNetworks () {
+    this.nets = [wand.visitedNetwork, wand.fullNetwork]
+    const { conductor, artist } = wand
+    const plotNet = net => {
+      const drawnNet = new conductor.use.DrawnNet(artist.use, net, [artist.use.width, artist.use.height * 0.9])
+      // const sync = wand.net.use.diffusion.use.seededNeighborsLinks(net, 10000, [id])
+
+      // const cs = wand.artist.use.tincture.c.scale(['red', 'yellow', 'green', 'blue', '#ff00ff']).colors(sync.progression.length, 'num')
+      // sync.progression.forEach((step, i) => {
+      //   const c = cs[i]
+      //   step.forEach(node => {
+      //     net.getNodeAttribute(node, 'pixiElement').tint = c
+      //     net.getNodeAttribute(node, 'textElement').tint = c
+      //     net.getNodeAttribute(node, 'textElement').scale.set(0.5)
+      //     net.getNodeAttribute(node, 'pixiElement').alpha = 0
+      //     net.setNodeAttribute(node, 'stepColor', c)
+      //     net.setNodeAttribute(node, 'step', i)
+      //   })
+      // })
+      net.forEachEdge((e, a) => {
+        a.pixiElement.alpha = 0
+      })
+      net.forEachNode((e, a) => {
+        a.pixiElement.alpha = 0
+        a.textElement.alpha = 0
+      })
+      return { drawnNet, sync: undefined }
+    }
+    this.plots = this.nets.map(net => plotNet(net))
   }
 }
 

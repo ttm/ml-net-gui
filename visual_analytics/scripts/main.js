@@ -29,6 +29,7 @@ window.addEventListener('message', function (event) {
   if (event.source !== window || event.data.type !== 'FROM_OA_EXT') return
   console.log('THE EVENT2', event)
   window.oaReceivedMsg = event
+  wand.sageInfo = window.oaReceivedMsg.data.graph.attributes.userData
 })
 
 wand.$('html').append(`

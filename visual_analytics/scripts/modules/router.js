@@ -23,6 +23,7 @@ class Router {
         unid: urlArgument('unid', true),
         mnid: urlArgument('mnid', true),
         page: urlArgument('page'),
+        allUsers: urlArgument('allUsers'),
         ts: urlArgument('ts'),
         bypassMusic: urlArgument('bypassMusic'),
         clevel: urlArgument('clevel'),

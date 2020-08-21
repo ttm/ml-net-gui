@@ -36,21 +36,17 @@ chrome.runtime.onMessage.addListener(
             return { success: true, response: 'This is from webpage.' }
           } + ')(' + JSON.stringify(graph ? graph.export() : {}) + ');'
         }, function (results) {
-          // This is the callback response from webpage
-          // window.theSage_ = results
-          // console.log(results[0]) // logs in extension console
         })
-        // chrome.tabs.sendMessage(tab.id, {
-        //   message: 'the_network',
-        //   graph: graph.export()
-        // })
-        // chrome.tabs.executeScript(tab.id, { file: 'scripts/fb_scrape.js' }, function () {
-        //   chrome.tabs.sendMessage(tab.id, {
-        //     message: 'download_network',
-        //     filename,
-        //     net
-        //   })
-        // })
+      })
+    } else if (msg === 'popup_lycoreia_msg') {
+      chrome.tabs.create({ url: 'http://localhost:8080/?page=lycoreia' }, function (tab) {
+        chrome.tabs.executeScript(tab.id, {
+          code: '(' + function (graph) {
+            window.postMessage({ type: 'FROM_OA_EXT', graph }, '*')
+            return { success: true, response: 'This is from webpage.' }
+          } + ')(' + JSON.stringify(graph ? graph.export() : {}) + ');'
+        }, function (results) {
+        })
       })
     } else if (msg === 'client_scrapped_mutual_friends') { // close current tab if finished and open new
       const s = request.structs

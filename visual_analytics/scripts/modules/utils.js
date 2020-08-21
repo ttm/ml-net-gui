@@ -1,8 +1,8 @@
 function chooseUnique (marray, nelements) {
   let i = marray.length
-  if (nelements >= i) {
-    console.log(`chooseUnique received nelements ${nelements}, and array with length ${i}. Returning scrambled array`)
-  }
+  // if (nelements >= i) {
+  //   console.log(`chooseUnique received nelements ${nelements}, and array with length ${i}. Returning scrambled array`)
+  // }
   marray = [...marray]
   if (i === 0) { return false }
   let c = 0

@@ -11,7 +11,6 @@ const netdegree = require('graphology-metrics/degree')
 const components = require('graphology-components')
 const subGraph = require('graphology-utils/subgraph')
 const Graph = require('graphology')
-window.ggg = Graph
 
 const d = (f, time) => Tone.Draw.schedule(f, time)
 

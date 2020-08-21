@@ -3,6 +3,7 @@ const { Tone } = require('../maestro/all.js').base
 const { copyToClipboard, chooseUnique } = require('../utils.js')
 const { mkBtn } = require('./gui.js')
 const { guards, deucalion, lycorus, corycia } = require('./sayings.js')
+const Graph = require('graphology')
 const louvain = require('graphology-communities-louvain')
 const netmetrics = require('graphology-metrics')
 const netdegree = require('graphology-metrics/degree')
@@ -30,12 +31,174 @@ class Lycoreia {
 
   // hide & show communities and subcommunities
   constructor (settings = {}) {
-    document.title = 'Sirian tribe'
+    document.title = 'Lycoreia (Our Aquarium)'
+    wand.$('#favicon').attr('href', 'log3__.png')
+    const $ = wand.$
+    const self = this
     const defaultSettings = {
       fontSize: 20,
-      timeStreach: 1
+      timeStreach: 0.001,
+      counter: {
+        hoverNode: 0
+      },
+      state: {
+        nodesSize: {
+          // current val = min + (max - min) * (count % step), in increment(attr)
+          count: 7, // interactions count
+          max: 2,
+          min: 0.5,
+          steps: 10,
+          current: 1,
+          update: function () {
+            wand.currentNetwork.forEachNode((n, a) => {
+              a.pixiElement.scale.set(this.current)
+            })
+          }
+        },
+        namesSize: {
+          count: 0,
+          max: 1.5,
+          min: 0.3,
+          steps: 10,
+          current: 1,
+          update: function () {
+            wand.currentNetwork.forEachNode((n, a) => {
+              a.textElement.scale.set(this.current)
+            })
+          }
+        },
+        nodesAlpha: {
+          count: 0,
+          max: 1,
+          min: 0,
+          steps: 10,
+          current: 0.9,
+          iconId: '#member-button',
+          update: function () {
+            wand.currentNetwork.forEachNode((n, a) => {
+              a.pixiElement.alpha = a.pixiElement.balpha = this.current
+            })
+          },
+          bind: () => {
+            $('<i/>', { class: 'fa fa-chess', id: 'member-icon' }).appendTo(
+              $('<button/>', {
+                class: 'btn',
+                id: 'member-button',
+                click: () => {
+                  this.increment('nodesAlpha')
+                }
+              }).attr('atitle', 'show members').insertAfter('#info-button')
+            )
+          }
+        },
+        namesAlpha: {
+          count: 0, // interactions count
+          max: 1,
+          min: 0,
+          steps: 10,
+          current: 0.1,
+          iconId: '#names-button',
+          update: function (a) {
+            wand.currentNetwork.forEachNode((n, a) => {
+              wand.extra.showNameBlock = this.count % 2 === 1
+              a.textElement.alpha = this.current
+            })
+          },
+          bind: () => {
+            $('<i/>', { class: 'fa fa-mask', id: 'names-icon' }).appendTo(
+              $('<button/>', {
+                class: 'btn',
+                id: 'names-button',
+                click: () => {
+                  this.increment('namesAlpha')
+                }
+              }).attr('atitle', 'show names').insertAfter('#friendship-button')
+            )
+          }
+        },
+        edgesAlpha: {
+          count: 0, // interactions count
+          max: 1,
+          min: 0,
+          steps: 10,
+          current: 0.9,
+          iconId: '#friendship-button',
+          update: function () {
+            wand.currentNetwork.forEachEdge((e, a) => {
+              a.pixiElement.alpha = this.current
+              a.pixiElement.balpha = this.current
+            })
+          },
+          bind: () => {
+            $('<i/>', { class: 'fa fa-bone', id: 'friendship-icon' }).appendTo(
+              $('<button/>', {
+                class: 'btn',
+                id: 'friendship-button',
+                click: () => {
+                  this.increment('edgesAlpha')
+                }
+              }).attr('atitle', 'show friendships').insertAfter('#member-button')
+            )
+          }
+        },
+        colors: {
+          count: 0,
+          min: 0,
+          max: Object.keys(wand.magic.tint.handPicked).length - 1,
+          steps: Object.keys(wand.magic.tint.handPicked).length,
+          palettes: Object.keys(wand.magic.tint.handPicked),
+          currentColors: wand.magic.tint.randomPalette2(),
+          iconId: '#pallete-button',
+          update: function () {
+            this.currentColors = wand.magic.tint.randomPalette2()
+            const { bg, e } = this.currentColors
+            wand.artist.share.draw.base.app.renderer.backgroundColor = this.count % 3 === 0 ? 0 : (this.count % 3 === 1 ? 0xffffff : Math.floor(bg))
+            wand.currentNetwork.forEachEdge((i, a) => {
+              a.pixiElement.tint = e
+            })
+            wand.currentNetwork.forEachNode((e, a) => {
+              self.styleNode(a)
+            })
+          },
+          bind: () => {
+            $('<i/>', { class: 'fa fa-palette', id: 'pallete-icon' }).appendTo(
+              $('<button/>', {
+                class: 'btn',
+                id: 'pallete-button',
+                click: () => {
+                  this.increment('colors')
+                }
+              }).attr('atitle', 'change colors').css('background-color', 'gray')
+                .insertAfter('#names-button')
+            )
+            $('#pallete-button').click()
+          }
+        },
+        muter: {
+          count: 0, // interactions count
+          max: 1,
+          min: 0,
+          steps: 2,
+          current: 0,
+          muted: false,
+          iconId: '#muter-button',
+          update: function () {
+            Tone.Master.mute = this.muted = !this.muted
+          },
+          bind: function () { // todo: conform other binds with this:
+            mkBtn('fa-volume-mute', 'muter', 'mute (only visual music)', () => {
+              self.increment('muter')
+            }, '#pallete-button')
+          }
+        }
+      }
     }
     this.settings = { ...defaultSettings, ...settings }
+    this.settings.counter = { ...defaultSettings.counter, ...settings.counter }
+    this.settings.state = { ...defaultSettings.state, ...settings.state }
+    this.counter = this.settings.counter
+    wand.state = this.state = this.settings.state
+
     const refHeight = 833
     const refWidth = 884
     this.settings.heightProportion = wand.artist.use.height / refHeight
@@ -48,16 +211,15 @@ class Lycoreia {
       delete wand.extra.exhibition
       delete wand.currentNetwork
       this.setDialogs()
-      if (!wand.sageInfo) {
-        console.log('Guards should be saying things')
+      // if (!wand.sageInfo) {
+      if (!window.oaReceivedMsg) {
       } else {
         this.instruments = {}
-        this.setCommunitiesInterface()
-        this.setSubComInterface()
-        this.setPlayer()
-        this.setMute()
-        this.setRecorder()
-        if (wand.sageInfo.sid === '__thisIsAllOfTheSagesMan__') {
+        // this.setCommunitiesInterface()
+        // this.setSubComInterface()
+        // this.setPlayer()
+        // this.setRecorder()
+        if (wand.syncInfo.allUsers) {
           // get all networks, merge scrapped and register as current
           // merge everything and merge as full
           // consider stars, or donators, nor meta-social-organisms (or beings, or social bodies)
@@ -81,14 +243,13 @@ class Lycoreia {
             wand.drawnNet = this.drawnNet
           })
           return
-        }
-        wand.transfer.mong.findUserNetwork(wand.sageInfo.sid, wand.sageInfo.nid).then(r => {
-          console.log('loaded user network')
-          this.allNetworks = r
-          const g = wand.net.use.utils.loadJsonString(this.allNetworks[0].text)
+        } else {
+          this.allNetworks = [window.oaReceivedMsg.data.graph]
+          const g = Graph.from(window.oaReceivedMsg.data.graph)
           this.registerNetwork(g, 'full')
           const nodesToRemove = []
           g.forEachNode((n, a) => {
+            a.id = n
             if (!a.scrapped) {
               nodesToRemove.push(n)
             }
@@ -97,9 +258,26 @@ class Lycoreia {
             g.dropNode(n)
           })
           this.registerNetwork(g, 'current')
-          this.drawnNet = new wand.conductor.use.DrawnNet(wand.artist.use, wand.currentNetwork, [])
+          const u = wand.artist.use
+          this.drawnNet = new wand.conductor.use.DrawnNet(u, wand.currentNetwork, [u.width, u.height * 0.9])
           wand.drawnNet = this.drawnNet
-        })
+        }
+        this.setStage()
+        this.setNodeInfo()
+        this.resetNetwork()
+        this.state.nodesAlpha.bind()
+        this.state.edgesAlpha.bind()
+        this.state.namesAlpha.bind()
+        this.state.colors.bind()
+        this.state.muter.bind()
+        const d = $('<div/>', { id: 'div1' }).insertAfter('#muter-button')
+        d.html(' || ').css('display', 'inline')
+        this.setRecorder()
+        this.setPlayer()
+        this.setCommunitiesInterface()
+        this.setSubComInterface()
+        const d2 = $('<div/>', { id: 'div2' }).insertAfter('#sub-button')
+        d2.html(' || ').css('display', 'inline')
       }
     }, 10000 * this.settings.timeStreach) // fixme: make better loading
   }
@@ -121,7 +299,7 @@ class Lycoreia {
       return this.texts[element]
     }
     let count = 0
-    if (wand.sageInfo) {
+    if (window.oaReceivedMsg) {
       mkElement([1, 2.2], 0x777733, 'deucalion', 3000, 0, deucalion)
       mkElement([1, 5.2], 0x337733, 'lycorus', 3000, 0, lycorus())
       mkElement([1, 5.2], 0x337733, 'corycia', 3000, 0, corycia())
@@ -134,14 +312,11 @@ class Lycoreia {
         let i = 0
         for (const t in this.texts) {
           this.texts[t].alpha = Number(count % tlength === (i + 1))
-          console.log(this.texts[t], Number(count % tlength === (i + 1)))
           i++
         }
-        console.log(show, count, i, tlength, count % tlength)
       }
       mkBtn('fa-info', 'info', 'infos / dialogs', fun)
     } else {
-      console.log('not sage info')
       mkElement([1, 2.2], 0x777733, 'guards', 3000, 0, guards)
       this.rect.alpha = 1
       this.rect.zIndex = 10 + 2000
@@ -155,7 +330,7 @@ class Lycoreia {
     mkBtn('fa-users-cog', 'com', 'communities', () => {
       count = (++count) % (wand.currentNetwork.communities.count + 1)
       this.showCommunity(count)
-    })
+    }, '#music-button')
   }
 
   setSubComInterface () {
@@ -166,12 +341,11 @@ class Lycoreia {
       const g = wand.currentNetwork.communityGraphs[cIndex]
       count = (++count) % (g.communities.count + 1)
       this.showSubCommunity(count, g)
-    })
+    }, '#com-button')
   }
 
   showSubCommunity (index, g) {
     index--
-    console.log('show subcommunity:', index)
     this.visCommnunity(index, g, 0x00ff00)
     if (index !== -1) {
       this.sonifySubCommunity(index)
@@ -181,7 +355,6 @@ class Lycoreia {
 
   showCommunity (index) {
     index--
-    console.log('show community:', index)
     this.visCommnunity(index, wand.currentNetwork, 0x0000ff)
     if (index !== -1) {
       this.sonifyCommunity(index)
@@ -223,7 +396,6 @@ class Lycoreia {
       }
     }
     this.instruments.membrane.triggerAttackRelease(Tone.Midi(note).toNote(), 0.01)
-    console.log('sonify subcom:', note, this.instruments.membrane)
   }
 
   sonifyCommunity (index) {
@@ -253,6 +425,10 @@ class Lycoreia {
     const sg = subGraph(g, gg_).copy()
     netdegree.assign(sg)
     netmetrics.centrality.degree.assign(sg)
+    sg.setAttribute('userData', g.getAttribute('userData'))
+    sg.forEachNode((n, a) => {
+      a.id = n
+    })
     // louvain.assign(sg)
     sg.communities = louvain.detailed(sg)
     const communitySizes = new Array(sg.communities.count).fill(0)
@@ -296,13 +472,20 @@ class Lycoreia {
           min: Math.min(...communitySizes)
         }
       } else {
-        console.log('EMPTY COMMUNITY FOUND!!', i)
         cg.communities = { count: 0 }
       }
       subComGraphs[i] = cg
     }
     sg.communityGraphs = subComGraphs
     wand[avarname + 'Network'] = sg
+    const norm = v => v === Math.round(v) ? v : v.toFixed(3)
+    const mString = metric => {
+      wand[avarname + 'Network'][metric + 'Extent'] = netmetrics.extent(wand[avarname + 'Network'], metric)
+      const s = wand[avarname + 'Network'][metric + 'Extent'].map(i => norm(i))
+      return `[${s[0]}, ${s[1]}]`
+    }
+    wand[avarname + 'Network'].degreeCentrality = mString('degreeCentrality')
+    wand[avarname + 'Network'].degree_ = mString('degree')
   }
 
   scaley (val) {
@@ -315,14 +498,13 @@ class Lycoreia {
 
   setPlayer () {
     mkBtn('fa-music', 'music', 'make musical sequence', () => {
-      console.log(wand.currentNetwork.subCommunityIndex, wand.currentNetwork.communityIndex)
       const voice = {
         duration: '4n',
         community: wand.currentNetwork.communityIndex,
         subcommunity: wand.currentNetwork.subCommunityIndex
       }
       this.mkVoice(voice)
-    })
+    }, '#record-button')
     this.voiceCounter = 0
   }
 
@@ -331,6 +513,7 @@ class Lycoreia {
     let instrument
     let progression
     let g
+    const fid = 'voice-' + this.voiceCounter++
     if (voice.subcommunity !== undefined) {
       instrument = new Tone.MembraneSynth({ volume: -20 }).toMaster()
       g = wand.currentNetwork.communityGraphs[wand.currentNetwork.communityIndex]
@@ -367,40 +550,27 @@ class Lycoreia {
       })
     }
     const d = (f, time) => Tone.Draw.schedule(f, time)
+    const c = voice.subcommunity ? 0xffff00 : 0x00ffff
+    const c2 = voice.subcommunity ? '#ffff00' : '#00ffff'
     const seq = new Tone.Pattern((time, info) => {
       instrument.triggerAttackRelease(Tone.Midi(info.note).toNote(), 0.01, time)
-      d(() => this.visCommnunity(info.ii, g, voice.subcommunity ? 0xffff00 : 0x00ffff), time)
+      d(() => {
+        this.visCommnunity(info.ii, g, c)
+        btn.css('background-color', c2)
+      }, time)
+      d(() => {
+        btn.css('background-color', 'white')
+      }, time + seq.interval / 2)
     }, progression)
     seq.interval = voice.duration
-    console.log('creating voice:', progression, g, voice, seq, instrument)
     seq.start()
     Tone.Transport.start()
-    const fid = 'voice-' + this.voiceCounter++
-    console.log('YEAH MAN, MAKING MIC', fid)
-    mkBtn('fa-microphone-alt-slash', fid, 'remove voice', () => {
-      console.log('clearing voice:', progression, g, voice, seq, instrument)
+    const btn = mkBtn('fa-microphone-alt-slash', fid, 'remove voice', () => {
       wand.$(`#${fid}-icon`).remove()
       wand.$(`#${fid}-button`).remove()
       seq.dispose()
       instrument.dispose()
-      // then restyle nodes in g
-      // remove names
-    }, '#info-button')
-    console.log('finished: MAKING MIC')
-  }
-  //     setInterval(() => {
-  //       this.showCommunity(
-  //         (++count) % (wand.currentNetwork.communities.count + 1)
-  //       )
-  //     }, 500)
-  //   })
-  // }
-
-  setMute () {
-    let muted = false
-    mkBtn('fa-volume-mute', 'mute', 'mute sounds', () => {
-      Tone.Master.mute = muted = !muted
-    })
+    }, '#div2')
   }
 
   setRecorder () {
@@ -415,12 +585,193 @@ class Lycoreia {
         wand.$('#record-button').css('background-color', '#ffffff')
       }
       count++
-    })
+    }, '#div1')
   }
 
   mergeAllGraphs () {
-    console.log('on merge graphs jow')
     wand.mergedGraph = wand.net.use.utils.mergeGraphs(wand.allGraphs)
+  }
+
+  setNodeInfo () {
+    const net = wand.currentNetwork
+    if (net.hasInfo) {
+      return
+    }
+    const tf = v => v.toFixed(3)
+    net.forEachNode((n, a) => {
+      const texts = [
+        ['nodeId', `id: ${a.id}, x: ${tf(a.pixiElement.x)}, y: ${tf(a.pixiElement.y)}`],
+        ['nodeName', `name: ${a.name}`],
+        ['nodeDegree', `degree: ${a.degree} in ${net.degree_}`],
+        ['nodeDegreeCentrality',
+          `degree centrality: ${tf(a.degreeCentrality)} in ${net.degreeCentrality}`]
+      ]
+      a.pixiElement.on('pointerover', () => {
+        this.counter.hoverNode++
+        wand.rect2.zIndex = 500
+        texts.forEach(t => {
+          this.texts[t[0]].text = t[1]
+          this.texts[t[0]].alpha = 1
+        })
+        a.hovered = true
+        this.styleNode(a)
+        net.forEachNeighbor(n, (nn, na) => {
+          na.hoveredNeighbor = true
+          this.styleNode(na)
+        })
+      })
+      a.pixiElement.on('pointerout', () => {
+        wand.rect2.zIndex = 100
+        texts.forEach(t => {
+          this.texts[t[0]].alpha = 0
+        })
+        delete a.colorBlocked
+        a.hovered = false
+        this.styleNode(a)
+        net.forEachNeighbor(n, (nn, na) => {
+          na.hoveredNeighbor = false
+          this.styleNode(na)
+        })
+      })
+    })
+    net.hasInfo = true
+  }
+
+  setStage () {
+    this.texts = {} // pixi elements
+    const a = wand.artist.use
+    wand.rect1 = a.mkRectangle({
+      wh: [a.width, a.height * 0.055], zIndex: 200, color: 0xffffff, alpha: 0.85
+    })
+    wand.rect2 = a.mkRectangle({
+      wh: [a.width, a.height * 0.055], zIndex: 100, color: 0xbbbbbb, alpha: 1
+    })
+
+    const f = this.settings.fontSize
+    const p = f / 2
+    const x = this.scalex(p)
+    const y = this.scaley(p)
+    const fs = this.scaley(f)
+
+    const mkElement = (pos, color, element, zIndex = 300, alpha = 1) => {
+      this.texts[element] = a.mkTextFancy('', [pos[0] * x, pos[1] * y], fs, color, zIndex, alpha)
+    }
+
+    mkElement([1, 2.2], 0x777733, 'adParnassum')
+    this.texts.adParnassum.text = 'at Lycoreia'
+    mkElement([1, 0.2], 0x333377, 'gradus')
+    mkElement([21, 2.2], 0x666600, 'achievement')
+    mkElement([21, 0.2], 0x333377, 'tip')
+    mkElement([54, 2.2], 0x337777, 'interactionCount')
+    mkElement([54, 0.2], 0x773377, 'orderSize')
+
+    this.texts.achievement.text = 'achieved: community detection'
+    this.texts.tip.text = 'tip: record music and upload video'
+    const net = wand.currentNetwork
+    this.texts.orderSize.text = `members, friendships: ${net.order}, ${net.size}`
+    this.texts.gradus.text = `name: ${wand.sageInfo.name}`
+
+    setInterval(() => {
+      const total = Object.values(this.state).reduce((a, v) => a + v.count, 0)
+      // const total = Object.values(this.counter).reduce((a, v) => a + v, 0)
+      this.texts.interactionCount.text = `interactions: ${total}`
+    }, 500)
+
+    mkElement([1, 0.1], 0x333377, 'nodeId', 600, 0)
+    mkElement([1, 2.2], 0x777733, 'nodeName', 600, 0)
+    mkElement([41, 0.2], 0x666600, 'nodeDegree', 600, 0)
+    mkElement([41, 2.2], 0x555599, 'nodeDegreeCentrality', 600, 0)
+  }
+
+  restyleNode (attr = { }) { // set node style with input attributes
+    const s = this.settings.state
+    attr = {
+      ...{
+        scale: this.scaley(s.nodesSize.current),
+        nodeTint: s.colors.currentColors.v,
+        nodeAlpha: s.nodesAlpha.current,
+        nameTint: s.colors.currentColors.n,
+        nameAlpha: s.namesAlpha.current // * Math.random()
+      },
+      ...attr
+    }
+    const { a, colorBlocked, scale, nodeTint, nodeAlpha, nameTint, nameAlpha } = attr
+    a.colorBlocked = colorBlocked
+    a.pixiElement.scale.set(scale)
+    a.pixiElement.tint = nodeTint
+    a.pixiElement.alpha = nodeAlpha
+    a.textElement.tint = nameTint
+    a.textElement.alpha = nameAlpha
+  }
+
+  styleNode (a) { // apply standard styling giving node's attributes { seed, activated }
+    const c = this.settings.state.colors.currentColors
+    if (a.hovered || a.hoveredNeighbor) {
+      const [nodeTint, nameTint] = a.hovered ? [c.hl.more2, c.hl.less2] : [c.hl.less2, c.hl.more2]
+      window.aa = a
+      this.restyleNode({
+        a,
+        colorBlocked: true,
+        scale: this.settings.state.nodesSize.current * 2.7,
+        nodeTint,
+        nodeAlpha: 1,
+        nameTint,
+        nameAlpha: 1
+      })
+    } else if (a.seed || a.activated) {
+      const [nodeTint, nameTint] = a.seed ? [c.hl.more, c.hl.less] : [c.hl.less, c.hl.more]
+      const talpha = 1 // - this.state.sync.current
+      this.restyleNode({
+        a,
+        colorBlocked: true,
+        scale: this.settings.state.nodesSize.current * 1.5,
+        nodeTint,
+        nodeAlpha: 1,
+        nameTint,
+        nameAlpha: talpha
+      })
+    } else {
+      this.restyleNode({ a }) // default non seed or activated attribute
+    }
+  }
+
+  resetNetwork () {
+    const net = wand.currentNetwork
+    net.forEachNode((_, a) => {
+      a.seed = a.activated = false
+      a.pixiElement.interactive = true
+      a.pixiElement.visible = a.textElement.visible = true
+      this.styleNode(a)
+    })
+    net.forEachEdge((n, a) => {
+      a.pixiElement.alpha = this.state.edgesAlpha.current
+      a.pixiElement.visible = true
+      a.pixiElement.interactive = true
+    })
+    this.setNodeInfo()
+    this.texts.orderSize.text = `members, friendships: ${net.order}, ${net.size}`
+  }
+
+  increment (attr) {
+    this.state[attr].count++
+    const { count, min, max, steps, iconId, iconChange, icons } = this.state[attr]
+    const ambit = max - min
+    const n = count % steps
+    const val = min + (n / (steps - 1)) * ambit // at least 2 steps
+    this.state[attr].current = val
+    this.state[attr].update()
+    const e = wand.$(iconId)
+    if (iconChange === 'toggle') {
+      e.toggleClass(() => icons[n])
+    } else if (iconChange === 'toggle-color') {
+    } else if (iconId !== undefined) { // if (iconChange == 'color') {
+      let color = '#00ff00'
+      if (max - val > 0.01) {
+        color = '#' + Math.floor(0xffffff - 0xffff * val / max).toString(16)
+      }
+      e.css('background-color', color)
+    }
+    return n
   }
 }
 

@@ -151,7 +151,7 @@ function basicStats () {
   return this
 }
 
-const mkBtn = (iclass, fid, title, fun, ref) => {
+const mkBtn = (iclass, fid, title, fun, ref, cont) => {
   const $ = wand.$
   const btn = $('<button/>', {
     class: 'btn',

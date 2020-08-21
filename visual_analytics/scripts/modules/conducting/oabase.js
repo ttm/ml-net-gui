@@ -242,7 +242,7 @@ class OABase {
             Tone.Master.mute = this.muted = !this.muted
           },
           bind: function () { // todo: conform other binds with this:
-            mkBtn('fa-microphone-alt-slash', 'muter', 'mute (only visual music)', () => {
+            mkBtn('fa-volume-mute', 'muter', 'mute (only visual music)', () => {
               self.increment('muter')
             }, '#player-button')
           }

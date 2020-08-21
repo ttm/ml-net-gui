@@ -1009,11 +1009,7 @@ const testLycoreia = () => { // http://localhost:8080/?lycoreia.html?11?bana?0.0
       wand.sageInfo = { name: 'XXX', sid, nid: null }
     }
   }
-  let timeStreach = 1
-  if (items.length > 4) {
-    timeStreach = items[4]
-  }
-  wand.magic.lycoreia = new wand.magic.Lycoreia({ currentLevel: level, timeStreach, counter: { colorChange: 60, hoverNode: 19 }, state: {}, muted: true })
+  wand.magic.lycoreia = new wand.magic.Lycoreia({ currentLevel: level, counter: { colorChange: 60, hoverNode: 19 }, state: {}, muted: true })
 }
 
 const testTithorea = () => {

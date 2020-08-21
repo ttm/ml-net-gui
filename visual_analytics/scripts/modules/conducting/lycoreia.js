@@ -10,6 +10,8 @@ const netdegree = require('graphology-metrics/degree')
 const components = require('graphology-components')
 const subGraph = require('graphology-utils/subgraph')
 
+const d = (f, time) => Tone.Draw.schedule(f, time)
+
 class Lycoreia {
   // ::: idealization:
   // it has all the resources given by gradus
@@ -276,6 +278,7 @@ class Lycoreia {
         this.setPlayer()
         this.setCommunitiesInterface()
         this.setSubComInterface()
+        this.setNodeClick()
         const d2 = $('<div/>', { id: 'div2' }).insertAfter('#sub-button')
         d2.html(' || ').css('display', 'inline')
       }
@@ -325,12 +328,13 @@ class Lycoreia {
   }
 
   setCommunitiesInterface () {
-    this.instruments.plucky = new Tone.PluckSynth({ volume: 10 }).toMaster()
+    this.instruments.plucky = new Tone.PluckSynth({ volume: 0 }).toMaster()
     let count = 0
     mkBtn('fa-users-cog', 'com', 'communities', () => {
-      count = (++count) % (wand.currentNetwork.communities.count + 1)
+      count = (++count) % (wand.currentNetwork.communities.count) + 1
       this.showCommunity(count)
     }, '#music-button')
+    wand.$('#com-button').click()
   }
 
   setSubComInterface () {
@@ -339,7 +343,7 @@ class Lycoreia {
     mkBtn('fa-users', 'sub', 'sub communities', () => {
       const cIndex = wand.currentNetwork.communityIndex
       const g = wand.currentNetwork.communityGraphs[cIndex]
-      count = (++count) % (g.communities.count + 1)
+      count = (++count) % (g.communities.count) + 1
       this.showSubCommunity(count, g)
     }, '#com-button')
   }
@@ -461,6 +465,7 @@ class Lycoreia {
         for (const key in cg.communities.communities) {
           const index = cg.communities.communities[key]
           cg.setNodeAttribute(key, 'community', index)
+          sg.setNodeAttribute(key, 'subcommunity', index)
           communitySizes[index]++
         }
         // const communitySizes_ = communitySizes.filter(ii => !isNaN(ii))
@@ -549,7 +554,6 @@ class Lycoreia {
         return { note, ii }
       })
     }
-    const d = (f, time) => Tone.Draw.schedule(f, time)
     const c = voice.subcommunity ? 0xffff00 : 0x00ffff
     const c2 = voice.subcommunity ? '#ffff00' : '#00ffff'
     const seq = new Tone.Pattern((time, info) => {
@@ -772,6 +776,26 @@ class Lycoreia {
       e.css('background-color', color)
     }
     return n
+  }
+
+  setNodeClick () {
+    const net = wand.currentNetwork
+    if (net.hasNodeClick) {
+      return
+    }
+    net.seeds = []
+    net.forEachNode((n, a) => {
+      a.pixiElement.on('pointerdown', () => {
+        console.log('node clicked:', n, a)
+        this.showCommunity(a.community + 1)
+        setTimeout(() => {
+          wand.currentNetwork.communityIndex = a.community
+          this.showSubCommunity(a.subcommunity + 1, wand.currentNetwork.communityGraphs[a.community])
+        }, 500)
+        // find com and subcom of the node
+      })
+    })
+    net.hasNodeClick = true
   }
 }
 

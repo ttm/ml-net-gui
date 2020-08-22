@@ -91,6 +91,7 @@ class Tithorea {
         // window.mnodea = wand.currentNetwork.getNodeAttributes(wand.utils.chooseUnique(wand.currentNetwork.nodes(), 1)[0])
         wand.currentNetwork.getNodeAttribute(wand.utils.chooseUnique(wand.currentNetwork.nodes(), 1)[0], 'pixiElement').emit('pointerdown')
         this.removedNodes = []
+        this.removedNodesUrl = ''
         // })
       }
     }, 10000 * this.settings.timeStreach) // fixme: make better loading
@@ -136,7 +137,7 @@ class Tithorea {
           return
         }
         if (this.theSeed === n) {
-          window.open(a.urlStr)
+          window.open(a.urlStr + this.removedNodesUrl)
           return
         }
         this.theSeed = n
@@ -172,6 +173,11 @@ class Tithorea {
     this.updateComponent()
     this.mkSync()
     this.resetSyncMap()
+    this.updateRemovedNodesUrl()
+  }
+
+  updateRemovedNodesUrl () {
+    this.removedNodesUrl = '&rmv=' + this.removedNodes.map(i => wand.utils.rot(i)).join(',')
   }
 
   updateComponent () {
@@ -234,6 +240,9 @@ class Tithorea {
   }
 
   mkSync () {
+    if (!wand.currentNetwork.hasNode(this.theSeed)) {
+      this.theSeed = wand.utils.chooseUnique(wand.currentNetwork.nodes(), 1)[0]
+    }
     this.sync = wand.net.use.diffusion.use.seededNeighborsLinks(wand.currentNetwork, 4, [this.theSeed])
     this.mkSyncNet()
     this.setSyncInfo()

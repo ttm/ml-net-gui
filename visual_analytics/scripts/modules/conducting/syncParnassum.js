@@ -441,6 +441,9 @@ class SyncParnassum extends OABase {
       Paste on a text editor to read.`)
       this.syncLinksCopied = true
       copyToClipboard(gradusSyncLinks(this.syncLinks))
+      copyToClipboard(gradusSyncLinks(this.syncLinks))
+      copyToClipboard(gradusSyncLinks(this.syncLinks))
+      copyToClipboard(gradusSyncLinks(this.syncLinks))
     })
 
     mkElement([1, 2.2], 0x777733, '5', 3000, 0, gradusExtensionInfo).on('pointerdown', () => {
@@ -515,7 +518,7 @@ class SyncParnassum extends OABase {
       const ufield = wand.syncInfo.usid ? 'usid' : 'unid'
       const mstr = wand.utils.rot(a.sid || a.nid)
       const mfield = a.sid ? 'msid' : 'mnid'
-      return `${window.location.origin}/?page=ankh_&${ufield}=${ustr}&${mfield}=${mstr}&s=1`
+      return `${window.location.origin}/oa/?page=ankh_&${ufield}=${ustr}&${mfield}=${mstr}&s=1`
     }
     const seeds = [wand.syncInfo.msid || wand.syncInfo.mnid]
     this.sync = wand.net.use.diffusion.use.seededNeighborsLinks(wand.currentNetwork, 4, seeds)

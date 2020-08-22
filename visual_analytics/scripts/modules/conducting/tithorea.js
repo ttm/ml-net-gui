@@ -2,6 +2,7 @@
 const { mkBtn } = require('./gui.js')
 const { guards, deucalion, lycorus, corycia } = require('./sayings.js')
 const { Tone } = require('../maestro/all.js').base
+const Graph = require('graphology')
 const louvain = require('graphology-communities-louvain')
 const netmetrics = require('graphology-metrics')
 const netdegree = require('graphology-metrics/degree')
@@ -14,7 +15,7 @@ class Tithorea {
     document.title = 'Andromedan tribe'
     const defaultSettings = {
       fontSize: 20,
-      timeStreach: 1,
+      timeStreach: 0.001,
       state: {
         nodesSize: {
           current: 0.7
@@ -49,44 +50,54 @@ class Tithorea {
       delete wand.extra.exhibition
       delete wand.currentNetwork
       // this.setDialogs()
-      if (!wand.sageInfo) {
-        console.log('Andromedans request for praying the invitation')
-      } else {
+      // if (!wand.sageInfo) {
+      //   console.log('Andromedans request for praying the invitation')
+      // } else {
+      if (window.oaReceivedMsg) {
         this.setDialogs()
         this.setStage()
         this.instruments = {}
         this.setPlay()
         this.setMute()
         this.setRecorder()
-        this.setSyncConsolidate()
-        wand.transfer.mong.findUserNetwork(wand.sageInfo.sid, wand.sageInfo.nid).then(r => {
-          console.log('loaded user network')
-          this.allNetworks = r
-          const g = wand.net.use.utils.loadJsonString(this.allNetworks[0].text)
-          this.registerNetwork(g, 'full')
-          const nodesToRemove = []
-          g.forEachNode((n, a) => {
-            if (!a.scrapped) {
-              nodesToRemove.push(n)
-            }
-          })
-          nodesToRemove.forEach(n => {
-            g.dropNode(n)
-          })
-          this.registerNetwork(g, 'current')
-          // this.drawnNet = new wand.conductor.use.DrawnNet(wand.artist.use, wand.currentNetwork, [])
-          const { conductor, artist } = wand
-          wand.extra.drawnNet = new conductor.use.DrawnNet(artist.use, wand.currentNetwork, [artist.use.width, artist.use.height * 0.9])
-          wand.drawnNet = this.drawnNet
-          this.setNetInfo()
-          this.setSyncBuilder()
+        // wand.transfer.mong.findUserNetwork(wand.sageInfo.sid, wand.sageInfo.nid).then(r => {
+        // console.log('loaded user network')
+        // this.allNetworks = r
+        this.allNetworks = [window.oaReceivedMsg.data.graph]
+        const g = Graph.from(window.oaReceivedMsg.data.graph)
+        // const g = wand.net.use.utils.loadJsonString(this.allNetworks[0].text)
+        this.registerNetwork(g, 'full')
+        const nodesToRemove = []
+        g.forEachNode((n, a) => {
+          if (!a.scrapped) {
+            nodesToRemove.push(n)
+          }
         })
+        nodesToRemove.forEach(n => {
+          g.dropNode(n)
+        })
+        this.registerNetwork(g, 'current')
+        // this.drawnNet = new wand.conductor.use.DrawnNet(wand.artist.use, wand.currentNetwork, [])
+        const { conductor, artist } = wand
+        wand.extra.drawnNet = new conductor.use.DrawnNet(artist.use, wand.currentNetwork, [artist.use.width, artist.use.height * 0.9])
+        wand.drawnNet = this.drawnNet
+        this.setNetInfo()
+        this.setSyncBuilder()
+        this.setSyncConsolidate()
+        this.removerActive = false
+        mkBtn('fa-user-times', 'remove', 'remove users', () => {
+          this.removerActive = !this.removerActive
+        })
+        // window.mnodea = wand.currentNetwork.getNodeAttributes(wand.utils.chooseUnique(wand.currentNetwork.nodes(), 1)[0])
+        wand.currentNetwork.getNodeAttribute(wand.utils.chooseUnique(wand.currentNetwork.nodes(), 1)[0], 'pixiElement').emit('pointerdown')
+        this.removedNodes = []
+        // })
       }
     }, 10000 * this.settings.timeStreach) // fixme: make better loading
   }
 
   setNetInfo () {
-    this.texts.gradus.text = `name, id: ${wand.sageInfo.name}, ${wand.sageInfo.sid || wand.sageInfo.nid}`
+    this.texts.gradus.text = `name: ${wand.sageInfo.name}`
     this.texts.achievement.text = `friends, friendships: ${wand.currentNetwork.order}, ${wand.currentNetwork.size}`
     if (this.sync) {
       this.texts.tip.text = `seeds, steps: ${this.sync.seeds.length}, ${this.sync.progression.length - 1}`
@@ -120,23 +131,72 @@ class Tithorea {
     this.voiceCounter = 0
     wand.currentNetwork.forEachNode((n, a) => {
       a.pixiElement.on('pointerdown', () => {
-        if (this.syncCount > 0) {
+        if (this.removerActive) {
+          this.removeMember(a)
+          return
+        }
+        if (this.theSeed === n) {
           window.open(a.urlStr)
           return
         }
-        if (this.seeds.includes(n)) {
-          this.seeds = this.seeds.filter(i => i !== n)
-          a.seed = false
-        } else {
-          this.seeds.push(n)
-          a.seed = true
-        }
+        this.theSeed = n
         this.mkSync()
-        // this.resetNetwork()
         this.resetSyncMap()
-        wand.$('#pin-button').show()
       })
     })
+  }
+
+  removeMember (a) {
+    // net.forEachNeighbor(a.id, (nn, na) => {
+    //   const ea = net.getEdgeAttributes(a.id, nn)
+    //   if (ea) ea.pixiElement.destroy()
+    //   // const ea2 = net.getEdgeAttributes(nn, a.id)
+    //   // if (ea2) ea2.pixiElement.destroy()
+    //   a.pixiElement.destroy()
+    //   a.textElement.destroy()
+    // })
+    // if (this.arrows) {
+    //   this.arrows.forEach(a => {
+    //     a.destroy()
+    //   })
+    // }
+    const net = wand.currentNetwork
+    net.forEachEdge(a.id, (e, a) => {
+      a.pixiElement.alpha = 0
+    })
+    net.dropNode(a.id)
+    this.removedNodes.push(a.id)
+    a.pixiElement.interactive = false
+    a.pixiElement.alpha = 0
+    a.textElement.alpha = 0
+    this.updateComponent()
+    this.mkSync()
+    this.resetSyncMap()
+  }
+
+  updateComponent () {
+    const g = wand.currentNetwork
+    const gg = components.connectedComponents(g)
+    let gg_ = []
+    for (let i = 0; i < gg.length; i++) {
+      if (gg[i].length > gg_.length) {
+        gg_ = gg[i]
+      }
+    }
+    const nodesToRemove = []
+    g.forEachNode((n, a) => {
+      if (!gg_.includes(n)) {
+        g.forEachEdge(n, (e, a) => {
+          a.pixiElement.alpha = 0
+        })
+        a.pixiElement.interactive = false
+        a.pixiElement.alpha = 0
+        a.textElement.alpha = 0
+        nodesToRemove.push(n)
+        this.removedNodes.push(a.id)
+      }
+    })
+    nodesToRemove.forEach(n => g.dropNode(n))
   }
 
   resetSyncMap () {
@@ -174,16 +234,7 @@ class Tithorea {
   }
 
   mkSync () {
-    // this.resetNetwork()
-    // if (wand.extra.patterns && wand.extra.patterns.seq2) {
-    //   wand.extra.patterns.seq2.dispose()
-    //   delete wand.extra.patterns.seq2
-    // }
-    // if (wand.extra.instruments && wand.extra.instruments.membSynth) {
-    //   wand.extra.instruments.membSynth.dispose()
-    //   delete wand.extra.instruments.membSynth
-    // }
-    this.sync = wand.net.use.diffusion.use.seededNeighborsLinks(wand.currentNetwork, 4, this.seeds)
+    this.sync = wand.net.use.diffusion.use.seededNeighborsLinks(wand.currentNetwork, 4, [this.theSeed])
     this.mkSyncNet()
     this.setSyncInfo()
     this.playSync2(this.sync.progressionLinks)
@@ -204,7 +255,10 @@ class Tithorea {
     })
     if (this.snet) {
       this.snet.forEachEdge((e, a, n1, n2) => {
-        wand.currentNetwork.getEdgeAttribute(n1, n2, 'pixiElement').alpha = 0
+        const net2 = wand.currentNetwork
+        if (net2.hasNode(n1) && net2.hasNode(n2)) {
+          wand.currentNetwork.getEdgeAttribute(n1, n2, 'pixiElement').alpha = 0
+        }
       })
     }
     this.snet = net
@@ -371,7 +425,6 @@ class Tithorea {
     const sg = subGraph(g, gg_).copy()
     netdegree.assign(sg)
     netmetrics.centrality.degree.assign(sg)
-    // louvain.assign(sg)
     sg.communities = louvain.detailed(sg)
     const communitySizes = new Array(sg.communities.count).fill(0)
     for (const key in sg.communities.communities) {
@@ -379,43 +432,14 @@ class Tithorea {
       sg.setNodeAttribute(key, 'community', index)
       communitySizes[index]++
     }
-    // const communitySizes_ = communitySizes.filter(i => !isNaN(i))
     sg.communities.sizes = {
       all: communitySizes,
-      // max: Math.max(...communitySizes_),
-      // min: Math.min(...communitySizes_)
       max: Math.max(...communitySizes),
       min: Math.min(...communitySizes)
     }
-    // const subComGraphs = {}
-    // for (let i = 0; i < sg.communities.count; i++) {
-    //   const nodes = []
-    //   sg.forEachNode((n, a) => {
-    //     if (a.community === i) {
-    //       nodes.push(n)
-    //     }
-    //   })
-    //   const cg = subGraph(sg, nodes).copy()
-    //   if (nodes.length !== 0) {
-    //     louvain.assign(cg)
-    //     cg.communities = louvain.detailed(cg)
-    //   } else {
-    //     console.log('EMPTY COMMUNITY FOUND!!', i)
-    //     cg.communities = { count: 0 }
-    //   }
-    //   const communitySizes = new Array(cg.communities.count).fill(0)
-    //   cg.forEachNode((n, a) => {
-    //     communitySizes[a.community]++
-    //   })
-    //   const communitySizes_ = communitySizes.filter(i => !isNaN(i))
-    //   cg.communities.sizes = {
-    //     all: communitySizes_,
-    //     max: Math.max(...communitySizes_),
-    //     min: Math.min(...communitySizes_)
-    //   }
-    //   subComGraphs[i] = cg
-    // }
-    // sg.communityGraphs = subComGraphs
+    sg.forEachNode((n, a) => {
+      a.id = n
+    })
     wand[avarname + 'Network'] = sg
     const norm = v => v === Math.round(v) ? v : v.toFixed(3)
     const mString = metric => {
@@ -596,24 +620,13 @@ class Tithorea {
   }
 
   setSyncConsolidate () {
-    this.syncCount = 0
-    mkBtn('fa-map-pin', 'pin', 'consolidate synchronization', () => {
-      console.log('sync man')
-      // add this progression links to the network,
-      // or add the snet (sync net) to the network,
-      // or open a new collection
-      // each node becomes attached to a link, which is a gradus link,
-      // starting with its music on the network
-      // and evolving to the start of gradus
-      this.syncCount = (++this.syncCount) % 4
-      const ustr = wand.utils.rot(wand.sageInfo.sid || wand.sageInfo.nid)
-      const ufield = wand.sageInfo.sid ? 'usid' : 'unid'
-      wand.currentNetwork.forEachNode((n, a) => {
-        const mstr = wand.utils.rot(a.sid || a.nid)
-        const mfield = a.sid ? 'msid' : 'mnid'
-        a.urlStr = `?page=ankh_&${ufield}=${ustr}&${mfield}=${mstr}&s=${this.syncCount}`
-      })
-    }, '#info-button').hide()
+    const ustr = wand.utils.rot(wand.sageInfo.sid || wand.sageInfo.nid)
+    const ufield = wand.sageInfo.sid ? 'usid' : 'unid'
+    wand.currentNetwork.forEachNode((n, a) => {
+      const mstr = wand.utils.rot(a.sid || a.nid)
+      const mfield = a.sid ? 'msid' : 'mnid'
+      a.urlStr = `?page=ankh_&${ufield}=${ustr}&${mfield}=${mstr}`
+    })
   }
 }
 

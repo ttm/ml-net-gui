@@ -12,6 +12,9 @@ Welcome to the Gradus.
 Hear your music, ${wand.syncInfo.pageMemberName}.
 in the network of ${wand.syncInfo.syncMemberName}.
 
+Keep your attention on the music, dont change the screen, or the interface might not
+work properly.
+
 Then, keep track of the "tips" until you reach your own social organism.
 You will make art, audiovisual music, with it in order to acquire intimacy with the framework.
 

@@ -1034,11 +1034,11 @@ const testTithorea = () => {
       wand.sageInfo = { name: 'XXX', sid, nid: null }
     }
   }
-  let timeStreach = 1
-  if (items.length > 4) {
-    timeStreach = items[4]
-  }
-  wand.magic.tithorea = new wand.magic.Tithorea({ currentLevel: level, timeStreach, counter: { colorChange: 60, hoverNode: 19 }, state: {}, muted: true })
+  // let timeStreach = 1
+  // if (items.length > 4) {
+  //   timeStreach = items[4]
+  // }
+  wand.magic.tithorea = new wand.magic.Tithorea({ currentLevel: level, counter: { colorChange: 60, hoverNode: 19 }, state: {}, muted: true })
 }
 
 const testSyncParnassum = () => {

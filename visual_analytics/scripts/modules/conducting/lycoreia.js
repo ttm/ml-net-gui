@@ -214,8 +214,7 @@ class Lycoreia {
       delete wand.currentNetwork
       this.setDialogs()
       // if (!wand.sageInfo) {
-      if (!window.oaReceivedMsg) {
-      } else {
+      if (window.oaReceivedMsg) {
         this.instruments = {}
         // this.setCommunitiesInterface()
         // this.setSubComInterface()

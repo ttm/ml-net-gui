@@ -114,6 +114,7 @@ const routes = {
   'transgender.html': test.testLycoreia,
   '⚜.html': test.testTithorea,
   'lis.html': test.testTithorea,
+  'tithorea.html': test.testTithorea,
   '♁⚜⚛⚧.html': () => console.log('YO JOW'),
   // '%E2%99%81%E2%9A%9C%E2%9A%9B%E2%9A%A7.html': () => console.log('YOU MAN'),
   'data_donated.html': () => console.log('a summary of the data donated in usage, upload and scrapping')

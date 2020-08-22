@@ -629,7 +629,7 @@ class OABase {
         }
       },
       networksVisualized: {
-        tip: 'visualize networks, press buttons',
+        tip: 'select networks, press buttons',
         condition: () => {
           if (
             this.counter.networksVisualized >= 3 &&

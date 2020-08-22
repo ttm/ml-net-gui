@@ -12,33 +12,201 @@ const subGraph = require('graphology-utils/subgraph')
 class Tithorea {
   // andromedan and dedicated to synchronization
   constructor (settings = {}) {
-    document.title = 'Andromedan tribe'
+    document.title = 'Tithorea (Our Aquarium)'
+    const $ = wand.$
+    const self = this
     const defaultSettings = {
       fontSize: 20,
       timeStreach: 0.001,
       state: {
         nodesSize: {
-          current: 0.7
+          // current val = min + (max - min) * (count % step), in increment(attr)
+          count: 7, // interactions count
+          max: 2,
+          min: 0.5,
+          steps: 10,
+          current: 1,
+          update: function () {
+            wand.currentNetwork.forEachNode((n, a) => {
+              a.pixiElement.scale.set(this.current)
+            })
+          }
         },
         namesSize: {
-          current: 0.5
+          count: 0,
+          max: 1.5,
+          min: 0.3,
+          steps: 10,
+          current: 1,
+          update: function () {
+            wand.currentNetwork.forEachNode((n, a) => {
+              a.textElement.scale.set(this.current)
+            })
+          }
         },
         nodesAlpha: {
-          current: 0.9
+          count: 0,
+          max: 1,
+          min: 0,
+          steps: 10,
+          current: 0.9,
+          iconId: '#member-button',
+          update: function () {
+            wand.currentNetwork.forEachNode((n, a) => {
+              a.pixiElement.alpha = a.pixiElement.balpha = this.current
+            })
+          },
+          bind: () => {
+            $('<i/>', { class: 'fa fa-chess', id: 'member-icon' }).appendTo(
+              $('<button/>', {
+                class: 'btn',
+                id: 'member-button',
+                click: () => {
+                  this.increment('nodesAlpha')
+                }
+              }).attr('atitle', 'show members').insertAfter('#info-button')
+            )
+          }
         },
         namesAlpha: {
-          current: 0.1
+          count: 0, // interactions count
+          max: 1,
+          min: 0,
+          steps: 10,
+          current: 0.1,
+          iconId: '#names-button',
+          update: function (a) {
+            wand.currentNetwork.forEachNode((n, a) => {
+              wand.extra.showNameBlock = this.count % 2 === 1
+              a.textElement.alpha = this.current
+            })
+          },
+          bind: () => {
+            $('<i/>', { class: 'fa fa-mask', id: 'names-icon' }).appendTo(
+              $('<button/>', {
+                class: 'btn',
+                id: 'names-button',
+                click: () => {
+                  this.increment('namesAlpha')
+                }
+              }).attr('atitle', 'show names').insertAfter('#friendship-button')
+            )
+          }
         },
         edgesAlpha: {
-          current: 0.9
+          count: 0, // interactions count
+          max: 1,
+          min: 0,
+          steps: 10,
+          current: 0.9,
+          iconId: '#friendship-button',
+          update: function () {
+            const sn = self.snet
+            wand.currentNetwork.forEachEdge((e, a, n1, n2) => {
+              if (!(sn.hasEdge(n1, n2) || sn.hasEdge(n2, n1))) {
+                a.pixiElement.alpha = this.current
+                a.pixiElement.balpha = this.current
+              }
+            })
+          },
+          bind: () => {
+            $('<i/>', { class: 'fa fa-bone', id: 'friendship-icon' }).appendTo(
+              $('<button/>', {
+                class: 'btn',
+                id: 'friendship-button',
+                click: () => {
+                  this.increment('edgesAlpha')
+                }
+              }).attr('atitle', 'show friendships').insertAfter('#member-button')
+            )
+          }
         },
         colors: {
-          currentColors: wand.magic.tint.handPicked.black
+          count: 0,
+          min: 0,
+          max: Object.keys(wand.magic.tint.handPicked).length - 1,
+          steps: Object.keys(wand.magic.tint.handPicked).length,
+          palettes: Object.keys(wand.magic.tint.handPicked),
+          currentColors: wand.magic.tint.randomPalette2(),
+          iconId: '#pallete-button',
+          update: function () {
+            this.currentColors = wand.magic.tint.randomPalette2()
+            const { bg, e } = this.currentColors
+            wand.artist.share.draw.base.app.renderer.backgroundColor = this.count % 3 === 0 ? 0 : (this.count % 3 === 1 ? 0xffffff : Math.floor(bg))
+            wand.currentNetwork.forEachEdge((i, a) => {
+              a.pixiElement.tint = e
+            })
+            wand.currentNetwork.forEachNode((e, a) => {
+              self.styleNode(a)
+            })
+          },
+          bind: () => {
+            $('<i/>', { class: 'fa fa-palette', id: 'pallete-icon' }).appendTo(
+              $('<button/>', {
+                class: 'btn',
+                id: 'pallete-button',
+                click: () => {
+                  this.increment('colors')
+                }
+              }).attr('atitle', 'change colors').css('background-color', 'gray')
+                .insertAfter('#names-button')
+            )
+            $('#pallete-button').click()
+          }
+        },
+        muter: {
+          count: 0, // interactions count
+          max: 1,
+          min: 0,
+          steps: 2,
+          current: 0,
+          muted: false,
+          iconId: '#muter-button',
+          update: function () {
+            Tone.Master.mute = this.muted = !this.muted
+          },
+          bind: function () { // todo: conform other binds with this:
+            mkBtn('fa-volume-mute', 'muter', 'mute (only visual music)', () => {
+              self.increment('muter')
+            }, '#pallete-button')
+          }
+        },
+        player: {
+          count: 0,
+          max: 1,
+          min: 0,
+          steps: 2,
+          current: 0,
+          iconId: '#player-button',
+          update: function () {
+            if (this.current) {
+              this.rec.astart()
+              Tone.Transport.start()
+            } else {
+              Tone.Transport.stop()
+              this.rec.stop()
+              self.resetNetwork()
+            }
+          },
+          bind: function () {
+            const $ = wand.$
+            this.rec = wand.transfer.rec.rec()
+            $('<i/>', { class: 'fa fa-play', id: 'player-icon' }).appendTo(
+              $('<button/>', {
+                class: 'btn',
+                id: 'player-button',
+                click: () => {
+                  self.increment('player')
+                }
+              }).attr('atitle', 'change player').insertAfter('#div1')
+            )
+          }
         }
       }
     }
     this.settings = { ...defaultSettings, ...settings }
     this.settings.state = { ...defaultSettings.state, ...settings.state }
+    this.state = this.settings.state
     const refHeight = 833
     const refWidth = 884
     this.settings.heightProportion = wand.artist.use.height / refHeight
@@ -49,17 +217,10 @@ class Tithorea {
       wand.extra.exhibition.remove()
       delete wand.extra.exhibition
       delete wand.currentNetwork
-      // this.setDialogs()
-      // if (!wand.sageInfo) {
-      //   console.log('Andromedans request for praying the invitation')
-      // } else {
+      this.setDialogs()
       if (window.oaReceivedMsg) {
-        this.setDialogs()
-        this.setStage()
         this.instruments = {}
-        this.setPlay()
-        this.setMute()
-        this.setRecorder()
+        //
         // wand.transfer.mong.findUserNetwork(wand.sageInfo.sid, wand.sageInfo.nid).then(r => {
         // console.log('loaded user network')
         // this.allNetworks = r
@@ -81,17 +242,35 @@ class Tithorea {
         const { conductor, artist } = wand
         wand.extra.drawnNet = new conductor.use.DrawnNet(artist.use, wand.currentNetwork, [artist.use.width, artist.use.height * 0.9])
         wand.drawnNet = this.drawnNet
+
+        this.setStage()
+        this.state.nodesAlpha.bind()
+        this.state.edgesAlpha.bind()
+        this.state.namesAlpha.bind()
+        this.state.colors.bind()
+        this.state.muter.bind()
+
+        const d = $('<div/>', { id: 'div1' }).insertAfter('#muter-button')
+        d.html(' || ').css('display', 'inline')
+
+        // this.setPlay()
+        this.state.player.bind()
+        // this.setMute()
+        // this.setRecorder()
         this.setNetInfo()
         this.setSyncBuilder()
         this.setSyncConsolidate()
         this.removerActive = false
         mkBtn('fa-user-times', 'remove', 'remove users', () => {
           this.removerActive = !this.removerActive
-        })
+          const c = this.removerActive ? '#ff0000' : '#ffffff'
+          $('#remove-button').css('background-color', c)
+        }, '#player-button')
         // window.mnodea = wand.currentNetwork.getNodeAttributes(wand.utils.chooseUnique(wand.currentNetwork.nodes(), 1)[0])
         wand.currentNetwork.getNodeAttribute(wand.utils.chooseUnique(wand.currentNetwork.nodes(), 1)[0], 'pixiElement').emit('pointerdown')
         this.removedNodes = []
         this.removedNodesUrl = ''
+        this.resetNetwork()
         // })
       }
     }, 10000 * this.settings.timeStreach) // fixme: make better loading
@@ -161,6 +340,10 @@ class Tithorea {
     //     a.destroy()
     //   })
     // }
+    if (this.removedNodes.length >= 4) {
+      window.alert('you (still) do not have permisson to remove more than 4 members')
+      return
+    }
     const net = wand.currentNetwork
     net.forEachEdge(a.id, (e, a) => {
       a.pixiElement.alpha = 0
@@ -199,7 +382,6 @@ class Tithorea {
         a.pixiElement.alpha = 0
         a.textElement.alpha = 0
         nodesToRemove.push(n)
-        this.removedNodes.push(a.id)
       }
     })
     nodesToRemove.forEach(n => g.dropNode(n))
@@ -636,6 +818,33 @@ class Tithorea {
       const mfield = a.sid ? 'msid' : 'mnid'
       a.urlStr = `?page=ankh_&${ufield}=${ustr}&${mfield}=${mstr}`
     })
+  }
+
+  increment (attr) {
+    this.state[attr].count++
+    const { count, min, max, steps, iconId, iconChange, icons } = this.state[attr]
+    const ambit = max - min
+    const n = count % steps
+    const val = min + (n / (steps - 1)) * ambit // at least 2 steps
+    console.log('incremented:', max, min, ambit, steps, val)
+    this.state[attr].current = val
+    this.state[attr].update()
+    const e = wand.$(iconId)
+    if (iconChange === 'toggle') {
+      console.log(n, icons, icons[n], 'IOIOI')
+      e.toggleClass(() => icons[n])
+      console.log(max, val, 'CLICKED', attr)
+    } else if (iconChange === 'toggle-color') {
+      console.log(max, val, 'CLICKED', attr)
+    } else if (iconId !== undefined) { // if (iconChange == 'color') {
+      let color = '#00ff00'
+      console.log(max, val, 'CLICKED', attr)
+      if (max - val > 0.01) {
+        color = '#' + Math.floor(0xffffff - 0xffff * val / max).toString(16)
+      }
+      e.css('background-color', color)
+    }
+    return n
   }
 }
 

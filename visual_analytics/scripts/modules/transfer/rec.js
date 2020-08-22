@@ -9,7 +9,7 @@ function rec () {
   Tone.Master.connect(dest)
 
   const canvas = wand.magic.app.view // document.querySelector('canvas')
-  const stream = canvas.captureStream(15)
+  const stream = canvas.captureStream(30)
 
   const combined = new MediaStream([...dest.stream.getTracks(), ...stream.getTracks()])
   const recorder = new MediaRecorder(combined, { mimeType: 'video/webm' })

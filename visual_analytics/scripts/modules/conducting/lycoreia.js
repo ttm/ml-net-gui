@@ -40,9 +40,6 @@ class Lycoreia {
     const defaultSettings = {
       fontSize: 20,
       timeStreach: 0.001,
-      counter: {
-        hoverNode: 0
-      },
       state: {
         nodesSize: {
           // current val = min + (max - min) * (count % step), in increment(attr)
@@ -196,9 +193,7 @@ class Lycoreia {
       }
     }
     this.settings = { ...defaultSettings, ...settings }
-    this.settings.counter = { ...defaultSettings.counter, ...settings.counter }
     this.settings.state = { ...defaultSettings.state, ...settings.state }
-    this.counter = this.settings.counter
     wand.state = this.state = this.settings.state
 
     const refHeight = 833
@@ -610,7 +605,6 @@ class Lycoreia {
           `degree centrality: ${tf(a.degreeCentrality)} in ${net.degreeCentrality}`]
       ]
       a.pixiElement.on('pointerover', () => {
-        this.counter.hoverNode++
         wand.rect2.zIndex = 500
         texts.forEach(t => {
           this.texts[t[0]].text = t[1]

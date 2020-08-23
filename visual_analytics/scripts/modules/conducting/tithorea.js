@@ -346,6 +346,7 @@ class Tithorea {
       a.pixiElement.on('pointerdown', () => {
         if (this.removerActive) {
           this.removeMember(a)
+          this.theSeed = undefined
         } else if (this.theSeed === n) {
           window.open(a.urlStr + this.removedNodesUrl)
         } else {
@@ -459,6 +460,7 @@ class Tithorea {
     this.setSyncInfo()
     if (wand.extra.syncMusic) {
       const { seq2, membSynth } = wand.extra.syncMusic
+      seq2.stop()
       setTimeout(() => {
         seq2.dispose()
         membSynth.dispose()

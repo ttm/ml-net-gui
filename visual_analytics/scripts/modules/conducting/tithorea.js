@@ -349,7 +349,7 @@ class Tithorea {
           this.removeMember(a)
           this.theSeed = undefined
         } else if (this.theSeed === n) {
-          window.open(a.urlStr + this.removedNodesUrl)
+          window.open(a.urlStr + this.removedNodesUrl + this.descUrl())
         } else {
           this.theSeed = n
         }
@@ -357,6 +357,10 @@ class Tithorea {
         this.resetSyncMap()
       })
     })
+  }
+
+  descUrl () {
+    return '&desc=' + window.encodeURIComponent(wand.magic.tithorea.descArea.val())
   }
 
   removeMember (a) {
@@ -374,7 +378,7 @@ class Tithorea {
     //   })
     // }
     if (this.removedNodes.length >= 4) {
-      window.alert('you (still) do not have permisson to remove more than 4 members')
+      window.alert('you do not have permisson (yet) to remove more than 4 members')
       return
     }
     const net = wand.currentNetwork
@@ -910,24 +914,40 @@ class Tithorea {
         'z-index': 1,
         left: 0,
         top: 0,
-        padding: '100px'
+        padding: '100px',
+        'background-color': 'rgba(200, 200, 100, 0.3)'
       }
     }).html('describe the purpose of your syncronization:').appendTo('body')
+
+    const diag2 = $('<div/>', {
+      id: 'diag2',
+      css: {
+        'background-color': 'white'
+      }
+    }).appendTo(diag)
+
+    $('<button/>').html('close').on('click', () => {
+      diag.css('display', 'none')
+    }).appendTo(diag2)
+    $('<button/>').html('template change').on('click', () => {
+      tarea.val('YAYAYYA')
+    }).appendTo(diag2)
+
     const tarea = $('<textarea/>', {
-      maxlength: 20,
+      maxlength: 500,
       css: {
         'background-color': 'white',
         margin: 'auto',
         width: '50%',
         height: '50%'
       }
-    }).html('qweasd').appendTo(diag)
-    $('<button/>').appendTo(diag).html('close').on('click', () => {
-      diag.css('display', 'none')
-    })
-    $('<button/>').appendTo(diag).html('template change').on('click', () => {
-      tarea.val('YAYAYYA')
-    })
+    }).on('keydown', () => {
+      dcount.html(tarea.val().length + ' / 500')
+    }).html('qweasd').appendTo(diag2)
+
+    const dcount = $('<div/>', { id: 'diagCount' }).appendTo(diag)
+
+    this.descDiag = diag2
     this.descDiag = diag
     this.descArea = tarea
   }

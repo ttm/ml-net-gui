@@ -155,7 +155,7 @@ class Tithorea {
           }
         },
         muter: {
-          count: 0, // interactions count
+          count: 0,
           max: 1,
           min: 0,
           steps: 2,
@@ -173,20 +173,35 @@ class Tithorea {
         },
         player: {
           count: 0,
-          max: 1,
+          max: 11,
           min: 0,
-          steps: 2,
+          steps: 12,
           current: 0,
           iconId: '#player-button',
           update: function () {
-            if (this.current) {
+            console.log(this.current, 'PLAYER')
+            if (this.current === this.max) {
+              Tone.Transport.stop()
+              this.rec.stop()
+              self.resetNetwork()
+              //   Tone.Transport.stop()
+            } else if (this.current === this.min) {
               this.rec.astart()
               Tone.Transport.start()
             } else {
               Tone.Transport.stop()
-              this.rec.stop()
-              self.resetNetwork()
+              setTimeout(() => {
+                wand.extra.patterns.seq2.interval = (2 ** (10 - this.current)) + 'n'
+                Tone.Transport.start()
+              }, wand.extra.patterns.seq2.interval * 1000)
             }
+            // if (this.current) {
+            //   Tone.Transport.start()
+            // } else {
+            //   Tone.Transport.stop()
+            //   this.rec.stop()
+            //   self.resetNetwork()
+            // }
           },
           bind: function () {
             const $ = wand.$
@@ -200,6 +215,31 @@ class Tithorea {
                 }
               }).attr('atitle', 'change player').insertAfter('#div1')
             )
+            this.count = this.current = this.max
+          }
+        },
+        desc: {
+          count: 0,
+          max: 1,
+          min: 0,
+          steps: 2,
+          current: 0,
+          muted: false,
+          iconId: '#desc-button',
+          update: function () {
+            if (this.current) {
+              self.descDiag.css('display', 'block')
+            } else {
+              self.descDiag.css('display', 'none')
+            }
+          },
+          bind: function () {
+            console.log('b in')
+            self.setDesc()
+            mkBtn('fa-file-medical-alt', 'desc', 'syncronization description', () => {
+              self.increment('desc')
+            }, '#remove-button')
+            console.log('b out')
           }
         }
       }
@@ -220,10 +260,6 @@ class Tithorea {
       this.setDialogs()
       if (window.oaReceivedMsg) {
         this.instruments = {}
-        //
-        // wand.transfer.mong.findUserNetwork(wand.sageInfo.sid, wand.sageInfo.nid).then(r => {
-        // console.log('loaded user network')
-        // this.allNetworks = r
         this.allNetworks = [window.oaReceivedMsg.data.graph]
         const g = Graph.from(window.oaReceivedMsg.data.graph)
         // const g = wand.net.use.utils.loadJsonString(this.allNetworks[0].text)
@@ -253,10 +289,8 @@ class Tithorea {
         const d = $('<div/>', { id: 'div1' }).insertAfter('#muter-button')
         d.html(' || ').css('display', 'inline')
 
-        // this.setPlay()
         this.state.player.bind()
-        // this.setMute()
-        // this.setRecorder()
+
         this.setNetInfo()
         this.setSyncBuilder()
         this.setSyncConsolidate()
@@ -266,12 +300,11 @@ class Tithorea {
           const c = this.removerActive ? '#ff0000' : '#ffffff'
           $('#remove-button').css('background-color', c)
         }, '#player-button')
-        // window.mnodea = wand.currentNetwork.getNodeAttributes(wand.utils.chooseUnique(wand.currentNetwork.nodes(), 1)[0])
         wand.currentNetwork.getNodeAttribute(wand.utils.chooseUnique(wand.currentNetwork.nodes(), 1)[0], 'pixiElement').emit('pointerdown')
+        this.state.desc.bind()
         this.removedNodes = []
         this.removedNodesUrl = ''
         this.resetNetwork()
-        // })
       }
     }, 10000 * this.settings.timeStreach) // fixme: make better loading
   }
@@ -313,13 +346,11 @@ class Tithorea {
       a.pixiElement.on('pointerdown', () => {
         if (this.removerActive) {
           this.removeMember(a)
-          return
-        }
-        if (this.theSeed === n) {
+        } else if (this.theSeed === n) {
           window.open(a.urlStr + this.removedNodesUrl)
-          return
+        } else {
+          this.theSeed = n
         }
-        this.theSeed = n
         this.mkSync()
         this.resetSyncMap()
       })
@@ -354,8 +385,6 @@ class Tithorea {
     a.pixiElement.alpha = 0
     a.textElement.alpha = 0
     this.updateComponent()
-    this.mkSync()
-    this.resetSyncMap()
     this.updateRemovedNodesUrl()
   }
 
@@ -428,7 +457,16 @@ class Tithorea {
     this.sync = wand.net.use.diffusion.use.seededNeighborsLinks(wand.currentNetwork, 4, [this.theSeed])
     this.mkSyncNet()
     this.setSyncInfo()
-    this.playSync2(this.sync.progressionLinks)
+    if (wand.extra.syncMusic) {
+      const { seq2, membSynth } = wand.extra.syncMusic
+      setTimeout(() => {
+        seq2.dispose()
+        membSynth.dispose()
+        this.playSync2(this.sync.progressionLinks)
+      }, seq2.interval * 1000) // max interval having instrument events (drawing can get past duration)
+    } else {
+      this.playSync2(this.sync.progressionLinks)
+    }
   }
 
   mkSyncNet () {
@@ -493,6 +531,7 @@ class Tithorea {
       membSynth.triggerAttackRelease(nval, 1, time + 0.75 * seq2.interval)
       if (nodes.length === 0) {
         self.resetNetwork()
+        wand.$('#pallete-button').click()
       } else {
         d(() => nodes.forEach(n => {
           const a = net.getNodeAttributes(n.from)
@@ -529,26 +568,34 @@ class Tithorea {
       ...wand.extra.patterns,
       seq2
     }
-    const fid = 'voice-' + this.voiceCounter++
-    const btn = mkBtn('fa-microphone-alt-slash', fid, 'remove voice', () => {
-      // console.log('clearing voice:', progression, g, voice, seq, instrument)
-      wand.$(`#${fid}-icon`).remove()
-      wand.$(`#${fid}-button`).remove()
-      seq2.stop()
-      setTimeout(() => {
-        seq2.dispose()
-        membSynth.dispose()
-      }, seq2.interval * 1000) // max interval having instrument events (drawing can get past duration)
-      // then restyle nodes in g
-      // remove names
-    }, '#info-button')
-    if (!window.location.href.includes('?advanced')) {
-      btn.hide()
-      if (this.voiceCounter > 1) {
-        const fid_ = 'voice-' + (this.voiceCounter - 2)
-        wand.$(`#${fid_}-button`).click()
-      }
+    wand.extra.syncMusic = {
+      seq2,
+      membSynth
     }
+    // const fid = 'voice-' + this.voiceCounter++
+    // mkBtn('fa-microphone-alt-slash', fid, 'remove voice', () => {
+    //   // console.log('clearing voice:', progression, g, voice, seq, instrument)
+    //   wand.$(`#${fid}-icon`).remove()
+    //   wand.$(`#${fid}-button`).remove()
+    //   seq2.stop()
+    //   setTimeout(() => {
+    //     seq2.dispose()
+    //     membSynth.dispose()
+    //   }, seq2.interval * 1000) // max interval having instrument events (drawing can get past duration)
+    //   // then restyle nodes in g
+    //   // remove names
+    // }, '#info-button')
+    // if (this.voiceCounter > 1) {
+    //   const fid_ = 'voice-' + (this.voiceCounter - 2)
+    //   wand.$(`#${fid_}-button`).click()
+    // }
+    // if (!window.location.href.includes('?advanced')) {
+    //   btn.hide()
+    //   if (this.voiceCounter > 1) {
+    //     const fid_ = 'voice-' + (this.voiceCounter - 2)
+    //     wand.$(`#${fid_}-button`).click()
+    //   }
+    // }
   }
 
   restyleNode (attr = { }) { // set node style with input attributes
@@ -845,6 +892,41 @@ class Tithorea {
       e.css('background-color', color)
     }
     return n
+  }
+
+  setDesc () {
+    const $ = wand.$
+    const diag = $('<div/>', {
+      id: 'diag1',
+      css: {
+        display: 'none',
+        position: 'fixed',
+        width: '100%',
+        height: '100%',
+        overflow: 'auto',
+        'z-index': 1,
+        left: 0,
+        top: 0,
+        padding: '100px'
+      }
+    }).html('describe the purpose of your syncronization:').appendTo('body')
+    const tarea = $('<textarea/>', {
+      maxlength: 20,
+      css: {
+        'background-color': 'white',
+        margin: 'auto',
+        width: '50%',
+        height: '50%'
+      }
+    }).html('qweasd').appendTo(diag)
+    $('<button/>').appendTo(diag).html('close').on('click', () => {
+      diag.css('display', 'none')
+    })
+    $('<button/>').appendTo(diag).html('template change').on('click', () => {
+      tarea.val('YAYAYYA')
+    })
+    this.descDiag = diag
+    this.descArea = tarea
   }
 }
 

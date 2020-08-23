@@ -5,6 +5,7 @@ const conductor = require('./modules/conductor.js')
 const transfer = require('./modules/transfer/main.js')
 const utils = require('./modules/utils.js')
 const $ = require('jquery')
+const lz = require('lz-string')
 require('@fortawesome/fontawesome-free/js/all.js')
 // https://fontawesome.com/how-to-use/on-the-web/referencing-icons/icon-cheatsheet
 // https://fontawesome.com/how-to-use/on-the-web/using-with/jquery
@@ -1048,4 +1049,42 @@ const testSyncParnassum = () => {
   wand.magic.syncParnassum = new wand.magic.SyncParnassum()
 }
 
-module.exports = { testPlot, testRotateLayouts, testBlink, testExhibition1, testDiffusion, testMultilevelDiffusion, testMetaNetwork, testSparkMin, testSparkLosd, testMong, testGetNet0, testGetNet1, testGetNet2, testGetNet3, testNetIO, testGUI, testNetUpload, testNetUpload2, testMongIO, testMongNetIO, testMongBetterNetIO, testNetPage, testPuxi, testHtmlEls, testHtmlEls2, testGradus, testAdParnassum, testWorldPropertyPage, testAudio, testJQueryFontsAwesome, testObj, testColors, testMusic, testLooper, testSeq, testSync, testPattern, testRec, testRec2, testRecCanvas, testRecAudio, testRecAudioAndCanvas, testRecAudioAndCanvas2, testDiffusionLimited, testNoise, testLycoreia, testTithorea, testSyncParnassum }
+const testEditor = () => {
+  const names2 = $('<button/>').appendTo('body').html('asd')
+  const diag = $('<div/>', {
+    id: 'diag1',
+    css: {
+      display: 'none',
+      position: 'fixed',
+      width: '100%',
+      height: '100%',
+      overflow: 'auto',
+      'z-index': 1,
+      left: 0,
+      top: 0,
+      padding: '100px'
+    }
+  }).appendTo('body')
+
+  names2.on('click', () => {
+    diag.css('display', 'block')
+  })
+  // $('<div/>', { css: { 'background-color': 'white', margin: 'auto' } }).html('qweasd').appendTo('#diag1')
+  window.tarea = $('<textarea/>', { css: { 'background-color': 'white', margin: 'auto' } }).html('qweasd').appendTo('#diag1')
+  $('<button/>').appendTo('#diag1').html('close').on('click', () => {
+    diag.css('display', 'none')
+  })
+  return names2
+}
+
+const testLz = () => {
+  window.lz = lz
+  var string = 'This is my compression test.'
+  console.log('Size of sample is: ' + string.length)
+  var compressed = lz.compress(string)
+  console.log('Size of compressed sample is: ' + compressed.length, compressed)
+  string = lz.decompress(compressed)
+  console.log('Sample is: ' + string)
+}
+
+module.exports = { testPlot, testRotateLayouts, testBlink, testExhibition1, testDiffusion, testMultilevelDiffusion, testMetaNetwork, testSparkMin, testSparkLosd, testMong, testGetNet0, testGetNet1, testGetNet2, testGetNet3, testNetIO, testGUI, testNetUpload, testNetUpload2, testMongIO, testMongNetIO, testMongBetterNetIO, testNetPage, testPuxi, testHtmlEls, testHtmlEls2, testGradus, testAdParnassum, testWorldPropertyPage, testAudio, testJQueryFontsAwesome, testObj, testColors, testMusic, testLooper, testSeq, testSync, testPattern, testRec, testRec2, testRecCanvas, testRecAudio, testRecAudioAndCanvas, testRecAudioAndCanvas2, testDiffusionLimited, testNoise, testLycoreia, testTithorea, testSyncParnassum, testEditor, testLz }

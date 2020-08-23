@@ -1,6 +1,7 @@
 {
   "name": "va",
   "devDependencies": {
+    "@editorjs/link": "^2.2.1",
     "standard": "*"
   },
   "scripts": {
@@ -32,6 +33,7 @@
     "graphology-metrics": "^1.13.0",
     "jquery": "^3.5.1",
     "jquery-ui": "^1.12.1",
+    "lz-string": "^1.4.4",
     "mongodb-stitch-browser-sdk": "^4.8.0",
     "mongoose": "^5.9.18",
     "nodemon": "^2.0.3",

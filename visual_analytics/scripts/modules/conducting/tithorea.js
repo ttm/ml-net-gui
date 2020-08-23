@@ -186,6 +186,7 @@ class Tithorea {
               self.resetNetwork()
               //   Tone.Transport.stop()
             } else if (this.current === this.min) {
+              wand.extra.patterns.seq2.interval = (2 ** (10 - this.current)) + 'n'
               this.rec.astart()
               Tone.Transport.start()
             } else {

@@ -38,6 +38,7 @@ function inplaceShuffle (array) {
     array[i] = array[j]
     array[j] = temp
   }
+  return array
 }
 
 function randChunkSplit (arr, min, max, inplace = true) {

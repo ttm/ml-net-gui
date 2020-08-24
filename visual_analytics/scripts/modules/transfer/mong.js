@@ -91,8 +91,10 @@ const findUserNetwork = (sid, nid) => {
     let query
     if (sid) {
       query = { sid }
-    } else {
+    } else if (nid) {
       query = { nid }
+    } else {
+      return 'NOT A NET'
     }
     return db.collection(auth.collections.test).find(query).asArray()
   })
@@ -106,4 +108,10 @@ const writeVideoUrl = data => {
   })
 }
 
-module.exports = { client, db, auth, writeIfNotThereReadIfThere, writeNetIfNotThereReadIfThere, findAllNetworks, writeNet, testCollection, findUserNetwork, findAllScrappedNetworks, s, writeVideoUrl }
+const writeAny = data => {
+  return client.auth.loginWithCredential(new s.AnonymousCredential()).then(user => {
+    return db.collection(auth.collections.test).insertOne(data)
+  })
+}
+
+module.exports = { client, db, auth, writeIfNotThereReadIfThere, writeNetIfNotThereReadIfThere, findAllNetworks, writeNet, testCollection, findUserNetwork, findAllScrappedNetworks, s, writeVideoUrl, writeAny }

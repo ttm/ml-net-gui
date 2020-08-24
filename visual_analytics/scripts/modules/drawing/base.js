@@ -142,7 +142,7 @@ function mkTextBetter (
 function mkTextFancy (text, pos, fontSize = 15, color = 0x00ff00, zIndex = 300, alpha = 1) {
   const texto = new PIXI.Text(
     text,
-    { fontFamily: 'Arial', fontSize, fill: 0xffffff, align: 'center' }
+    { fontFamily: 'Arial', fontSize, fill: 0xffffff, align: 'center', wordWrap: true, wordWrapWidth: wand.artist.use.width * 0.7 }
   )
   texto.tint = color
   texto.x = pos[0]

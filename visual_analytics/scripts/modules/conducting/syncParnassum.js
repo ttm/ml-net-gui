@@ -28,6 +28,7 @@ class SyncParnassum extends OABase {
     wand.$('#loading').hide()
 
     // const now = performance.now()
+    this.settings.timeStreach = 0.001 // fixme: remove, make flag...
     if (window.oaReceivedMsg) { // gradus for the user network, from extension:
       this.settings.timeStreach = 0.001
       this.settings.currentLevel = 13
@@ -50,13 +51,30 @@ class SyncParnassum extends OABase {
       this.setInfo2()
       console.log('finished initialization')
     } else { // gradus received through sync:
-      wand.transfer.mong.findUserNetwork(wand.syncInfo.usid, wand.syncInfo.unid).then(r => {
+      const { usid, unid, syncId } = wand.syncInfo
+      const act = () => {
+        if (syncId === undefined) { // member accessing OA is a seed:
+          return wand.transfer.mong.findUserNetwork(usid, unid)
+        } else { // member is part of a diffusion started by a seed:
+          wand.transfer.mong.findAny({ syncId }).then(r => {
+            this.sync = r.sync
+            return wand.transfer.mong.findUserNetwork(r.usid, r.unid)
+          })
+        }
+      }
+      act().then(r => {
         console.log('loaded user network')
         this.allNetworks = r
-        console.log('timeout finished, parse json -> graphology')
         const g = wand.net.use.utils.loadJsonString(this.allNetworks[0].text)
+        if (wand.syncInfo.syncRemovedNodes[0] !== '') {
+          wand.syncInfo.syncRemovedNodes.forEach(n => {
+            g.dropNode(n)
+          })
+        }
+
         this.registerNetwork(g, 'full')
         this.mkNames()
+
         const nodesToRemove = []
         g.forEachNode((n, a) => {
           if (!a.scrapped) {
@@ -67,10 +85,9 @@ class SyncParnassum extends OABase {
           g.dropNode(n)
         })
         this.registerNetwork(g, 'current') // make the small networks derived from the person
+
         this.setRecorder()
-        console.log('memb nets')
         this.makeMemberNetworks()
-        console.log('memb mus')
         this.memberMusicSeqs = [this.makeMemberMusic(0, 0)]
         for (let i = 1; i < this.plots.length; i++) {
           this.memberMusicSeqs.push(this.makeMemberMusic(i, this.memberMusicSeqs[i - 1].dur))
@@ -352,7 +369,17 @@ class SyncParnassum extends OABase {
       return texts[element]
     }
     mkElement([1, 2.2], 0x777733, '1', 3000, 0, gradus1())
-    mkElement([1, 2.2], 0x777733, '2', 3000, 0, gradus2())
+
+    let g2 = gradus2()
+    const url = g2.match(/\bhttps?:\/\/\S+/gi)
+    if (url !== null) {
+      g2 = g2.replace(url[0], 'click HERE.')
+    }
+    mkElement([1, 2.2], 0x777733, '2', 3000, 0, g2).on('pointerdown', () => {
+      if (url !== null) {
+        window.open(url[0], '_blank')
+      }
+    })
 
     const ltext = mkElement([1, 2.2], 0x777733, '3', 3000, 0, gradusVideoLink)
     ltext.on('pointerdown', () => {
@@ -433,18 +460,18 @@ class SyncParnassum extends OABase {
     ltext.buttonMode = true
 
     this.mkSyncLinks()
-    const atext = mkElement([1, 2.2], 0x777733, '4', 3000, 0, gradusSyncLinks(this.syncLinks))
+    const atext = mkElement([1, 2.2], 0x777733, '4', 3000, 0, gradusSyncLinks(this.syncNames))
     // atext.interactive = true
-    atext.buttonMode = true
     atext.on('pointerdown', () => {
-      window.alert(`links with text copied to your clipboard.
-      Paste on a text editor to read.`)
+      copyToClipboard(this.syncLinks)
+      copyToClipboard(this.syncLinks)
+      copyToClipboard(this.syncLinks)
+      copyToClipboard(this.syncLinks)
+      window.alert(`links to music pieces and known contacts copied to your clipboard.
+      ~~~ --> Paste on a text editor to read! <-- ~~~`)
       this.syncLinksCopied = true
-      copyToClipboard(gradusSyncLinks(this.syncLinks))
-      copyToClipboard(gradusSyncLinks(this.syncLinks))
-      copyToClipboard(gradusSyncLinks(this.syncLinks))
-      copyToClipboard(gradusSyncLinks(this.syncLinks))
     })
+    atext.buttonMode = true
 
     mkElement([1, 2.2], 0x777733, '5', 3000, 0, gradusExtensionInfo).on('pointerdown', () => {
       window.open('OAextension.zip', '_blank') // needs to be uploaded to instance. TTM
@@ -508,21 +535,34 @@ class SyncParnassum extends OABase {
     this.showMsg = showMsg
   }
 
-  mkSyncLinks () {
+  mkSyncLinks_ () {
+    if (wand.syncInfo.syncId) { // dont make diffusion, already has it
+      this.mkSyncLinks(wand.syncInfo.syncId)
+    } else { // make diffusion, seed loaded the page
+      const { msid, mnid, usid, unid } = wand.syncInfo
+      const seeds = [msid || mnid]
+      const sync = wand.net.use.diffusion.use.seededNeighborsLinks(wand.currentNetwork, 4, seeds)
+      const syncId = Math.random().toString(36).replace(/[^a-z]+/g, '').substr(2, 10)
+      wand.transfer.mong.writeAny({ sync, syncId, usid, unid }).then(r => {
+        this.sync = sync
+        this.mkSyncLinks(syncId)
+      })
+    }
+  }
+
+  mkSyncLinks (syncId) {
     const getNodeUrl = a => {
       const { sid, nid } = a
       return sid ? `https://www.facebook.com/${sid}` : `https://www.facebook.com/profile.php?id=${nid}`
     }
     const getNodeMusicUrl = a => {
-      const ustr = wand.utils.rot(wand.syncInfo.usid || wand.syncInfo.unid)
-      const ufield = wand.syncInfo.usid ? 'usid' : 'unid'
       const mstr = wand.utils.rot(a.sid || a.nid)
       const mfield = a.sid ? 'msid' : 'mnid'
-      return `${window.location.origin}/oa/?page=ankh_&${ufield}=${ustr}&${mfield}=${mstr}&s=1`
+      return `${window.location.origin}/oa/?page=ankh_&${mfield}=${mstr}&syncId=${syncId}`
     }
-    const seeds = [wand.syncInfo.msid || wand.syncInfo.mnid]
-    this.sync = wand.net.use.diffusion.use.seededNeighborsLinks(wand.currentNetwork, 4, seeds)
+    // from here on for both cases:
     const memberTexts = []
+    const names = []
     this.sync.progression[1].forEach(n => {
       const a = wand.fullNetwork.getNodeAttributes(n)
       const contact = getNodeUrl(a)
@@ -533,8 +573,10 @@ class SyncParnassum extends OABase {
         -> music: ${musicUrl}
         -> known contact medium: ${contact}`
       )
+      names.push(name)
     })
     this.syncLinks = memberTexts.join('\n\n')
+    this.syncNames = wand.utils.inplaceShuffle(names).join(', ')
   }
 
   makeUserNetworks () {

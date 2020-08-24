@@ -9,47 +9,73 @@
 const gradus1 = () => `
 Welcome to the Gradus.
 
-Hear your music, ${wand.syncInfo.pageMemberName}.
-in the network of ${wand.syncInfo.syncMemberName}.
+Hear your music, ${wand.syncInfo.pageMemberName},
+join and enjoy ${neighborNames()}, and many others.
 
-Keep your attention on the music, dont change the screen, or the interface might not
+Keep your attention on the music, don't change the screen, or the interface might not
 work properly.
 
-Then, keep track of the "tips" until you reach your own social organism.
-You will make art, audiovisual music, with it in order to acquire intimacy with the framework.
-
-You will reach other interfaces for community detection, synchronization and diffusion,
-merging structures, and other modes of performance.
-Hope you reach the interaction networks from Twitter, Instagram, and other communication platforms.
-Hope you reach the concept networks, oracles (such as the chatter bots), puzzles, and audiovisual instruments.
+Then, keep track of the "tips" until you reach your social organism and make art with it.
 
 Also, the OA software is GPL @ FSF. So you can install an instance of your own or yield derivatives.
 
-Now with your friendship networks.
 Good luck!
 
-OA @ ${wand.syncInfo.pageMemberName}/${wand.syncInfo.syncMemberName}, ${(new Date()).toISOString().split('.')[0]}.
+OA @ ${wand.syncInfo.pageMemberName}, ${(new Date()).toISOString().split('.')[0]}.
 (press the [i] button above or login with the chrome extension if you have it)
 `
 
+// Hope you reach the interaction networks from Twitter, Instagram, and other communication platforms.
+// Hope you reach the concept networks, oracles (such as the chatter bots), puzzles, and audiovisual instruments.
+
+const visitorId = () => wand.syncInfo.msid || wand.syncInfo.mnid
+
+const neighborNames = () => {
+  const names = [wand.syncInfo.syncMemberName]
+  wand.currentNetwork.forEachNeighbor(visitorId(), (nn, na) => {
+    names.push(na.name)
+  })
+  return wand.utils.inplaceShuffle(names).join(', ')
+}
+
+const donationUrl = () => {
+  return document.origin + '/?page=donate'
+}
+
+const defaultSyncDescription = () => `
+Your music, and the Our Aquarium platform,
+needs your help in order to survive.
+
+It requires constant development and maintanainance,
+which rely on donations.
+
+Please visit our page: ${donationUrl()}.
+
+Thank you very much!
+
+OA @ aid
+`
+
+const syncDescription = () => (wand.syncInfo.syncDescription || defaultSyncDescription())
+
 // after the exhibition with the music from the person:
 const gradus2 = () => `
-${wand.syncInfo.syncDescription || 'no description for the sync provided'}
+${syncDescription()}
 
 (press the [i] button above)
 `
 
-const gradusSyncLinks = linksText => `
+const gradusSyncLinks = syncNames => `
 Congratulations, ${wand.syncInfo.pageMemberName}, you have reached the links which you should
 send forward to perform this synchronization.
 
-Click on the text below to copy it. Send to these friends through any communication protocol
+Send to these friends through any communication protocol
 (telephone, email, whatsapp, telegram, facebook, twitter, instagram, irc, matrix, ...).
 Maybe take the chance to say hello and talk about life, work, or whatnot:
 
-${linksText}
+${syncNames}.
 
-${wand.syncInfo.syncDescription || 'no description for the sync provided'}
+Click on their names to copy URLs to their music and to a known contact medium.
 
 (press the [i] button above)
 `

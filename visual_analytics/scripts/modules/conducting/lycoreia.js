@@ -2,7 +2,8 @@
 const { Tone } = require('../maestro/all.js').base
 const { copyToClipboard, chooseUnique } = require('../utils.js')
 const { mkBtn } = require('./gui.js')
-const { guards, deucalion, lycorus, corycia } = require('./sayings.js')
+const { guards, lycoreiaNew, uploadVideoText, uploadVideoPlaceholder } = require('./instructions.js')
+// const { guards, deucalion, lycorus, corycia } = require('./sayings.js')
 const Graph = require('graphology')
 const louvain = require('graphology-communities-louvain')
 const netmetrics = require('graphology-metrics')
@@ -297,9 +298,22 @@ class Lycoreia {
     }
     let count = 0
     if (window.oaReceivedMsg) {
-      mkElement([1, 2.2], 0x777733, 'deucalion', 3000, 0, deucalion)
-      mkElement([1, 5.2], 0x337733, 'lycorus', 3000, 0, lycorus())
-      mkElement([1, 5.2], 0x337733, 'corycia', 3000, 0, corycia())
+      console.log(count, 'YEAH RCVD MSG')
+      const atext = mkElement([1, 2.2], 0xffffff, 'lycoreiaNew', 3000, 0, lycoreiaNew)
+      atext.on('pointerdown', () => {
+        let vurl = window.prompt(uploadVideoText, uploadVideoPlaceholder)
+        if (vurl === null) return
+        vurl = vurl.trim()
+        if (/^https*:\/\//.test(vurl)) {
+          this.writeVideoUrl(vurl, 'lycoreia')
+        }
+      })
+      atext.buttonMode = true
+      atext.interactive = true
+
+      // mkElement([1, 2.2], 0x777733, 'deucalion', 3000, 0, deucalion)
+      // mkElement([1, 5.2], 0x337733, 'lycorus', 3000, 0, lycorus())
+      // mkElement([1, 5.2], 0x337733, 'corycia', 3000, 0, corycia())
       const fun = () => {
         count++
         const tlength = Object.keys(this.texts).length + 1
@@ -307,12 +321,13 @@ class Lycoreia {
         this.rect.alpha = Number(show)
         this.rect.zIndex = 10 + 2000 * show
         let i = 0
+        console.log(i, show, count, tlength, 'YEAH CLICK INFO')
         for (const t in this.texts) {
           this.texts[t].alpha = Number(count % tlength === (i + 1))
           i++
         }
       }
-      mkBtn('fa-info', 'info', 'infos / dialogs', fun)
+      mkBtn('fa-info', 'info', 'infos / dialogs', fun).click()
     } else {
       mkElement([1, 2.2], 0x777733, 'guards', 3000, 0, guards)
       this.rect.alpha = 1
@@ -635,7 +650,7 @@ class Lycoreia {
   }
 
   setStage () {
-    this.texts = {} // pixi elements
+    this.texts_ = {} // pixi elements
     const a = wand.artist.use
     wand.rect1 = a.mkRectangle({
       wh: [a.width, a.height * 0.055], zIndex: 200, color: 0xffffff, alpha: 0.85
@@ -651,27 +666,27 @@ class Lycoreia {
     const fs = this.scaley(f)
 
     const mkElement = (pos, color, element, zIndex = 300, alpha = 1) => {
-      this.texts[element] = a.mkTextFancy('', [pos[0] * x, pos[1] * y], fs, color, zIndex, alpha)
+      this.texts_[element] = a.mkTextFancy('', [pos[0] * x, pos[1] * y], fs, color, zIndex, alpha)
     }
 
     mkElement([1, 2.2], 0x777733, 'adParnassum')
-    this.texts.adParnassum.text = 'at Lycoreia'
+    this.texts_.adParnassum.text = 'at Lycoreia'
     mkElement([1, 0.2], 0x333377, 'gradus')
     mkElement([21, 2.2], 0x666600, 'achievement')
     mkElement([21, 0.2], 0x333377, 'tip')
     mkElement([54, 2.2], 0x337777, 'interactionCount')
     mkElement([54, 0.2], 0x773377, 'orderSize')
 
-    this.texts.achievement.text = 'achieved: community detection'
-    this.texts.tip.text = 'tip: record music and upload video'
+    this.texts_.achievement.text = 'achieved: community detection'
+    this.texts_.tip.text = 'tip: record music and upload video'
     const net = wand.currentNetwork
-    this.texts.orderSize.text = `members, friendships: ${net.order}, ${net.size}`
-    this.texts.gradus.text = `name: ${wand.sageInfo.name}`
+    this.texts_.orderSize.text = `members, friendships: ${net.order}, ${net.size}`
+    this.texts_.gradus.text = `name: ${wand.sageInfo.name}`
 
     setInterval(() => {
       const total = Object.values(this.state).reduce((a, v) => a + v.count, 0)
       // const total = Object.values(this.counter).reduce((a, v) => a + v, 0)
-      this.texts.interactionCount.text = `interactions: ${total}`
+      this.texts_.interactionCount.text = `interactions: ${total}`
     }, 500)
 
     mkElement([1, 0.1], 0x333377, 'nodeId', 600, 0)
@@ -746,7 +761,7 @@ class Lycoreia {
       a.pixiElement.interactive = true
     })
     this.setNodeInfo()
-    this.texts.orderSize.text = `members, friendships: ${net.order}, ${net.size}`
+    this.texts_.orderSize.text = `members, friendships: ${net.order}, ${net.size}`
   }
 
   increment (attr) {
@@ -789,6 +804,14 @@ class Lycoreia {
       })
     })
     net.hasNodeClick = true
+  }
+
+  writeVideoUrl (vurl, desc) {
+    this.urlConfirmed = true
+    const { usid, unid, msid, mnid, page, syncCount } = wand.syncInfo
+    wand.transfer.mong.writeAny({
+      vurl, usid, unid, msid, mnid, syncCount, page, date: new Date(Date.now()).toISOString(), desc
+    })
   }
 }
 

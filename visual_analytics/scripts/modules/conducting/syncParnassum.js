@@ -2,7 +2,7 @@
 
 const { OABase } = require('./oabase')
 const { mkBtn } = require('./gui.js')
-const { gradus1, gradus2, gradusRec, gradusSyncLinks, gradusVideoLink, gradusExtensionInfo, uploadVideoText, uploadVideoPlaceholder, arcturians1 } = require('./instructions.js')
+const { gradus1, gradus2, gradusRec, gradusSyncLinks, gradusVideoLink, gradusExtensionInfo, uploadVideoText, uploadVideoPlaceholder, arcturians1, arcturians2 } = require('./instructions.js')
 const { Tone } = require('../maestro/all.js').base
 const { copyToClipboard } = require('./utils.js')
 
@@ -402,7 +402,10 @@ class SyncParnassum extends OABase {
     })
     ltext.buttonMode = true
     mkElement([1, 2.2], 0x777733, '4', 3000, 0, arcturians1())
-    mkElement([1, 2.2], 0x777733, '5', 3000, 0, 'something2')
+    const anphy = mkElement([1, 2.2], 0x777733, '5', 3000, 0, arcturians2())
+    anphy.on('pointerdown', () => {
+      window.open('https://doi.org/10.5281/zenodo.438960', '_blank')
+    })
     wand.theNetwork = wand.visitedNetwork
     const showMsg = i => {
       console.log(i, this.rect, texts, texts[i], 'THE SHOW GUY')

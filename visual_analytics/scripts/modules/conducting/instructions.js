@@ -218,9 +218,19 @@ const uploadVideoPlaceholder = 'something as https://www.youtube... (start with 
 const lycoreiaNew = `
 You performed Gradus ad Parnassum, i.e. climbed Mount Parnassus.
 
-Now you can now go to Lycoreia, which is one of the two summits therein.
+You can now go to Lycoreia, which is one of the two summits therein.
 
-<community detection>
+In Lycoreia, you can see your communities, and the communities inside them, the subcommunities.
+
+Click on the buttons to see them, use the music button to cycle through them.
+
+Create the audiovisual environment, a music, record and upload.
+
+Click HERE to register your video URL.
+
+:::
+
+(press the [i] button above to exit this message)
 `
 
 const arcturians1 = () => `
@@ -247,7 +257,44 @@ although it most often is a synchronization (e.g. a community of buyers, art, or
 Hope you synchronize yourself with Our Aquarium audiovisual music.
 
 :::
+
+(press the [i] button above to exit this message)
+
 `
 // , ${visitorName()}.
+//
 
-module.exports = { tithorea1, lycoreia1, gradus1, gradus2, gradus3, gradusRec, gradusSyncLinks, gradusVideoLink, gradusExtensionInfo, uploadVideoText, uploadVideoPlaceholder, lycoreiaNew, arcturians1 }
+const arcturians2 = () => `
+You can see, play and govern your social structures because they are yourself.
+In fact writing diaries is an ethnographic technique, and the diary may be used
+as the anthropologist finds suitable.
+
+Our Aquarium aims at complying to the self transparency, civil society transparency, free culture, software, midia, data.
+
+Click HERE to know more.
+
+:::
+
+(press the [i] button above or login with the chrome extension if you have it)
+`
+
+const guards = `
+You stand by the gates of Lycorea.
+
+The wind is strong, but you are confortable in your vestments, you knew that you
+would be for some time at ~2,500 meters above the ocean.
+
+Five guards come near you, inspect your clothes, and, with respect the chief says:
+
+"Congratulation on reaching Lycorea, dear sage.
+We cannot allow you any further without knowing who you are.
+Please identify yourself ('login or pray' using the wand extension).
+Thus visit the 'Gradus ad Parnassum' (and install the chrome extension)
+if you cannot identify yourself."
+
+:::
+
+(press the [i] button above or login with the chrome extension if you have it)
+`
+
+module.exports = { tithorea1, lycoreia1, gradus1, gradus2, gradus3, gradusRec, gradusSyncLinks, gradusVideoLink, gradusExtensionInfo, uploadVideoText, uploadVideoPlaceholder, lycoreiaNew, arcturians1, arcturians2, guards }

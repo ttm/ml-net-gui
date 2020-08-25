@@ -8,7 +8,11 @@
 // starting message:
 
 const visitorName = () => {
-  return wand.syncInfo.pageMemberName || window.oaReceivedMsg.data.graph.attributes.userData.name
+  if (window.oaReceivedMsg) {
+    return window.oaReceivedMsg.data.graph.attributes.userData.name
+  } else {
+    return wand.syncInfo.pageMemberName
+  }
 }
 const gradus1 = () => `
 Welcome to the Gradus.
@@ -80,8 +84,13 @@ OA @ aid
 const syncDescription = () => (wand.syncInfo.syncDescription || defaultSyncDescription())
 
 // after the exhibition with the music from the person:
+// todo: colocar texto mais literario
 const gradus2 = () => `
-${syncDescription()}
+${syncDescription().replace(/^[\n\r]$/, '<br/>')}
+
+You will now start your usage of this interface to explore your social complex network, or social organism, ${visitorName()}.
+Suggestion: reach at least your synchronization links.
+Follow the instructions given in the "tip" field at each level (gradus).
 
 (press the [i] button above)
 `
@@ -206,4 +215,39 @@ const uploadVideoText = 'Upload the file you downloaded and enter video URL here
 
 const uploadVideoPlaceholder = 'something as https://www.youtube... (start with https:// or http://)'
 
-module.exports = { tithorea1, lycoreia1, gradus1, gradus2, gradus3, gradusRec, gradusSyncLinks, gradusVideoLink, gradusExtensionInfo, uploadVideoText, uploadVideoPlaceholder }
+const lycoreiaNew = `
+You performed Gradus ad Parnassum, i.e. climbed Mount Parnassus.
+
+Now you can now go to Lycoreia, which is one of the two summits therein.
+
+<community detection>
+`
+
+const arcturians1 = () => `
+You can interact with your networks by exploration:
+  . with analyzis; or with
+  . midia generation / absorption,
+or by synergy:
+  . by diffusion; or by
+  . syncronization.
+
+Synchronization meaning a process in which you have
+an expected (or idealized) result, such as maturing a concept or framework,
+building a community, getting a project done, having an event happen.
+
+A diffusion is most often a synchronization: you want feedback messages,
+you want to create derivatives.
+A synchronization most often involves a fund, a monetary crowdsourcing (crowdfunding).
+A synchronization often involves an information crowdsourcing, for example
+to mature an idea, to find partners or sponsors, to understand how a proposal is accepted.
+
+The diffusion of goods may be essentially a diffusion (e.g. selling a product),
+although it most often is a synchronization (e.g. a community of buyers, art, or research).
+
+Hope you synchronize yourself with Our Aquarium audiovisual music.
+
+:::
+`
+// , ${visitorName()}.
+
+module.exports = { tithorea1, lycoreia1, gradus1, gradus2, gradus3, gradusRec, gradusSyncLinks, gradusVideoLink, gradusExtensionInfo, uploadVideoText, uploadVideoPlaceholder, lycoreiaNew, arcturians1 }

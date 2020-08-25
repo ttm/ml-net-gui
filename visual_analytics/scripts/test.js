@@ -1102,9 +1102,7 @@ const testMkSyncId = () => {
 const testDonate = () => {
   $('<div/>').html(`
 
-  Please donate so we can keep developing <b>Our Aquarium</b> and providing online instances.<br/>
-
-    Consider contributing with ideas, opinions, any other feedback to developing <b>Our Aquarium</b> and providing online instances.<br/>.
+    Consider contributing with ideas, opinions, any other feedback to developing <b>Our Aquarium</b> and providing online instances.<br/>
     Also with donations, or partnerships. Maybe you know some person or institution which would be interested in<br/>
     maintaining, using or sponsoring this software or social angle.<br/>
 <br/>
@@ -1120,7 +1118,11 @@ const testDonate = () => {
 
     The other is the synchronization which was presented after your music in the Gradus page without login.
 
+    Please donate so we can keep developing <b>Our Aquarium</b> and providing online instances.<br/>
+    <br/>
+    <br/>
     This page is in fact the donation page for OA itself.
+    <br/>
 <br/>
 :::<br/><br/>
     `

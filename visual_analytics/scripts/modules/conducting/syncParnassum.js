@@ -2,7 +2,7 @@
 
 const { OABase } = require('./oabase')
 const { mkBtn } = require('./gui.js')
-const { gradus1, gradus2, gradusRec, gradusSyncLinks, gradusVideoLink, gradusExtensionInfo, uploadVideoText, uploadVideoPlaceholder } = require('./instructions.js')
+const { gradus1, gradus2, gradusRec, gradusSyncLinks, gradusVideoLink, gradusExtensionInfo, uploadVideoText, uploadVideoPlaceholder, arcturians1 } = require('./instructions.js')
 const { Tone } = require('../maestro/all.js').base
 const { copyToClipboard } = require('./utils.js')
 
@@ -383,11 +383,13 @@ class SyncParnassum extends OABase {
     if (url !== null) {
       g2 = g2.replace(url[0], 'click HERE.')
     }
-    mkElement([1, 2.2], 0x777733, '2', 3000, 0, g2).on('pointerdown', () => {
+    const g2_ = mkElement([1, 2.2], 0x777733, '2', 3000, 0, g2).on('pointerdown', () => {
       if (url !== null) {
         window.open(url[0], '_blank')
       }
     })
+    g2_.buttonMode = true
+    g2_.interactive = true
 
     const ltext = mkElement([1, 2.2], 0x777733, '3', 3000, 0, gradusVideoLink)
     ltext.on('pointerdown', () => {
@@ -399,13 +401,14 @@ class SyncParnassum extends OABase {
       }
     })
     ltext.buttonMode = true
-    mkElement([1, 2.2], 0x777733, '4', 3000, 0, 'something1')
+    mkElement([1, 2.2], 0x777733, '4', 3000, 0, arcturians1())
     mkElement([1, 2.2], 0x777733, '5', 3000, 0, 'something2')
     wand.theNetwork = wand.visitedNetwork
     const showMsg = i => {
       console.log(i, this.rect, texts, texts[i], 'THE SHOW GUY')
       this.rect.alpha = 1
       this.rect.zIndex = 2000
+      this.rect.color = 0xffffff * Math.random() / 2 + 0x777777
       texts[i].alpha = 1
       texts[i].interactive = true
       count = this.infoLength // Object.keys(texts).length
@@ -452,7 +455,17 @@ class SyncParnassum extends OABase {
       return texts[element]
     }
     mkElement([1, 2.2], 0x777733, '1', 3000, 0, gradus1())
-    mkElement([1, 2.2], 0x777733, '2', 3000, 0, gradus2())
+
+    let g2 = gradus2()
+    const url = g2.match(/\bhttps?:\/\/\S+/gi)
+    if (url !== null) {
+      g2 = g2.replace(url[0], 'click HERE.')
+    }
+    mkElement([1, 2.2], 0x777733, '2', 3000, 0, g2).on('pointerdown', () => {
+      if (url !== null) {
+        window.open(url[0], '_blank')
+      }
+    })
 
     const ltext = mkElement([1, 2.2], 0x777733, '3', 3000, 0, gradusVideoLink)
     ltext.on('pointerdown', () => {

@@ -118,11 +118,10 @@ Says the Arcturian Council representative to you.
 `
 
 const arcturians1 = `
-You can understand your interaction with your networks
-as exploration:
+You can interact with your networks by exploration:
   . with analyzis; or with
   . midia generation / absorption,
-or as synergy:
+or by synergy:
   . by diffusion; or by
   . syncronization.
 
@@ -137,7 +136,9 @@ A synchronization often involves an information crowdsourcing, for example
 to mature an idea, to find partners or sponsors, to understand how a proposal is accepted.
 
 The diffusion of goods may be essentially a diffusion (e.g. selling a product),
-although it most often is a synchronization (e.g. a community of buyers).
+although it most often is a synchronization (e.g. a community of buyers, art, or research).
+
+:::
 `
 
 module.exports = { deucalion, corycia, lycorus, guards, andromedans0, arcturians0, arcturians1 }

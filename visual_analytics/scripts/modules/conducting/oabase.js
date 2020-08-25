@@ -21,7 +21,8 @@ class OABase {
       timeStreach: wand.syncInfo.ts || 1, // only used for when time has to pass
       counter: {
         networksVisualized: 0,
-        hoverNode: 0
+        hoverNode: 0,
+        clickNode: 0
       },
       state: {
         nodesSize: {
@@ -224,6 +225,9 @@ class OABase {
             mkElement([1, 5.2], 0x337733, 'extra', 3000, 0, 'read the README to know how to install/use!')
           }
         },
+        clickNode: {
+          count: 0
+        },
         muter: {
           // current val = min + (max - min) * (count % step), in increment(attr)
           count: 0, // interactions count
@@ -323,11 +327,12 @@ class OABase {
       this.texts[element] = a.mkTextFancy('', [pos[0] * x, pos[1] * y], fs, color, zIndex, alpha)
     }
 
-    mkElement([1, 2.2], 0x777733, 'adParnassum')
+    mkElement([1, 2.3], 0x777733, 'adParnassum')
     this.texts.adParnassum.text = 'ad parnassum: > 1'
+    this.texts.adParnassum.scale.set(0.8)
     mkElement([1, 0.2], 0x333377, 'gradus')
-    mkElement([21, 2.2], 0x666600, 'achievement')
-    mkElement([21, 0.2], 0x333377, 'tip')
+    mkElement([21, 2.3], 0xff6600, 'achievement')
+    mkElement([21, 0.23], 0xff0000, 'tip')
     mkElement([54, 2.2], 0x337777, 'interactionCount')
     mkElement([54, 0.2], 0x773377, 'orderSize')
 
@@ -497,7 +502,7 @@ class OABase {
         }
       },
       nodeInfo: {
-        achievement: 'hover node to get some info',
+        achievement: 'mouse over information',
         alg: () => {
           this.setNodeInfo()
         }
@@ -517,14 +522,14 @@ class OABase {
         }
       },
       videoLink: {
-        achievement: 'register video URL',
+        achievement: 'video URL registration',
         alg: () => {
           this.infoLength = 3
           this.showMsg(3)
         }
       },
       almostSyncLinks: {
-        achievement: 'nearing access to sync links',
+        achievement: 'nearing access to synchronization links',
         alg: () => { // dummy
         }
       },
@@ -629,7 +634,7 @@ class OABase {
         }
       },
       networksVisualized: {
-        tip: 'select networks, press buttons',
+        tip: 'explore 3 network sizes',
         condition: () => {
           if (
             this.counter.networksVisualized >= 3 &&
@@ -650,7 +655,7 @@ class OABase {
         }
       },
       interactMore: {
-        tip: 'click around and explore',
+        tip: 'reach 50 interactions',
         condition: () => {
           wand.extra.counter = self.counter
           if (Object.keys(s).reduce((a, i) => a + s[i].count, 0) > 50) {
@@ -659,7 +664,7 @@ class OABase {
         }
       },
       hoverNodes: {
-        tip: 'hover nodes to see info',
+        tip: 'mouse over many nodes',
         condition: () => {
           if (this.counter.hoverNode > 20) {
             this.conditionMet = true
@@ -1039,16 +1044,19 @@ class OABase {
 
     const step = this.gradus[this.currentLevel]
     this.texts.gradus.text = `gradus: ${this.currentLevel}`
+    this.texts.gradus.scale.set(1.2)
 
     const condition = this.conditions[step.condition]
     this.currentCondition = condition.condition // this sets gradus
     this.texts.tip.text = `tip: ${condition.tip}`
+    this.texts.tip.scale.set(1.2)
 
     const feature = this.features[step.feature]
     feature.alg() // this sets gradus
     const a = this.texts.achievement
     a.text = `achieved: ${feature.achievement}`
-    a.tint = a.tint === 0x666600 ? 0x660066 : 0x666600
+    // a.tint = a.tint === 0x666600 ? 0x660066 : 0x666600
+    this.texts.achievement.scale.set(0.8)
 
     const textToSay = [
       `feature ${a.text}`,
@@ -1305,6 +1313,7 @@ class OABase {
     net.forEachNode((n, a) => {
       a.pixiElement.on('pointerdown', () => {
         console.log('node clicked:', n, a)
+        this.state.clickNode.counter++
         this.resetNetwork()
         if (!net.seeds.includes(n)) {
           net.seeds.push(n)

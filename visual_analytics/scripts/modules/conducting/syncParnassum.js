@@ -53,7 +53,7 @@ class SyncParnassum extends OABase {
     } else { // gradus received through sync:
       const { usid, unid, syncId } = wand.syncInfo
       const act = () => {
-        if (syncId === undefined) {
+        if (syncId === null) {
           console.log(' // member accessing OA is a seed:')
           return wand.transfer.mong.findUserNetwork(usid, unid)
         } else {
@@ -61,6 +61,7 @@ class SyncParnassum extends OABase {
           return wand.transfer.mong.findAny({ syncId }).then(r => {
             console.log('FOUND:', r)
             this.sync = r.sync
+            wand.syncInfo.syncDescription = r.syncDescription
             return wand.transfer.mong.findUserNetwork(r.usid, r.unid)
           })
         }
@@ -309,7 +310,9 @@ class SyncParnassum extends OABase {
 
   writeVideoUrl (vurl, desc) {
     const { usid, unid, msid, mnid, page, syncCount } = wand.syncInfo
-    wand.transfer.mong.writeVideoUrl({ vurl, usid, unid, msid, mnid, syncCount, page, date: new Date(Date.now()).toISOString(), desc })
+    wand.transfer.mong.writeAny({
+      vurl, usid, unid, msid, mnid, syncCount, page, date: new Date(Date.now()).toISOString(), desc
+    })
   }
 
   setRecorder () {
@@ -547,11 +550,11 @@ class SyncParnassum extends OABase {
       return (async function () {})()
     } else {
       console.log(' // make diffusion, seed loaded the page')
-      const { msid, mnid, usid, unid } = wand.syncInfo
+      const { msid, mnid, usid, unid, syncDescription } = wand.syncInfo
       const seeds = [msid || mnid]
       const sync = wand.net.use.diffusion.use.seededNeighborsLinks(wand.currentNetwork, 4, seeds)
       const syncId = Math.random().toString(36).replace(/[^a-z]+/g, '').substr(2, 10)
-      return wand.transfer.mong.writeAny({ sync, syncId, usid, unid }).then(r => {
+      return wand.transfer.mong.writeAny({ sync, syncId, usid, unid, syncDescription }).then(r => {
         this.sync = sync
         this.mkSyncLinks(syncId)
       })

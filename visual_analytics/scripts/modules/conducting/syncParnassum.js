@@ -53,10 +53,13 @@ class SyncParnassum extends OABase {
     } else { // gradus received through sync:
       const { usid, unid, syncId } = wand.syncInfo
       const act = () => {
-        if (syncId === undefined) { // member accessing OA is a seed:
+        if (syncId === undefined) {
+          console.log(' // member accessing OA is a seed:')
           return wand.transfer.mong.findUserNetwork(usid, unid)
-        } else { // member is part of a diffusion started by a seed:
-          wand.transfer.mong.findAny({ syncId }).then(r => {
+        } else {
+          console.log(' // member is part of a diffusion started by a seed:')
+          return wand.transfer.mong.findAny({ syncId }).then(r => {
+            console.log('FOUND:', r)
             this.sync = r.sync
             return wand.transfer.mong.findUserNetwork(r.usid, r.unid)
           })
@@ -459,91 +462,96 @@ class SyncParnassum extends OABase {
     })
     ltext.buttonMode = true
 
-    this.mkSyncLinks()
-    const atext = mkElement([1, 2.2], 0x777733, '4', 3000, 0, gradusSyncLinks(this.syncNames))
-    // atext.interactive = true
-    atext.on('pointerdown', () => {
-      copyToClipboard(this.syncLinks)
-      copyToClipboard(this.syncLinks)
-      copyToClipboard(this.syncLinks)
-      copyToClipboard(this.syncLinks)
-      window.alert(`links to music pieces and known contacts copied to your clipboard.
-      ~~~ --> Paste on a text editor to read! <-- ~~~`)
-      this.syncLinksCopied = true
-    })
-    atext.buttonMode = true
+    // this.mkSyncLinks()
+    this.mkSyncLinks_().then(r => {
+      const atext = mkElement([1, 2.2], 0x777733, '4', 3000, 0, gradusSyncLinks(this.syncNames))
+      // atext.interactive = true
+      atext.on('pointerdown', () => {
+        copyToClipboard(this.syncLinks)
+        copyToClipboard(this.syncLinks)
+        copyToClipboard(this.syncLinks)
+        copyToClipboard(this.syncLinks)
+        window.alert(`links to music pieces and known contacts copied to your clipboard.
+        ~~~ --> Paste on a text editor to read! <-- ~~~`)
+        this.syncLinksCopied = true
+      })
+      atext.buttonMode = true
 
-    mkElement([1, 2.2], 0x777733, '5', 3000, 0, gradusExtensionInfo).on('pointerdown', () => {
-      window.open('OAextension.zip', '_blank') // needs to be uploaded to instance. TTM
-    }).buttonMode = true
+      mkElement([1, 2.2], 0x777733, '5', 3000, 0, gradusExtensionInfo).on('pointerdown', () => {
+        window.open('OAextension.zip', '_blank') // needs to be uploaded to instance. TTM
+      }).buttonMode = true
 
-    this.tttexts = texts
+      this.tttexts = texts
 
-    wand.theNetwork = wand.starNetwork
+      wand.theNetwork = wand.starNetwork
 
-    const showMsg = i => {
-      console.log(i, this.rect, texts, texts[i], 'THE SHOW GUY')
-      this.rect.alpha = 1
-      this.rect.zIndex = 2000
-      texts[i].alpha = 1
-      texts[i].interactive = true
-      count = this.infoLength // Object.keys(texts).length
-    }
-
-    let count = 0
-    const fun = () => {
-      const tlength = this.infoLength + 1 // Object.keys(texts).length + 1
-      const show = (++count % tlength) !== 0
-      this.rect.alpha = Number(show)
-      this.rect.zIndex = 10 + 2000 * show
-      let i = 1
-      for (const t in texts) {
-        texts[t].alpha = Number(count % tlength === i)
-        texts[t].interactive = count % tlength === i
-        i++
+      const showMsg = i => {
+        console.log(i, this.rect, texts, texts[i], 'THE SHOW GUY')
+        this.rect.alpha = 1
+        this.rect.zIndex = 2000
+        texts[i].alpha = 1
+        texts[i].interactive = true
+        count = this.infoLength // Object.keys(texts).length
       }
-      if (!this.isInitialized) {
-        if (wand.syncInfo.bypassMusic) {
-          this.memberMusicSeqs.forEach(s => {
-            s.seq.dispose()
-            s.membSynth.dispose()
-            s.membSynth2.dispose()
-          })
-          this.start()
-        } else {
-          this.setPlay()
-          wand.$('#info-button').hide()
-          wand.$('#play-button').click() // start play and record
-          const seq = this.memberMusicSeqs[this.memberMusicSeqs.length - 1]
-          d(() => {
-            alert(gradusRec())
-            wand.$('#info-button').show()
-            wand.$('#play-button').click() // stop play and record
-            showMsg(2)
-            this.start()
-          }, seq.dur + seq.seq.interval)
-          console.log('MUSIC DURATION:', (seq.dur + seq.seq.interval * 0.3))
+
+      let count = 0
+      const fun = () => {
+        const tlength = this.infoLength + 1 // Object.keys(texts).length + 1
+        const show = (++count % tlength) !== 0
+        this.rect.alpha = Number(show)
+        this.rect.zIndex = 10 + 2000 * show
+        let i = 1
+        for (const t in texts) {
+          texts[t].alpha = Number(count % tlength === i)
+          texts[t].interactive = count % tlength === i
+          i++
         }
-        this.rect.alpha = 0
-        this.isInitialized = true
+        if (!this.isInitialized) {
+          if (wand.syncInfo.bypassMusic) {
+            this.memberMusicSeqs.forEach(s => {
+              s.seq.dispose()
+              s.membSynth.dispose()
+              s.membSynth2.dispose()
+            })
+            this.start()
+          } else {
+            this.setPlay()
+            wand.$('#info-button').hide()
+            wand.$('#play-button').click() // start play and record
+            const seq = this.memberMusicSeqs[this.memberMusicSeqs.length - 1]
+            d(() => {
+              alert(gradusRec())
+              wand.$('#info-button').show()
+              wand.$('#play-button').click() // stop play and record
+              showMsg(2)
+              this.start()
+            }, seq.dur + seq.seq.interval)
+            console.log('MUSIC DURATION:', (seq.dur + seq.seq.interval * 0.3))
+          }
+          this.rect.alpha = 0
+          this.isInitialized = true
+        }
       }
-    }
-    mkBtn('fa-info', 'info', 'infos / dialogs', fun)
-    // wand.$('#info-button').click()
-    this.infoLength = 2
-    showMsg(1)
-    this.showMsg = showMsg
+      mkBtn('fa-info', 'info', 'infos / dialogs', fun)
+      // wand.$('#info-button').click()
+      this.infoLength = 2
+      showMsg(1)
+      this.showMsg = showMsg
+    })
   }
 
   mkSyncLinks_ () {
-    if (wand.syncInfo.syncId) { // dont make diffusion, already has it
+    if (wand.syncInfo.syncId) {
+      console.log(' // dont make diffusion, already has it')
       this.mkSyncLinks(wand.syncInfo.syncId)
-    } else { // make diffusion, seed loaded the page
+      return (async function () {})()
+    } else {
+      console.log(' // make diffusion, seed loaded the page')
       const { msid, mnid, usid, unid } = wand.syncInfo
       const seeds = [msid || mnid]
       const sync = wand.net.use.diffusion.use.seededNeighborsLinks(wand.currentNetwork, 4, seeds)
       const syncId = Math.random().toString(36).replace(/[^a-z]+/g, '').substr(2, 10)
-      wand.transfer.mong.writeAny({ sync, syncId, usid, unid }).then(r => {
+      return wand.transfer.mong.writeAny({ sync, syncId, usid, unid }).then(r => {
         this.sync = sync
         this.mkSyncLinks(syncId)
       })
@@ -558,23 +566,49 @@ class SyncParnassum extends OABase {
     const getNodeMusicUrl = a => {
       const mstr = wand.utils.rot(a.sid || a.nid)
       const mfield = a.sid ? 'msid' : 'mnid'
-      return `${window.location.origin}/oa/?page=ankh_&${mfield}=${mstr}&syncId=${syncId}`
+      return `${window.location.origin}/?page=ankh_&${mfield}=${mstr}&syncId=${syncId}`
     }
     // from here on for both cases:
     const memberTexts = []
     const names = []
-    this.sync.progression[1].forEach(n => {
-      const a = wand.fullNetwork.getNodeAttributes(n)
-      const contact = getNodeUrl(a)
-      const name = a.name
-      const musicUrl = getNodeMusicUrl(a)
-      memberTexts.push(
-        `${name}:
-        -> music: ${musicUrl}
-        -> known contact medium: ${contact}`
-      )
-      names.push(name)
+    let found = false
+    const id = wand.syncInfo.msid || wand.syncInfo.mnid
+    let linkCount = -1
+    while (!found) {
+      const links = this.sync.progressionLinks[++linkCount]
+      links.forEach(l => {
+        if (l.from === id) {
+          found = true
+        }
+      })
+    }
+    this.sync.progressionLinks[linkCount].forEach(l => {
+      if (l.from === id) {
+        const n = l.to
+        const a = wand.fullNetwork.getNodeAttributes(n)
+        const contact = getNodeUrl(a)
+        const name = a.name
+        const musicUrl = getNodeMusicUrl(a)
+        memberTexts.push(
+          `${name}:
+          -> music: ${musicUrl}
+          -> known contact medium: ${contact}`
+        )
+        names.push(name)
+      }
     })
+    // this.sync.progression[1].forEach(n => {
+    //   const a = wand.fullNetwork.getNodeAttributes(n)
+    //   const contact = getNodeUrl(a)
+    //   const name = a.name
+    //   const musicUrl = getNodeMusicUrl(a)
+    //   memberTexts.push(
+    //     `${name}:
+    //     -> music: ${musicUrl}
+    //     -> known contact medium: ${contact}`
+    //   )
+    //   names.push(name)
+    // })
     this.syncLinks = memberTexts.join('\n\n')
     this.syncNames = wand.utils.inplaceShuffle(names).join(', ')
   }

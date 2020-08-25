@@ -114,4 +114,10 @@ const writeAny = data => {
   })
 }
 
-module.exports = { client, db, auth, writeIfNotThereReadIfThere, writeNetIfNotThereReadIfThere, findAllNetworks, writeNet, testCollection, findUserNetwork, findAllScrappedNetworks, s, writeVideoUrl, writeAny }
+const findAny = data => {
+  return client.auth.loginWithCredential(new s.AnonymousCredential()).then(user => {
+    return db.collection(auth.collections.test).findOne(data)
+  })
+}
+
+module.exports = { client, db, auth, writeIfNotThereReadIfThere, writeNetIfNotThereReadIfThere, findAllNetworks, writeNet, testCollection, findUserNetwork, findAllScrappedNetworks, s, writeVideoUrl, writeAny, findAny }

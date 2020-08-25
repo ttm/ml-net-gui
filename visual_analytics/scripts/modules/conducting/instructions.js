@@ -39,7 +39,7 @@ const neighborNames = () => {
 }
 
 const donationUrl = () => {
-  return document.origin + '/?page=donate'
+  return document.location.origin + '/?page=donate'
 }
 
 const defaultSyncDescription = () => `

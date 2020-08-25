@@ -24,7 +24,7 @@ class Router {
         mnid: urlArgument('mnid', true),
         syncDescription: urlArgument('desc'),
         syncRemovedNodes: (urlArgument('rmv', true) || '').split(','),
-        asyncRemovedNodes: (urlArgument('rssmv', true) || '').split(','),
+        syncId: urlArgument('syncId'),
         page: urlArgument('page'),
         allUsers: urlArgument('allUsers'),
         ts: urlArgument('ts'),

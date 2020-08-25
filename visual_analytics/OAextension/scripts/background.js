@@ -16,7 +16,6 @@ const setVars = () => {
   window.graph = graph
 }
 
-console.log('server loaded ok')
 chrome.runtime.onMessage.addListener(
   function (request, sender, sendResponse) {
     const msg = request.message
@@ -283,3 +282,4 @@ const newMutualTab = url => {
     })
   })
 }
+console.log('server loaded ok')

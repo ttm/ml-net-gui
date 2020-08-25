@@ -309,6 +309,7 @@ class SyncParnassum extends OABase {
   }
 
   writeVideoUrl (vurl, desc) {
+    this.urlConfirmed = true
     const { usid, unid, msid, mnid, page, syncCount } = wand.syncInfo
     wand.transfer.mong.writeAny({
       vurl, usid, unid, msid, mnid, syncCount, page, date: new Date(Date.now()).toISOString(), desc
@@ -393,7 +394,6 @@ class SyncParnassum extends OABase {
       if (vurl === null) return
       vurl = vurl.trim()
       if (/^https*:\/\//.test(vurl)) {
-        this.urlConfirmed = true
         this.writeVideoUrl(vurl, 'gradus')
       }
     })
@@ -459,7 +459,6 @@ class SyncParnassum extends OABase {
       if (vurl === null) return
       vurl = vurl.trim()
       if (/^https*:\/\//.test(vurl)) {
-        this.urlConfirmed = true
         this.writeVideoUrl(vurl, 'gradus')
       }
     })

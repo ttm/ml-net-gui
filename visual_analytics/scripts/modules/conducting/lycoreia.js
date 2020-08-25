@@ -324,6 +324,7 @@ class Lycoreia {
         console.log(i, show, count, tlength, 'YEAH CLICK INFO')
         for (const t in this.texts) {
           this.texts[t].alpha = Number(count % tlength === (i + 1))
+          this.texts[t].interactive = false
           i++
         }
       }
@@ -622,8 +623,8 @@ class Lycoreia {
       a.pixiElement.on('pointerover', () => {
         wand.rect2.zIndex = 500
         texts.forEach(t => {
-          this.texts[t[0]].text = t[1]
-          this.texts[t[0]].alpha = 1
+          this.texts_[t[0]].text = t[1]
+          this.texts_[t[0]].alpha = 1
         })
         a.hovered = true
         this.styleNode(a)
@@ -635,7 +636,7 @@ class Lycoreia {
       a.pixiElement.on('pointerout', () => {
         wand.rect2.zIndex = 100
         texts.forEach(t => {
-          this.texts[t[0]].alpha = 0
+          this.texts_[t[0]].alpha = 0
         })
         delete a.colorBlocked
         a.hovered = false

@@ -6,10 +6,14 @@
 // not on first interfaces / interactions
 
 // starting message:
+
+const visitorName = () => {
+  return wand.syncInfo.pageMemberName || window.oaReceivedMsg.data.graph.attributes.userData.name
+}
 const gradus1 = () => `
 Welcome to the Gradus.
 
-Hear your music, ${wand.syncInfo.pageMemberName},
+Hear your music, ${visitorName()},
 join and enjoy ${neighborNames()}, and many others.
 
 Keep your attention on the music, don't change the screen, or the interface might not
@@ -21,20 +25,37 @@ Also, the OA software is GPL @ FSF. So you can install an instance of your own o
 
 Good luck!
 
-OA @ ${wand.syncInfo.pageMemberName}, ${(new Date()).toISOString().split('.')[0]}.
+OA @ ${visitorName()}, ${(new Date()).toISOString().split('.')[0]}.
 (press the [i] button above or login with the chrome extension if you have it)
 `
 
 // Hope you reach the interaction networks from Twitter, Instagram, and other communication platforms.
 // Hope you reach the concept networks, oracles (such as the chatter bots), puzzles, and audiovisual instruments.
 
-const visitorId = () => wand.syncInfo.msid || wand.syncInfo.mnid
+const visitorId = () => {
+  let id = wand.syncInfo.msid || wand.syncInfo.mnid
+  let type = 'sync'
+  if (id === undefined) {
+    const { sid, nid } = window.oaReceivedMsg.data.graph.attributes.userData
+    id = sid || nid
+    type = 'extension-self'
+  }
+  return { id, type }
+}
 
 const neighborNames = () => {
-  const names = [wand.syncInfo.syncMemberName]
-  wand.currentNetwork.forEachNeighbor(visitorId(), (nn, na) => {
-    names.push(na.name)
-  })
+  const { id, type } = visitorId()
+  const names = []
+  if (type === 'sync') {
+    names.push(wand.syncInfo.syncMemberName)
+    wand.currentNetwork.forEachNeighbor(id, (nn, na) => {
+      names.push(na.name)
+    })
+  } else {
+    wand.utils.chooseUnique(wand.fullNetwork.nodes(), 10).forEach(id => {
+      names.push(wand.currentNetwork.getNodeAttribute(id, 'name'))
+    })
+  }
   return wand.utils.inplaceShuffle(names).join(', ')
 }
 
@@ -49,7 +70,7 @@ needs your help in order to survive.
 It requires constant development and maintanainance,
 which rely on donations.
 
-Please visit our page: ${donationUrl()}.
+Please visit our page: ${donationUrl()}
 
 Thank you very much!
 
@@ -66,7 +87,7 @@ ${syncDescription()}
 `
 
 const gradusSyncLinks = syncNames => `
-Congratulations, ${wand.syncInfo.pageMemberName}, you have reached the links which you should
+Congratulations, ${visitorName()}, you have reached the links which you should
 send forward to perform this synchronization.
 
 Send to these friends through any communication protocol
@@ -97,13 +118,13 @@ You near the Mount Parnassum.
 
 You should install the extension, load this page, and hit login
 to know your network self, and make art, analyses, synchronizations
-such as this, on your social body, ${wand.syncInfo.pageMemberName}.
+such as this, on your social body, ${visitorName()}.
 The performance modes and features you will unblock progressivelly.
 What modes and features is dependent on the version of OA you are using and your usage.
 `
 
 const gradusRec = () => `
-You have recorded your music, ${wand.syncInfo.pageMemberName}.
+You have recorded your music, ${visitorName()}.
 Save the video file locally and upload it to a video platform (such as youtube).
 You will need the link to reach the Mount Parnassum.
 `
@@ -181,4 +202,8 @@ After three musical pieces input, you will be able to perform one and only netwo
 This is your utmost goal at this stage.
 `
 
-module.exports = { tithorea1, lycoreia1, gradus1, gradus2, gradus3, gradusRec, gradusSyncLinks, gradusVideoLink, gradusExtensionInfo }
+const uploadVideoText = 'Upload the file you downloaded and enter video URL here:'
+
+const uploadVideoPlaceholder = 'something as https://www.youtube... (start with https:// or http://)'
+
+module.exports = { tithorea1, lycoreia1, gradus1, gradus2, gradus3, gradusRec, gradusSyncLinks, gradusVideoLink, gradusExtensionInfo, uploadVideoText, uploadVideoPlaceholder }

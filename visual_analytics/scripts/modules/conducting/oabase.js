@@ -1222,9 +1222,9 @@ class OABase {
       const texts = [
         ['nodeId', `id: ${a.id}, x: ${tf(a.pixiElement.x)}, y: ${tf(a.pixiElement.y)}`],
         ['nodeName', `name: ${a.name}`],
-        ['nodeDegree', `degree: ${a.degree} in ${net.degree_}`],
+        ['nodeDegree', `friends: ${a.degree} in ${net.degree_}`],
         ['nodeDegreeCentrality',
-          `degree centrality: ${tf(a.degreeCentrality)} in ${net.degreeCentrality}`]
+          `centrality: ${tf(a.degreeCentrality)} in ${net.degreeCentrality}`]
       ]
       a.pixiElement.on('pointerover', () => {
         console.log(n, a, 'NODE HOVERED')
@@ -1236,9 +1236,11 @@ class OABase {
         })
         a.hovered = true
         this.styleNode(a)
+        a.textElement.zIndex = 10000
         net.forEachNeighbor(n, (nn, na) => {
           na.hoveredNeighbor = true
           this.styleNode(na)
+          na.textElement.zIndex = 1000
         })
       })
       a.pixiElement.on('pointerout', () => {

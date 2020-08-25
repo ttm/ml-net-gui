@@ -2,7 +2,7 @@
 
 const { OABase } = require('./oabase')
 const { mkBtn } = require('./gui.js')
-const { gradus1, gradus2, gradusRec, gradusSyncLinks, gradusVideoLink, gradusExtensionInfo } = require('./instructions.js')
+const { gradus1, gradus2, gradusRec, gradusSyncLinks, gradusVideoLink, gradusExtensionInfo, uploadVideoText, uploadVideoPlaceholder } = require('./instructions.js')
 const { Tone } = require('../maestro/all.js').base
 const { copyToClipboard } = require('./utils.js')
 
@@ -46,10 +46,11 @@ class SyncParnassum extends OABase {
         g.dropNode(n)
       })
       this.registerNetwork(g, 'visited') // make the small networks derived from the person
+      this.registerNetwork(g, 'current') // fixme: dont redundant?
       this.setRecorder()
       this.makeUserNetworks()
+      console.log('finished initialization 2')
       this.setInfo2()
-      console.log('finished initialization')
     } else { // gradus received through sync:
       const { usid, unid, syncId } = wand.syncInfo
       const act = () => {
@@ -96,8 +97,8 @@ class SyncParnassum extends OABase {
         for (let i = 1; i < this.plots.length; i++) {
           this.memberMusicSeqs.push(this.makeMemberMusic(i, this.memberMusicSeqs[i - 1].dur))
         }
-        this.setInfo()
         console.log('finished initialization')
+        this.setInfo()
       })
     }
   }
@@ -390,11 +391,11 @@ class SyncParnassum extends OABase {
 
     const ltext = mkElement([1, 2.2], 0x777733, '3', 3000, 0, gradusVideoLink)
     ltext.on('pointerdown', () => {
-      let vurl = window.prompt('Upload the file you downloaded enter video URL here:', 'something as https://www.youtube... (start with https:// or http://)')
+      let vurl = window.prompt(uploadVideoText, uploadVideoPlaceholder)
       if (vurl === null) return
       vurl = vurl.trim()
       if (/^https*:\/\//.test(vurl)) {
-        this.writeVideoUrl(vurl, 'gradus')
+        this.writeVideoUrl(vurl, 'gradusSelf')
       }
     })
     ltext.buttonMode = true
@@ -455,7 +456,7 @@ class SyncParnassum extends OABase {
 
     const ltext = mkElement([1, 2.2], 0x777733, '3', 3000, 0, gradusVideoLink)
     ltext.on('pointerdown', () => {
-      let vurl = window.prompt('Upload the file you downloaded enter video URL here:', 'something as https://www.youtube... (start with https:// or http://)')
+      let vurl = window.prompt(uploadVideoText, uploadVideoPlaceholder)
       if (vurl === null) return
       vurl = vurl.trim()
       if (/^https*:\/\//.test(vurl)) {

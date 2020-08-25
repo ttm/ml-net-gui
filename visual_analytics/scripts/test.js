@@ -1099,4 +1099,33 @@ const testMkSyncId = () => {
   })
 }
 
-module.exports = { testPlot, testRotateLayouts, testBlink, testExhibition1, testDiffusion, testMultilevelDiffusion, testMetaNetwork, testSparkMin, testSparkLosd, testMong, testGetNet0, testGetNet1, testGetNet2, testGetNet3, testNetIO, testGUI, testNetUpload, testNetUpload2, testMongIO, testMongNetIO, testMongBetterNetIO, testNetPage, testPuxi, testHtmlEls, testHtmlEls2, testGradus, testAdParnassum, testWorldPropertyPage, testAudio, testJQueryFontsAwesome, testObj, testColors, testMusic, testLooper, testSeq, testSync, testPattern, testRec, testRec2, testRecCanvas, testRecAudio, testRecAudioAndCanvas, testRecAudioAndCanvas2, testDiffusionLimited, testNoise, testLycoreia, testTithorea, testSyncParnassum, testEditor, testLz, testMkSyncId }
+const testDonate = () => {
+  $('<div/>').html(`
+
+  Please donate so we can keep developing <b>Our Aquarium</b> and providing online instances.<br/>
+
+    Consider contributing with ideas, opinions, any other feedback to developing <b>Our Aquarium</b> and providing online instances.<br/>.
+    Also with donations, or partnerships. Maybe you know some person or institution which would be interested in<br/>
+    maintaining, using or sponsoring this software or social angle.<br/>
+<br/>
+    Any amount may be transfered. Please get in contact through:<br/>
+    <a href='mailto:sync.aquarium@gmail.com' target='_blank'> sync <ADOT> aquarium <AT> gmail <ANOTHERDOR> com</a><br/>
+<br/>
+    Can you receive online donations for us? Bitcoins and Aetherium?<br/>
+    We are still trying to provide facilitated donations though them.<br/>
+<br/>
+
+    We provide the Fundamental Cycle, through which any need or requirement someone puts time in may be rewarded.<br/>
+    If currently operates through synchronizations. One of which consists in sharing these pages with the musical elements.
+
+    The other is the synchronization which was presented after your music in the Gradus page without login.
+
+    This page is in fact the donation page for OA itself.
+<br/>
+:::<br/><br/>
+    `
+  ).appendTo('body')
+  $('canvas').hide()
+}
+
+module.exports = { testPlot, testRotateLayouts, testBlink, testExhibition1, testDiffusion, testMultilevelDiffusion, testMetaNetwork, testSparkMin, testSparkLosd, testMong, testGetNet0, testGetNet1, testGetNet2, testGetNet3, testNetIO, testGUI, testNetUpload, testNetUpload2, testMongIO, testMongNetIO, testMongBetterNetIO, testNetPage, testPuxi, testHtmlEls, testHtmlEls2, testGradus, testAdParnassum, testWorldPropertyPage, testAudio, testJQueryFontsAwesome, testObj, testColors, testMusic, testLooper, testSeq, testSync, testPattern, testRec, testRec2, testRecCanvas, testRecAudio, testRecAudioAndCanvas, testRecAudioAndCanvas2, testDiffusionLimited, testNoise, testLycoreia, testTithorea, testSyncParnassum, testEditor, testLz, testMkSyncId, testDonate }

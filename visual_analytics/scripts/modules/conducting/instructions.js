@@ -14,6 +14,7 @@ const visitorName = () => {
     return wand.syncInfo.pageMemberName
   }
 }
+
 const gradus1 = () => `
 Welcome to the Gradus.
 
@@ -69,9 +70,9 @@ const donationUrl = () => {
 
 const defaultSyncDescription = () => `
 Your music, and the Our Aquarium platform,
-needs your help in order to survive.
+needs your help.
 
-It requires constant development and maintanainance,
+It requires constant development and maintenance,
 which rely on donations.
 
 Please visit our page: ${donationUrl()}
@@ -79,6 +80,50 @@ Please visit our page: ${donationUrl()}
 Thank you very much!
 
 OA @ aid
+`
+
+const defaultSyncDescription2 = () => `
+Liquid democracy enables generalized social participation
+with autoregulation mechanisms.
+
+One does not need to vote directly, but designate voting power
+to someone of trust on particular subjects.
+
+
+Please contribute to liquid democracy by sending feedback,
+enabling partnerships, or making donations.
+
+See more on:
+https://en.wikipedia.org/wiki/Liquid_democracy#:~:text=Liquid%20democracy%20is%20a%20form,or%20proposed%20popular%2Dcontrol%20apparatuses.
+
+:::
+`
+
+const defaultSyncDescription3 = () => `
+
+Oi, eu sou o Roceiro Bolchevique, el Hemato Freudita.
+
+E aqui vai um poema, tá:
+
+~ Litura Terra n3b ~
+
+Homem-teta, ser-mama,
+Zênite do mamifero,
+Pai marsupial.
+
+
+Pênis-extensao da teta.
+
+
+A teta é ele.
+Teta seca. Pênis não.
+
+-- Roceiro Bolchevique
+
+Prometo prosa fofinha da próxima vez, beijos <3.
+
+:::
+
 `
 
 const syncDescription = () => (wand.syncInfo.syncDescription || defaultSyncDescription())
@@ -218,15 +263,54 @@ const uploadVideoPlaceholder = 'something as https://www.youtube... (start with 
 const lycoreiaNew = `
 You performed Gradus ad Parnassum, i.e. climbed Mount Parnassus.
 
-You can now go to Lycoreia, which is one of the two summits therein.
+You can now visit Lycoreia, which is one of the two summits therein.
 
 In Lycoreia, you can see your communities, and the communities inside them, the subcommunities.
 
 Click on the buttons to see them, use the music button to cycle through them.
 
-Create the audiovisual environment, a music, record and upload.
+Create the audiovisual environment, a music, record and upload the video.
 
 Click HERE to register your video URL.
+
+:::
+
+(press the [i] button above to exit this message)
+`
+
+const tithoreaNew = `
+You performed Gradus ad Parnassum, i.e. climbed Mount Parnassus.
+
+You can now visit Tithorea, which is one of the two summits therein.
+
+In Tithorea, you can design synchronization processes.
+
+You may remove members, because they are duplicates of yourself or any other reason.
+You may describe the synchronization, i.e. it's purpose, what it is meant to be realized with the synchronization.
+
+Click on a member (▲) which wish to activate as seed, e.g. to start a synchronization.
+If you click again on s/he, you will reach the music page for that seed, which you should
+send to him/her to realize the synchronization.
+
+You should also create the audiovisual environment, a music, record and upload the video.
+
+Click HERE to register your video URL.
+
+:::
+
+(press the [i] button above to exit this message)
+`
+
+const tithoreaNew2 = `
+On the synchronization that you have concession to perform,
+the seed (▲) transmits the synchronization to the 4 least
+connected neighbors.
+
+The synchronization implied the the seed (▲) tends to cover the whole network.
+You should select at least a few seeds (▲) for an effective synchronization.
+Don't forget to choose the description for your synchronization by clicking on the dedicated button.
+
+Perform synchronizations to unlock further features.
 
 :::
 
@@ -297,4 +381,4 @@ if you cannot identify yourself."
 (press the [i] button above or login with the chrome extension if you have it)
 `
 
-module.exports = { tithorea1, lycoreia1, gradus1, gradus2, gradus3, gradusRec, gradusSyncLinks, gradusVideoLink, gradusExtensionInfo, uploadVideoText, uploadVideoPlaceholder, lycoreiaNew, arcturians1, arcturians2, guards }
+module.exports = { tithorea1, lycoreia1, gradus1, gradus2, gradus3, gradusRec, gradusSyncLinks, gradusVideoLink, gradusExtensionInfo, uploadVideoText, uploadVideoPlaceholder, lycoreiaNew, arcturians1, arcturians2, guards, tithoreaNew2, tithoreaNew, defaultSyncDescription, defaultSyncDescription2, defaultSyncDescription3 }

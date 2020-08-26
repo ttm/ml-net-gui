@@ -1,6 +1,7 @@
 /* global wand */
 const { mkBtn } = require('./gui.js')
-const { guards, deucalion, lycorus, corycia } = require('./sayings.js')
+// const { guards, deucalion, lycorus, corycia } = require('./sayings.js')
+const { guards, tithoreaNew, tithoreaNew2, uploadVideoText, uploadVideoPlaceholder, defaultSyncDescription, defaultSyncDescription2, defaultSyncDescription3 } = require('./instructions.js')
 const { Tone } = require('../maestro/all.js').base
 const Graph = require('graphology')
 const louvain = require('graphology-communities-louvain')
@@ -751,9 +752,18 @@ class Tithorea {
     }
     let count = 0
     if (wand.sageInfo) {
-      mkElement([1, 2.2], 0x777733, 'deucalion', 3000, 0, deucalion)
-      mkElement([1, 5.2], 0x337733, 'lycorus', 3000, 0, lycorus())
-      mkElement([1, 5.2], 0x337733, 'corycia', 3000, 0, corycia())
+      // mkElement([1, 2.2], 0x777733, 'deucalion', 3000, 0, deucalion)
+      // mkElement([1, 5.2], 0x337733, 'lycorus', 3000, 0, lycorus())
+      // mkElement([1, 5.2], 0x337733, 'corycia', 3000, 0, corycia())
+      mkElement([1, 2.2], 0x777733, 'tit1', 3000, 0, tithoreaNew).on('pointerdown', () => {
+        let vurl = window.prompt(uploadVideoText, uploadVideoPlaceholder)
+        if (vurl === null) return
+        vurl = vurl.trim()
+        if (/^https*:\/\//.test(vurl)) {
+          this.writeVideoUrl(vurl, 'tithorea')
+        }
+      }).buttonMode = true
+      mkElement([1, 2.2], 0x777733, 'tit2', 3000, 0, tithoreaNew2)
       const fun = () => {
         count++
         const tlength = Object.keys(texts).length + 1
@@ -763,6 +773,7 @@ class Tithorea {
         let i = 0
         for (const t in texts) {
           texts[t].alpha = Number(count % tlength === (i + 1))
+          texts[t].interactive = Boolean(count % tlength === (i + 1))
           // console.log(texts[t], Number(count % tlength === (i + 1)))
           i++
         }
@@ -929,8 +940,15 @@ class Tithorea {
     $('<button/>').html('close').on('click', () => {
       diag.css('display', 'none')
     }).appendTo(diag2)
+
+    const templates = [
+      defaultSyncDescription(),
+      defaultSyncDescription2(),
+      defaultSyncDescription3()
+    ]
+    let counter = 0
     $('<button/>').html('template change').on('click', () => {
-      tarea.val('YAYAYYA')
+      tarea.val(templates[++counter % templates.length])
     }).appendTo(diag2)
 
     const tarea = $('<textarea/>', {
@@ -943,13 +961,21 @@ class Tithorea {
       }
     }).on('keydown', () => {
       dcount.html(tarea.val().length + ' / 500')
-    }).html('qweasd').appendTo(diag2)
+    }).html(templates[0]).appendTo(diag2)
 
     const dcount = $('<div/>', { id: 'diagCount' }).appendTo(diag)
 
     this.descDiag = diag2
     this.descDiag = diag
     this.descArea = tarea
+  }
+
+  writeVideoUrl (vurl, desc) {
+    this.urlConfirmed = true
+    const { usid, unid, msid, mnid, page, syncCount } = wand.syncInfo
+    wand.transfer.mong.writeAny({
+      vurl, usid, unid, msid, mnid, syncCount, page, date: new Date(Date.now()).toISOString(), desc
+    })
   }
 }
 

@@ -28,7 +28,7 @@ chrome.runtime.onMessage.addListener(
         })
       })
     } else if (msg === 'popup_gradus_msg') {
-      chrome.tabs.create({ url: 'http://localhost:8080/?page=ankh_' }, function (tab) {
+      chrome.tabs.create({ url: `${transf.auth.url}?page=ankh_` }, function (tab) {
         chrome.tabs.executeScript(tab.id, {
           code: '(' + function (graph) {
             window.postMessage({ type: 'FROM_OA_EXT', graph }, '*')
@@ -38,7 +38,7 @@ chrome.runtime.onMessage.addListener(
         })
       })
     } else if (msg === 'popup_lycoreia_msg') {
-      chrome.tabs.create({ url: 'http://localhost:8080/?page=lycoreia' }, function (tab) {
+      chrome.tabs.create({ url: `${transf.auth.url}?page=lycoreia` }, function (tab) {
         chrome.tabs.executeScript(tab.id, {
           code: '(' + function (graph) {
             window.postMessage({ type: 'FROM_OA_EXT', graph }, '*')
@@ -48,7 +48,7 @@ chrome.runtime.onMessage.addListener(
         })
       })
     } else if (msg === 'popup_tithorea_msg') {
-      chrome.tabs.create({ url: 'http://localhost:8080/?page=tithorea' }, function (tab) {
+      chrome.tabs.create({ url: `${transf.auth.url}?page=tithorea` }, function (tab) {
         chrome.tabs.executeScript(tab.id, {
           code: '(' + function (graph) {
             window.postMessage({ type: 'FROM_OA_EXT', graph }, '*')

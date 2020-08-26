@@ -65,7 +65,8 @@ const neighborNames = () => {
 }
 
 const donationUrl = () => {
-  return document.location.origin + '/?page=donate'
+  // return document.location.origin + '/?page=donate'
+  return `${document.location.href.split('?')[0]}?page=donate`
 }
 
 const defaultSyncDescription = () => `
@@ -75,11 +76,13 @@ needs your help.
 It requires constant development and maintenance,
 which rely on donations.
 
-Please visit our page: ${donationUrl()}
-
 Thank you very much!
 
-OA @ aid
+O Aquarium
+
+:::
+
+Please visit our page: ${donationUrl()}
 `
 
 const defaultSyncDescription2 = () => `
@@ -93,10 +96,10 @@ to someone of trust on particular subjects.
 Please contribute to liquid democracy by sending feedback,
 enabling partnerships, or making donations.
 
+:::
+
 See more on:
 https://en.wikipedia.org/wiki/Liquid_democracy#:~:text=Liquid%20democracy%20is%20a%20form,or%20proposed%20popular%2Dcontrol%20apparatuses.
-
-:::
 `
 
 const defaultSyncDescription3 = () => `

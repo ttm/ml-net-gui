@@ -16797,15 +16797,29 @@ const findUserNetwork = (sid, nid) => {
     let query
     if (sid) {
       query = { sid }
-    } else {
+    } else if (nid) {
       query = { nid }
+    } else {
+      return 'NOT A NET'
     }
     return db.collection(auth.collections.test).find(query).asArray()
   })
 }
 const testCollection = db.collection(auth.collections.test)
 
-module.exports = { client, db, auth, writeIfNotThereReadIfThere, writeNetIfNotThereReadIfThere, findAllNetworks, writeNet, testCollection, findUserNetwork, findAllScrappedNetworks, s }
+const writeAny = data => {
+  return client.auth.loginWithCredential(new s.AnonymousCredential()).then(user => {
+    return db.collection(auth.collections.test).insertOne(data)
+  })
+}
+
+const findAny = data => {
+  return client.auth.loginWithCredential(new s.AnonymousCredential()).then(user => {
+    return db.collection(auth.collections.test).findOne(data)
+  })
+}
+
+module.exports = { client, db, auth, writeIfNotThereReadIfThere, writeNetIfNotThereReadIfThere, findAllNetworks, writeNet, testCollection, findUserNetwork, findAllScrappedNetworks, s, writeAny, findAny }
 
 },{"./mong_auth.js":132,"fast-sha256":5,"mongodb-stitch-browser-sdk":33}],132:[function(require,module,exports){
 module.exports = {
@@ -16813,9 +16827,12 @@ module.exports = {
   cluster: 'mongodb-atlas',
   db: 'freenet-all',
   collections: {
-    test: 'test',
-    nets: 'nets'
-  }
+    test: 'test3',
+    nets: 'nets',
+    videos: 'videos'
+  },
+  // url: 'https://ttm.github.io/oa/'
+  url: 'http://localhost:8080/'
 }
 
 },{}]},{},[1]);

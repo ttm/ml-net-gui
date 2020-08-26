@@ -460,15 +460,17 @@ class SyncParnassum extends OABase {
     mkElement([1, 2.2], 0x777733, '1', 3000, 0, gradus1())
 
     let g2 = gradus2()
-    const url = g2.match(/\bhttps?:\/\/\S+/gi)
+    const url = g2.match(/\bhttps?:\/\/\S+/gi) // fixme: only works if link at last.
     if (url !== null) {
       g2 = g2.replace(url[0], 'click HERE.')
     }
-    mkElement([1, 2.2], 0x777733, '2', 3000, 0, g2).on('pointerdown', () => {
+    const g2_ = mkElement([1, 2.2], 0x777733, '2', 3000, 0, g2).on('pointerdown', () => {
       if (url !== null) {
         window.open(url[0], '_blank')
       }
     })
+    g2_.buttonMode = true
+    g2_.interactive = true
 
     const ltext = mkElement([1, 2.2], 0x777733, '3', 3000, 0, gradusVideoLink)
     ltext.on('pointerdown', () => {
@@ -497,7 +499,7 @@ class SyncParnassum extends OABase {
       atext.buttonMode = true
 
       mkElement([1, 2.2], 0x777733, '5', 3000, 0, gradusExtensionInfo).on('pointerdown', () => {
-        window.open('OAextension.zip', '_blank') // needs to be uploaded to instance. TTM
+        window.open('you.zip', '_blank') // needs to be uploaded to instance. TTM
       }).buttonMode = true
 
       this.tttexts = texts
@@ -585,7 +587,8 @@ class SyncParnassum extends OABase {
     const getNodeMusicUrl = a => {
       const mstr = wand.utils.rot(a.sid || a.nid)
       const mfield = a.sid ? 'msid' : 'mnid'
-      return `${window.location.origin}/?page=ankh_&${mfield}=${mstr}&syncId=${syncId}`
+      // return `${window.location.origin}/?page=ankh_&${mfield}=${mstr}&syncId=${syncId}`
+      return `${document.location.href.split('?')[0]}?page=ankh_&${mfield}=${mstr}&syncId=${syncId}`
     }
     // from here on for both cases:
     const memberTexts = []

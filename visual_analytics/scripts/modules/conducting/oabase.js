@@ -634,7 +634,7 @@ class OABase {
         }
       },
       networksVisualized: {
-        tip: 'explore 3 network sizes',
+        tip: 'load 3 network sizes',
         condition: () => {
           if (
             this.counter.networksVisualized >= 3 &&

@@ -1100,7 +1100,12 @@ const testMkSyncId = () => {
 }
 
 const testDonate = () => {
-  $('<div/>').html(`
+  $('<div/>', {
+    css: {
+      width: '50%',
+      margin: '10%'
+    }
+  }).html(`
 
     Consider contributing with ideas, opinions, any other feedback to developing <b>Our Aquarium</b> and providing online instances.<br/>
     Also with donations, or partnerships. Maybe you know some person or institution which would be interested in<br/>
@@ -1130,4 +1135,266 @@ const testDonate = () => {
   $('canvas').hide()
 }
 
-module.exports = { testPlot, testRotateLayouts, testBlink, testExhibition1, testDiffusion, testMultilevelDiffusion, testMetaNetwork, testSparkMin, testSparkLosd, testMong, testGetNet0, testGetNet1, testGetNet2, testGetNet3, testNetIO, testGUI, testNetUpload, testNetUpload2, testMongIO, testMongNetIO, testMongBetterNetIO, testNetPage, testPuxi, testHtmlEls, testHtmlEls2, testGradus, testAdParnassum, testWorldPropertyPage, testAudio, testJQueryFontsAwesome, testObj, testColors, testMusic, testLooper, testSeq, testSync, testPattern, testRec, testRec2, testRecCanvas, testRecAudio, testRecAudioAndCanvas, testRecAudioAndCanvas2, testDiffusionLimited, testNoise, testLycoreia, testTithorea, testSyncParnassum, testEditor, testLz, testMkSyncId, testDonate }
+const testDeploy = () => {
+  const paragraphs = [
+    `This is a hidden page. Please don't share it if you are not explicitly authorized by Roceiro Bolchevique to do so.
+    In doubt, get in tough with who sent you this link or the first OA-related URL.`,
+    `To deploy the OA platform, you need to create the online database,
+    obtain the OA code for the and make the HTML+JavaScript page available somewhere.`,
+    `You use already existing credentials. For simplicity, consider you have none.
+    You create a new Gmail account, with it, you create a Mongo Atlas account (for the database) and a Github account (for the static HTML page).
+    That is all you need but you may manage to use other services,
+    </a target="_blank" href="https://github.com/ripienaar/free-for-dev">such as these</a>.`
+  ]
+  const items = [
+    '<a href="manDB">Configure the MongoDB database.</a>',
+    '<a href="manGit">Make the OA HTML page and extension available.</a>'
+  ]
+  $('<div/>', {
+    css: {
+      width: '50%',
+      margin: '10%'
+    }
+  }).html(`
+  <h2>deploying OA</h2>
+
+  ${paragraphs}
+
+  With both Github and Atlas accounts, you need to:
+  <ol>
+  ${items}
+  </ol>
+  `)
+}
+
+const testManDb = () => {
+  const paragraphs = [
+    'This page is the first step in the OA Deploying Manual, please do not share.', // deploy.html
+    'All OA pages, and also the browser extension, use the database setting described in this page.',
+    'Please take the time to make +- daily backups after you start using the instance, as described in the end of this page.'
+  ].reduce((a, t) => { return a + `<p>${t}</p>` }, '')
+
+  const items = [
+    'Login to mongo atlas, create cluster.',
+    'Go to collections, create your own data. Any database name, any collection name.',
+    'Go to Realm tab (next to the Atlas tab)',
+    'Add the collection, set R/W.',
+    'Set anon access on users -> Providers',
+    'Change url (e.g. from local from your github.io page). Of course, keep local localhost if developing locally.'
+  ].reduce((a, t) => { return a + `<i>${t}</i>` }, '')
+
+  $('<div/>', {
+    css: {
+      width: '50%',
+      margin: '10%'
+    }
+  }).html(`
+  <h2>deploying new OA instance: starting database</h2>
+
+
+  ${paragraphs}
+  <br>
+
+  Example ways in which you may assist:
+  <ol>${items}</pl>
+
+  :::
+
+  `)
+}
+
+const testDevLocal = () => {
+  const paragraphs = [
+    'This is an OA fundamental page, please do not share.', // base for OA Deploying Manual (path deploy.html)
+    'Here are the instructions to have a fully working OA platform in your local machine.',
+    `There are two main reasons to run OA locally:
+    1) software development; 2) deploy OA.`
+  ].reduce((a, t) => { return a + `<p>${t}</p>` }, '')
+
+  const items = [
+    `Clone the <a href="" target="_blank">the ml-net-gui repository</a>
+    and execute "make va-install va-e-dev" at the repository root`,
+    'You should be able to access this and other OA pages at localhost which do not rely on the database',
+    `To have a complete running instance of OA,
+    you need to <a href="manDB">configure the database with localhost</a> as the
+    URL and then start a local server.`,
+    'Install the extension you created in step 1). Should be in visual_analytics/OAextension/',
+    'Click on Login / Advance / Update / Download to populate the instance.', // fixme: don't ask to send to renato.fabbri when download
+    `You have started a local Aquarium instance. Please notify us through:
+    <a href='mailto:sync.aquarium@gmail.com' target='_blank'> sync <ADOT> aquarium <AT> gmail <ANOTHERDOR> com</a><br/>
+    `
+  ]
+  $('<div/>', {
+    css: {
+      width: '50%',
+      margin: '10%'
+    }
+  }).html(`
+  <h2>Starting Our Aquarium locally</h2>
+
+
+  ${paragraphs}
+  <br>
+
+  To start the local server:
+  <ol>${items}</ol>
+
+
+  <p>The "make va-e-dev" command starts the server and keeps track of
+  changes to Javascript files inside visual_analytics/,
+  you only need to reload the page on the browser (or hit the extension button again).</p>
+  <p>The 
+  :::
+
+  `)
+}
+
+const testManGit = () => {
+  const paragraphs = [
+    'This page is the second step in the <a href="deploy">OA Deploying Manual</a>',
+    `Here, you bootstrap your OA instance. Basically, you need to make the HTML available,
+    install the version of the YOU extension and then visualize your own network to synchronize.`,
+    'In this working example, we are using Github pages.'
+  ].reduce((a, t) => { return a + `<p>${t}</p>` }, '')
+
+  const items = [
+    '<a href="devLocal">Make OA available localy</a>, you will need the two files it generates',
+    'Fork <a href="https://github.com/markturian/ouraquarium" target="_blank">this repository</a> or create a new repository with the same index.html and favicons.',
+    'Go to repository settings tab on Github. Scroll down to the GitHub pages section and enable it.',
+    'Replace the main_ok.js file in the repository created with the visual_analytics/scripts/main_ok.js file obtained in step 1).',
+    'Execute "cd ml-net-gui && make va-eOA-zip" to create the visual_analytics/you.zip file. Copy it to the repository created.',
+    'Commit and push. It may take some minutes to be accessible in github.io.',
+    'When it is finished, click on the "tithorea" button on the You extension, describe a syncronization and choose seeds.',
+    `You have bootstrapped an Aquarium instance. Please notify us through:
+    <a href='mailto:sync.aquarium@gmail.com' target='_blank'> sync <ADOT> aquarium <AT> gmail <ANOTHERDOR> com</a><br/>
+    `
+  ].reduce((a, t) => { return a + `<i>${t}</i>` }, '')
+
+  $('<div/>', {
+    css: {
+      width: '50%',
+      margin: '10%'
+    }
+  }).html(`
+  <h2>deploying new OA instance: sharing the HTML</h2>
+
+
+  ${paragraphs}
+  <br>
+  <br>
+
+  Example ways in which you may assist:
+  <ul>${items}</ul>
+
+  :::
+
+  `)
+}
+
+const testGuidelines = () => {
+  $('canvas').hide()
+  const paragraphs = [
+    `Our Aquarium, O Aquario, or OA, enables social synchronization and art.
+
+    Components are unlocked with usage: gadgets, techniques, audiovisual instruments, new webpages.
+    `,
+    `You start at "Gradus ad Parnassum", where you unlock most basic functionality step-by-step,
+    and make audiovisual music with your social self.
+    `,
+    `This page finishes when you reach Mount Parnassus, and receive "You", a browser extension
+    to that you can visualize your networks more throughly.
+    `,
+    `The You extension also enables access to other pages, locations in the Parnassus: Lycoreia and Tithorea.
+    `,
+    `With them, you can inspect communities and subcommunities, perform synchronizations in your own network,
+    and make audiovisual music`,
+    `Read the texts that are presented to you carefully.
+    OA is easy to use if you have consideration for the information provided to you.
+    `,
+    `Consider contributing to OA with feedback, ideas, management of this or new OA instances,
+    development of the software and scientific framework, donations.
+    `,
+    `<a href='contribute' target='_blank'>Contribute</a>
+    `
+  ].reduce((a, t) => { return a + `<p>${t}</p>` }, '')
+
+  const text = `
+  <h2>usage guidelines</h2>
+
+  ${paragraphs}
+
+  :::
+
+  `
+
+  $('<div/>', {
+    css: {
+      width: '50%',
+      margin: '10%'
+    }
+  }).html(text).appendTo('body')
+}
+
+const testContribute = () => {
+  $('canvas').hide()
+  const paragraphs = [`
+
+    Please contribute to the <b>Our Aquarium platform</b> (OA) with texts, ideas, opinions,
+    any other feedback. Partnerships and donations are also encouraged.
+    Maybe you know someone or an institution which would be interested in
+    developing, maintaining, using or sponsoring this software or social undertake.
+    `,
+    `
+    This framework is in constant change and any help is greatly appreciated.
+    Please get in contact through:
+    <a href='mailto:sync.aquarium@gmail.com' target='_blank'> sync <ADOT> aquarium <AT> gmail <ANOTHERDOR> com</a><br/>
+    `,
+    `
+    We provide the Fundamental Cycle, through which the time someone invests in attending any need or requirement may be rewarded.<br/>
+    It currently operates through synchronizations. One of which consists in sharing these pages with the musical elements.
+    These musical pieces are a medium to share the synchronization description as expressed with a short text and an external link.
+    `,
+    `
+    `
+  ].reduce((a, t) => { return a + `<p>${t}</p>` }, '')
+
+  const todos = [
+    'Find software developers to implement new functionalities and solve issues.',
+    'Provide means for donations through Bitcoin, Aetherium, Paypal, etc.',
+    'Find sponsors and donators.',
+    'Hiring: please send proposals to the email above.',
+    'Write journalistic, academic, artistic texts about Our Aquarium.',
+    'Help writing/enhancing the texts found in the platform',
+    'Help to desing new interfaces or enhance current tools.',
+    'Find partners to think and maintain OA.',
+    'Make videos, make synchronizations, use OA.',
+    `Provide help for others to use OA (for example, in the 
+    <a href="http://www.e-chat.co/room/19930378" target="_blank">OA chat and help channel</a>)`,
+    'Take part writing the software underlying the OA platform (pages, extensions).',
+    'Improve the scientific framework.',
+    'Write academic articles alone or in partnership with the OA community.',
+    'Start a new instance of the OA platform.',
+    `Write documentation about OA. The continuous development has entailed shallow documentation.
+    Any writen or recorded piece will probably be referenced in the documentation if sent to the email above.`
+  ].reduce((a, t) => { return a + `<li>${t}</li>` }, '')
+
+  $('<div/>', {
+    css: {
+      width: '50%',
+      margin: '10%'
+    }
+  }).html(`
+  <h2>Supporting Our Aquarim</h2>
+
+  ${paragraphs}
+  <br>
+
+  Example ways in which you may assist:
+  <ul>${todos}</ul>
+
+  :::
+
+  `).appendTo('body')
+}
+
+module.exports = { testPlot, testRotateLayouts, testBlink, testExhibition1, testDiffusion, testMultilevelDiffusion, testMetaNetwork, testSparkMin, testSparkLosd, testMong, testGetNet0, testGetNet1, testGetNet2, testGetNet3, testNetIO, testGUI, testNetUpload, testNetUpload2, testMongIO, testMongNetIO, testMongBetterNetIO, testNetPage, testPuxi, testHtmlEls, testHtmlEls2, testGradus, testAdParnassum, testWorldPropertyPage, testAudio, testJQueryFontsAwesome, testObj, testColors, testMusic, testLooper, testSeq, testSync, testPattern, testRec, testRec2, testRecCanvas, testRecAudio, testRecAudioAndCanvas, testRecAudioAndCanvas2, testDiffusionLimited, testNoise, testLycoreia, testTithorea, testSyncParnassum, testEditor, testLz, testMkSyncId, testDonate, testGuidelines, testManDb, testManGit, testContribute, testDevLocal, testDeploy }

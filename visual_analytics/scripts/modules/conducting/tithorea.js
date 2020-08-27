@@ -1,7 +1,7 @@
 /* global wand */
 const { mkBtn } = require('./gui.js')
 // const { guards, deucalion, lycorus, corycia } = require('./sayings.js')
-const { guards, tithoreaNew, tithoreaNew2, uploadVideoText, uploadVideoPlaceholder, defaultSyncDescription, defaultSyncDescription2, defaultSyncDescription3 } = require('./instructions.js')
+const { guards, tithoreaNew, tithoreaNew2, uploadVideoText, uploadVideoPlaceholder, defaultSyncDescription, defaultSyncDescription2, defaultSyncDescription3, defaultSyncDescription4, defaultSyncDescription5, defaultSyncDescription6, defaultSyncDescription7 } = require('./instructions.js')
 const { Tone } = require('../maestro/all.js').base
 const Graph = require('graphology')
 const louvain = require('graphology-communities-louvain')
@@ -315,7 +315,7 @@ class Tithorea {
     this.texts.gradus.text = `name: ${wand.sageInfo.name}`
     this.texts.achievement.text = `friends, friendships: ${wand.currentNetwork.order}, ${wand.currentNetwork.size}`
     if (this.sync) {
-      this.texts.tip.text = `seeds, steps: ${this.sync.seeds.length}, ${this.sync.progression.length - 1}`
+      this.texts.tip.text = `seed, steps: ${wand.currentNetwork.getNodeAttribute(this.theSeed, 'name')}, ${this.sync.progression.length - 1}`
     }
   }
 
@@ -944,7 +944,11 @@ class Tithorea {
     const templates = [
       defaultSyncDescription(),
       defaultSyncDescription2(),
-      defaultSyncDescription3()
+      defaultSyncDescription3(),
+      defaultSyncDescription4(),
+      defaultSyncDescription5(),
+      defaultSyncDescription6(),
+      defaultSyncDescription7()
     ]
     let counter = 0
     $('<button/>').html('template change').on('click', () => {

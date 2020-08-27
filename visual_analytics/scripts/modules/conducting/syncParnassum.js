@@ -362,7 +362,7 @@ class SyncParnassum extends OABase {
 
   setInfo2 () {
     const a = wand.artist.use
-    this.rect = a.mkRectangle({
+    this.rectInfo = a.mkRectangle({
       // wh: [a.width, a.height], zIndex: 1, color: 0xffaaaa, alpha: 0
       wh: [a.width, a.height], zIndex: 1, color: 0x9c9c9c, alpha: 0
     })
@@ -376,7 +376,11 @@ class SyncParnassum extends OABase {
       texts[element] = a.mkTextFancy(text, [pos[0] * x, pos[1] * y], fs, color, zIndex, alpha)
       return texts[element]
     }
-    mkElement([1, 2.2], 0x777733, '1', 3000, 0, gradus1())
+    const ltext0 = mkElement([1, 2.2], 0x777733, '1', 3000, 0, gradus1())
+    ltext0.on('pointerdown', () => {
+      window.open('?page=guidelines')
+    })
+    ltext0.buttonMode = true
 
     let g2 = gradus2()
     const url = g2.match(/\bhttps?:\/\/\S+/gi)
@@ -408,10 +412,10 @@ class SyncParnassum extends OABase {
     })
     wand.theNetwork = wand.visitedNetwork
     const showMsg = i => {
-      console.log(i, this.rect, texts, texts[i], 'THE SHOW GUY')
-      this.rect.alpha = 1
-      this.rect.zIndex = 2000
-      this.rect.color = 0xffffff * Math.random() / 2 + 0x777777
+      console.log(i, this.rectInfo, texts, texts[i], 'THE SHOW GUY')
+      this.rectInfo.alpha = 1
+      this.rectInfo.zIndex = 2000
+      this.rectInfo.tint = 0xffffff * Math.random() / 2 + 0x777777
       texts[i].alpha = 1
       texts[i].interactive = true
       count = this.infoLength // Object.keys(texts).length
@@ -420,8 +424,11 @@ class SyncParnassum extends OABase {
     const fun = () => {
       const tlength = this.infoLength + 1 // Object.keys(texts).length + 1
       const show = (++count % tlength) !== 0
-      this.rect.alpha = Number(show)
-      this.rect.zIndex = 10 + 2000 * show
+      this.rectInfo.alpha = Number(show)
+      this.rectInfo.zIndex = 10 + 2000 * show
+      if (show) {
+        this.rectInfo.tint = 0xffffff * Math.random() / 2 + 0x777777
+      }
       let i = 1
       for (const t in texts) {
         texts[t].alpha = Number(count % tlength === i)
@@ -430,7 +437,7 @@ class SyncParnassum extends OABase {
       }
       if (!this.isInitialized) {
         this.start()
-        this.rect.alpha = 0
+        this.rectInfo.alpha = 0
         this.isInitialized = true
       }
     }
@@ -443,7 +450,7 @@ class SyncParnassum extends OABase {
 
   setInfo () {
     const a = wand.artist.use
-    this.rect = a.mkRectangle({
+    this.rectInfo = a.mkRectangle({
       // wh: [a.width, a.height], zIndex: 1, color: 0xffaaaa, alpha: 0
       wh: [a.width, a.height], zIndex: 1, color: 0x9c9c9c, alpha: 0
     })
@@ -457,7 +464,11 @@ class SyncParnassum extends OABase {
       texts[element] = a.mkTextFancy(text, [pos[0] * x, pos[1] * y], fs, color, zIndex, alpha)
       return texts[element]
     }
-    mkElement([1, 2.2], 0x777733, '1', 3000, 0, gradus1())
+    const ltext0 = mkElement([1, 2.2], 0x777733, '1', 3000, 0, gradus1())
+    ltext0.on('pointerdown', () => {
+      window.open('?page=guidelines')
+    })
+    ltext0.buttonMode = true
 
     let g2 = gradus2()
     const url = g2.match(/\bhttps?:\/\/\S+/gi) // fixme: only works if link at last.
@@ -507,9 +518,9 @@ class SyncParnassum extends OABase {
       wand.theNetwork = wand.starNetwork
 
       const showMsg = i => {
-        console.log(i, this.rect, texts, texts[i], 'THE SHOW GUY')
-        this.rect.alpha = 1
-        this.rect.zIndex = 2000
+        console.log(i, this.rectInfo, texts, texts[i], 'THE SHOW GUY')
+        this.rectInfo.alpha = 1
+        this.rectInfo.zIndex = 2000
         texts[i].alpha = 1
         texts[i].interactive = true
         count = this.infoLength // Object.keys(texts).length
@@ -519,12 +530,19 @@ class SyncParnassum extends OABase {
       const fun = () => {
         const tlength = this.infoLength + 1 // Object.keys(texts).length + 1
         const show = (++count % tlength) !== 0
-        this.rect.alpha = Number(show)
-        this.rect.zIndex = 10 + 2000 * show
+        const colors = wand.magic.tint.randomPalette2()
+        this.rectInfo.alpha = Number(show)
+        this.rectInfo.zIndex = 10 + 2000 * show
+        if (show) {
+          this.rectInfo.tint = colors.bg
+        }
         let i = 1
         for (const t in texts) {
-          texts[t].alpha = Number(count % tlength === i)
-          texts[t].interactive = count % tlength === i
+          if (count % tlength === i) {
+            texts[t].alpha = Number(count % tlength === i)
+            texts[t].interactive = count % tlength === i
+            texts[t].tint = colors.n
+          }
           i++
         }
         if (!this.isInitialized) {
@@ -549,7 +567,7 @@ class SyncParnassum extends OABase {
             }, seq.dur + seq.seq.interval)
             console.log('MUSIC DURATION:', (seq.dur + seq.seq.interval * 0.3))
           }
-          this.rect.alpha = 0
+          this.rectInfo.alpha = 0
           this.isInitialized = true
         }
       }

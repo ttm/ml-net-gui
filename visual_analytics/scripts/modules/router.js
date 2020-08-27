@@ -63,6 +63,13 @@ class Router {
         console.log(`path not found: ${path}`)
       }
     }
+    wand.$('<a/>', {
+      href: '?page=contribute',
+      target: '_blank',
+      css: {
+        'margin-left': '1%'
+      }
+    }).html('Contribute to Our Aquarium').appendTo('body')
   }
 }
 

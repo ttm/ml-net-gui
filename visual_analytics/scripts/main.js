@@ -120,6 +120,12 @@ const routes = {
   'editor.html': test.testEditor,
   'lz.html': test.testLz,
   'donate.html': () => test.testDonate(),
+  'contribute.html': () => test.testContribute(),
+  'guidelines.html': () => test.testGuidelines(),
+  'deploy.html': () => test.testDeploy(),
+  'manDB.html': () => test.testManDb(),
+  'manGit.html': () => test.testManGit(),
+  'devLocal.html': () => test.testDevLocal(),
   'data_donated.html': () => console.log('a summary of the data donated in usage, upload and scrapping')
 }
 

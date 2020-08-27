@@ -26,7 +26,10 @@ work properly.
 
 Then, keep track of the "tips" until you reach your social organism and make art with it.
 
-Also, the OA software is GPL @ FSF. So you can install an instance of your own or yield derivatives.
+Also, the Our Aquarium (OA) software license is GPL @ FSF.
+So you can install an instance of your own or make different versions.
+
+You can click on this text to open Usage Guidelines in case you want or need it to advance on the OA.
 
 Good luck!
 
@@ -57,14 +60,14 @@ const neighborNames = () => {
       names.push(na.name)
     })
   } else {
-    wand.utils.chooseUnique(wand.fullNetwork.nodes(), 10).forEach(id => {
+    wand.utils.chooseUnique(wand.currentNetwork.nodes(), 10).forEach(id => {
       names.push(wand.currentNetwork.getNodeAttribute(id, 'name'))
     })
   }
   return wand.utils.inplaceShuffle(names).join(', ')
 }
 
-const donationUrl = () => {
+const contributionLink = () => {
   // return document.location.origin + '/?page=donate'
   return `${document.location.href.split('?')[0]}?page=donate`
 }
@@ -74,7 +77,7 @@ Your music, and the Our Aquarium platform,
 needs your help.
 
 It requires constant development and maintenance,
-which rely on donations.
+which rely on donations and voluntaries.
 
 Thank you very much!
 
@@ -82,7 +85,9 @@ O Aquarium
 
 :::
 
-Please visit our page: ${donationUrl()}
+to contribute, please visit:
+
+${contributionLink()}
 `
 
 const defaultSyncDescription2 = () => `
@@ -129,12 +134,70 @@ Prometo prosa fofinha da próxima vez, beijos <3.
 
 `
 
+const defaultSyncDescription4 = () => `
+Oi, eu sou o Roceiro Bolchevique, el Hemato Freudita.
+Este é o Litura Terra n0:
+
+Estes são meus olhos
+
+Quando piso nesta terra, nesta cidade, o que vejo não é poeira, nem prédios e casas, nem ruas, nem pessoas. Vejo uma rede de inter-dependência entre seres que clamam pelo entendimento desses que amam. Vejo entidades luminescentes e cantantes, e cantam segundo suas relações e segundo a Grande Onda de Entendimento gerada nesta sincronização de cantos e dizeres.
+Estes são meus olhos, esta é nossa existência, estamos em todas cidades, campos, florestas, desejo do fundo do meu coração que todos vocês possam ver como vejo, um mundo onde cada expressão sincronize esse GOE, o GOE é exatamente Amor.
+
+Roceiro Bolchevique
+
+:::
+
+`
+
+const defaultSyncDescription5 = () => `
+Archangel Michel:
+
+Humanity may reach immortality in less than 40 yeas, no person will die from desease or age.
+To enable so, you need to synchronize your social body and help reaching generalized well-being.
+It is a shistsu performed in your social network through art proposals,
+and performed in your individual body through meditation.
+
+The Aquarium platform provides the mechanisms to know and synchronize yourself.
+Consider contributing by clicking at the link at the bottom of the page.
+
+:::
+
+or by accessing:
+
+${contributionLink()}
+
+`
+
+const defaultSyncDescription6 = () => `
+Our social bodies are ecossystems, biomes constituted by human individuals,
+ideas, machines, and the Eath and Universe.
+
+Our networks perform a choreographies which animates the collective organism(s).
+
+Make audiovisual music and synchronizations with Our Aquarium,
+they are healing massages.
+
+:::
+`
+
+const defaultSyncDescription7 = () => `
+This is the hug synchronization.
+
+Enjoy your music and fell yourself hugged.
+
+Cheers!
+
+:::
+
+See more: https://en.wikipedia.org/wiki/Free_Hugs_Campaign
+`
+
 const syncDescription = () => (wand.syncInfo.syncDescription || defaultSyncDescription())
 
 // after the exhibition with the music from the person:
 // todo: colocar texto mais literario
 const gradus2 = () => `
-${syncDescription().replace(/^[\n\r]$/, '<br/>')}
+${syncDescription()}
 
 You will now start your usage of this interface to explore your social complex network, or social organism, ${visitorName()}.
 Suggestion: reach at least your synchronization links.
@@ -288,7 +351,7 @@ You can now visit Tithorea, which is one of the two summits therein.
 
 In Tithorea, you can design synchronization processes.
 
-You may remove members, because they are duplicates of yourself or any other reason.
+You may remove members, usually because they are duplicates of yourself, some other profile.
 You may describe the synchronization, i.e. it's purpose, what it is meant to be realized with the synchronization.
 
 Click on a member (▲) which wish to activate as seed, e.g. to start a synchronization.
@@ -384,4 +447,4 @@ if you cannot identify yourself."
 (press the [i] button above or login with the chrome extension if you have it)
 `
 
-module.exports = { tithorea1, lycoreia1, gradus1, gradus2, gradus3, gradusRec, gradusSyncLinks, gradusVideoLink, gradusExtensionInfo, uploadVideoText, uploadVideoPlaceholder, lycoreiaNew, arcturians1, arcturians2, guards, tithoreaNew2, tithoreaNew, defaultSyncDescription, defaultSyncDescription2, defaultSyncDescription3 }
+module.exports = { tithorea1, lycoreia1, gradus1, gradus2, gradus3, gradusRec, gradusSyncLinks, gradusVideoLink, gradusExtensionInfo, uploadVideoText, uploadVideoPlaceholder, lycoreiaNew, arcturians1, arcturians2, guards, tithoreaNew2, tithoreaNew, defaultSyncDescription, defaultSyncDescription2, defaultSyncDescription3, defaultSyncDescription4, defaultSyncDescription5, defaultSyncDescription6, defaultSyncDescription7 }

@@ -405,6 +405,7 @@ class SyncParnassum extends OABase {
       }
     })
     ltext.buttonMode = true
+
     mkElement([1, 2.2], 0x777733, '4', 3000, 0, arcturians1())
     const anphy = mkElement([1, 2.2], 0x777733, '5', 3000, 0, arcturians2())
     anphy.on('pointerdown', () => {
@@ -426,13 +427,16 @@ class SyncParnassum extends OABase {
       const show = (++count % tlength) !== 0
       this.rectInfo.alpha = Number(show)
       this.rectInfo.zIndex = 10 + 2000 * show
+      const colors = count % 2 ? [0xffffff, 0x000000] : [0x000000, 0xffffff]
       if (show) {
-        this.rectInfo.tint = 0xffffff * Math.random() / 2 + 0x777777
+        // this.rectInfo.tint = 0xffffff * Math.random() / 2 + 0x777777
+        this.rectInfo.tint = colors[0]
       }
       let i = 1
       for (const t in texts) {
         texts[t].alpha = Number(count % tlength === i)
         texts[t].interactive = count % tlength === i
+        texts[t].tint = colors[1]
         i++
       }
       if (!this.isInitialized) {
@@ -530,19 +534,19 @@ class SyncParnassum extends OABase {
       const fun = () => {
         const tlength = this.infoLength + 1 // Object.keys(texts).length + 1
         const show = (++count % tlength) !== 0
-        const colors = wand.magic.tint.randomPalette2()
+        // const colors = wand.magic.tint.randomPalette2()
         this.rectInfo.alpha = Number(show)
         this.rectInfo.zIndex = 10 + 2000 * show
+        const colors = count % 2 ? [0xffffff, 0x000000] : [0x000000, 0xffffff]
         if (show) {
-          this.rectInfo.tint = colors.bg
+          // this.rectInfo.tint = colors.bg
+          this.rectInfo.tint = colors[0]
         }
         let i = 1
         for (const t in texts) {
-          if (count % tlength === i) {
-            texts[t].alpha = Number(count % tlength === i)
-            texts[t].interactive = count % tlength === i
-            texts[t].tint = colors.n
-          }
+          texts[t].alpha = Number(count % tlength === i)
+          texts[t].interactive = count % tlength === i
+          texts[t].tint = colors[1]
           i++
         }
         if (!this.isInitialized) {

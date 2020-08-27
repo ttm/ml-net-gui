@@ -18,6 +18,7 @@ class Router {
       // const a = new URLSearchParams(pn)
       // http://localhost:8080/?page=ankh_&usid=erangb.snooev.125&mnid=1537120300&s=1&ts=0.001&bypassMusic=1&muted=1&clevel=7
       wand.syncInfo = {
+        syncKey: urlArgument('syncKey'),
         usid: urlArgument('usid', true),
         msid: urlArgument('msid', true),
         unid: urlArgument('unid', true),

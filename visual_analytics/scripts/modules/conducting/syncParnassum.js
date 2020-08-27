@@ -416,9 +416,11 @@ class SyncParnassum extends OABase {
       console.log(i, this.rectInfo, texts, texts[i], 'THE SHOW GUY')
       this.rectInfo.alpha = 1
       this.rectInfo.zIndex = 2000
-      this.rectInfo.tint = 0xffffff * Math.random() / 2 + 0x777777
       texts[i].alpha = 1
       texts[i].interactive = true
+      const colors = i % 2 ? [0xffffff, 0x000000] : [0x000000, 0xffffff]
+      this.rectInfo.tint = colors[0]
+      texts[i].tint = colors[1]
       count = this.infoLength // Object.keys(texts).length
     }
     let count = 0
@@ -527,6 +529,9 @@ class SyncParnassum extends OABase {
         this.rectInfo.zIndex = 2000
         texts[i].alpha = 1
         texts[i].interactive = true
+        const colors = i % 2 ? [0xffffff, 0x000000] : [0x000000, 0xffffff]
+        this.rectInfo.tint = colors[0]
+        texts[i].tint = colors[1]
         count = this.infoLength // Object.keys(texts).length
       }
 

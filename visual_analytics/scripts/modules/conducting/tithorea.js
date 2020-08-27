@@ -349,8 +349,22 @@ class Tithorea {
         if (this.removerActive) {
           this.removeMember(a)
           this.theSeed = undefined
-        } else if (this.theSeed === n) {
-          window.open(a.urlStr + this.removedNodesUrl + this.descUrl())
+        } else if (this.theSeed === n) { // open dialog with copiar URL, abrir URL, cancelar.
+          // window.open(a.urlStr + this.removedNodesUrl + this.descUrl())
+          // dialog yes, no, cancel
+          const res = window.confirm(`You selected ${a.name} as seed. You can go back (do nothing) or create a synchronization with this seed. If you create it, you will open the URL in a new tab or copy it to the clipboard in order to paste elsewhere.`, 'cancel', 'create synchronization: open URL', 'create synchronization, copy URL with the synchronization description to clipboard')
+          if (res) {
+            const key = Math.random().toString(36).substring(7)
+
+            // const url = a.urlStr + this.removedNodesUrl + this.descUrl())
+            const url = `${document.location.href.split('?')[0]}?page=ankh_&musicKey=${key}`
+            this.saveSync(key).then(_ => {
+              wand.utils.copyToClipboard(url)
+              wand.transfer.mong.findAny({ syncKey: key }).then(res2 => {
+                console.log('SYNC DATA READ BACK:', res2)
+              })
+            })
+          }
         } else {
           this.theSeed = n
         }
@@ -980,6 +994,19 @@ class Tithorea {
     wand.transfer.mong.writeAny({
       vurl, usid, unid, msid, mnid, syncCount, page, date: new Date(Date.now()).toISOString(), desc
     })
+  }
+
+  saveSync (key) {
+    // write to mongoDB
+    const data = {
+      sageInfo: wand.sageInfo, // of the user using the page, the owner of the network
+      sync: this.sync, // all of it?
+      desc: wand.magic.tithorea.descArea.val(),
+      removedNodes: this.removedNodes,
+      syncKey: key
+    }
+    console.log('SYNC DATA TO BE WRITTEN:', data)
+    return wand.transfer.mong.writeAny(data)
   }
 }
 

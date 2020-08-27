@@ -24,13 +24,17 @@ function chunkArray (array, chunkSize) {
   // Split in group of 3 items
   // var result = chunkArray([1,2,3,4,5,6,7,8], 3)
   var results = []
+  array = array.split()
   while (array.length) {
     results.push(array.splice(0, chunkSize))
   }
   return results
 }
 
-function inplaceShuffle (array) {
+function inplaceShuffle (array, inplace = true) {
+  if (!inplace) {
+    array = array.split()
+  }
   // Fisher-Yates algorithm
   for (let i = array.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1))

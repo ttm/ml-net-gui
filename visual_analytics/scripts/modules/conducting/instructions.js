@@ -447,4 +447,21 @@ if you cannot identify yourself."
 (press the [i] button above or login with the chrome extension if you have it)
 `
 
-module.exports = { tithorea1, lycoreia1, gradus1, gradus2, gradus3, gradusRec, gradusSyncLinks, gradusVideoLink, gradusExtensionInfo, uploadVideoText, uploadVideoPlaceholder, lycoreiaNew, arcturians1, arcturians2, guards, tithoreaNew2, tithoreaNew, defaultSyncDescription, defaultSyncDescription2, defaultSyncDescription3, defaultSyncDescription4, defaultSyncDescription5, defaultSyncDescription6, defaultSyncDescription7 }
+const randomWords = () => {
+  return wand.utils.randChunkSplit(
+    ['Mercury', 'Venus', 'Earth', 'Mars', 'Jupiter', 'Sun', 'Moon', 'Pachypoda', 'Clandonensis', 'Elegantissima'],
+    1, 4, false
+  )
+}
+
+const musicName = name => {
+  const parts = name.split(' ')
+  parts.push(...randomWords())
+  return wand.utils.shuffle(wand.utils.inplaceShuffle(parts, false))
+}
+
+const toSeedText = seedName => `
+Hi, ${seedName}, your music, a music about you, is conceived and called: ${wand.musicName || musicName(seedName)}.
+`
+
+module.exports = { tithorea1, lycoreia1, gradus1, gradus2, gradus3, gradusRec, gradusSyncLinks, gradusVideoLink, gradusExtensionInfo, uploadVideoText, uploadVideoPlaceholder, lycoreiaNew, arcturians1, arcturians2, guards, tithoreaNew2, tithoreaNew, defaultSyncDescription, defaultSyncDescription2, defaultSyncDescription3, defaultSyncDescription4, defaultSyncDescription5, defaultSyncDescription6, defaultSyncDescription7, toSeedText }

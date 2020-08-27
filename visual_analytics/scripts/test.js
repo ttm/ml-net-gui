@@ -1136,6 +1136,7 @@ const testDonate = () => {
 }
 
 const testDeploy = () => {
+  $('canvas').hide()
   const paragraphs = [
     `This is a hidden page. Please don't share it if you are not explicitly authorized by Roceiro Bolchevique to do so.
     In doubt, get in tough with who sent you this link or the first OA-related URL.`,
@@ -1145,11 +1146,11 @@ const testDeploy = () => {
     You create a new Gmail account, with it, you create a Mongo Atlas account (for the database) and a Github account (for the static HTML page).
     That is all you need but you may manage to use other services,
     </a target="_blank" href="https://github.com/ripienaar/free-for-dev">such as these</a>.`
-  ]
+  ].reduce((a, t) => { return a + `<p>${t}</p>` }, '')
   const items = [
-    '<a href="manDB">Configure the MongoDB database.</a>',
-    '<a href="manGit">Make the OA HTML page and extension available.</a>'
-  ]
+    '<a href="?page=manDB">Configure the MongoDB database.</a>',
+    '<a href="?page=manGit">Make the OA HTML page and extension available.</a>'
+  ].reduce((a, t) => { return a + `<li>${t}</li>` }, '')
   $('<div/>', {
     css: {
       width: '50%',
@@ -1164,10 +1165,13 @@ const testDeploy = () => {
   <ol>
   ${items}
   </ol>
-  `)
+
+  :::
+  `).appendTo('body')
 }
 
 const testManDb = () => {
+  $('canvas').hide()
   const paragraphs = [
     'This page is the first step in the OA Deploying Manual, please do not share.', // deploy.html
     'All OA pages, and also the browser extension, use the database setting described in this page.',
@@ -1181,7 +1185,7 @@ const testManDb = () => {
     'Add the collection, set R/W.',
     'Set anon access on users -> Providers',
     'Change url (e.g. from local from your github.io page). Of course, keep local localhost if developing locally.'
-  ].reduce((a, t) => { return a + `<i>${t}</i>` }, '')
+  ].reduce((a, t) => { return a + `<li>${t}</li>` }, '')
 
   $('<div/>', {
     css: {
@@ -1196,11 +1200,11 @@ const testManDb = () => {
   <br>
 
   Example ways in which you may assist:
-  <ol>${items}</pl>
+  <ol>${items}</ol>
 
   :::
 
-  `)
+  `).appendTo('body')
 }
 
 const testDevLocal = () => {
@@ -1250,6 +1254,7 @@ const testDevLocal = () => {
 }
 
 const testManGit = () => {
+  $('canvas').hide()
   const paragraphs = [
     'This page is the second step in the <a href="deploy">OA Deploying Manual</a>',
     `Here, you bootstrap your OA instance. Basically, you need to make the HTML available,
@@ -1268,7 +1273,7 @@ const testManGit = () => {
     `You have bootstrapped an Aquarium instance. Please notify us through:
     <a href='mailto:sync.aquarium@gmail.com' target='_blank'> sync <ADOT> aquarium <AT> gmail <ANOTHERDOR> com</a><br/>
     `
-  ].reduce((a, t) => { return a + `<i>${t}</i>` }, '')
+  ].reduce((a, t) => { return a + `<li>${t}</li>` }, '')
 
   $('<div/>', {
     css: {
@@ -1288,7 +1293,7 @@ const testManGit = () => {
 
   :::
 
-  `)
+  `).appendTo('body')
 }
 
 const testGuidelines = () => {

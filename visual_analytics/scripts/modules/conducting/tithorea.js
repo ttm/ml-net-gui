@@ -22,11 +22,11 @@ class Tithorea {
       state: {
         nodesSize: {
           // current val = min + (max - min) * (count % step), in increment(attr)
-          count: 7, // interactions count
-          max: 2,
+          count: 0, // interactions count
+          max: 2.5,
           min: 0.5,
           steps: 10,
-          current: 1,
+          current: 0.8,
           update: function () {
             wand.currentNetwork.forEachNode((n, a) => {
               a.pixiElement.scale.set(this.current)
@@ -38,7 +38,7 @@ class Tithorea {
           max: 1.5,
           min: 0.3,
           steps: 10,
-          current: 1,
+          current: 0.7,
           update: function () {
             wand.currentNetwork.forEachNode((n, a) => {
               a.textElement.scale.set(this.current)
@@ -50,7 +50,7 @@ class Tithorea {
           max: 1,
           min: 0,
           steps: 10,
-          current: 0.9,
+          current: 0.5,
           iconId: '#member-button',
           update: function () {
             wand.currentNetwork.forEachNode((n, a) => {
@@ -312,10 +312,10 @@ class Tithorea {
   }
 
   setNetInfo () {
-    this.texts.gradus.text = `name: ${wand.sageInfo.name}`
-    this.texts.achievement.text = `friends, friendships: ${wand.currentNetwork.order}, ${wand.currentNetwork.size}`
     if (this.sync) {
       this.texts.tip.text = `seed, steps: ${wand.currentNetwork.getNodeAttribute(this.theSeed, 'name')}, ${this.sync.progression.length - 1}`
+      const p = wand.magic.tithorea.sync.progression
+      this.texts.orderSize.text = `steps volume: ${p.slice(1, p.length - 1).map(i => i.length).join(', ')}`
     }
   }
 
@@ -439,12 +439,20 @@ class Tithorea {
   }
 
   resetSyncMap () {
+    const arrows = []
     if (this.arrows) {
       this.arrows.forEach(a => {
         a.destroy()
       })
+    } else {
+      setInterval(() => {
+        if (this.arrows) {
+          this.arrows.forEach(a => {
+            a.tint = 0xffffff * Math.random()
+          })
+        }
+      }, 200)
     }
-    const arrows = []
     const { progression, progressionLinks } = this.sync
     progressionLinks.forEach(step => {
       step.forEach(link => {
@@ -822,15 +830,33 @@ class Tithorea {
 
     const mkElement = (pos, color, element, zIndex = 300, alpha = 1) => {
       this.texts[element] = a.mkTextFancy('', [pos[0] * x, pos[1] * y], fs, color, zIndex, alpha)
+      return this.texts[element]
     }
 
     mkElement([1, 2.2], 0x777733, 'adParnassum')
-    this.texts.adParnassum.text = 'at Tithorea with Andromedas'
-    mkElement([1, 0.2], 0x333377, 'gradus')
+    this.texts.adParnassum.text = 'at Tithorea for synchronization'
+    const t1 = mkElement([1, 0.2], 0x333377, 'gradus')
+    t1.on('pointerdown', () => {
+      this.increment('namesSize')
+    })
+    this.increment('namesSize')
+    t1.buttonMode = true
+    t1.interactive = true
+    t1.text = `name: ${wand.sageInfo.name}`
+
     mkElement([21, 2.2], 0x666600, 'achievement')
+    this.texts.achievement.text = `friends, friendships: ${wand.currentNetwork.order}, ${wand.currentNetwork.size}`
+
     mkElement([21, 0.2], 0x333377, 'tip')
-    mkElement([54, 2.2], 0x337777, 'interactionCount')
-    mkElement([54, 0.2], 0x773377, 'orderSize')
+
+    mkElement([54, 2.2], 0x337777, 'interactionCount') // todo: .text = 'yeah' // videos + syncs
+    const t2 = mkElement([54, 0.2], 0x773377, 'orderSize')
+    t2.on('pointerdown', () => {
+      this.increment('nodesSize')
+    })
+    this.increment('nodesSize')
+    t2.buttonMode = true
+    t2.interactive = true
 
     mkElement([1, 0.1], 0x333377, 'nodeId', 600, 0)
     mkElement([1, 2.2], 0x777733, 'nodeName', 600, 0)

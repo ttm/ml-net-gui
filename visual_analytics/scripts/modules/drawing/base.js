@@ -272,13 +272,14 @@ function defaultLinkRenderer (link) {
   // Let's draw the arrow:
   const graphics = new wand.magic.PIXI.Graphics()
   // graphics.lineStyle(1, 0xcccccc, 1)
-  graphics.lineStyle(1, 0xcccccc)
+  graphics.lineStyle(1, 0xcccccc, 1)
 
   graphics.moveTo(ex, ey)
   graphics.lineTo(sx + topX * arrowWingsLength, sy + topY * arrowWingsLength)
   graphics.moveTo(ex, ey)
   graphics.lineTo(sx - topX * arrowWingsLength, sy - topY * arrowWingsLength)
   wand.magic.app.stage.addChild(graphics)
+  graphics.zIndex = 20000
   window.ggg = graphics
   return graphics
 }

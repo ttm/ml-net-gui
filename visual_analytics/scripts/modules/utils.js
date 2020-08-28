@@ -24,7 +24,7 @@ function chunkArray (array, chunkSize) {
   // Split in group of 3 items
   // var result = chunkArray([1,2,3,4,5,6,7,8], 3)
   var results = []
-  array = array.split()
+  array = array.slice()
   while (array.length) {
     results.push(array.splice(0, chunkSize))
   }
@@ -33,7 +33,7 @@ function chunkArray (array, chunkSize) {
 
 function inplaceShuffle (array, inplace = true) {
   if (!inplace) {
-    array = array.split()
+    array = array.slice()
   }
   // Fisher-Yates algorithm
   for (let i = array.length - 1; i > 0; i--) {

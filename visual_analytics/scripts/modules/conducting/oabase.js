@@ -40,10 +40,10 @@ class OABase {
         },
         namesSize: {
           count: 0,
-          max: 1.5,
+          max: 3,
           min: 0.3,
           steps: 10,
-          current: 1,
+          current: 1.3,
           update: function () {
             wand.currentNetwork.forEachNode((n, a) => {
               a.textElement.scale.set(this.current)
@@ -144,7 +144,7 @@ class OABase {
             },
             silenceAll: function () {
               if (!window.oaReceivedMsg) {
-                self.rec.filename = wand.syncInfo.pageMemberName + ' @ ' + wand.syncInfo.syncMemberName + ' audiovisual music duo #oa #ourAquarium #oAquario '
+                self.rec.filename = wand.syncInfo.pageMemberName + ' @ ' + wand.syncInfo.syncMemberName + ' audiovisual music #oa #ourAquarium #oAquario '
               } else {
                 const udata = wand.fullNetwork.getAttribute('userData')
                 self.rec.filename = `${udata.name} (${udata.sid || udata.nid}), audiovisual and social music #oa #ourAquarium #oAquario `
@@ -420,6 +420,7 @@ class OABase {
           this.texts.gradus.on('click', () => {
             this.increment('namesSize')
           })
+          this.increment('namesSize')
           this.texts.gradus.interactive = true
 
           this.texts.orderSize.on('click', () => {
@@ -1030,6 +1031,11 @@ class OABase {
         if (!this.setNextLevel()) {
           clearInterval(id)
         }
+      } else if (window.oaReceivedMsg) {
+        if (this.currentLevel === 13 && !this.cleanInfoLock) {
+          wand.$('#info-button').click()
+          this.cleanInfoLock = true
+        }
       }
     }, 300)
   }
@@ -1313,7 +1319,7 @@ class OABase {
     net.forEachNode((n, a) => {
       a.pixiElement.on('pointerdown', () => {
         console.log('node clicked:', n, a)
-        this.state.clickNode.counter++
+        this.state.clickNode.count++
         this.resetNetwork()
         if (!net.seeds.includes(n)) {
           net.seeds.push(n)

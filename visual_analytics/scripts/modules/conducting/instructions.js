@@ -15,11 +15,13 @@ const visitorName = () => {
   }
 }
 
+// Hear your music, ${visitorName()},
 const gradus1 = () => `
 Welcome to the Gradus.
 
-Hear your music, ${visitorName()},
-join and enjoy ${neighborNames()}, and many others.
+${toSeedText(visitorName())}
+
+Join and enjoy ${neighborNames()}, and many others.
 
 Keep your attention on the music, don't change the screen, or the interface might not
 work properly.
@@ -480,20 +482,27 @@ if you cannot identify yourself."
 `
 
 const randomWords = () => {
-  return wand.utils.randChunkSplit(
-    ['Mercury', 'Venus', 'Earth', 'Mars', 'Jupiter', 'Sun', 'Moon', 'Pachypoda', 'Clandonensis', 'Elegantissima'],
-    1, 4, false
-  )
+  return [
+    wand.utils.chooseUnique(
+      ['Mercury', 'Venus', 'Earth', 'Mars', 'Jupiter', 'Sun', 'Moon', 'Pachypoda', 'Clandonensis', 'Elegantissima'],
+      1
+    )[0],
+    wand.utils.chooseUnique(
+      ['Beautiful', 'Luminescent', 'Great', 'Transcendent'],
+      1
+    )[0]
+  ]
 }
 
 const musicName = name => {
-  const parts = name.split(' ')
+  const parts = wand.utils.chooseUnique(name.split(' '), 2)
   parts.push(...randomWords())
-  return wand.utils.shuffle(wand.utils.inplaceShuffle(parts, false))
+  wand.musicNameInstr = wand.utils.inplaceShuffle(parts, false).join(' ')
+  return wand.musicNameInstr
 }
 
 const toSeedText = seedName => `
-Hi, ${seedName}, your music, a music about you, is conceived and called: ${wand.musicName || musicName(seedName)}.
+${seedName}, you will now listen a music about you, called: ${wand.musicName || musicName(seedName)}.
 `
 
 module.exports = { tithorea1, lycoreia1, gradus1, gradus2, gradus3, gradusRec, gradusSyncLinks, gradusVideoLink, gradusExtensionInfo, uploadVideoText, uploadVideoPlaceholder, lycoreiaNew, arcturians1, arcturians2, guards, tithoreaNew2, tithoreaNew, defaultSyncDescription, defaultSyncDescription2, defaultSyncDescription3, defaultSyncDescription4, defaultSyncDescription5, defaultSyncDescription6, defaultSyncDescription7, toSeedText, defaultSyncDescription8 }

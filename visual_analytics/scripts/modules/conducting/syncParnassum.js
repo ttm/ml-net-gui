@@ -339,9 +339,9 @@ class SyncParnassum extends OABase {
         rec.astart()
         wand.$('#record-button').css('background-color', '#ff0000')
       } else {
-        const id = wand.syncInfo.msid || wand.syncInfo.mnid
-        const name = wand.currentNetwork.getNodeAttribute(id, 'name')
-        rec.filename = name + ' & ' + wand.fullNetwork.getAttribute('userData').name + ', audiovisual music #oa #ourAquarium #oAquario ' + (new Date()).toISOString().split('.')[0]
+        // const id = wand.syncInfo.msid || wand.syncInfo.mnid
+        // const name = wand.currentNetwork.getNodeAttribute(id, 'name')
+        rec.filename = `${wand.musicNameInstr}` + ', audiovisual music #oa #ourAquarium #oAquario ' + (new Date()).toISOString().split('.')[0]
         rec.stop()
         wand.$('#record-button').css('background-color', '#ffffff')
       }

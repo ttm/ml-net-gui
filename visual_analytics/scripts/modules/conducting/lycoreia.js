@@ -44,11 +44,11 @@ class Lycoreia {
       state: {
         nodesSize: {
           // current val = min + (max - min) * (count % step), in increment(attr)
-          count: 7, // interactions count
+          count: 2, // interactions count
           max: 2,
-          min: 0.5,
+          min: 0.2,
           steps: 10,
-          current: 1,
+          current: 0.3,
           update: function () {
             wand.currentNetwork.forEachNode((n, a) => {
               a.pixiElement.scale.set(this.current)
@@ -57,11 +57,13 @@ class Lycoreia {
         },
         namesSize: {
           count: 0,
-          max: 1.5,
+          max: 2,
           min: 0.3,
           steps: 10,
-          current: 1,
+          current: 0.5,
           update: function () {
+            console.log('yeah, name sizes', this.current)
+            console.log('foooooo')
             wand.currentNetwork.forEachNode((n, a) => {
               a.textElement.scale.set(this.current)
             })
@@ -72,7 +74,7 @@ class Lycoreia {
           max: 1,
           min: 0,
           steps: 10,
-          current: 0.9,
+          current: 0.5,
           iconId: '#member-button',
           update: function () {
             wand.currentNetwork.forEachNode((n, a) => {
@@ -121,7 +123,7 @@ class Lycoreia {
           max: 1,
           min: 0,
           steps: 10,
-          current: 0.9,
+          current: 0.3,
           iconId: '#friendship-button',
           update: function () {
             wand.currentNetwork.forEachEdge((e, a) => {
@@ -668,11 +670,19 @@ class Lycoreia {
 
     const mkElement = (pos, color, element, zIndex = 300, alpha = 1) => {
       this.texts_[element] = a.mkTextFancy('', [pos[0] * x, pos[1] * y], fs, color, zIndex, alpha)
+      return this.texts_[element]
     }
 
     mkElement([1, 2.2], 0x777733, 'adParnassum')
     this.texts_.adParnassum.text = 'at Lycoreia'
-    mkElement([1, 0.2], 0x333377, 'gradus')
+    const t1 = mkElement([1, 0.2], 0x333377, 'gradus')
+    t1.on('pointerdown', () => {
+      this.increment('namesSize')
+    })
+    this.increment('namesSize')
+    t1.buttonMode = true
+    t1.interactive = true
+    this.texts_.gradus.text = `name: ${wand.sageInfo.name}`
     mkElement([21, 2.2], 0x666600, 'achievement')
     mkElement([21, 0.2], 0x333377, 'tip')
     mkElement([54, 2.2], 0x337777, 'interactionCount')
@@ -682,13 +692,19 @@ class Lycoreia {
     this.texts_.tip.text = 'tip: record music and upload video'
     const net = wand.currentNetwork
     this.texts_.orderSize.text = `members, friendships: ${net.order}, ${net.size}`
-    this.texts_.gradus.text = `name: ${wand.sageInfo.name}`
+    this.texts_.orderSize.on('pointerdown', () => {
+      this.increment('nodesSize')
+    })
+    this.increment('nodesSize')
+    this.texts_.orderSize.buttonMode = true
+    this.texts_.orderSize.interactive = true
 
-    setInterval(() => {
-      const total = Object.values(this.state).reduce((a, v) => a + v.count, 0)
-      // const total = Object.values(this.counter).reduce((a, v) => a + v, 0)
-      this.texts_.interactionCount.text = `interactions: ${total}`
-    }, 500)
+    // setInterval(() => {
+    //   const total = Object.values(this.state).reduce((a, v) => a + v.count, 0)
+    //   // const total = Object.values(this.counter).reduce((a, v) => a + v, 0)
+    //   this.texts_.interactionCount.text = `interactions: ${total}`
+    // }, 500)
+    this.texts_.interactionCount.text = `groups, subgroups: ${net.communities.count}, ${Object.values(net.communityGraphs).reduce((a, g) => { return a + g.communities.count }, 0)}`
 
     mkElement([1, 0.1], 0x333377, 'nodeId', 600, 0)
     mkElement([1, 2.2], 0x777733, 'nodeName', 600, 0)

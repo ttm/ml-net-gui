@@ -52,10 +52,23 @@ class SyncParnassum extends OABase {
       console.log('finished initialization 2')
       this.setInfo2()
     } else { // gradus received through sync:
-      const { usid, unid, syncId } = wand.syncInfo
+      const { syncKey, usid, unid, syncId } = wand.syncInfo
+      // const { usid, unid, syncId, syncKey, msid, mnid } = wand.syncInfo
       const act = () => {
-        if (syncId === null) {
-          console.log(' // member accessing OA is a seed:')
+        // if (syncId === null || ) {
+        if (wand.syncInfo.syncKey) {
+          console.log(' // member accessing OA is a seed (new DB encoded):')
+          return wand.transfer.mong.findAny({ syncKey }).then(res2 => { // fixme: remove
+            console.log('SYNC at gradus:', res2)
+            wand.syncInfo.syncDescription = res2.desc
+            wand.sageInfo = res2.sageInfo
+            wand.syncInfo.syncRemovedNodes = res2.removedNodes
+            wand.syncRes = res2 // has sync, desc, removedNodes, syncKey, sageInfo
+            this.sync = res2.sync
+            return wand.transfer.mong.findUserNetwork(res2.sageInfo.sid, res2.sageInfo.nid)
+          })
+        } else if (syncId === null) {
+          console.log(' // member accessing OA is a seed (old URL encoded):')
           return wand.transfer.mong.findUserNetwork(usid, unid)
         } else {
           console.log(' // member is part of a diffusion started by a seed:')
@@ -505,13 +518,17 @@ class SyncParnassum extends OABase {
       const atext = mkElement([1, 2.2], 0x777733, '4', 3000, 0, gradusSyncLinks(this.syncNames))
       // atext.interactive = true
       atext.on('pointerdown', () => {
-        copyToClipboard(this.syncLinks)
-        copyToClipboard(this.syncLinks)
-        copyToClipboard(this.syncLinks)
-        copyToClipboard(this.syncLinks)
-        window.alert(`links to music pieces and known contacts copied to your clipboard.
-        ~~~ --> Paste on a text editor to read! <-- ~~~`)
-        this.syncLinksCopied = true
+        if (this.syncLinks !== '') {
+          copyToClipboard(this.syncLinks)
+          copyToClipboard(this.syncLinks)
+          copyToClipboard(this.syncLinks)
+          copyToClipboard(this.syncLinks)
+          window.alert(`links to music pieces and known contacts copied to your clipboard.
+          ~~~ --> Paste on a text editor to read! <-- ~~~`)
+          this.syncLinksCopied = true
+        } else {
+          window.open('?page=contribute')
+        }
       })
       atext.buttonMode = true
 
@@ -589,7 +606,10 @@ class SyncParnassum extends OABase {
   }
 
   mkSyncLinks_ () {
-    if (wand.syncInfo.syncId) {
+    if (wand.syncInfo.syncKey) {
+      this.mkSyncLinks2(wand.syncInfo.syncId)
+      return (async function () {})()
+    } else if (wand.syncInfo.syncId) {
       console.log(' // dont make diffusion, already has it')
       this.mkSyncLinks(wand.syncInfo.syncId)
       return (async function () {})()
@@ -604,6 +624,69 @@ class SyncParnassum extends OABase {
         this.mkSyncLinks(syncId)
       })
     }
+  }
+
+  mkSyncLinks2 (syncId) {
+    const getNodeUrl = a => {
+      const { sid, nid } = a
+      return sid ? `https://www.facebook.com/${sid}` : `https://www.facebook.com/profile.php?id=${nid}`
+    }
+    const getNodeMusicUrl = a => {
+      // const mstr = wand.utils.rot(a.sid || a.nid)
+      // const mfield = a.sid ? 'msid' : 'mnid'
+      // return `${window.location.origin}/?page=ankh_&${mfield}=${mstr}&syncId=${syncId}`
+      const r = wand.utils.rot
+      return `${document.location.href.split('?')[0]}?page=ankh_&syncKey=${wand.syncInfo.syncKey}&mnid=${r(a.nid)}&msid=${r(a.sid)}`
+    }
+    // from here on for both cases:
+    const memberTexts = []
+    const names = []
+    let found = false
+    const id = wand.syncInfo.msid || wand.syncInfo.mnid
+    let linkCount = 0
+    let links
+    while (!found && linkCount < this.sync.progressionLinks.length - 1) {
+      links = this.sync.progressionLinks[linkCount++]
+      links.forEach(l => {
+        if (l.from === id) {
+          found = true
+        }
+      })
+    }
+    if (found) {
+      links.forEach(l => {
+        if (l.from === id) {
+          const n = l.to
+          const a = wand.fullNetwork.getNodeAttributes(n)
+          const contact = getNodeUrl(a)
+          const name = a.name
+          const musicUrl = getNodeMusicUrl(a)
+          memberTexts.push(
+            `${name}:
+            -> music: ${musicUrl}
+            -> known contact medium: ${contact}`
+          )
+          names.push(name)
+        }
+      })
+      this.syncLinks = memberTexts.join('\n\n')
+      this.syncNames = wand.utils.inplaceShuffle(names).join(', ')
+    } else {
+      this.syncLinks = ''
+      this.syncNames = ''
+    }
+    // this.sync.progression[1].forEach(n => {
+    //   const a = wand.fullNetwork.getNodeAttributes(n)
+    //   const contact = getNodeUrl(a)
+    //   const name = a.name
+    //   const musicUrl = getNodeMusicUrl(a)
+    //   memberTexts.push(
+    //     `${name}:
+    //     -> music: ${musicUrl}
+    //     -> known contact medium: ${contact}`
+    //   )
+    //   names.push(name)
+    // })
   }
 
   mkSyncLinks (syncId) {

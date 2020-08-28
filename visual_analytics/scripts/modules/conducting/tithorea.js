@@ -1,7 +1,7 @@
 /* global wand */
 const { mkBtn } = require('./gui.js')
 // const { guards, deucalion, lycorus, corycia } = require('./sayings.js')
-const { guards, tithoreaNew, tithoreaNew2, uploadVideoText, uploadVideoPlaceholder, defaultSyncDescription, defaultSyncDescription2, defaultSyncDescription3, defaultSyncDescription4, defaultSyncDescription5, defaultSyncDescription6, defaultSyncDescription7 } = require('./instructions.js')
+const { guards, tithoreaNew, tithoreaNew2, uploadVideoText, uploadVideoPlaceholder, defaultSyncDescription, defaultSyncDescription2, defaultSyncDescription3, defaultSyncDescription4, defaultSyncDescription5, defaultSyncDescription6, defaultSyncDescription7, defaultSyncDescription8 } = require('./instructions.js')
 const { Tone } = require('../maestro/all.js').base
 const Graph = require('graphology')
 const louvain = require('graphology-communities-louvain')
@@ -357,10 +357,11 @@ class Tithorea {
             const key = Math.random().toString(36).substring(7)
 
             // const url = a.urlStr + this.removedNodesUrl + this.descUrl())
-            const url = `${document.location.href.split('?')[0]}?page=ankh_&musicKey=${key}`
+            const r = wand.utils.rot
+            const url = `${document.location.href.split('?')[0]}?page=ankh_&syncKey=${key}&mnid=${r(a.nid)}&msid=${r(a.sid)}`
             this.saveSync(key).then(_ => {
               wand.utils.copyToClipboard(url)
-              wand.transfer.mong.findAny({ syncKey: key }).then(res2 => {
+              wand.transfer.mong.findAny({ syncKey: key }).then(res2 => { // fixme: remove
                 console.log('SYNC DATA READ BACK:', res2)
               })
             })
@@ -752,7 +753,7 @@ class Tithorea {
     const a = wand.artist.use
     this.rect = a.mkRectangle({
       // wh: [a.width, a.height], zIndex: 1, color: 0xffaaaa, alpha: 0
-      wh: [a.width, a.height], zIndex: 1, color: 0x9c9c9c, alpha: 0
+      wh: [a.width, a.height], zIndex: 1, color: 0x3c3c3c, alpha: 0
     })
     const f = this.settings.fontSize
     const p = f / 2
@@ -769,7 +770,7 @@ class Tithorea {
       // mkElement([1, 2.2], 0x777733, 'deucalion', 3000, 0, deucalion)
       // mkElement([1, 5.2], 0x337733, 'lycorus', 3000, 0, lycorus())
       // mkElement([1, 5.2], 0x337733, 'corycia', 3000, 0, corycia())
-      mkElement([1, 2.2], 0x777733, 'tit1', 3000, 0, tithoreaNew).on('pointerdown', () => {
+      mkElement([1, 2.2], 0xffffaa, 'tit1', 3000, 0, tithoreaNew).on('pointerdown', () => {
         let vurl = window.prompt(uploadVideoText, uploadVideoPlaceholder)
         if (vurl === null) return
         vurl = vurl.trim()
@@ -777,7 +778,7 @@ class Tithorea {
           this.writeVideoUrl(vurl, 'tithorea')
         }
       }).buttonMode = true
-      mkElement([1, 2.2], 0x777733, 'tit2', 3000, 0, tithoreaNew2)
+      mkElement([1, 2.2], 0xffffaa, 'tit2', 3000, 0, tithoreaNew2)
       const fun = () => {
         count++
         const tlength = Object.keys(texts).length + 1
@@ -793,7 +794,7 @@ class Tithorea {
         }
         // console.log(show, count, i, tlength, count % tlength)
       }
-      mkBtn('fa-info', 'info', 'infos / dialogs', fun)
+      mkBtn('fa-info', 'info', 'infos / dialogs', fun).click()
     } else {
       console.log('not sage info')
       mkElement([1, 2.2], 0x777733, 'guards', 3000, 0, guards)
@@ -962,7 +963,8 @@ class Tithorea {
       defaultSyncDescription4(),
       defaultSyncDescription5(),
       defaultSyncDescription6(),
-      defaultSyncDescription7()
+      defaultSyncDescription7(),
+      defaultSyncDescription8()
     ]
     let counter = 0
     $('<button/>').html('template change').on('click', () => {

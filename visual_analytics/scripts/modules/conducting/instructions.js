@@ -192,6 +192,22 @@ Cheers!
 See more: https://en.wikipedia.org/wiki/Free_Hugs_Campaign
 `
 
+const defaultSyncDescription8 = () => `
+Hi, hope you like what is ahead and using Our Aquarium,
+and that you find good usage to it in the regency of your social body.
+
+We would like to continue developing OA, enabling you to better and further
+musify, make audiovidiovisual artifacts, analyze and synchronize yourself
+through your social networks, body, or self.
+
+Please contribute so that we can continue to provide you and everyone
+the OA software and working online instances.
+
+Click on the "Contribute to Our Aquarium" in this screen.
+
+:::
+`
+
 const syncDescription = () => (wand.syncInfo.syncDescription || defaultSyncDescription())
 
 // after the exhibition with the music from the person:
@@ -206,20 +222,36 @@ Follow the instructions given in the "tip" field at each level (gradus).
 (press the [i] button above)
 `
 
-const gradusSyncLinks = syncNames => `
-Congratulations, ${visitorName()}, you have reached the links which you should
-send forward to perform this synchronization.
+const gradusSyncLinks = syncNames => {
+  let t = `
+  Send to these friends through any communication protocol
+  (telephone, email, whatsapp, telegram, facebook, twitter, instagram, irc, matrix, ...).
+  Maybe take the chance to say hello and talk about life, work, or whatnot:
 
-Send to these friends through any communication protocol
-(telephone, email, whatsapp, telegram, facebook, twitter, instagram, irc, matrix, ...).
-Maybe take the chance to say hello and talk about life, work, or whatnot:
+  ${syncNames}.
 
-${syncNames}.
+  Click on their names to copy URLs to their music and to a known contact medium.
+  `
+  if (syncNames === '') {
+    t = `
+    You are a leaf, that is, the last person in your synchronization branch.
+    Thus no further music links are to be sent.
+    You may wish to notify who sent you the link, or ${wand.syncInfo.syncMemberName}.
+    Keep using OA in order to make art and your own synchronizations or to better know your social networks.
 
-Click on their names to copy URLs to their music and to a known contact medium.
+    Click here to get in touch. You have special credentials because you are a leaf member.
+    `
+  }
 
-(press the [i] button above)
-`
+  return `
+  Congratulations, ${visitorName()}, you have reached the links which you should
+  send forward to perform this synchronization.
+
+  ${t}
+
+  (press the [i] button above)
+  `
+}
 // Your music ${this.sync.infoTo[0].name}:
 // http://
 //
@@ -464,4 +496,4 @@ const toSeedText = seedName => `
 Hi, ${seedName}, your music, a music about you, is conceived and called: ${wand.musicName || musicName(seedName)}.
 `
 
-module.exports = { tithorea1, lycoreia1, gradus1, gradus2, gradus3, gradusRec, gradusSyncLinks, gradusVideoLink, gradusExtensionInfo, uploadVideoText, uploadVideoPlaceholder, lycoreiaNew, arcturians1, arcturians2, guards, tithoreaNew2, tithoreaNew, defaultSyncDescription, defaultSyncDescription2, defaultSyncDescription3, defaultSyncDescription4, defaultSyncDescription5, defaultSyncDescription6, defaultSyncDescription7, toSeedText }
+module.exports = { tithorea1, lycoreia1, gradus1, gradus2, gradus3, gradusRec, gradusSyncLinks, gradusVideoLink, gradusExtensionInfo, uploadVideoText, uploadVideoPlaceholder, lycoreiaNew, arcturians1, arcturians2, guards, tithoreaNew2, tithoreaNew, defaultSyncDescription, defaultSyncDescription2, defaultSyncDescription3, defaultSyncDescription4, defaultSyncDescription5, defaultSyncDescription6, defaultSyncDescription7, toSeedText, defaultSyncDescription8 }

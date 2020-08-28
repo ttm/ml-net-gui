@@ -371,7 +371,7 @@ Click on the buttons to see them, use the music button to cycle through them.
 
 Create the audiovisual environment, a music, record and upload the video.
 
-Click HERE to register your video URL.
+Click here to register your video URL after you record it.
 
 :::
 

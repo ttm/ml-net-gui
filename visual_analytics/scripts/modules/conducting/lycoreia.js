@@ -326,7 +326,7 @@ class Lycoreia {
         console.log(i, show, count, tlength, 'YEAH CLICK INFO')
         for (const t in this.texts) {
           this.texts[t].alpha = Number(count % tlength === (i + 1))
-          this.texts[t].interactive = false
+          this.texts[t].interactive = Boolean(count % tlength === (i + 1))
           i++
         }
       }

@@ -484,11 +484,11 @@ if you cannot identify yourself."
 const randomWords = () => {
   return [
     wand.utils.chooseUnique(
-      ['Mercury', 'Venus', 'Earth', 'Mars', 'Jupiter', 'Sun', 'Moon', 'Pachypoda', 'Clandonensis', 'Elegantissima'],
+      ['Mercury', 'Venus', 'Earth', 'Mars', 'Jupiter', 'Moon', 'Pachypoda', 'Clandonensis', 'Elegantissima'],
       1
     )[0],
     wand.utils.chooseUnique(
-      ['Beautiful', 'Luminescent', 'Great', 'Transcendent'],
+      ['Beautiful', 'Luminescent', 'Great', 'Transcendent', 'Solar', 'Plexus'],
       1
     )[0]
   ]

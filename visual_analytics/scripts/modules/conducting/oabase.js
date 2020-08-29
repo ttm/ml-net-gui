@@ -147,7 +147,7 @@ class OABase {
                 self.rec.filename = wand.syncInfo.pageMemberName + ' @ ' + wand.syncInfo.syncMemberName + ' audiovisual music #oa #ourAquarium #oAquario '
               } else {
                 const udata = wand.fullNetwork.getAttribute('userData')
-                self.rec.filename = `${udata.name} (${udata.sid || udata.nid}), audiovisual and social music #oa #ourAquarium #oAquario `
+                self.rec.filename = `${udata.name} @ Gradus, audiovisual and social music #oa #ourAquarium #oAquario `
               }
               self.rec.filename += (new Date()).toISOString().split('.')[0]
               wand.currentNetwork.syncProgression.seq.stop()

@@ -208,6 +208,7 @@ class Tithorea {
           bind: function () {
             const $ = wand.$
             this.rec = wand.transfer.rec.rec()
+            this.rec.filename = wand.sageInfo.name + ' @ Tithorea audiovisual music #oa #ourAquarium #oAquario ' + (new Date()).toISOString().split('.')[0]
             $('<i/>', { class: 'fa fa-play', id: 'player-icon' }).appendTo(
               $('<button/>', {
                 class: 'btn',
@@ -743,10 +744,11 @@ class Tithorea {
   }
 
   setRecorder () {
-    const rec = wand.transfer.rec.rec()
     let count = 0
     mkBtn('fa-record-vinyl', 'record', 'record performance', () => {
+      let rec
       if (count % 2 === 0) {
+        rec = wand.transfer.rec.rec()
         rec.astart()
         wand.$('#record-button').css('background-color', '#ff0000')
       } else {

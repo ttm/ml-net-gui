@@ -592,6 +592,7 @@ class Lycoreia {
   setRecorder () {
     const rec = wand.transfer.rec.rec()
     let count = 0
+    rec.filename = wand.sageInfo.name + ' @ Lycoreia audiovisual music #oa #ourAquarium #oAquario ' + (new Date()).toISOString().split('.')[0]
     mkBtn('fa-record-vinyl', 'record', 'record performance', () => {
       if (count % 2 === 0) {
         rec.astart()

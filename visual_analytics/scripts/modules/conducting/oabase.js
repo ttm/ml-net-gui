@@ -349,6 +349,9 @@ class OABase {
     this.mkConditions()
     this.setGradus()
     this.startConditionVerifier()
+    // this.memberMusicSeqs.forEach(m => {
+    // })
+    wand.magic.syncParnassum.nets.forEach(n => wand.magic.syncParnassum.hideNetwork(n))
     // const step = this.gradus[this.currentLevel]
     // this.currentCondition = this.conditions[step.condition].condition
     // this.features[step.feature].alg()
@@ -460,7 +463,7 @@ class OABase {
             }
             setTimeout(() => {
               this.state.player.playerAlgs.playSync()
-              if (wand.currentNetwork.syncProgression) {
+              if (wand.currentNetwork.syncProgression && this.rec) {
                 this.state.player.playerAlgs.silenceAll()
               }
               this.state.player.count = 2
@@ -1211,13 +1214,14 @@ class OABase {
     delete wand.currentNetwork
   }
 
-  hideNetwork () {
-    wand.currentNetwork.forEachNode((n, a) => {
+  hideNetwork (net) {
+    net = net || wand.currentNetwork
+    net.forEachNode((n, a) => {
       // a.pixiElement.alpha = a.textElement.alpha = 0
       a.pixiElement.visible = a.textElement.visible = false
       a.pixiElement.interactive = false
     })
-    wand.currentNetwork.forEachEdge((n, a) => {
+    net.forEachEdge((n, a) => {
       a.pixiElement.alpha = 0
       a.interactive = false
     })

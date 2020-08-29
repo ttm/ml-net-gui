@@ -108,6 +108,7 @@ class SyncParnassum extends OABase {
         this.makeMemberNetworks()
         this.memberMusicSeqs = [this.makeMemberMusic(0, 0)]
         for (let i = 1; i < this.plots.length; i++) {
+          // send var for plots length or catch value in seq iteration:
           this.memberMusicSeqs.push(this.makeMemberMusic(i, this.memberMusicSeqs[i - 1].dur))
         }
         console.log('finished initialization')
@@ -158,10 +159,10 @@ class SyncParnassum extends OABase {
         d(() => {
           net.getNodeAttribute(n, 'pixiElement').alpha = 0.7
           net.getNodeAttribute(n, 'textElement').alpha = 0.7
-          d(() => {
-            net.getNodeAttribute(n, 'textElement').alpha = 0
-          }, time + i * 2 / step.length + seq.interval / 4)
         }, time + i * 2 / step.length)
+        d(() => {
+          net.getNodeAttribute(n, 'textElement').alpha = 0
+        }, time + i * 2 / step.length + seq.interval / 4)
         allNodes.push(n)
       })
       const t = seq.interval / 4
@@ -178,48 +179,52 @@ class SyncParnassum extends OABase {
       d(() => {
         net.getNodeAttribute(id, 'pixiElement').alpha = 0.7
         net.getNodeAttribute(id, 'textElement').alpha = 0.7
-        d(() => {
-          net.getNodeAttribute(id, 'pixiElement').alpha = 0
-          net.getNodeAttribute(id, 'textElement').alpha = 0
-        }, time + t * 1.9)
       }, time)
       d(() => {
-        net.getNodeAttribute(id, 'pixiElement').alpha = 0.7
-        net.getNodeAttribute(id, 'textElement').alpha = 0.7
-        d(() => {
-          net.getNodeAttribute(id, 'pixiElement').alpha = 0
-          net.getNodeAttribute(id, 'textElement').alpha = 0
-        }, time + t * 2.9)
-      }, time + t * 2)
+        net.forEachEdge((e, a, n1, n2) => {
+          if (allNodes.includes(n1) && allNodes.includes(n2)) {
+            a.pixiElement.alpha = 0.4
+          }
+        })
+      }, time)
+      d(() => {
+        net.getNodeAttribute(id, 'pixiElement').alpha = 0
+        net.getNodeAttribute(id, 'textElement').alpha = 0
+      }, time + t * 1.9)
       d(() => {
         net.getNodeAttribute(id, 'pixiElement').alpha = 0.7
         net.getNodeAttribute(id, 'textElement').alpha = 0.7
-        d(() => {
-          net.getNodeAttribute(id, 'pixiElement').alpha = 0
-          net.getNodeAttribute(id, 'textElement').alpha = 0
-        }, time + t * 3.9)
+      }, time + t * 2)
+      d(() => {
+        net.getNodeAttribute(id, 'pixiElement').alpha = 0
+        net.getNodeAttribute(id, 'textElement').alpha = 0
+      }, time + t * 2.9)
+      d(() => {
+        net.getNodeAttribute(id, 'pixiElement').alpha = 0.7
+        net.getNodeAttribute(id, 'textElement').alpha = 0.7
       }, time + t * 3)
-      net.forEachEdge((e, a, n1, n2) => {
-        if (allNodes.includes(n1) && allNodes.includes(n2)) {
-          a.pixiElement.alpha = 0.4
-        }
-      })
+      d(() => {
+        net.getNodeAttribute(id, 'pixiElement').alpha = 0
+        net.getNodeAttribute(id, 'textElement').alpha = 0
+      }, time + t * 3.9)
       stepCounter++
       console.log(stepCounter, sync.progression.length)
       if (stepCounter === sync.progression.length - 1) {
+        seq.stop()
         d(() => {
+          seq.tfinished = true
           membSynth.dispose()
           membSynth2.dispose()
-          seq.stop()
           seq.dispose()
-          net.forEachNode((n, a) => {
-            a.pixiElement.visible = false
-            a.pixiElement.interactive = false
-            a.textElement.visible = false
-          })
-          net.forEachEdge((e, a) => {
-            a.pixiElement.visible = false
-          })
+          this.hideNetwork(net)
+          // net.forEachNode((n, a) => {
+          //   a.pixiElement.visible = false
+          //   a.pixiElement.interactive = false
+          //   a.textElement.visible = false
+          // })
+          // net.forEachEdge((e, a) => {
+          //   a.pixiElement.visible = false
+          // })
         }, time + seq.interval)
       }
     }, sync.progression)
@@ -584,13 +589,23 @@ class SyncParnassum extends OABase {
             wand.$('#info-button').hide()
             wand.$('#play-button').click() // start play and record
             const seq = this.memberMusicSeqs[this.memberMusicSeqs.length - 1]
-            d(() => {
-              alert(gradusRec())
-              wand.$('#info-button').show()
-              wand.$('#play-button').click() // stop play and record
-              showMsg(2)
-              this.start()
-            }, seq.dur + seq.seq.interval)
+            // d(() => { // periodically check condition given by last
+            //   alert(gradusRec())
+            //   wand.$('#info-button').show()
+            //   wand.$('#play-button').click() // stop play and record
+            //   showMsg(2)
+            //   this.start()
+            // }, seq.dur + seq.seq.interval)
+            const inter = setInterval(() => {
+              if (seq.seq.tfinished) {
+                clearInterval(inter)
+                alert(gradusRec())
+                wand.$('#info-button').show()
+                wand.$('#play-button').click() // stop play and record
+                showMsg(2)
+                this.start()
+              }
+            }, 500)
             console.log('MUSIC DURATION:', (seq.dur + seq.seq.interval * 0.3))
           }
           this.rectInfo.alpha = 0

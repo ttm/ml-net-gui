@@ -30,7 +30,9 @@ function saveText (filename, text) {
 const scrapeUserFriends = (userData, msg) => {
   let elements = getElementsByXPath('//*/li/div[1]/div[1]/div[2]/div[1]/div[2]') // classic
   if (elements.length === 0) { // try new:
-    elements = getElementsByXPath('//*/div[4]/div[1]/div[1]/div[1]/div[1]/div[1]/div[3]/div/div[2]') // new
+    // elements = getElementsByXPath('//*/div[4]/div[1]/div[1]/div[1]/div[1]/div[1]/div[3]/div/div[2]') // new
+    // elements = getElementsByXPath('//*/div[3]/div[1]/div[1]/div[1]/div[1]/div[1]/div[3]/div/div[2]') // new
+    elements = getElementsByXPath('//*/div[1]/div[1]/div[1]/div[1]/div[1]/div[3]/div/div[2]') // new
   } else {
     if (getElementsByXPath('//*/li/div[1]/div[1]/div[1]/div[2]/div[1]/div[1]/a').length === 0) {
       // not mutual friends page:
@@ -210,7 +212,8 @@ const scrollTillEnd = (newfb, call = () => console.log('scrolling complete')) =>
     // only start if no other nid available in the network
     // fixme: use browser mutual friends page, at least for string ids at the end
     if (newfb) {
-      criterion = () => getElementsByXPath('//*/div[4]/div[1]/div[1]/div[1]/div[1]/div[1]/div[3]/div/div[@role]').length === 0
+      // criterion = () => getElementsByXPath('//*/div[4]/div[1]/div[1]/div[1]/div[1]/div[1]/div[3]/div/div[@role]').length === 0
+      criterion = () => getElementsByXPath('//*/div[1]/div[1]/div[1]/div[1]/div[1]/div[3]/div/div[@role="progressbar"]').length === 0
     } else {
       const e = document.getElementById('pagelet_timeline_medley_friends') // this is for classic fb:
       if (e === null) {

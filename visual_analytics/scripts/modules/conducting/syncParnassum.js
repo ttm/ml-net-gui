@@ -31,7 +31,7 @@ class SyncParnassum extends OABase {
     this.settings.timeStreach = 0.001 // fixme: remove, make flag...
     if (window.oaReceivedMsg) { // gradus for the user network, from extension:
       this.settings.timeStreach = 0.001
-      this.settings.currentLevel = 13
+      this.settings.currentLevel = 14
       wand.maestro.synths.speaker.volume = -1 // 1 or 0 is 1, [0, 1] is ok range
       this.allNetworks = [window.oaReceivedMsg.data.graph]
       const g = Graph.from(window.oaReceivedMsg.data.graph)

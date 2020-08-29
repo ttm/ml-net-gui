@@ -553,6 +553,12 @@ class OABase {
           this.showMsg(5)
         }
       },
+      socialSelf: {
+        achievement: 'audiovisualize self',
+        alg: () => { // dummy
+          wand.$('#info-button').click()
+        }
+      },
       syncMusic: {
         achievement: 'mute button',
         alg: () => {
@@ -734,6 +740,12 @@ class OABase {
             console.log('all activated or accessed, gradus achieved')
             this.conditionMet = true
           }
+        }
+      },
+      recUse: {
+        tip: 'rec vid use ext joe',
+        condition: () => {
+          this.conditionMet = true
         }
       },
       activate3Access2: {
@@ -1008,7 +1020,8 @@ class OABase {
       { feature: 'syncLinks', condition: 'copyInfoPages' }, // copy the text to send. Show instructions
       // interact some
       { feature: 'almostExtensionInfo', condition: 'interactMore2' },
-      { feature: 'extensionInfo', condition: 'loginWithExtension' } // gradus reached
+      { feature: 'extensionInfo', condition: 'loginWithExtension' },
+      { feature: 'socialSelf', condition: 'recUse' } // gradus reached
       // when logged in with extension, if more than 100 friends scrapped, make Lycoreia available TTM
       //
       // { feature: 'syncMusic', condition: 'recordSyncMusic' }, // discarded
@@ -1031,12 +1044,13 @@ class OABase {
         if (!this.setNextLevel()) {
           clearInterval(id)
         }
-      } else if (window.oaReceivedMsg) {
-        if (this.currentLevel === 13 && !this.cleanInfoLock) {
-          wand.$('#info-button').click()
-          this.cleanInfoLock = true
-        }
       }
+      // else if (window.oaReceivedMsg) {
+      //   if (this.currentLevel === 14 && !this.cleanInfoLock) {
+      //     wand.$('#info-button').click()
+      //     this.cleanInfoLock = true
+      //   }
+      // }
     }, 300)
   }
 
@@ -1079,6 +1093,8 @@ class OABase {
       console.log('(((( ended, no more set new levels )))')
       console.log('parnassum reached, ending gradus loop. Gradus, ad parnassum:', this.currentLevel, this.gradus.length)
       console.log('Get in contact with renato </./> fabbri (O AT O) gmail [UU DOT UU] com to further unlock Gradus ad Parnassum.')
+      this.texts.tip.text = 'tip: make videos & synchronize'
+      this.texts.achievement.text = 'achieved: own networks, social self, extension'
       return true
     }
     return false

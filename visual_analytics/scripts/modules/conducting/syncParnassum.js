@@ -2,7 +2,7 @@
 
 const { OABase } = require('./oabase')
 const { mkBtn } = require('./gui.js')
-const { gradus1, gradus2, gradusRec, gradusSyncLinks, gradusVideoLink, gradusExtensionInfo, uploadVideoText, uploadVideoPlaceholder, arcturians1, arcturians2 } = require('./instructions.js')
+const { gradus1, gradus2, gradusRec, gradusSyncLinks, gradusVideoLink, gradusExtensionInfo, uploadVideoText, uploadVideoPlaceholder, arcturians1, arcturians2, gradus1Login } = require('./instructions.js')
 const { Tone } = require('../maestro/all.js').base
 const { copyToClipboard } = require('./utils.js')
 
@@ -394,7 +394,7 @@ class SyncParnassum extends OABase {
       texts[element] = a.mkTextFancy(text, [pos[0] * x, pos[1] * y], fs, color, zIndex, alpha)
       return texts[element]
     }
-    const ltext0 = mkElement([1, 2.2], 0x777733, '1', 3000, 0, gradus1())
+    const ltext0 = mkElement([1, 2.2], 0x777733, '1', 3000, 0, gradus1Login())
     ltext0.on('pointerdown', () => {
       window.open('?page=guidelines')
     })

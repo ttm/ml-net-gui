@@ -23,7 +23,7 @@ function saveText (filename, text) {
     a.setAttribute('href', 'data:text/json;charset=utf-8,' + encodeURIComponent(text))
     a.setAttribute('download', filename)
     a.click()
-    alert('Wait ~1h to cast spell again. Go to Ankh page and Login to see your network. E-mail the downloaded file to: ' + emailAddress)
+    alert('you can now visit Gradus, Lycoreia, and Tithorea with your network using the extension. E-mail the downloaded file to: ' + emailAddress)
   }
 }
 
@@ -195,7 +195,7 @@ const getElementsByXPath = (xpath, parent) => {
 
 const scrollDelayInMilliSeconds = 300
 const scrollMagnitude = 1000
-const emailAddress = 'renato.fabbri@gmail.com'
+const emailAddress = 'sync.aquarium@gmail.com'
 
 const scrollTillEnd = (newfb, call = () => console.log('scrolling complete')) => {
   console.log('NEW?:', newfb)

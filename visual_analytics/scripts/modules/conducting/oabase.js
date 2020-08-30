@@ -1097,7 +1097,7 @@ class OABase {
       console.log('parnassum reached, ending gradus loop. Gradus, ad parnassum:', this.currentLevel, this.gradus.length)
       console.log('Get in contact with renato </./> fabbri (O AT O) gmail [UU DOT UU] com to further unlock Gradus ad Parnassum.')
       this.texts.tip.text = 'tip: make videos & synchronize'
-      this.texts.achievement.text = 'achieved: own networks, social self, extension'
+      this.texts.achievement.text = 'achieved: social self, extension, vital info [i]'
       return true
     }
     return false

@@ -16,6 +16,20 @@ const visitorName = () => {
 }
 
 // Hear your music, ${visitorName()},
+const gradus1Login = () => `
+Yes! You have reached the Mount Parnassum!
+
+In this page, you can use all the features you unlocked while finishing the "Gradus ad Parnassum",
+but in your friendship network, the one yield by the friends and friendships which are available for you to see.
+
+You should use and make audiovisual art with this page, Lycoreia, and Tithorea, the three pages available
+through the "You" browser extension.
+
+When you click on the Login button on the You extension, you visit more friends to check for mutual friendships.
+
+:::
+`
+
 const gradus1 = () => `
 Welcome to the Gradus.
 
@@ -210,6 +224,15 @@ Click on the "Contribute to Our Aquarium" in this screen.
 :::
 `
 
+const defaultSyncDescription9 = () => `
+Audiovisualize your social body, network, self, is a way to acquire self-knowledge.
+And to achieve harmony among your social tissue.
+
+Good luck in knowing thyself.
+
+:::
+`
+
 const syncDescription = () => (wand.syncInfo.syncDescription || defaultSyncDescription())
 
 // after the exhibition with the music from the person:
@@ -332,11 +355,13 @@ Welcome to Tithorea.
 
 You can understand your interaction with your networks
 as exploration:
-  . with analyzis; or with
-  . midia generation / absorption,
+
+  -> with analyzis; or with
+  -> midia generation / absorption,
+
 or as synergy:
-  . by diffusion; or by
-  . syncronization.
+  -> by diffusion; or by
+  -> syncronization.
 
 Synchronization meaning a process in which you have
 an expected (or idealized) result, such as maturing a concept or framework,
@@ -349,11 +374,11 @@ A synchronization often involves an information crowdsourcing, for example
 to mature an idea, to find partners or sponsors, to understand how a proposal is accepted.
 
 The diffusion of goods may be essentially a diffusion (e.g. selling a product),
-although it most often is a synchronization (e.g. a community of buyers).
+although it most often is a synchronization (e.g. when envisioned a community of buyers, art, or research).
 
-In this page, you design a network synchronization.
-After three musical pieces input, you will be able to perform one and only network synchronization.
-This is your utmost goal at this stage.
+Hope you synchronize yourself with Our Aquarium audiovisual music,
+it is available as a social and individual panaceia.
+
 `
 
 const uploadVideoText = 'Upload the file you downloaded and enter video URL here:'
@@ -361,7 +386,7 @@ const uploadVideoText = 'Upload the file you downloaded and enter video URL here
 const uploadVideoPlaceholder = 'something as https://www.youtube... (start with https:// or http://)'
 
 const lycoreiaNew = `
-You performed Gradus ad Parnassum, i.e. climbed Mount Parnassus.
+You completed the Gradus ad Parnassum, i.e. climbed Mount Parnassus.
 
 You can now visit Lycoreia, which is one of the two summits therein.
 
@@ -379,18 +404,18 @@ Click here to register your video URL after you record it.
 `
 
 const tithoreaNew = `
-You performed Gradus ad Parnassum, i.e. climbed Mount Parnassus.
+You completed the Gradus ad Parnassum, i.e. climbed Mount Parnassus.
 
 You can now visit Tithorea, which is one of the two summits therein.
 
-In Tithorea, you can design synchronization processes.
+In Tithorea, you can design and perform synchronization processes.
 
-You may remove members, usually because they are duplicates of yourself, some other profile.
-You may describe the synchronization, i.e. it's purpose, what it is meant to be realized with the synchronization.
+You may remove members, usually because they are duplicates of yourself.
+You may describe the synchronization, i.e. it's purpose, what is to be realized with the synchronization.
 
-Click on a member (▲) which wish to activate as seed, e.g. to start a synchronization.
+Click on a member (▲) which you wish to activate as seed, e.g. to start a synchronization thread.
 If you click again on s/he, you will reach the music page for that seed, which you should
-send to him/her to realize the synchronization.
+send to him/her to accomplish the synchronization.
 
 You should also create the audiovisual environment, a music, record and upload the video.
 
@@ -402,15 +427,24 @@ Click HERE to register your video URL.
 `
 
 const tithoreaNew2 = `
-On the synchronization that you have concession to perform,
-the seed (▲) transmits the synchronization to the 4 least
+In the synchronization that you have concession to perform,
+the seed (▲) propagates the synchronization to the 4 least
 connected neighbors.
+These neighbors then propagates to their 4 least connected neighbors, and so on.
 
 The synchronization implied the the seed (▲) tends to cover the whole network.
 You should select at least a few seeds (▲) for an effective synchronization.
-Don't forget to choose the description for your synchronization by clicking on the dedicated button.
 
-Perform synchronizations to unlock further features.
+Don't forget to choose or write the synchronization description by clicking on the description button.
+It is where you define what your social body will mature, embrace, or make happen.
+
+Perform synchronizations and input recorded videos to unlock further features.
+Further pages for analysis, synchronization, art, await your progress.
+In fact, you will soon gain access to other components of Our Aquarium,
+such as for meditation and for representing cognitive structures.
+
+These provide a framework to heal, harmonize, and synchronize your
+individual and social bodies.
 
 :::
 
@@ -418,12 +452,17 @@ Perform synchronizations to unlock further features.
 `
 
 const arcturians1 = () => `
-You can interact with your networks by exploration:
-  . with analyzis; or with
-  . midia generation / absorption,
-or by synergy:
-  . by diffusion; or by
-  . syncronization.
+Welcome to Tithorea.
+
+You can understand your interaction with your networks
+as exploration:
+
+  -> with analyzis; or with
+  -> midia generation / absorption,
+
+or as synergy:
+  -> by diffusion; or by
+  -> syncronization.
 
 Synchronization meaning a process in which you have
 an expected (or idealized) result, such as maturing a concept or framework,
@@ -436,9 +475,9 @@ A synchronization often involves an information crowdsourcing, for example
 to mature an idea, to find partners or sponsors, to understand how a proposal is accepted.
 
 The diffusion of goods may be essentially a diffusion (e.g. selling a product),
-although it most often is a synchronization (e.g. a community of buyers, art, or research).
+although it most often is a synchronization (e.g. when envisioned a community of buyers, art, event, or research).
 
-Hope you synchronize yourself with Our Aquarium audiovisual music.
+Hope you synchronize yourself with Our Aquarium audiovisual music, it is available as a social and individual panaceia.
 
 :::
 
@@ -505,4 +544,7 @@ const toSeedText = seedName => `
 ${seedName}, you will now listen a music about you, called: ${wand.musicName || musicName(seedName)}.
 `
 
-module.exports = { tithorea1, lycoreia1, gradus1, gradus2, gradus3, gradusRec, gradusSyncLinks, gradusVideoLink, gradusExtensionInfo, uploadVideoText, uploadVideoPlaceholder, lycoreiaNew, arcturians1, arcturians2, guards, tithoreaNew2, tithoreaNew, defaultSyncDescription, defaultSyncDescription2, defaultSyncDescription3, defaultSyncDescription4, defaultSyncDescription5, defaultSyncDescription6, defaultSyncDescription7, toSeedText, defaultSyncDescription8 }
+// OA is writen in the WYSINB (what you see is not beautiful) style.
+// It is meant to be very functional and simple and development friendly.
+
+module.exports = { tithorea1, lycoreia1, gradus1, gradus2, gradus3, gradusRec, gradusSyncLinks, gradusVideoLink, gradusExtensionInfo, uploadVideoText, uploadVideoPlaceholder, lycoreiaNew, arcturians1, arcturians2, guards, tithoreaNew2, tithoreaNew, defaultSyncDescription, defaultSyncDescription2, defaultSyncDescription3, defaultSyncDescription4, defaultSyncDescription5, defaultSyncDescription6, defaultSyncDescription7, toSeedText, defaultSyncDescription8, gradus1Login, defaultSyncDescription9 }

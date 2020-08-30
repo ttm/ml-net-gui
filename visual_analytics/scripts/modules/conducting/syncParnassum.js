@@ -429,6 +429,7 @@ class SyncParnassum extends OABase {
     anphy.on('pointerdown', () => {
       window.open('https://doi.org/10.5281/zenodo.438960', '_blank')
     })
+    anphy.buttonMode = true
     wand.theNetwork = wand.visitedNetwork
     const showMsg = i => {
       console.log(i, this.rectInfo, texts, texts[i], 'THE SHOW GUY')

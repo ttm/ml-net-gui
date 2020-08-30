@@ -13,7 +13,8 @@ const subGraph = require('graphology-utils/subgraph')
 class Tithorea {
   // andromedan and dedicated to synchronization
   constructor (settings = {}) {
-    document.title = 'Tithorea (Our Aquarium)'
+    document.title = 'Tithorea, Our Aquarium'
+    wand.$('#favicon').attr('href', 'faviconTithorea.ico')
     const $ = wand.$
     const self = this
     const defaultSettings = {

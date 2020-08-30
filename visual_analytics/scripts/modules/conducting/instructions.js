@@ -20,12 +20,14 @@ const gradus1Login = () => `
 Yes! You have reached the Mount Parnassum!
 
 In this page, you can use all the features you unlocked while finishing the "Gradus ad Parnassum",
-but in your friendship network, the one yield by the friends and friendships which are available for you to see.
+now in your friendship network, the one yield by the friends and friendships which are available for you to see.
 
 You should use and make audiovisual art with this page, Lycoreia, and Tithorea, the three pages available
 through the "You" browser extension.
 
 When you click on the Login button on the You extension, you visit more friends to check for mutual friendships.
+
+Click on this text to open the see the usage guidelines if you need them.
 
 :::
 `
@@ -488,11 +490,11 @@ Hope you synchronize yourself with Our Aquarium audiovisual music, it is availab
 //
 
 const arcturians2 = () => `
-You can see, play and govern your social structures because they are yourself.
+You can see, play, interact and govern your social structures because they are yourself.
 In fact writing diaries is an ethnographic technique, and the diary may be used
 as the anthropologist finds suitable.
 
-Our Aquarium aims at complying to the self transparency, civil society transparency, free culture, software, midia, data.
+Our Aquarium complies to free culture, software, midia, data, and transparency (self, civil society) guidelines.
 
 Click HERE to know more.
 

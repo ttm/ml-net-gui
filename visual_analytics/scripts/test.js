@@ -1306,13 +1306,14 @@ const testGuidelines = () => {
     `You start at "Gradus ad Parnassum", where you unlock most basic functionality step-by-step,
     and make audiovisual music with your social self.
     `,
-    `This page finishes when you reach Mount Parnassus, and receive "You", a browser extension
-    to that you can visualize your networks more throughly.
+    `Such page finishes when you reach Mount Parnassus, and receive "You", a browser extension
+    so that you can visualize your networks more throughly.
     `,
     `The You extension also enables access to other pages, locations in the Parnassus: Lycoreia and Tithorea.
     `,
-    `With them, you can inspect communities and subcommunities, perform synchronizations in your own network,
-    and make audiovisual music`,
+    `With them, you can inspect communities and subcommunities, perform synchronizations in your own networks,
+    and make audiovisual music. Further audiovisual instruments for social and self synchronization, analysis and
+    annotation are unraveled with your usage.`,
     `Read the texts that are presented to you carefully.
     OA is easy to use if you have consideration for the information provided to you.
     `,
@@ -1346,7 +1347,7 @@ const testContribute = () => {
 
     Please contribute to the <b>Our Aquarium platform</b> (OA) with texts, ideas, opinions,
     any other feedback. Partnerships and donations are also encouraged.
-    Maybe you know someone or an institution which would be interested in
+    You might know someone or an institution which would be interested in
     developing, maintaining, using or sponsoring this software or social undertake.
     `,
     `

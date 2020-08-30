@@ -1208,6 +1208,7 @@ const testManDb = () => {
 }
 
 const testDevLocal = () => {
+  $('canvas').hide()
   const paragraphs = [
     'This is an OA fundamental page, please do not share.', // base for OA Deploying Manual (path deploy.html)
     'Here are the instructions to have a fully working OA platform in your local machine.',
@@ -1216,18 +1217,18 @@ const testDevLocal = () => {
   ].reduce((a, t) => { return a + `<p>${t}</p>` }, '')
 
   const items = [
-    `Clone the <a href="" target="_blank">the ml-net-gui repository</a>
+    `Clone the <a href="https://github.com/ttm/ml-net-gui/" target="_blank">the ml-net-gui repository</a>
     and execute "make va-install va-e-dev" at the repository root`,
     'You should be able to access this and other OA pages at localhost which do not rely on the database',
     `To have a complete running instance of OA,
-    you need to <a href="manDB">configure the database with localhost</a> as the
+    you need to <a href="?page=manDB">configure the database with localhost</a> as the
     URL and then start a local server.`,
     'Install the extension you created in step 1). Should be in visual_analytics/OAextension/',
     'Click on Login / Advance / Update / Download to populate the instance.', // fixme: don't ask to send to renato.fabbri when download
     `You have started a local Aquarium instance. Please notify us through:
     <a href='mailto:sync.aquarium@gmail.com' target='_blank'> sync <ADOT> aquarium <AT> gmail <ANOTHERDOR> com</a><br/>
     `
-  ]
+  ].reduce((a, t) => { return a + `<p>${t}</p>` }, '')
   $('<div/>', {
     css: {
       width: '50%',
@@ -1250,20 +1251,20 @@ const testDevLocal = () => {
   <p>The 
   :::
 
-  `)
+  `).appendTo('body')
 }
 
 const testManGit = () => {
   $('canvas').hide()
   const paragraphs = [
-    'This page is the second step in the <a href="deploy">OA Deploying Manual</a>',
+    'This page is the second step in the <a href="?page=deploy">OA Deploying Manual</a>',
     `Here, you bootstrap your OA instance. Basically, you need to make the HTML available,
     install the version of the YOU extension and then visualize your own network to synchronize.`,
     'In this working example, we are using Github pages.'
   ].reduce((a, t) => { return a + `<p>${t}</p>` }, '')
 
   const items = [
-    '<a href="devLocal">Make OA available localy</a>, you will need the two files it generates',
+    '<a href="?page=devLocal">Make OA available localy</a>, you will need the two files it generates',
     'Fork <a href="https://github.com/markturian/ouraquarium" target="_blank">this repository</a> or create a new repository with the same index.html and favicons.',
     'Go to repository settings tab on Github. Scroll down to the GitHub pages section and enable it.',
     'Replace the main_ok.js file in the repository created with the visual_analytics/scripts/main_ok.js file obtained in step 1).',
@@ -1320,7 +1321,7 @@ const testGuidelines = () => {
     `Consider contributing to OA with feedback, ideas, management of this or new OA instances,
     development of the software and scientific framework, donations.
     `,
-    `<a href='contribute' target='_blank'>Contribute</a>
+    `<a href='?page=contribute' target='_blank'>Contribute</a>
     `
   ].reduce((a, t) => { return a + `<p>${t}</p>` }, '')
 

@@ -122,10 +122,11 @@ class SyncParnassum extends OABase {
     const net = this.plots[option].drawnNet.net
     // use this.sync to make all nodes into visible with music
     console.log('HEY MAN')
-    let allNodes = []
+
     const instrument = new Tone.PluckSynth({ volume: 0 }).toMaster()
     const membSynth = new Tone.MembraneSynth({ volume: -10 }).toMaster()
     const membSynth2 = new Tone.MembraneSynth({ volume: 0 }).toMaster()
+
     const extent = net.degreeExtent
     const ambit = extent[1] - extent[0] || 1
     const pambit = sync.progression.reduce((a, i) => {
@@ -138,20 +139,32 @@ class SyncParnassum extends OABase {
       return a
     }, { min: 100000, max: 0 })
     pambit.ambit = pambit.max - pambit.min || 1
+
     const id = wand.syncInfo.msid || wand.syncInfo.mnid
     let stepCounter = 0
+    const allNodes = []
     const seq = new Tone.Pattern((time, step) => {
       if (step.length === 0) {
-        net.forEachNode((n, a) => {
-          a.pixiElement.alpha = 0
-          a.textElement.alpha = 0
-        })
-        net.forEachEdge((e, a) => {
-          a.pixiElement.alpha = 0
-        })
-        allNodes = []
+        // net.forEachNode((n, a) => {
+        //   a.pixiElement.alpha = 0
+        //   a.textElement.alpha = 0
+        // })
+        // net.forEachEdge((e, a) => {
+        //   a.pixiElement.alpha = 0
+        // })
+        // allNodes = []
+        console.log('stopping seq len:', sync.progression.length, sync.progression)
+        seq.stop()
+        seq.tfinished = true
+        setTimeout(() => {
+          membSynth.dispose()
+          membSynth2.dispose()
+          seq.dispose()
+          this.hideNetwork(net)
+        }, seq.interval * 1000)
         return
       }
+
       step.forEach((n, i) => {
         // instrument.triggerAttackRelease(Tone.Midi(info.note).toNote(), 0.01, time + i * 0.5 / step.length)
         const note = 40 + 40 * (net.getNodeAttribute(n, 'degree') - extent[0]) / ambit
@@ -165,8 +178,10 @@ class SyncParnassum extends OABase {
         }, time + i * 2 / step.length + seq.interval / 4)
         allNodes.push(n)
       })
+
       const t = seq.interval / 4
       const note = 90 - 20 * (step.length - pambit.min) / pambit.ambit
+
       membSynth.triggerAttackRelease(Tone.Midi(note).toNote(), 1, time)
       membSynth.triggerAttackRelease(Tone.Midi(note).toNote(), 1, time + t)
       // membSynth.triggerAttackRelease(Tone.Midi(note).toNote(), 1, time + t * 2)
@@ -176,6 +191,7 @@ class SyncParnassum extends OABase {
       // membSynth2.triggerAttackRelease(Tone.Midi(30).toNote(), 1, time + t)
       membSynth2.triggerAttackRelease(Tone.Midi(30).toNote(), 1, time + t * 2)
       membSynth2.triggerAttackRelease(Tone.Midi(30).toNote(), 1, time + t * 3)
+
       d(() => {
         net.getNodeAttribute(id, 'pixiElement').alpha = 0.7
         net.getNodeAttribute(id, 'textElement').alpha = 0.7
@@ -191,14 +207,17 @@ class SyncParnassum extends OABase {
         net.getNodeAttribute(id, 'pixiElement').alpha = 0
         net.getNodeAttribute(id, 'textElement').alpha = 0
       }, time + t * 1.9)
+
       d(() => {
         net.getNodeAttribute(id, 'pixiElement').alpha = 0.7
         net.getNodeAttribute(id, 'textElement').alpha = 0.7
       }, time + t * 2)
+
       d(() => {
         net.getNodeAttribute(id, 'pixiElement').alpha = 0
         net.getNodeAttribute(id, 'textElement').alpha = 0
       }, time + t * 2.9)
+
       d(() => {
         net.getNodeAttribute(id, 'pixiElement').alpha = 0.7
         net.getNodeAttribute(id, 'textElement').alpha = 0.7
@@ -207,26 +226,28 @@ class SyncParnassum extends OABase {
         net.getNodeAttribute(id, 'pixiElement').alpha = 0
         net.getNodeAttribute(id, 'textElement').alpha = 0
       }, time + t * 3.9)
+
       stepCounter++
       console.log(stepCounter, sync.progression.length)
-      if (stepCounter === sync.progression.length - 1) {
-        seq.stop()
-        d(() => {
-          seq.tfinished = true
-          membSynth.dispose()
-          membSynth2.dispose()
-          seq.dispose()
-          this.hideNetwork(net)
-          // net.forEachNode((n, a) => {
-          //   a.pixiElement.visible = false
-          //   a.pixiElement.interactive = false
-          //   a.textElement.visible = false
-          // })
-          // net.forEachEdge((e, a) => {
-          //   a.pixiElement.visible = false
-          // })
-        }, time + seq.interval)
-      }
+      // if (stepCounter === sync.progression.length) {
+      //   seq.stop()
+      //   console.log('stoping seq len:', sync.progression.length, sync.progression)
+      //   setTimeout(() => {
+      //     seq.tfinished = true
+      //     membSynth.dispose()
+      //     membSynth2.dispose()
+      //     seq.dispose()
+      //     this.hideNetwork(net)
+      //     // net.forEachNode((n, a) => {
+      //     //   a.pixiElement.visible = false
+      //     //   a.pixiElement.interactive = false
+      //     //   a.textElement.visible = false
+      //     // })
+      //     // net.forEachEdge((e, a) => {
+      //     //   a.pixiElement.visible = false
+      //     // })
+      //   }, (time + seq.interval) * 1000)
+      // }
     }, sync.progression)
     seq.interval = '1n'
     seq.start(adur)
@@ -598,7 +619,9 @@ class SyncParnassum extends OABase {
             //   this.start()
             // }, seq.dur + seq.seq.interval)
             const inter = setInterval(() => {
+              console.log('trying tfinished', (window.performance.now() / 1000).toFixed(2))
               if (seq.seq.tfinished) {
+                console.log('found tfinished')
                 clearInterval(inter)
                 alert(gradusRec())
                 wand.$('#info-button').show()
@@ -606,7 +629,7 @@ class SyncParnassum extends OABase {
                 showMsg(2)
                 this.start()
               }
-            }, 500)
+            }, 1000)
             console.log('MUSIC DURATION:', (seq.dur + seq.seq.interval * 0.3))
           }
           this.rectInfo.alpha = 0

@@ -154,6 +154,8 @@ class Tithorea {
                 .insertAfter('#names-button')
             )
             $('#pallete-button').click()
+            $('#pallete-button').click()
+            $('#pallete-button').click()
           }
         },
         muter: {
@@ -193,10 +195,12 @@ class Tithorea {
               Tone.Transport.start()
             } else {
               Tone.Transport.stop()
+              wand.extra.patterns.seq2.stop()
+              wand.extra.patterns.seq2.interval = (2 ** (10 - this.current)) + 'n'
               setTimeout(() => {
-                wand.extra.patterns.seq2.interval = (2 ** (10 - this.current)) + 'n'
+                wand.extra.patterns.seq2.start()
                 Tone.Transport.start()
-              }, wand.extra.patterns.seq2.interval * 1000)
+              }, wand.extra.patterns.seq2.interval * 1200)
             }
             // if (this.current) {
             //   Tone.Transport.start()
@@ -491,12 +495,14 @@ class Tithorea {
     this.setSyncInfo()
     if (wand.extra.syncMusic) {
       const { seq2, membSynth } = wand.extra.syncMusic
+      const interval = seq2.interval
       seq2.stop()
+      console.log('yes, doing the dispose', seq2.interval)
       setTimeout(() => {
-        seq2.dispose()
         membSynth.dispose()
-        this.playSync2(this.sync.progressionLinks)
-      }, seq2.interval * 1000) // max interval having instrument events (drawing can get past duration)
+        seq2.dispose()
+        this.playSync2(this.sync.progressionLinks, interval)
+      }, 2000) // max interval having instrument events (drawing can get past duration)
     } else {
       this.playSync2(this.sync.progressionLinks)
     }
@@ -545,7 +551,7 @@ class Tithorea {
   setSyncInfo () {
   }
 
-  playSync2 (progression) {
+  playSync2 (progression, interval) {
     const self = this // fixme: really needed?
     const net = wand.currentNetwork
     const Tone = wand.maestro.base.Tone
@@ -553,10 +559,12 @@ class Tithorea {
     //  change membrane to poly, play all degrees or chord in range
     const membSynth = new Tone.MembraneSynth().toMaster()
     membSynth.volume.value = 10
+
     const lengths = progression.map(i => i.length)
     const maxl = Math.max(...lengths)
     const minl = Math.min(...lengths)
     const d = (f, time) => Tone.Draw.schedule(f, time)
+
     const seq2 = new Tone.Pattern((time, nodes) => {
       // console.log('bass', time, a.degree, node)
       const nval = 20 + 60 * (nodes.length - minl) / (maxl - minl)
@@ -564,7 +572,7 @@ class Tithorea {
       membSynth.triggerAttackRelease(nval, 1, time + 0.75 * seq2.interval)
       if (nodes.length === 0) {
         self.resetNetwork()
-        wand.$('#pallete-button').click()
+        // wand.$('#pallete-button').click()
       } else {
         d(() => nodes.forEach(n => {
           const a = net.getNodeAttributes(n.from)
@@ -588,7 +596,7 @@ class Tithorea {
         }), time + seq2.interval / 2)
       }
     }, progression)
-    seq2.interval = '1n'
+    seq2.interval = interval || '1n'
     setTimeout(() => {
       seq2.start()
     }, seq2.interval * 1000)

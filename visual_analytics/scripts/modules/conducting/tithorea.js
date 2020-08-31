@@ -352,13 +352,10 @@ class Tithorea {
     this.voiceCounter = 0
     wand.currentNetwork.forEachNode((n, a) => {
       a.pixiElement.on('pointerdown', () => {
-        if (this.removerActive) {
-          this.removeMember(a)
-          this.theSeed = undefined
-        } else if (this.theSeed === n) { // open dialog with copiar URL, abrir URL, cancelar.
+        if (this.theSeed === n) { // open dialog with copiar URL, abrir URL, cancelar.
           // window.open(a.urlStr + this.removedNodesUrl + this.descUrl())
           // dialog yes, no, cancel
-          const res = window.confirm(`You selected ${a.name} as seed. You can go back (do nothing) or create a synchronization with this seed. If you create it, you will open the URL in a new tab or copy it to the clipboard in order to paste elsewhere.`, 'cancel', 'create synchronization: open URL', 'create synchronization, copy URL with the synchronization description to clipboard')
+          const res = window.confirm(`You selected ${a.name} as seed. You can go back (do nothing) or create a synchronization with this seed. If you create it, you will open the URL in a new tab and copy the URL to the clipboard.\n\n The URL starts the Gradus ad Parnassum with the music of the person and shows the message in your sync description when it finishes.`)
           if (res) {
             const key = Math.random().toString(36).substring(7)
 
@@ -369,14 +366,20 @@ class Tithorea {
               wand.utils.copyToClipboard(url)
               wand.transfer.mong.findAny({ syncKey: key }).then(res2 => { // fixme: remove
                 console.log('SYNC DATA READ BACK:', res2)
+                window.open(url)
               })
             })
           }
         } else {
-          this.theSeed = n
+          if (this.removerActive) {
+            this.removeMember(a)
+            this.theSeed = undefined
+          } else {
+            this.theSeed = n
+          }
+          this.mkSync()
+          this.resetSyncMap()
         }
-        this.mkSync()
-        this.resetSyncMap()
       })
     })
   }

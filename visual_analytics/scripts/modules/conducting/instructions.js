@@ -454,8 +454,6 @@ individual and social bodies.
 `
 
 const arcturians1 = () => `
-Welcome to Tithorea.
-
 You can understand your interaction with your networks
 as exploration:
 

@@ -1,6 +1,7 @@
 /* global requestAnimationFrame, wand */
 const dat = require('dat.gui')
-const St = require('stats.js')
+// const St = require('stats.js')
+const St = window.FooBar // fixme
 
 // start using the global object, initialize
 // window.wand in the main.js, add objects as needed

@@ -361,7 +361,7 @@ class Tithorea {
 
             // const url = a.urlStr + this.removedNodesUrl + this.descUrl())
             const r = wand.utils.rot
-            const url = `${document.location.href.split('?')[0]}?page=ankh_&syncKey=${key}&mnid=${r(a.nid)}&msid=${r(a.sid)}`
+            const url = `${document.location.href.split('?')[0]}?page=ankh_&syncKey=${key}&mnid=${r(a.nid || '')}&msid=${r(a.sid || '')}`
             this.saveSync(key).then(_ => {
               wand.utils.copyToClipboard(url)
               wand.transfer.mong.findAny({ syncKey: key }).then(res2 => { // fixme: remove

@@ -78,7 +78,7 @@ rot13Fast.lookup = rot13Fast.input.reduce((m, k, i) => Object.assign(m, { [k]: r
 
 function rot (str) {
   if (!str) {
-    return
+    return str
   }
   return str.split('').map(x => rot.lookup[x] || x).join('')
 }

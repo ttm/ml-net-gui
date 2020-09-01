@@ -12,11 +12,14 @@ function rec () {
   const stream = canvas.captureStream(30)
 
   const combined = new MediaStream([...dest.stream.getTracks(), ...stream.getTracks()])
-  const recorder = new MediaRecorder(combined, { mimeType: 'video/webm' })
+  let recorder = {}
+  if (window.MediaRecorder !== undefined) {
+    recorder = new MediaRecorder(combined, { mimeType: 'video/webm' })
+  }
 
   let chunks = []
   // recorder.videoUrls = []
-  recorder.ondataavailable = evt => chunks.push(evt.data)
+  recorder.ondataavailable = evt => { chunks.push(evt.data) }
   recorder.onstop = function () {
     const blob = new Blob(chunks, { type: 'video/webm' })
     // audio.src = URL.createObjectURL(blob)

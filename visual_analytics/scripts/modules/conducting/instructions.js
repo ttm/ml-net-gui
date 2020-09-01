@@ -16,7 +16,8 @@ const visitorName = () => {
 }
 
 // Hear your music, ${visitorName()},
-const gradus1Login = () => `
+const gradus1Login = () => {
+  return `
 Yes! You have reached the Mount Parnassum!
 
 In this page, you can use all the features you unlocked while finishing the "Gradus ad Parnassum",
@@ -31,8 +32,10 @@ Click on this text to open the see the usage guidelines if you need them.
 
 :::
 `
+}
 
-const gradus1 = () => `
+const gradus1 = () => {
+  return `
 Welcome to the Gradus.
 
 ${toSeedText(visitorName())}
@@ -54,6 +57,7 @@ Good luck!
 OA @ ${visitorName()}, ${(new Date()).toISOString().split('.')[0]}.
 (press the [i] button above or login with the chrome extension if you have it)
 `
+}
 
 // Hope you reach the interaction networks from Twitter, Instagram, and other communication platforms.
 // Hope you reach the concept networks, oracles (such as the chatter bots), puzzles, and audiovisual instruments.
@@ -90,12 +94,16 @@ const contributionLink = () => {
   return `${document.location.href.split('?')[0]}?page=donate`
 }
 
-const defaultSyncDescription = () => `
+const defaultSyncDescription = () => {
+  return `
 Your music, and the Our Aquarium platform,
 needs your help.
 
 It requires constant development and maintenance,
 which rely on donations and voluntaries.
+
+Replace this message and related link to synchronize your social body
+with another matter.
 
 Thank you very much!
 
@@ -107,8 +115,10 @@ to contribute, please visit:
 
 ${contributionLink()}
 `
+}
 
-const defaultSyncDescription2 = () => `
+const defaultSyncDescription2 = () => {
+  return `
 Liquid democracy enables generalized social participation
 with autoregulation mechanisms.
 
@@ -124,8 +134,10 @@ enabling partnerships, or making donations.
 See more on:
 https://en.wikipedia.org/wiki/Liquid_democracy#:~:text=Liquid%20democracy%20is%20a%20form,or%20proposed%20popular%2Dcontrol%20apparatuses.
 `
+}
 
-const defaultSyncDescription3 = () => `
+const defaultSyncDescription3 = () => {
+  return `
 
 Oi, eu sou o Roceiro Bolchevique, el Hemato Freudita.
 
@@ -151,8 +163,10 @@ Prometo prosa fofinha da próxima vez, beijos <3.
 :::
 
 `
+}
 
-const defaultSyncDescription4 = () => `
+const defaultSyncDescription4 = () => {
+  return `
 Oi, eu sou o Roceiro Bolchevique, el Hemato Freudita.
 Este é o Litura Terra n0:
 
@@ -166,8 +180,10 @@ Roceiro Bolchevique
 :::
 
 `
+}
 
-const defaultSyncDescription5 = () => `
+const defaultSyncDescription5 = () => {
+  return `
 Archangel Michel:
 
 Humanity may reach immortality in less than 40 yeas, no person will die from desease or age.
@@ -185,20 +201,24 @@ or by accessing:
 ${contributionLink()}
 
 `
+}
 
-const defaultSyncDescription6 = () => `
+const defaultSyncDescription6 = () => {
+  return `
 Our social bodies are ecossystems, biomes constituted by human individuals,
 ideas, machines, and the Eath and Universe.
 
-Our networks perform a choreographies which animates the collective organism(s).
+Our networks perform a choreographies which animate the collective organism(s).
 
 Make audiovisual music and synchronizations with Our Aquarium,
 they are healing massages.
 
 :::
 `
+}
 
-const defaultSyncDescription7 = () => `
+const defaultSyncDescription7 = () => {
+  return `
 This is the hug synchronization.
 
 Enjoy your music and fell yourself hugged.
@@ -209,8 +229,10 @@ Cheers!
 
 See more: https://en.wikipedia.org/wiki/Free_Hugs_Campaign
 `
+}
 
-const defaultSyncDescription8 = () => `
+const defaultSyncDescription8 = () => {
+  return `
 Hi, hope you like what is ahead and using Our Aquarium,
 and that you find good usage to it in the regency of your social body.
 
@@ -225,8 +247,10 @@ Click on the "Contribute to Our Aquarium" in this screen.
 
 :::
 `
+}
 
-const defaultSyncDescription9 = () => `
+const defaultSyncDescription9 = () => {
+  return `
 Audiovisualize your social body, network, self, is a way to acquire self-knowledge.
 And to achieve harmony among your social tissue.
 
@@ -234,12 +258,14 @@ Good luck in knowing thyself.
 
 :::
 `
+}
 
 const syncDescription = () => (wand.syncInfo.syncDescription || defaultSyncDescription())
 
 // after the exhibition with the music from the person:
 // todo: colocar texto mais literario
-const gradus2 = () => `
+const gradus2 = () => {
+  return `
 ${syncDescription()}
 
 You will now start your usage of this interface to explore your social complex network, or social organism, ${visitorName()}.
@@ -248,6 +274,7 @@ Follow the instructions given in the "tip" field at each level (gradus).
 
 (press the [i] button above)
 `
+}
 
 const gradusSyncLinks = syncNames => {
   let t = `
@@ -292,7 +319,8 @@ const gradusSyncLinks = syncNames => {
 // http://
 
 // final message, with the link to open extension:
-const gradus3 = () => `
+const gradus3 = () => {
+  return `
 You near the Mount Parnassum.
 
 You should install the extension, load this page, and hit login
@@ -301,12 +329,15 @@ such as this, on your social body, ${visitorName()}.
 The performance modes and features you will unblock progressivelly.
 What modes and features is dependent on the version of OA you are using and your usage.
 `
+}
 
-const gradusRec = () => `
+const gradusRec = () => {
+  return `
 You have recorded your music, ${visitorName()}.
 Save the video file locally and upload it to a video platform (such as youtube).
 You will need the link to reach the Mount Parnassum.
 `
+}
 
 const gradusVideoLink = `
 You may register the URLs of videos you uploaded using OA.
@@ -453,7 +484,8 @@ individual and social bodies.
 (press the [i] button above to exit this message)
 `
 
-const arcturians1 = () => `
+const arcturians1 = () => {
+  return `
 You can understand your interaction with your networks
 as exploration:
 
@@ -484,10 +516,12 @@ Hope you synchronize yourself with Our Aquarium audiovisual music, it is availab
 (press the [i] button above to exit this message)
 
 `
+}
 // , ${visitorName()}.
 //
 
-const arcturians2 = () => `
+const arcturians2 = () => {
+  return `
 You can see, play, interact and govern your social structures because they are yourself.
 In fact writing diaries is an ethnographic technique, and the diary may be used
 as the anthropologist finds suitable.
@@ -500,6 +534,7 @@ Click HERE to know more.
 
 (press the [i] button above or login with the chrome extension if you have it)
 `
+}
 
 const guards = `
 You stand by the gates of Lycorea.
@@ -540,9 +575,10 @@ const musicName = name => {
   return wand.musicNameInstr
 }
 
-const toSeedText = seedName => `
-${seedName}, you will now listen a music about you, called: ${wand.musicName || musicName(seedName)}.
+const toSeedText = seedName => {
+  return ` ${seedName}, you will now listen a music about you, called: ${wand.musicName || musicName(seedName)}.
 `
+}
 
 // OA is writen in the WYSINB (what you see is not beautiful) style.
 // It is meant to be very functional and simple and development friendly.

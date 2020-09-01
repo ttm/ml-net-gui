@@ -675,7 +675,7 @@ class SyncParnassum extends OABase {
       // const mfield = a.sid ? 'msid' : 'mnid'
       // return `${window.location.origin}/?page=ankh_&${mfield}=${mstr}&syncId=${syncId}`
       const r = wand.utils.rot
-      return `${document.location.href.split('?')[0]}?page=ankh_&syncKey=${wand.syncInfo.syncKey}&mnid=${r(a.nid)}&msid=${r(a.sid)}`
+      return `${document.location.href.split('?')[0]}?page=ankh_&syncKey=${wand.syncInfo.syncKey}&mnid=${r(a.nid || '')}&msid=${r(a.sid || '')}`
     }
     // from here on for both cases:
     const memberTexts = []

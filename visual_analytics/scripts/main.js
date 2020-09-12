@@ -1,4 +1,10 @@
 /* global wand */
+console.log('hey there')
+if (/^((?!chrome|android).)*safari/i.test(navigator.userAgent)) {
+  window.alert('You do not have the credentials necessary to access this website using Safari. You are better off using Chrome or Firefox.')
+}
+console.log('hey there past')
+
 window.wand = {
   artist: require('./modules/artist.js'),
   maestro: require('./modules/maestro/all.js'),
@@ -60,7 +66,7 @@ const test = wand.test
 const routes = {
   'test.html': artist.share.testArtist,
   'test_basic.html': artist.share.testBasic,
-  'empty.html': () => console.log('empty page/canvas'),
+  'empty.html': () => window.alert('empty page/canvas'),
   '': () => console.log('homepage'),
   'plot.html': test.testPlot,
   'diffusion.html': test.testDiffusion,
@@ -127,6 +133,12 @@ const routes = {
   'manGit.html': () => test.testManGit(),
   'devLocal.html': () => test.testDevLocal(),
   'data_donated.html': () => console.log('a summary of the data donated in usage, upload and scrapping')
+}
+
+if (wand.utils.mobileAndTabletCheck()) {
+  window.alert('You do not have the credentials necessary to access this website using a mobile ot tablet device. Use a regular desktop browser.')
+} else if (/^((?!chrome|android).)*safari/i.test(navigator.userAgent)) {
+  window.alert('You do not have the credentials necessary to access this website using Safari. You are better off using Chrome or Firefox.')
 }
 
 const _router = new wand.router.use.Router(routes)

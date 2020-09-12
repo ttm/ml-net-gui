@@ -1013,7 +1013,7 @@ class Tithorea {
     }).appendTo(diag2)
 
     const tarea = $('<textarea/>', {
-      maxlength: 500,
+      maxlength: 1200,
       css: {
         'background-color': 'white',
         margin: 'auto',

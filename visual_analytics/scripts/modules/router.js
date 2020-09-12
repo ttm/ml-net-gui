@@ -85,6 +85,7 @@ const urlArgument = (arg, rotOrFun) => {
   if (typeof rotOrFun === 'function' && a) {
     rotOrFun()
   } else {
+    // return rotOrFun ? wand.utils.rot(a) : a
     return rotOrFun ? wand.utils.rot(a) : a
   }
 }

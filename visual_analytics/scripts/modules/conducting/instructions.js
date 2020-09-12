@@ -260,7 +260,9 @@ Good luck in knowing thyself.
 `
 }
 
-const syncDescription = () => (wand.syncInfo.syncDescription || defaultSyncDescription())
+const syncDescription = () => {
+  return wand.syncInfo.syncDescription || defaultSyncDescription()
+}
 
 // after the exhibition with the music from the person:
 // todo: colocar texto mais literario

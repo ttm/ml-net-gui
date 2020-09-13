@@ -186,7 +186,7 @@ class Tithorea {
             console.log(this.current, 'PLAYER')
             if (this.current === this.max) {
               Tone.Transport.stop()
-              this.rec.stop()
+              this.rec.astop()
               self.resetNetwork()
               //   Tone.Transport.stop()
             } else if (this.current === this.min) {
@@ -764,7 +764,7 @@ class Tithorea {
         rec.astart()
         wand.$('#record-button').css('background-color', '#ff0000')
       } else {
-        rec.stop()
+        rec.astop()
         wand.$('#record-button').css('background-color', '#ffffff')
       }
       count++

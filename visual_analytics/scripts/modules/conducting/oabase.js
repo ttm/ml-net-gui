@@ -154,7 +154,7 @@ class OABase {
               Tone.Transport.stop()
               setTimeout(() => {
                 self.resetNetwork()
-                self.rec.stop()
+                self.rec.astop()
                 // open dialog to input video URL:
               }, wand.currentNetwork.syncProgression.seq.interval * 1000)
             }

@@ -46,6 +46,13 @@ function rec () {
       this.start()
     }
   }
+  recorder.astop = function () {
+    if (recorder.state === 'recording') {
+      this.stop()
+    } else {
+      window.alert('Use a media recording capable browser (such as Firefox or Chrome), or enable media recording (for example if using Safari), to download the audiovisual performance')
+    }
+  }
   return recorder // use start(), stop() (which will trigger download)
 }
 

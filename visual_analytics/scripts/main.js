@@ -1,10 +1,4 @@
 /* global wand */
-console.log('hey there')
-if (/^((?!chrome|android).)*safari/i.test(navigator.userAgent)) {
-  window.alert('You do not have the credentials necessary to access this website using Safari. You are better off using Chrome or Firefox.')
-}
-console.log('hey there past')
-
 window.wand = {
   artist: require('./modules/artist.js'),
   maestro: require('./modules/maestro/all.js'),
@@ -136,9 +130,7 @@ const routes = {
 }
 
 if (wand.utils.mobileAndTabletCheck()) {
-  window.alert('You do not have the credentials necessary to access this website using a mobile ot tablet device. Use a regular desktop browser.')
-} else if (/^((?!chrome|android).)*safari/i.test(navigator.userAgent)) {
-  window.alert('You do not have the credentials necessary to access this website using Safari. You are better off using Chrome or Firefox.')
+  window.alert('You do not have the credentials necessary to fully access this website using a mobile ot tablet device. You may try your luck but use a regular desktop browser for a better experience.')
 }
 
 const _router = new wand.router.use.Router(routes)

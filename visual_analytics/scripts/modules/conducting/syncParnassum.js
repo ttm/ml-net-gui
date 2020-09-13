@@ -21,11 +21,12 @@ class SyncParnassum extends OABase {
     // wand.$('#favicon').attr('href', 'faviconMade2.ico')
     document.title = 'Gradus (Our Aquarium)'
     wand.$('#favicon').attr('href', 'faviconMade.ico')
+    wand.$('#loading').css('visibility', 'visible')
     super(settings)
 
     // wand.extra.exhibition = wand.test.testExhibition1('gradus')
     // wand.currentNetwork = wand.extra.exhibition.drawnNet.net
-    wand.$('#loading').hide()
+    // wand.$('#loading').hide()
 
     // const now = performance.now()
     this.settings.timeStreach = 0.001 // fixme: remove, make flag...
@@ -113,6 +114,7 @@ class SyncParnassum extends OABase {
         }
         console.log('finished initialization')
         this.setInfo()
+        wand.$('#loading').css('visibility', 'hidden')
       })
     }
   }
@@ -368,7 +370,7 @@ class SyncParnassum extends OABase {
         // const id = wand.syncInfo.msid || wand.syncInfo.mnid
         // const name = wand.currentNetwork.getNodeAttribute(id, 'name')
         rec.filename = `${wand.musicNameInstr}` + ', audiovisual music #oa #ourAquarium #oAquario ' + (new Date()).toISOString().split('.')[0]
-        rec.stop()
+        rec.astop()
         wand.$('#record-button').css('background-color', '#ffffff')
       }
       count++

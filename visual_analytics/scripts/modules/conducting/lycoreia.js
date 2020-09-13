@@ -598,7 +598,7 @@ class Lycoreia {
         rec.astart()
         wand.$('#record-button').css('background-color', '#ff0000')
       } else {
-        rec.stop()
+        rec.astop()
         wand.$('#record-button').css('background-color', '#ffffff')
       }
       count++

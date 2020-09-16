@@ -503,14 +503,22 @@ class SyncParnassum extends OABase {
       // wh: [a.width, a.height], zIndex: 1, color: 0xffaaaa, alpha: 0
       wh: [a.width, a.height], zIndex: 1, color: 0x9c9c9c, alpha: 0
     })
-    const f = this.settings.fontSize
-    const p = f / 2
-    const x = this.scalex(p)
-    const y = this.scaley(p)
-    const fs = this.scaley(f)
+    // const f = this.settings.fontSize
+    // const p = f / 2
+    // const x = this.scalex(p)
+    // const y = this.scaley(p)
+    // const fs = this.scaley(f)
     const texts = {}
+    console.log('hey man, yeah here <<<<<<<=================')
     const mkElement = (pos, color, element, zIndex, alpha, text) => {
-      texts[element] = a.mkTextFancy(text, [pos[0] * x, pos[1] * y], fs, color, zIndex, alpha)
+      // texts[element] = a.mkTextFancy(text, [pos[0] * x, pos[1] * y], fs, color, zIndex, alpha)
+      // return texts[element]
+      texts[element] = wand.$('<div/>', {
+        css: {
+          width: '50%',
+          margin: '10%'
+        }
+      }).html(text.replaceAll('\n', '<br />')).appendTo('body').hide()
       return texts[element]
     }
     const ltext0 = mkElement([1, 2.2], 0x777733, '1', 3000, 0, gradus1())
@@ -572,13 +580,15 @@ class SyncParnassum extends OABase {
 
       const showMsg = i => {
         console.log(i, this.rectInfo, texts, texts[i], 'THE SHOW GUY')
-        this.rectInfo.alpha = 1
-        this.rectInfo.zIndex = 2000
-        texts[i].alpha = 1
-        texts[i].interactive = true
-        const colors = i % 2 ? [0xffffff, 0x000000] : [0x000000, 0xffffff]
-        this.rectInfo.tint = colors[0]
-        texts[i].tint = colors[1]
+        // this.rectInfo.alpha = 1
+        // this.rectInfo.zIndex = 2000
+        // texts[i].alpha = 1
+        // texts[i].interactive = true
+        // const colors = i % 2 ? [0xffffff, 0x000000] : [0x000000, 0xffffff]
+        // this.rectInfo.tint = colors[0]
+        // texts[i].tint = colors[1]
+        wand.$('canvas').hide()
+        texts[i].show()
         count = this.infoLength // Object.keys(texts).length
       }
 
@@ -593,12 +603,20 @@ class SyncParnassum extends OABase {
         if (show) {
           // this.rectInfo.tint = colors.bg
           this.rectInfo.tint = colors[0]
+          wand.$('canvas').hide()
+        } else {
+          wand.$('canvas').show()
         }
         let i = 1
         for (const t in texts) {
-          texts[t].alpha = Number(count % tlength === i)
-          texts[t].interactive = count % tlength === i
-          texts[t].tint = colors[1]
+          // texts[t].alpha = Number(count % tlength === i)
+          // texts[t].interactive = count % tlength === i
+          // texts[t].tint = colors[1]
+          if (count % tlength === i) {
+            texts[t].show()
+          } else {
+            texts[t].hide()
+          }
           i++
         }
         if (!this.isInitialized) {

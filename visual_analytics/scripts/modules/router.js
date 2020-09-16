@@ -64,20 +64,25 @@ class Router {
         console.log(`path not found: ${path}`)
       }
     }
+    const ft = wand.$('<div/>', { id: 'afooter', css: { width: '100%', display: 'flex', 'white-space': 'nowrap', 'overflow-x': 'auto' } }).appendTo('body')
     wand.$('<a/>', {
       href: '?page=contribute',
       target: '_blank',
       css: {
-        'margin-left': '1%'
+        'margin-left': '1%',
+        display: 'inline-block',
+        float: 'left'
       }
-    }).html('Contribute to Our Aquarium').appendTo('body')
-    // wand.$('<div/>', { id: 'google_translate_element' }).appendTo('body')
-    // wand.$('<script/>', {
-    //   type: 'text/javascript',
-    //   src: '//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit'
-    // }).appendTo('body')
-    // wand.$('iframe.skiptranslate').css('visibility', 'hidden')
-    // wand.$('body').css('top', '0px')
+    }).html('Contribute to Our Aquarium').appendTo(ft)
+    wand.$('<div/>', { id: 'google_translate_element', css: { display: 'inline-block', float: 'left' } }).appendTo(ft)
+    wand.$('<script/>', {
+      type: 'text/javascript',
+      src: '//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit'
+    }).appendTo('body')
+    setTimeout(() => {
+      wand.$('iframe.skiptranslate').css('visibility', 'hidden')
+      wand.$('body').css('top', '0px')
+    }, 1000)
   }
 }
 

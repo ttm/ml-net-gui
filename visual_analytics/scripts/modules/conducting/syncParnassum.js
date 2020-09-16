@@ -52,6 +52,7 @@ class SyncParnassum extends OABase {
       this.makeUserNetworks()
       console.log('finished initialization 2')
       this.setInfo2()
+      wand.$('#loading').css('visibility', 'hidden')
     } else { // gradus received through sync:
       const { syncKey, usid, unid, syncId } = wand.syncInfo
       // const { usid, unid, syncId, syncKey, msid, mnid } = wand.syncInfo

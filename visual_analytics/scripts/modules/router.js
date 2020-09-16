@@ -71,6 +71,13 @@ class Router {
         'margin-left': '1%'
       }
     }).html('Contribute to Our Aquarium').appendTo('body')
+    // wand.$('<div/>', { id: 'google_translate_element' }).appendTo('body')
+    // wand.$('<script/>', {
+    //   type: 'text/javascript',
+    //   src: '//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit'
+    // }).appendTo('body')
+    // wand.$('iframe.skiptranslate').css('visibility', 'hidden')
+    // wand.$('body').css('top', '0px')
   }
 }
 

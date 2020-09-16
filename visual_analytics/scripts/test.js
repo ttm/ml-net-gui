@@ -990,7 +990,7 @@ const testDiffusionLimited = () => {
 const testNoise = () => {
 }
 
-const testLycoreia = () => { // http://localhost:8080/?lycoreia.html?11?bana?0.001?adalberto.ferroz
+const testLycoreia = () => {
   const pn = window.location.href
   const items = pn.split('?')
   let level = 0
@@ -1391,7 +1391,7 @@ const testContribute = () => {
       margin: '10%'
     }
   }).html(`
-  <h2>Supporting Our Aquarim</h2>
+  <h2>Supporting Our Aquarium</h2>
 
   ${paragraphs}
   <br>

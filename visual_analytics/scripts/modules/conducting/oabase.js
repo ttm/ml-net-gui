@@ -333,6 +333,16 @@ class OABase {
         height: Math.floor(wand.artist.use.height * 0.055) + 'px'
       }
     }).insertBefore('canvas')
+    wand.$('<div/>', {
+      id: 'infodiv2',
+      css: {
+        display: 'grid',
+        'grid-template-columns': 'auto auto',
+        'background-color': '#21F693',
+        padding: '2px',
+        height: Math.floor(wand.artist.use.height * 0.055) + 'px'
+      }
+    }).insertBefore('canvas').hide()
     wand.$(`<style type='text/css'>
       .grid-item {
         background-color: rgba(255, 255, 255, 0.8);
@@ -344,9 +354,10 @@ class OABase {
     </style>`).appendTo('head')
     const mkElement = (pos, color, element, zIndex = 300, alpha = 1) => {
       // this.texts[element] = a.mkTextFancy('', [pos[0] * x, pos[1] * y], fs, color, zIndex, alpha)
+      const idiv = zIndex === 300 ? '#infodiv' : '#infodiv2'
       this.texts[element] = wand.$('<div/>', {
         class: 'grid-item'
-      }).appendTo('#infodiv')
+      }).appendTo(idiv)
     }
 
     mkElement([1, 0.2], 0x333377, 'gradus')
@@ -358,10 +369,10 @@ class OABase {
     mkElement([21, 2.3], 0xff6600, 'achievement')
     mkElement([54, 2.2], 0x337777, 'interactionCount')
 
-    // mkElement([1, 0.1], 0x333377, 'nodeId', 600, 0)
-    // mkElement([41, 0.2], 0x666600, 'nodeDegree', 600, 0)
-    // mkElement([1, 2.2], 0x777733, 'nodeName', 600, 0)
-    // mkElement([41, 2.2], 0x555599, 'nodeDegreeCentrality', 600, 0)
+    mkElement([1, 2.2], 0x777733, 'nodeName', 600, 0)
+    mkElement([41, 0.2], 0x666600, 'nodeDegree', 600, 0)
+    mkElement([1, 0.1], 0x333377, 'nodeId', 600, 0)
+    mkElement([41, 2.2], 0x555599, 'nodeDegreeCentrality', 600, 0)
   }
 
   start () {
@@ -1280,7 +1291,7 @@ class OABase {
     const tf = v => v.toFixed(3)
     net.forEachNode((n, a) => {
       const texts = [
-        ['nodeId', `id: ${a.id}, x: ${tf(a.pixiElement.x)}, y: ${tf(a.pixiElement.y)}`],
+        ['nodeId', `id: ${a.id}`],
         ['nodeName', `name: ${a.name}`],
         ['nodeDegree', `friends: ${a.degree} in ${net.degree_}`],
         ['nodeDegreeCentrality',
@@ -1289,11 +1300,13 @@ class OABase {
       a.pixiElement.on('pointerover', () => {
         console.log(n, a, 'NODE HOVERED')
         this.counter.hoverNode++
-        wand.rect2.zIndex = 500
+        // wand.rect2.zIndex = 500
         texts.forEach(t => {
-          this.texts[t[0]].text = t[1]
-          this.texts[t[0]].alpha = 1
+          this.texts[t[0]].text(t[1])
+          // this.texts[t[0]].alpha = 1
         })
+        wand.$('#infodiv2').show()
+        wand.$('#infodiv').hide()
         a.hovered = true
         this.styleNode(a)
         a.textElement.zIndex = 10000
@@ -1304,11 +1317,13 @@ class OABase {
         })
       })
       a.pixiElement.on('pointerout', () => {
-        wand.rect2.zIndex = 100
-        texts.forEach(t => {
-          this.texts[t[0]].alpha = 0
-        })
+        // wand.rect2.zIndex = 100
+        // texts.forEach(t => {
+        //   this.texts[t[0]].alpha = 0
+        // })
         delete a.colorBlocked
+        wand.$('#infodiv').show()
+        wand.$('#infodiv2').hide()
         a.hovered = false
         this.styleNode(a)
         net.forEachNeighbor(n, (nn, na) => {

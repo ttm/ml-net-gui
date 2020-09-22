@@ -328,7 +328,7 @@ class SyncParnassum extends OABase {
 
     const { conductor, artist } = wand
     const plotNet = net => {
-      const drawnNet = new conductor.use.DrawnNet(artist.use, net, [artist.use.width, artist.use.height * 0.9])
+      const drawnNet = new conductor.use.DrawnNet(artist.use, net, [artist.use.width, artist.use.height])
       const sync = wand.net.use.diffusion.use.seededNeighborsLinks(net, 10000, [id])
 
       const cs = wand.artist.use.tincture.c.scale(['red', 'yellow', 'green', 'blue', '#ff00ff']).colors(sync.progression.length, 'num')
@@ -809,7 +809,7 @@ class SyncParnassum extends OABase {
     this.nets = [wand.visitedNetwork, wand.fullNetwork]
     const { conductor, artist } = wand
     const plotNet = net => {
-      const drawnNet = new conductor.use.DrawnNet(artist.use, net, [artist.use.width, artist.use.height * 0.9])
+      const drawnNet = new conductor.use.DrawnNet(artist.use, net, [artist.use.width, artist.use.height])
       // const sync = wand.net.use.diffusion.use.seededNeighborsLinks(net, 10000, [id])
 
       // const cs = wand.artist.use.tincture.c.scale(['red', 'yellow', 'green', 'blue', '#ff00ff']).colors(sync.progression.length, 'num')

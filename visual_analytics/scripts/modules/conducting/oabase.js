@@ -309,19 +309,19 @@ class OABase {
 
   setStage () {
     this.texts = {} // pixi elements
-    const a = wand.artist.use
-    wand.rect1 = a.mkRectangle({
-      wh: [a.width, a.height * 0.055], zIndex: 200, color: 0xffffff, alpha: 0.85
-    })
-    wand.rect2 = a.mkRectangle({
-      wh: [a.width, a.height * 0.055], zIndex: 100, color: 0xbbbbbb, alpha: 1
-    })
+    // const a = wand.artist.use
+    // wand.rect1 = a.mkRectangle({
+    //   wh: [a.width, a.height * 0.055], zIndex: 200, color: 0xffffff, alpha: 0.85
+    // })
+    // wand.rect2 = a.mkRectangle({
+    //   wh: [a.width, a.height * 0.055], zIndex: 100, color: 0xbbbbbb, alpha: 1
+    // })
 
-    // const f = this.settings.fontSize
+    const f = this.settings.fontSize
     // const p = f / 2
     // const x = this.scalex(p)
     // const y = this.scaley(p)
-    // const fs = this.scaley(f)
+    const fs = this.scaley(f)
 
     wand.$('<div/>', {
       id: 'infodiv',
@@ -329,15 +329,16 @@ class OABase {
         display: 'grid',
         'grid-template-columns': 'auto auto auto',
         'background-color': '#2196F3',
-        padding: '10px'
+        padding: '2px',
+        height: Math.floor(wand.artist.use.height * 0.055) + 'px'
       }
     }).insertBefore('canvas')
     wand.$(`<style type='text/css'>
       .grid-item {
         background-color: rgba(255, 255, 255, 0.8);
-        border: 1px solid rgba(0, 0, 0, 0.8);
-        padding: 20px;
-        font-size: 30px;
+        border-right: 1px solid rgba(0, 0, 0, 0.8);
+        padding: 0px;
+        font-size: ${Math.floor(fs)}px;
         text-align: center;
       }
     </style>`).appendTo('head')
@@ -352,7 +353,7 @@ class OABase {
     mkElement([21, 0.23], 0xff0000, 'tip')
     mkElement([54, 0.2], 0x773377, 'orderSize')
     mkElement([1, 2.3], 0x777733, 'adParnassum')
-    this.texts.adParnassum.html('ad parnassum: ++1')
+    this.texts.adParnassum.html('ad parnassum: 1+')
     // this.texts.adParnassum.scale.set(0.8)
     mkElement([21, 2.3], 0xff6600, 'achievement')
     mkElement([54, 2.2], 0x337777, 'interactionCount')
@@ -519,11 +520,15 @@ class OABase {
       interactionCount: {
         achievement: 'access to interactions counter',
         alg: () => {
+          this.fooTotal = 0
           setInterval(() => {
             const total = Object.values(this.state).reduce((a, v) => a + v.count, 0)
             // const total = Object.values(this.counter).reduce((a, v) => a + v, 0)
-            this.texts.interactionCount.text(`interactions: ${total}`)
-          }, 500)
+            if (total !== this.fooTotal) {
+              this.texts.interactionCount.text(`interactions: ${total}`)
+              this.fooTotal = total
+            }
+          }, 1000)
         }
       },
       nodeInfo: {

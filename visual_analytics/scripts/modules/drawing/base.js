@@ -3,7 +3,7 @@ const PIXI = require('./pixi').PIXI
 
 const app = new PIXI.Application({
   width: window.innerWidth,
-  height: window.innerHeight * 0.95,
+  height: window.innerHeight * 0.90,
   // transparent: true
   backgroundColor: 0x000000
 })

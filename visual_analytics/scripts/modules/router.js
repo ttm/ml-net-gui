@@ -85,22 +85,57 @@ class Router {
     //   // wand.$('iframe.skiptranslate').css('visibility', 'hidden')
     //   wand.$('body').css('top', '0px')
     // }, 1000)
-    const intervalId = setInterval(() => {
-      console.log(wand.$('.skiptranslate').length, '<<<<<===== n skiptranslate')
-      const els = wand.$('.skiptranslate')
-      if (els.length > 4) {
-        console.log('HEYYY 2233')
-        clearInterval(intervalId)
-        els[0].remove()
-        wand.$('body').css('top', '0px')
-      }
-    }, 1000)
+    // const intervalId = setInterval(() => {
+    //   console.log(wand.$('.skiptranslate').length, '<<<<<===== n skiptranslate')
+    //   const els = wand.$('.skiptranslate')
+    //   if (els.length > 4) {
+    //     console.log('HEYYY 2233')
+    //     clearInterval(intervalId)
+    //     els[0].remove()
+    //     wand.$('body').css('top', '0px')
+    //   }
+    // }, 1000)
+
+    const lang = urlArgument('lang')
+    console.log(lang, '<<>><<<<>>><<<>>> LANG LANG LANG')
+    if (lang) {
+      const intervalId2 = setInterval(() => {
+        if (wand.$('#infotext0').length) {
+          const el = wand.$('.goog-te-combo')
+          el.val(lang)
+          triggerHtmlEvent(wand.$('.goog-te-combo').get(0), 'change')
+          clearInterval(intervalId2)
+          const els = wand.$('.skiptranslate')
+          if (els.length > 4) {
+            console.log('HEYYY 2233')
+            // clearInterval(intervalId)
+            els[0].remove()
+            wand.$('body').css('top', '0px')
+          }
+        }
+      }, 10)
+    }
   }
 }
 
 const conditionalArgument = (arg, fun) => {
   if (u.searchParams.get(arg)) {
     fun()
+  }
+}
+
+function triggerHtmlEvent (element, eventName) {
+  var event
+  if (document.createEvent) {
+    event = document.createEvent('HTMLEvents')
+    event.initEvent(eventName, true, true)
+    window.eell = element
+    console.log(element, eventName)
+    element.dispatchEvent(event)
+  } else {
+    event = document.createEventObject()
+    event.eventType = eventName
+    element.fireEvent('on' + event.eventType, event)
   }
 }
 

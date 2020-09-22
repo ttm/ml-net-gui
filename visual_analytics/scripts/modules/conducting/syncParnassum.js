@@ -510,10 +510,13 @@ class SyncParnassum extends OABase {
     // const fs = this.scaley(f)
     const texts = {}
     console.log('hey man, yeah here <<<<<<<=================')
+    let tcount = 0
     const mkElement = (pos, color, element, zIndex, alpha, text) => {
       // texts[element] = a.mkTextFancy(text, [pos[0] * x, pos[1] * y], fs, color, zIndex, alpha)
       // return texts[element]
       texts[element] = wand.$('<div/>', {
+        class: 'infotext',
+        id: 'infotext' + tcount++,
         css: {
           width: '50%',
           margin: '10%'

@@ -74,15 +74,26 @@ class Router {
         float: 'left'
       }
     }).html('Contribute to Our Aquarium').appendTo(ft)
-    wand.$('<div/>', { id: 'google_translate_element', css: { display: 'inline-block', float: 'left' } }).appendTo(ft)
+    wand.$('<div/>', { class: 'notranslate', css: { display: 'inline-block', 'margin-left': '30%', float: 'left' } }).appendTo(ft).html('language:')
+    wand.$('<div/>', { id: 'google_translate_element', class: 'notranslate', css: { display: 'inline-block', 'margin-left': '1%', float: 'left' } }).appendTo(ft)
     wand.$('<script/>', {
       type: 'text/javascript',
       src: '//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit'
     }).appendTo('body')
-    setTimeout(() => {
-      wand.$('iframe.skiptranslate').css('visibility', 'hidden')
-      wand.$('body').css('top', '0px')
-    }, 1000)
+    // setTimeout(() => {
+    //   wand.$('.skiptranslate')[0].remove()
+    //   // wand.$('iframe.skiptranslate').css('visibility', 'hidden')
+    //   wand.$('body').css('top', '0px')
+    // }, 1000)
+    const interval = setInterval(() => {
+      console.log(wand.$('.skiptranslate').length, '<<<<<===== n skiptranslate')
+      const els = wand.$('.skiptranslate')
+      if (els.length > 4) {
+        els[0].remove()
+        wand.$('body').css('top', '0px')
+        clearInterval(interval)
+      }
+    }, 50)
   }
 }
 

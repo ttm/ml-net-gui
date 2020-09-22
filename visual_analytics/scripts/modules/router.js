@@ -85,15 +85,16 @@ class Router {
     //   // wand.$('iframe.skiptranslate').css('visibility', 'hidden')
     //   wand.$('body').css('top', '0px')
     // }, 1000)
-    const interval = setInterval(() => {
+    const intervalId = setInterval(() => {
       console.log(wand.$('.skiptranslate').length, '<<<<<===== n skiptranslate')
       const els = wand.$('.skiptranslate')
       if (els.length > 4) {
+        console.log('HEYYY 2233')
+        clearInterval(intervalId)
         els[0].remove()
         wand.$('body').css('top', '0px')
-        clearInterval(interval)
       }
-    }, 50)
+    }, 1000)
   }
 }
 

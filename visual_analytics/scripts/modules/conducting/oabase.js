@@ -317,29 +317,50 @@ class OABase {
       wh: [a.width, a.height * 0.055], zIndex: 100, color: 0xbbbbbb, alpha: 1
     })
 
-    const f = this.settings.fontSize
-    const p = f / 2
-    const x = this.scalex(p)
-    const y = this.scaley(p)
-    const fs = this.scaley(f)
+    // const f = this.settings.fontSize
+    // const p = f / 2
+    // const x = this.scalex(p)
+    // const y = this.scaley(p)
+    // const fs = this.scaley(f)
 
+    wand.$('<div/>', {
+      id: 'infodiv',
+      css: {
+        display: 'grid',
+        'grid-template-columns': 'auto auto auto',
+        'background-color': '#2196F3',
+        padding: '10px'
+      }
+    }).insertBefore('canvas')
+    wand.$(`<style type='text/css'>
+      .grid-item {
+        background-color: rgba(255, 255, 255, 0.8);
+        border: 1px solid rgba(0, 0, 0, 0.8);
+        padding: 20px;
+        font-size: 30px;
+        text-align: center;
+      }
+    </style>`).appendTo('head')
     const mkElement = (pos, color, element, zIndex = 300, alpha = 1) => {
-      this.texts[element] = a.mkTextFancy('', [pos[0] * x, pos[1] * y], fs, color, zIndex, alpha)
+      // this.texts[element] = a.mkTextFancy('', [pos[0] * x, pos[1] * y], fs, color, zIndex, alpha)
+      this.texts[element] = wand.$('<div/>', {
+        class: 'grid-item'
+      }).appendTo('#infodiv')
     }
 
-    mkElement([1, 2.3], 0x777733, 'adParnassum')
-    this.texts.adParnassum.text = 'ad parnassum: > 1'
-    this.texts.adParnassum.scale.set(0.8)
     mkElement([1, 0.2], 0x333377, 'gradus')
-    mkElement([21, 2.3], 0xff6600, 'achievement')
     mkElement([21, 0.23], 0xff0000, 'tip')
-    mkElement([54, 2.2], 0x337777, 'interactionCount')
     mkElement([54, 0.2], 0x773377, 'orderSize')
+    mkElement([1, 2.3], 0x777733, 'adParnassum')
+    this.texts.adParnassum.html('ad parnassum: ++1')
+    // this.texts.adParnassum.scale.set(0.8)
+    mkElement([21, 2.3], 0xff6600, 'achievement')
+    mkElement([54, 2.2], 0x337777, 'interactionCount')
 
-    mkElement([1, 0.1], 0x333377, 'nodeId', 600, 0)
-    mkElement([1, 2.2], 0x777733, 'nodeName', 600, 0)
-    mkElement([41, 0.2], 0x666600, 'nodeDegree', 600, 0)
-    mkElement([41, 2.2], 0x555599, 'nodeDegreeCentrality', 600, 0)
+    // mkElement([1, 0.1], 0x333377, 'nodeId', 600, 0)
+    // mkElement([41, 0.2], 0x666600, 'nodeDegree', 600, 0)
+    // mkElement([1, 2.2], 0x777733, 'nodeName', 600, 0)
+    // mkElement([41, 2.2], 0x555599, 'nodeDegreeCentrality', 600, 0)
   }
 
   start () {
@@ -371,7 +392,7 @@ class OABase {
         alg: () => {
           wand.extra.exhibition = wand.test.testExhibition1('gradus')
           wand.currentNetwork = wand.extra.exhibition.drawnNet.net
-          self.texts.orderSize.text = `members, friendships: ${wand.currentNetwork.order}, ${wand.currentNetwork.size}`
+          self.texts.orderSize.text(`members, friendships: ${wand.currentNetwork.order}, ${wand.currentNetwork.size}`)
         }
       },
       showHideLinks: {
@@ -501,7 +522,7 @@ class OABase {
           setInterval(() => {
             const total = Object.values(this.state).reduce((a, v) => a + v.count, 0)
             // const total = Object.values(this.counter).reduce((a, v) => a + v, 0)
-            this.texts.interactionCount.text = `interactions: ${total}`
+            this.texts.interactionCount.text(`interactions: ${total}`)
           }, 500)
         }
       },
@@ -1066,20 +1087,20 @@ class OABase {
     }
 
     const step = this.gradus[this.currentLevel]
-    this.texts.gradus.text = `gradus: ${this.currentLevel}`
-    this.texts.gradus.scale.set(1.2)
+    this.texts.gradus.text(`gradus: ${this.currentLevel}`)
+    // this.texts.gradus.scale.set(1.2)
 
     const condition = this.conditions[step.condition]
     this.currentCondition = condition.condition // this sets gradus
-    this.texts.tip.text = `tip: ${condition.tip}`
-    this.texts.tip.scale.set(1.2)
+    this.texts.tip.text(`tip: ${condition.tip}`)
+    // this.texts.tip.scale.set(1.2)
 
     const feature = this.features[step.feature]
     feature.alg() // this sets gradus
     const a = this.texts.achievement
-    a.text = `achieved: ${feature.achievement}`
+    a.text(`achieved: ${feature.achievement}`)
     // a.tint = a.tint === 0x666600 ? 0x660066 : 0x666600
-    this.texts.achievement.scale.set(0.8)
+    // this.texts.achievement.scale.set(0.8)
 
     const textToSay = [
       `feature ${a.text}`,
@@ -1096,8 +1117,8 @@ class OABase {
       console.log('(((( ended, no more set new levels )))')
       console.log('parnassum reached, ending gradus loop. Gradus, ad parnassum:', this.currentLevel, this.gradus.length)
       console.log('Get in contact with renato </./> fabbri (O AT O) gmail [UU DOT UU] com to further unlock Gradus ad Parnassum.')
-      this.texts.tip.text = 'tip: make videos & synchronize'
-      this.texts.achievement.text = 'achieved: social self, extension, vital info [i]'
+      this.texts.tip.text('tip: make videos & synchronize')
+      this.texts.achievement.text('achieved: social self, extension, vital info [i]')
       return true
     }
     return false
@@ -1243,7 +1264,7 @@ class OABase {
     this.setNodeInfo()
     this.bindExplorerMusic()
     this.bindThreeSectorsMusic()
-    this.texts.orderSize.text = `members, friendships: ${net.order}, ${net.size}`
+    this.texts.orderSize.text(`members, friendships: ${net.order}, ${net.size}`)
   }
 
   setNodeInfo () {
@@ -1643,10 +1664,10 @@ class OABase {
   }
 
   setNetInfo () {
-    this.texts.gradus.text = `name, id: ${wand.sageInfo.name}, ${wand.sageInfo.sid || wand.sageInfo.nid}`
-    this.texts.achievement.text = `friends, friendships: ${wand.currentNetwork.order}, ${wand.currentNetwork.size}`
+    this.texts.gradus.text(`name, id: ${wand.sageInfo.name}, ${wand.sageInfo.sid || wand.sageInfo.nid}`)
+    this.texts.achievement.text(`friends, friendships: ${wand.currentNetwork.order}, ${wand.currentNetwork.size}`)
     if (this.sync) {
-      this.texts.tip.text = `seeds, steps: ${this.sync.seeds.length}, ${this.sync.progression.length - 1}`
+      this.texts.tip.text(`seeds, steps: ${this.sync.seeds.length}, ${this.sync.progression.length - 1}`)
     }
   }
 

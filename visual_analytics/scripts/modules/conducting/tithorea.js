@@ -361,7 +361,7 @@ class Tithorea {
 
             // const url = a.urlStr + this.removedNodesUrl + this.descUrl())
             const r = wand.utils.rot
-            const url = `${document.location.href.split('?')[0]}?page=ankh_&syncKey=${key}&mnid=${r(a.nid || '')}&msid=${r(a.sid || '')}`
+            const url = `${document.location.href.split('?')[0]}?page=ankh_&syncKey=${key}&mnid=${r(a.nid || '')}&msid=${r(a.sid || '')}&lang=${wand.$('.goog-te-combo').val()}`
             this.saveSync(key).then(_ => {
               wand.utils.copyToClipboard(url)
               wand.transfer.mong.findAny({ syncKey: key }).then(res2 => { // fixme: remove
@@ -1046,7 +1046,8 @@ class Tithorea {
       sync: this.sync, // all of it?
       desc: wand.magic.tithorea.descArea.val(),
       removedNodes: this.removedNodes,
-      syncKey: key
+      syncKey: key,
+      lang: wand.$('.goog-te-combo').val()
     }
     console.log('SYNC DATA TO BE WRITTEN:', data)
     return wand.transfer.mong.writeAny(data)

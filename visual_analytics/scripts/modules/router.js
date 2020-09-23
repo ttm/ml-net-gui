@@ -96,25 +96,22 @@ class Router {
     //   }
     // }, 1000)
 
-    const lang = urlArgument('lang')
-    console.log(lang, '<<>><<<<>>><<<>>> LANG LANG LANG')
-    if (lang) {
-      const intervalId2 = setInterval(() => {
-        if (wand.$('#infotext0').length) {
-          const el = wand.$('.goog-te-combo')
-          el.val(lang)
-          triggerHtmlEvent(wand.$('.goog-te-combo').get(0), 'change')
-          clearInterval(intervalId2)
-          const els = wand.$('.skiptranslate')
-          if (els.length > 4) {
-            console.log('HEYYY 2233')
-            // clearInterval(intervalId)
-            els[0].remove()
-            wand.$('body').css('top', '0px')
-          }
+    const lang = urlArgument('lang') || 'en'
+    const intervalId2 = setInterval(() => {
+      if (wand.$('#infotext0').length) {
+        const el = wand.$('.goog-te-combo')
+        el.val(lang)
+        triggerHtmlEvent(wand.$('.goog-te-combo').get(0), 'change')
+        clearInterval(intervalId2)
+        const els = wand.$('.skiptranslate')
+        if (els.length > 4) {
+          console.log('HEYYY 2233')
+          // clearInterval(intervalId)
+          els[0].remove()
+          wand.$('body').css('top', '0px')
         }
-      }, 10)
-    }
+      }
+    }, 10)
   }
 }
 

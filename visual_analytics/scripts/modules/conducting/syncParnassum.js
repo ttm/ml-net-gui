@@ -2,7 +2,7 @@
 
 const { OABase } = require('./oabase')
 const { mkBtn } = require('./gui.js')
-const { gradus1, gradus2, gradusRec, gradusSyncLinks, gradusVideoLink, gradusExtensionInfo, uploadVideoText, uploadVideoPlaceholder, arcturians1, arcturians2, gradus1Login } = require('./instructions.js')
+const { gradus1b, gradus2, gradusRec, gradusSyncLinks, gradusVideoLink, gradusExtensionInfo, uploadVideoText, uploadVideoPlaceholder, arcturians1, arcturians2, gradus1Login } = require('./instructions.js')
 const { Tone } = require('../maestro/all.js').base
 const { copyToClipboard } = require('./utils.js')
 
@@ -519,16 +519,18 @@ class SyncParnassum extends OABase {
         id: 'infotext' + tcount++,
         css: {
           width: '50%',
-          margin: '10%'
+          margin: '10%',
+          'background-color': '#DDDDDD',
+          padding: '2%'
         }
       }).html(text.replaceAll('\n', '<br />')).appendTo('body').hide()
       return texts[element]
     }
-    const ltext0 = mkElement([1, 2.2], 0x777733, '1', 3000, 0, gradus1())
-    ltext0.on('pointerdown', () => {
-      window.open('?page=guidelines')
-    })
-    ltext0.buttonMode = true
+    mkElement([1, 2.2], 0x777733, '1', 3000, 0, gradus1b())
+    // ltext0.on('pointerdown', () => {
+    //   window.open('?page=guidelines')
+    // })
+    // ltext0.buttonMode = true
 
     let g2 = gradus2()
     const url = g2.match(/\bhttps?:\/\/\S+/gi) // fixme: only works if link at last.
@@ -669,11 +671,10 @@ class SyncParnassum extends OABase {
   }
 
   mkSyncLinks_ () {
-    if (wand.syncInfo.syncKey) {
+    if (wand.syncInfo.syncKey) { // dont make diffusion, already has it:
       this.mkSyncLinks2(wand.syncInfo.syncId)
       return (async function () {})()
-    } else if (wand.syncInfo.syncId) {
-      console.log(' // dont make diffusion, already has it')
+    } else if (wand.syncInfo.syncId) { // dont make diffusion, already has it:
       this.mkSyncLinks(wand.syncInfo.syncId)
       return (async function () {})()
     } else {
@@ -699,7 +700,7 @@ class SyncParnassum extends OABase {
       // const mfield = a.sid ? 'msid' : 'mnid'
       // return `${window.location.origin}/?page=ankh_&${mfield}=${mstr}&syncId=${syncId}`
       const r = wand.utils.rot
-      return `${document.location.href.split('?')[0]}?page=ankh_&syncKey=${wand.syncInfo.syncKey}&mnid=${r(a.nid || '')}&msid=${r(a.sid || '')}`
+      return `${document.location.href.split('?')[0]}?page=ankh_&syncKey=${wand.syncInfo.syncKey}&mnid=${r(a.nid || '')}&msid=${r(a.sid || '')}&lang=${wand.router.use.urlArgument('lang')}`
     }
     // from here on for both cases:
     const memberTexts = []

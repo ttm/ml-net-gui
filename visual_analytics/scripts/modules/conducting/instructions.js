@@ -34,7 +34,7 @@ Click on this text to open the see the usage guidelines if you need them.
 `
 }
 
-const gradus1 = () => {
+const gradus1 = () => { // deprecated in favor of gradus1b
   return `
 Welcome to the Gradus.
 
@@ -57,6 +57,23 @@ Good luck!
 OA @ ${visitorName()}, ${(new Date()).toISOString().split('.')[0]}.
 (press the [i] button above or login with the chrome extension if you have it)
 `
+}
+
+// const linkify = require('linkifyjs')
+// const linkifyjq = require('linkifyjs/jquery')
+const linkify = require('linkifyjs/html')
+const gradus1b = () => {
+  return `
+  ${toSeedText(visitorName())}
+
+  Also, please read kindness:
+
+  <div style="background-color: #AAAAAA; padding: 2%;">
+    ${linkify(syncDescription())}
+  </div>
+
+  :::
+  `
 }
 
 // Hope you reach the interaction networks from Twitter, Instagram, and other communication platforms.
@@ -578,11 +595,15 @@ const musicName = name => {
 }
 
 const toSeedText = seedName => {
-  return ` ${seedName}, you will now listen a music about you, called: ${wand.musicName || musicName(seedName)}.
+  return ` <b>${seedName}</b>, you have a music dedicated to you: "${wand.musicName || musicName(seedName)}".
+  <br />
+  <div style="text-align: center">
+    <button style="background-color: #3D9970;cursor: pointer;transform: scale(2);" onclick="wand.$('#info-button').click()">Listen your music</button>
+  </div>
 `
 }
 
 // OA is writen in the WYSINB (what you see is not beautiful) style.
 // It is meant to be very functional and simple and development friendly.
 
-module.exports = { tithorea1, lycoreia1, gradus1, gradus2, gradus3, gradusRec, gradusSyncLinks, gradusVideoLink, gradusExtensionInfo, uploadVideoText, uploadVideoPlaceholder, lycoreiaNew, arcturians1, arcturians2, guards, tithoreaNew2, tithoreaNew, defaultSyncDescription, defaultSyncDescription2, defaultSyncDescription3, defaultSyncDescription4, defaultSyncDescription5, defaultSyncDescription6, defaultSyncDescription7, toSeedText, defaultSyncDescription8, gradus1Login, defaultSyncDescription9 }
+module.exports = { tithorea1, lycoreia1, gradus1, gradus2, gradus3, gradusRec, gradusSyncLinks, gradusVideoLink, gradusExtensionInfo, uploadVideoText, uploadVideoPlaceholder, lycoreiaNew, arcturians1, arcturians2, guards, tithoreaNew2, tithoreaNew, defaultSyncDescription, defaultSyncDescription2, defaultSyncDescription3, defaultSyncDescription4, defaultSyncDescription5, defaultSyncDescription6, defaultSyncDescription7, toSeedText, defaultSyncDescription8, gradus1Login, defaultSyncDescription9, gradus1b }

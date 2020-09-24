@@ -5,6 +5,8 @@
 // only the instructions, no entity or myth
 // not on first interfaces / interactions
 
+const linkify = require('linkifyjs/html')
+
 // starting message:
 
 const visitorName = () => {
@@ -61,7 +63,6 @@ OA @ ${visitorName()}, ${(new Date()).toISOString().split('.')[0]}.
 
 // const linkify = require('linkifyjs')
 // const linkifyjq = require('linkifyjs/jquery')
-const linkify = require('linkifyjs/html')
 const gradus1b = () => {
   return `
   ${toSeedText(visitorName())}
@@ -149,7 +150,7 @@ enabling partnerships, or making donations.
 :::
 
 See more on:
-https://en.wikipedia.org/wiki/Liquid_democracy#:~:text=Liquid%20democracy%20is%20a%20form,or%20proposed%20popular%2Dcontrol%20apparatuses.
+https://en.wikipedia.org/wiki/Liquid_democracy
 `
 }
 
@@ -295,11 +296,38 @@ Follow the instructions given in the "tip" field at each level (gradus).
 `
 }
 
+const gradusSyncLinks2 = syncNames => {
+  let t = `
+  Copy the link and send the music piece to each of these friends through any communication protocol
+  (telephone, email, whatsapp, telegram, facebook, twitter, instagram, irc, matrix, ...).
+  You may take the chance to say hello and talk about life, family, work, or whatnot:
+
+  <div style="background-color: #AAAAAA; padding: 2%;">
+    ${linkify(syncNames)}.
+  </div>
+  `
+  if (syncNames === '') {
+    t = `
+    You are a leaf, that is, the last person in your synchronization branch.
+    Thus no further music links are to be sent.
+    You may wish to notify who sent you the link, or ${wand.syncInfo.syncMemberName}.
+    Keep using OA in order to make art and your own synchronizations or to better know your social networks.
+
+    Click here to get in touch. You have special credentials because you are a leaf member.
+    `
+  }
+
+  return `
+  ${t}
+  <b>Press the [i] button above to continue your journey to the Parnassum.</b>
+  `
+}
+
 const gradusSyncLinks = syncNames => {
   let t = `
-  Send to these friends through any communication protocol
+  Send the music pieces to this selection of your friends through any communication protocol
   (telephone, email, whatsapp, telegram, facebook, twitter, instagram, irc, matrix, ...).
-  Maybe take the chance to say hello and talk about life, work, or whatnot:
+  You may take the chance to say hello and talk about life, work, or whatnot:
 
   ${syncNames}.
 
@@ -350,11 +378,11 @@ What modes and features is dependent on the version of OA you are using and your
 `
 }
 
-const gradusRec = () => {
+const gradusRec = () => { // fixme: fazer uma modal para que seja traduzido!
   return `
-You have recorded your music, ${visitorName()}.
-Save the video file locally and upload it to a video platform (such as youtube).
-You will need the link to reach the Mount Parnassum.
+${visitorName()}, you may save the video file with your music and upload it to a video platform (such as youtube).
+
+Indeed, you have been invited to continue on this page in order to unlock music pieces of your friends and your journey to the Parnassum.
 `
 }
 
@@ -606,4 +634,4 @@ const toSeedText = seedName => {
 // OA is writen in the WYSINB (what you see is not beautiful) style.
 // It is meant to be very functional and simple and development friendly.
 
-module.exports = { tithorea1, lycoreia1, gradus1, gradus2, gradus3, gradusRec, gradusSyncLinks, gradusVideoLink, gradusExtensionInfo, uploadVideoText, uploadVideoPlaceholder, lycoreiaNew, arcturians1, arcturians2, guards, tithoreaNew2, tithoreaNew, defaultSyncDescription, defaultSyncDescription2, defaultSyncDescription3, defaultSyncDescription4, defaultSyncDescription5, defaultSyncDescription6, defaultSyncDescription7, toSeedText, defaultSyncDescription8, gradus1Login, defaultSyncDescription9, gradus1b }
+module.exports = { tithorea1, lycoreia1, gradus1, gradus2, gradus3, gradusRec, gradusSyncLinks, gradusVideoLink, gradusExtensionInfo, uploadVideoText, uploadVideoPlaceholder, lycoreiaNew, arcturians1, arcturians2, guards, tithoreaNew2, tithoreaNew, defaultSyncDescription, defaultSyncDescription2, defaultSyncDescription3, defaultSyncDescription4, defaultSyncDescription5, defaultSyncDescription6, defaultSyncDescription7, toSeedText, defaultSyncDescription8, gradus1Login, defaultSyncDescription9, gradus1b, gradusSyncLinks2 }

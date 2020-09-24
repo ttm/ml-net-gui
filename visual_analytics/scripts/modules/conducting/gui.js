@@ -159,6 +159,11 @@ const mkBtn = (iclass, fid, title, fun, ref, cont) => {
     id: `${fid}-button`,
     click: () => {
       fun()
+    },
+    css: {
+      height: '4%',
+      width: '4%',
+      'margin-left': '1%'
     }
   }).attr('atitle', title)
   if (!ref) {

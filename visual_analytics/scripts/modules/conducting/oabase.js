@@ -160,17 +160,20 @@ class OABase {
             }
           },
           bindPlayer: function () {
-            const $ = wand.$
+            // const $ = wand.$
             self.rec = wand.transfer.rec.rec()
-            $('<i/>', { class: 'fa fa-music', id: 'player-icon' }).appendTo(
-              $('<button/>', {
-                class: 'btn',
-                id: 'player-button',
-                click: () => {
-                  self.increment('player')
-                }
-              }).attr('atitle', 'change player').insertAfter('#pallete-button')
-            )
+            // $('<i/>', { class: 'fa fa-music', id: 'player-icon' }).appendTo(
+            //   $('<button/>', {
+            //     class: 'btn',
+            //     id: 'player-button',
+            //     click: () => {
+            //       self.increment('player')
+            //     }
+            //   }).attr('atitle', 'change player').insertAfter('#pallete-button')
+            // )
+            mkBtn('fa-music', 'player', 'play music', () => {
+              self.increment('player')
+            }, '#pallete-button')
           }
         },
         info: {
@@ -330,7 +333,7 @@ class OABase {
         'grid-template-columns': 'auto auto auto',
         'background-color': '#2196F3',
         padding: '2px',
-        height: Math.floor(wand.artist.use.height * 0.055) + 'px'
+        height: Math.floor(wand.artist.use.height * 0.065) + 'px'
       }
     }).insertBefore('canvas')
     wand.$('<div/>', {
@@ -340,7 +343,7 @@ class OABase {
         'grid-template-columns': 'auto auto',
         'background-color': '#21F693',
         padding: '2px',
-        height: Math.floor(wand.artist.use.height * 0.055) + 'px'
+        height: Math.floor(wand.artist.use.height * 0.060) + 'px'
       }
     }).insertBefore('canvas').hide()
     wand.$(`<style type='text/css'>
@@ -404,30 +407,39 @@ class OABase {
         alg: () => {
           wand.extra.exhibition = wand.test.testExhibition1('gradus')
           wand.currentNetwork = wand.extra.exhibition.drawnNet.net
+          wand.currentNetwork.forEachNode((n, a) => {
+            a.pixiElement.scale.set(2)
+          })
           self.texts.orderSize.text(`members, friendships: ${wand.currentNetwork.order}, ${wand.currentNetwork.size}`)
         }
       },
       showHideLinks: {
         achievement: 'show/hide nodes/links buttons',
         alg: () => {
-          $('<i/>', { class: 'fa fa-chess', id: 'member-icon' }).appendTo(
-            $('<button/>', {
-              class: 'btn',
-              id: 'member-button',
-              click: () => {
-                this.increment('nodesAlpha')
-              }
-            }).attr('atitle', 'show members').insertAfter('#info-button')
-          )
-          $('<i/>', { class: 'fa fa-bone', id: 'friendship-icon' }).appendTo(
-            $('<button/>', {
-              class: 'btn',
-              id: 'friendship-button',
-              click: () => {
-                this.increment('edgesAlpha')
-              }
-            }).attr('atitle', 'show friendships').insertAfter('#member-button')
-          )
+          mkBtn('fa-chess', 'member', 'show members', () => {
+            this.increment('nodesAlpha')
+          }, '#info-button')
+          mkBtn('fa-bone', 'friendship', 'show friendships', () => {
+            this.increment('edgesAlpha')
+          }, '#member-button')
+          // $('<i/>', { class: 'fa fa-chess', id: 'member-icon' }).appendTo(
+          //   $('<button/>', {
+          //     class: 'btn',
+          //     id: 'member-button',
+          //     click: () => {
+          //       this.increment('nodesAlpha')
+          //     }
+          //   }).attr('atitle', 'show members').insertAfter('#info-button')
+          // )
+          // $('<i/>', { class: 'fa fa-bone', id: 'friendship-icon' }).appendTo(
+          //   $('<button/>', {
+          //     class: 'btn',
+          //     id: 'friendship-button',
+          //     click: () => {
+          //       this.increment('edgesAlpha')
+          //     }
+          //   }).attr('atitle', 'show friendships').insertAfter('#member-button')
+          // )
           this.state.edgesAlpha.update()
           this.state.nodesAlpha.update()
         }
@@ -443,15 +455,18 @@ class OABase {
           wand.currentNetwork = wand.theNetwork
           // self.visualizeNetworkSync()
           self.resetNetwork()
-          $('<i/>', { class: 'fa fa-mask', id: 'names-icon' }).appendTo(
-            $('<button/>', {
-              class: 'btn',
-              id: 'names-button',
-              click: () => {
-                this.increment('namesAlpha')
-              }
-            }).attr('atitle', 'show names').insertAfter('#friendship-button')
-          )
+          // $('<i/>', { class: 'fa fa-mask', id: 'names-icon' }).appendTo(
+          //   $('<button/>', {
+          //     class: 'btn',
+          //     id: 'names-button',
+          //     click: () => {
+          //       this.increment('namesAlpha')
+          //     }
+          //   }).attr('atitle', 'show names').insertAfter('#friendship-button')
+          // )
+          mkBtn('fa-mask', 'names', 'show names', () => {
+            this.increment('namesAlpha')
+          }, '#friendship-button')
 
           this.texts.gradus.on('click', () => {
             this.increment('namesSize')
@@ -464,11 +479,11 @@ class OABase {
           })
           this.texts.orderSize.interactive = true
 
-          const s = $('<select/>', { id: 'file-select' })
+          const s = $('<select/>', { id: 'file-select', css: { 'font-size': 'larger' } })
             .prop('atitle', 'select network').prependTo('body')
           window.sss = s
           if (!window.oaReceivedMsg) { // load one of the networks
-            ['star', '5%', '15%', '30%', '40%', '45%'].forEach((ss, i) => {
+            ['star', '10%', '30%', '60%', '80%', '100%'].forEach((ss, i) => {
               s.append($('<option/>').val(i).html(`${wand.syncInfo.pageMemberName} - ${ss}`))
             })
             // this.allNetworks.forEach((n, i) => {
@@ -515,16 +530,19 @@ class OABase {
       randomColors: {
         achievement: 'randomize colors',
         alg: () => {
-          $('<i/>', { class: 'fa fa-palette', id: 'pallete-icon' }).appendTo(
-            $('<button/>', {
-              class: 'btn',
-              id: 'pallete-button',
-              click: () => {
-                this.increment('colors')
-              }
-            }).attr('atitle', 'change colors').css('background-color', 'gray')
-              .insertAfter('#names-button')
-          )
+          // $('<i/>', { class: 'fa fa-palette', id: 'pallete-icon' }).appendTo(
+          //   $('<button/>', {
+          //     class: 'btn',
+          //     id: 'pallete-button',
+          //     click: () => {
+          //       this.increment('colors')
+          //     }
+          //   }).attr('atitle', 'change colors').css('background-color', 'gray')
+          //     .insertAfter('#names-button')
+          // )
+          mkBtn('fa-palette', 'pallete', 'change colors', () => {
+            this.increment('colors')
+          }, '#names-button')
           $('#pallete-button').click()
         }
       },
@@ -564,9 +582,9 @@ class OABase {
       },
       videoLink: {
         achievement: 'video URL registration',
-        alg: () => {
-          this.infoLength = 3
-          this.showMsg(3)
+        alg: () => { // fixme: put button?
+          // this.infoLength = 3
+          // this.showMsg(3)
         }
       },
       almostSyncLinks: {
@@ -576,9 +594,9 @@ class OABase {
       },
       syncLinks: {
         achievement: 'access to syncronization links',
-        alg: () => {
-          this.infoLength = 4
-          this.showMsg(4)
+        alg: () => { // fixme: put info dialog?
+          // this.infoLength = 4
+          // this.showMsg(4)
         }
       },
       almostExtensionInfo: {
@@ -589,8 +607,8 @@ class OABase {
       extensionInfo: {
         achievement: 'access to extension',
         alg: () => { // dummy
-          this.infoLength = 5
-          this.showMsg(5)
+          // this.infoLength = 5
+          // this.showMsg(5)
         }
       },
       socialSelf: {
@@ -681,13 +699,13 @@ class OABase {
         }
       },
       networksVisualized: {
-        tip: 'explore 3 network sizes',
+        tip: 'visualize 3 network sizes',
         condition: () => {
           if (
-            this.counter.networksVisualized >= 3 &&
-            s.nodesAlpha.count >= 5 &&
-            s.edgesAlpha.count >= 5 &&
-            s.namesAlpha.count >= 6
+            this.counter.networksVisualized >= 3
+            // s.nodesAlpha.count >= 5 &&
+            // s.edgesAlpha.count >= 5 &&
+            // s.namesAlpha.count >= 6
           ) {
             this.conditionMet = true
           }
@@ -1103,12 +1121,13 @@ class OABase {
     }
 
     const step = this.gradus[this.currentLevel]
-    this.texts.gradus.text(`gradus: ${this.currentLevel}`)
+    this.texts.gradus.html(`<button style="cursor: pointer; font-size: 103%;" atitle="click to change name size">gradus: ${this.currentLevel}</button>`)
     // this.texts.gradus.scale.set(1.2)
 
     const condition = this.conditions[step.condition]
     this.currentCondition = condition.condition // this sets gradus
-    this.texts.tip.text(`tip: ${condition.tip}`)
+    // this.texts.tip.text(`-> ${condition.tip}`)
+    this.texts.tip.html(`<span style="background-color: lightgreen; padding: 0 2% 0 2%;">&#x1F449 ${condition.tip}</span>`)
     // this.texts.tip.scale.set(1.2)
 
     const feature = this.features[step.feature]
@@ -1118,11 +1137,12 @@ class OABase {
     // a.tint = a.tint === 0x666600 ? 0x660066 : 0x666600
     // this.texts.achievement.scale.set(0.8)
 
-    const textToSay = [
-      `feature ${a.text}`,
-      `what to do now? ${this.texts.tip.text}`
-    ]
-    textToSay.forEach(i => wand.maestro.synths.speaker.play(i, 'en'))
+    // fixme: remove or let it be:
+    // const textToSay = [
+    //   `feature ${a.text}`,
+    //   `what to do now? ${this.texts.tip.text}`
+    // ]
+    // textToSay.forEach(i => wand.maestro.synths.speaker.play(i, 'en'))
     this.conditionMet = false
     this.conditionMetLock = false
     return true
@@ -1133,7 +1153,7 @@ class OABase {
       console.log('(((( ended, no more set new levels )))')
       console.log('parnassum reached, ending gradus loop. Gradus, ad parnassum:', this.currentLevel, this.gradus.length)
       console.log('Get in contact with renato </./> fabbri (O AT O) gmail [UU DOT UU] com to further unlock Gradus ad Parnassum.')
-      this.texts.tip.text('tip: make videos & synchronize')
+      this.texts.tip.text('-> make videos & synchronize')
       this.texts.achievement.text('achieved: social self, extension, vital info [i]')
       return true
     }
@@ -1280,7 +1300,7 @@ class OABase {
     this.setNodeInfo()
     this.bindExplorerMusic()
     this.bindThreeSectorsMusic()
-    this.texts.orderSize.text(`members, friendships: ${net.order}, ${net.size}`)
+    this.texts.orderSize.html(`<button style="cursor: pointer; font-size: 103%;" atitle="click to change node size">members, friendships: ${net.order}, ${net.size}</button>`)
   }
 
   setNodeInfo () {

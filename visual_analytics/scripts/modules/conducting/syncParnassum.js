@@ -2,7 +2,7 @@
 
 const { OABase } = require('./oabase')
 const { mkBtn } = require('./gui.js')
-const { gradus1b, gradus2, gradusRec, gradusSyncLinks, gradusVideoLink, gradusExtensionInfo, uploadVideoText, uploadVideoPlaceholder, arcturians1, arcturians2, gradus1Login } = require('./instructions.js')
+const { gradus1b, gradus2, gradusRec, gradusSyncLinks2, gradusVideoLink, gradusExtensionInfo, uploadVideoText, uploadVideoPlaceholder, arcturians1, arcturians2, gradus1Login } = require('./instructions.js')
 const { Tone } = require('../maestro/all.js').base
 const { copyToClipboard } = require('./utils.js')
 
@@ -29,7 +29,7 @@ class SyncParnassum extends OABase {
     // wand.$('#loading').hide()
 
     // const now = performance.now()
-    this.settings.timeStreach = 0.001 // fixme: remove, make flag...
+    // this.settings.timeStreach = 0.001 // fixme: remove, make flag...
     if (window.oaReceivedMsg) { // gradus for the user network, from extension:
       this.settings.timeStreach = 0.001
       this.settings.currentLevel = 14
@@ -519,7 +519,7 @@ class SyncParnassum extends OABase {
         id: 'infotext' + tcount++,
         css: {
           width: '50%',
-          margin: '10%',
+          margin: '3%',
           'background-color': '#DDDDDD',
           padding: '2%'
         }
@@ -532,52 +532,54 @@ class SyncParnassum extends OABase {
     // })
     // ltext0.buttonMode = true
 
-    let g2 = gradus2()
-    const url = g2.match(/\bhttps?:\/\/\S+/gi) // fixme: only works if link at last.
-    if (url !== null) {
-      g2 = g2.replace(url[0], 'click HERE.')
-    }
-    const g2_ = mkElement([1, 2.2], 0x777733, '2', 3000, 0, g2).on('pointerdown', () => {
-      if (url !== null) {
-        window.open(url[0], '_blank')
-      }
-    })
-    g2_.buttonMode = true
-    g2_.interactive = true
+    // let g2 = gradus2()
+    // const url = g2.match(/\bhttps?:\/\/\S+/gi) // fixme: only works if link at last.
+    // if (url !== null) {
+    //   g2 = g2.replace(url[0], 'click HERE.')
+    // }
+    // const g2_ = mkElement([1, 2.2], 0x777733, '2', 3000, 0, g2).on('pointerdown', () => {
+    //   if (url !== null) {
+    //     window.open(url[0], '_blank')
+    //   }
+    // })
+    // g2_.buttonMode = true
+    // g2_.interactive = true
 
-    const ltext = mkElement([1, 2.2], 0x777733, '3', 3000, 0, gradusVideoLink)
-    ltext.on('pointerdown', () => {
-      let vurl = window.prompt(uploadVideoText, uploadVideoPlaceholder)
-      if (vurl === null) return
-      vurl = vurl.trim()
-      if (/^https*:\/\//.test(vurl)) {
-        this.writeVideoUrl(vurl, 'gradus')
-      }
-    })
-    ltext.buttonMode = true
+    // const ltext = mkElement([1, 2.2], 0x777733, '3', 3000, 0, gradusVideoLink)
+    // ltext.on('pointerdown', () => {
+    //   let vurl = window.prompt(uploadVideoText, uploadVideoPlaceholder)
+    //   if (vurl === null) return
+    //   vurl = vurl.trim()
+    //   if (/^https*:\/\//.test(vurl)) {
+    //     this.writeVideoUrl(vurl, 'gradus')
+    //   }
+    // })
+    // ltext.buttonMode = true
 
     // this.mkSyncLinks()
     this.mkSyncLinks_().then(r => {
-      const atext = mkElement([1, 2.2], 0x777733, '4', 3000, 0, gradusSyncLinks(this.syncNames))
-      // atext.interactive = true
-      atext.on('pointerdown', () => {
-        if (this.syncLinks !== '') {
-          copyToClipboard(this.syncLinks)
-          copyToClipboard(this.syncLinks)
-          copyToClipboard(this.syncLinks)
-          copyToClipboard(this.syncLinks)
-          window.alert(`links to music pieces and known contacts copied to your clipboard.
-          ~~~ --> Paste on a text editor to read! <-- ~~~`)
-          this.syncLinksCopied = true
-        } else {
-          window.open('?page=contribute')
-        }
-      })
-      atext.buttonMode = true
+      window.foobar = { gradusExtensionInfo, copyToClipboard }
+      mkElement([1, 2.2], 0x777733, '2', 3000, 0, gradusSyncLinks2(this.syncLinks))
+      // const atext = mkElement([1, 2.2], 0x777733, '4', 3000, 0, gradusSyncLinks(this.syncNames))
+      // // atext.interactive = true
+      // atext.on('pointerdown', () => {
+      //   if (this.syncLinks !== '') {
+      //     copyToClipboard(this.syncLinks)
+      //     copyToClipboard(this.syncLinks)
+      //     copyToClipboard(this.syncLinks)
+      //     copyToClipboard(this.syncLinks)
+      //     window.alert(`links to music pieces and known contacts copied to your clipboard.
+      //     ~~~ --> Paste on a text editor to read! <-- ~~~`)
+      //     this.syncLinksCopied = true
+      //   } else {
+      //     window.open('?page=contribute')
+      //   }
+      // })
+      // atext.buttonMode = true
 
-      mkElement([1, 2.2], 0x777733, '5', 3000, 0, gradusExtensionInfo).on('pointerdown', () => {
-        window.open('you.zip', '_blank') // needs to be uploaded to instance. TTM
-      }).buttonMode = true
+      // mkElement([1, 2.2], 0x777733, '5', 3000, 0, gradusExtensionInfo).on('pointerdown', () => {
+      //   window.open('you.zip', '_blank') // needs to be uploaded to instance. TTM
+      // }).buttonMode = true
 
       this.tttexts = texts
 
@@ -631,10 +633,11 @@ class SyncParnassum extends OABase {
               s.membSynth.dispose()
               s.membSynth2.dispose()
             })
+            wand.$('#info-button').show()
             this.start()
           } else {
             this.setPlay()
-            wand.$('#info-button').hide()
+            // wand.$('#info-button').hide()
             wand.$('#play-button').click() // start play and record
             const seq = this.memberMusicSeqs[this.memberMusicSeqs.length - 1]
             // d(() => { // periodically check condition given by last
@@ -662,7 +665,7 @@ class SyncParnassum extends OABase {
           this.isInitialized = true
         }
       }
-      mkBtn('fa-info', 'info', 'infos / dialogs', fun)
+      mkBtn('fa-info', 'info', 'infos / dialogs', fun).hide()
       // wand.$('#info-button').click()
       this.infoLength = 2
       showMsg(1)
@@ -727,8 +730,8 @@ class SyncParnassum extends OABase {
           const musicUrl = getNodeMusicUrl(a)
           memberTexts.push(
             `${name}:
-            -> music: ${musicUrl}
-            -> known contact medium: ${contact}`
+            -> music: <span class="notranslate">${musicUrl}</span>
+            -> known contact medium: <span class="notranslate">${contact}</span>`
           )
           names.push(name)
         }

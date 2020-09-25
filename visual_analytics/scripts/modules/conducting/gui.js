@@ -155,7 +155,7 @@ function basicStats () {
 const mkBtn = (iclass, fid, title, fun, ref, cont) => {
   const $ = wand.$
   const btn = $('<button/>', {
-    class: 'btn',
+    class: 'btn tooltip',
     id: `${fid}-button`,
     click: () => {
       fun()
@@ -165,13 +165,17 @@ const mkBtn = (iclass, fid, title, fun, ref, cont) => {
       width: '4%',
       'margin-left': '1%'
     }
-  }).attr('atitle', title)
+  })
+  // }).attr('atitle', title)
   if (!ref) {
     btn.prependTo('body')
   } else {
     btn.insertAfter(ref)
   }
   $('<i/>', { class: 'fa ' + iclass, id: `${fid}-icon` }).appendTo(
+    btn
+  )
+  $('<span/>', { class: 'tooltiptext' }).text(title).appendTo(
     btn
   )
   return btn

@@ -1,7 +1,7 @@
 /* global wand, performance */
 const { mkBtn } = require('./gui.js')
 const { Tone } = require('../maestro/all.js').base
-// const { gradusSyncLinks } = require('./instructions.js')
+const { uploadVideoText, uploadVideoPlaceholder } = require('./instructions.js')
 // const { copyToClipboard } = require('./utils.js')
 
 const d = (f, time) => Tone.Draw.schedule(f, time)
@@ -367,7 +367,42 @@ class OABase {
     mkElement([21, 0.23], 0xff0000, 'tip')
     mkElement([54, 0.2], 0x773377, 'orderSize')
     mkElement([1, 2.3], 0x777733, 'adParnassum')
-    this.texts.adParnassum.html('ad parnassum: 1+')
+    // this.texts.adParnassum.html('ad parnassum: 1+')
+    const modal = wand.$('<div/>', { id: 'myModal', class: 'modal' }).appendTo('body')
+    window.myModal = modal
+    // const modalContent = wand.$('<div/>', { class: 'modal-content' }).appendTo(
+    wand.$('<div/>', { class: 'modal-content' }).appendTo(
+      modal
+    ).html(`
+    <label for="fname">${uploadVideoText}</label><br>
+    <input type="text" id="vUrl" placeholder="${uploadVideoPlaceholder}" style="width:70%"><br><br>
+    <button id="vSub" onclick="wand.magic.syncParnassum.writeVideoUrl()">Submit</button>
+    <button onclick="wand.$('#myModal').css('display', 'none')">Cancel</button>
+    `)
+    this.videoSource = 'gradusSelf'
+    wand.$('#vUrl').on('keyup', function (event) {
+      // Number 13 is the "Enter" key on the keyboard
+      if (event.keyCode === 13) {
+        // Cancel the default action, if needed
+        event.preventDefault()
+        // Trigger the button element with a click
+        document.getElementById('vSub').click()
+      }
+    })
+    // wand.$('<span/>', { class: 'close' }).html('&times;').appendTo(modalContent)
+
+    // wand.$('<p/>').text(uploadVideoText + '\n' + uploadVideoPlaceholder).appendTo(modalContent)
+    this.texts.adParnassum.html('<span class="tooltip" style="cursor: pointer; font-size: 103%;background-color: yellow; padding: 0 2%;">ad parnassum: 1+ <span class="tooltiptext" style="font-size:97%;" onclick="">register video URL</span></span>').on('pointerdown', () => {
+      // modal.style.display = 'block'
+      modal.css('display', 'block')
+      // let vurl = window.prompt(uploadVideoText, uploadVideoPlaceholder)
+      // if (vurl === null) return
+      // vurl = vurl.trim()
+      // if (/^https*:\/\//.test(vurl)) {
+      //   this.writeVideoUrl(vurl, 'gradusSelf')
+      // }
+    })
+
     // this.texts.adParnassum.scale.set(0.8)
     mkElement([21, 2.3], 0xff6600, 'achievement')
     mkElement([54, 2.2], 0x337777, 'interactionCount')
@@ -1121,13 +1156,13 @@ class OABase {
     }
 
     const step = this.gradus[this.currentLevel]
-    this.texts.gradus.html(`<button style="cursor: pointer; font-size: 103%;" atitle="click to change name size">gradus: ${this.currentLevel}</button>`)
+    this.texts.gradus.html(`<button class="tooltip" style="cursor: pointer; font-size: 103%;">gradus: ${this.currentLevel} <span class="tooltiptext" style="font-size:97%;">names size</span></button>`)
     // this.texts.gradus.scale.set(1.2)
 
     const condition = this.conditions[step.condition]
     this.currentCondition = condition.condition // this sets gradus
     // this.texts.tip.text(`-> ${condition.tip}`)
-    this.texts.tip.html(`<span style="background-color: lightgreen; padding: 0 2% 0 2%;">&#x1F449 ${condition.tip}</span>`)
+    this.texts.tip.html(`<span style="background-color: lightgreen; padding: 0 2%;">&#x1F449 ${condition.tip}</span>`)
     // this.texts.tip.scale.set(1.2)
 
     const feature = this.features[step.feature]
@@ -1300,7 +1335,7 @@ class OABase {
     this.setNodeInfo()
     this.bindExplorerMusic()
     this.bindThreeSectorsMusic()
-    this.texts.orderSize.html(`<button style="cursor: pointer; font-size: 103%;" atitle="click to change node size">members, friendships: ${net.order}, ${net.size}</button>`)
+    this.texts.orderSize.html(`<button class="tooltip" style="cursor: pointer; font-size: 103%;">members, friendships: ${net.order}, ${net.size} <span class="tooltiptext" style="font-size:97%;">members size</span></button>`)
   }
 
   setNodeInfo () {

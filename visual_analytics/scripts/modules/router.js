@@ -111,7 +111,7 @@ class Router {
           wand.$('body').css('top', '0px')
         }
       }
-    }, 10)
+    }, 2000)
   }
 }
 

@@ -351,11 +351,23 @@ class SyncParnassum extends OABase {
     this.plots = nets.map(net => plotNet(net))
   }
 
-  writeVideoUrl (vurl, desc) {
+  // writeVideoUrl (vurl, desc) {
+  writeVideoUrl () { // fixme: check console output in both sync and self gradus
+    const { usid, unid, msid, mnid, page, syncKey } = wand.syncInfo
+    const desc = this.videoSource
+    let vurl = wand.$('#vUrl').val()
+    console.log(vurl)
+    if (vurl === null) return
+    vurl = vurl.trim()
+    console.log(vurl)
+    if (!(/^https*:\/\//.test(vurl))) return
     this.urlConfirmed = true
-    const { usid, unid, msid, mnid, page, syncCount } = wand.syncInfo
+    wand.$('#myModal').css('display', 'none')
+    console.log(
+      vurl, usid, unid, msid, mnid, syncKey, page, new Date(Date.now()).toISOString(), desc
+    )
     wand.transfer.mong.writeAny({
-      vurl, usid, unid, msid, mnid, syncCount, page, date: new Date(Date.now()).toISOString(), desc
+      vurl, usid, unid, msid, mnid, syncKey, page, date: new Date(Date.now()).toISOString(), desc
     })
   }
 
@@ -555,6 +567,7 @@ class SyncParnassum extends OABase {
     //   }
     // })
     // ltext.buttonMode = true
+    this.videoSource = 'gradus'
 
     // this.mkSyncLinks()
     this.mkSyncLinks_().then(r => {

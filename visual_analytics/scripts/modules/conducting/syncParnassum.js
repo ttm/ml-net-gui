@@ -2,7 +2,7 @@
 
 const { OABase } = require('./oabase')
 const { mkBtn } = require('./gui.js')
-const { gradus1b, gradus2, gradusRec, gradusSyncLinks2, gradusVideoLink, gradusExtensionInfo, uploadVideoText, uploadVideoPlaceholder, arcturians1, arcturians2, gradus1Login } = require('./instructions.js')
+const { gradus1b, gradus2, gradusRec, gradusSyncLinks2, gradusExtensionInfo, arcturians1, arcturians2, gradus1Login } = require('./instructions.js')
 const { Tone } = require('../maestro/all.js').base
 const { copyToClipboard } = require('./utils.js')
 
@@ -420,62 +420,42 @@ class SyncParnassum extends OABase {
       // wh: [a.width, a.height], zIndex: 1, color: 0xffaaaa, alpha: 0
       wh: [a.width, a.height], zIndex: 1, color: 0x9c9c9c, alpha: 0
     })
-    const f = this.settings.fontSize
-    const p = f / 2
-    const x = this.scalex(p)
-    const y = this.scaley(p)
-    const fs = this.scaley(f)
     const texts = {}
+    let tcount = 0
     const mkElement = (pos, color, element, zIndex, alpha, text) => {
-      texts[element] = a.mkTextFancy(text, [pos[0] * x, pos[1] * y], fs, color, zIndex, alpha)
+      texts[element] = wand.$('<div/>', {
+        class: 'infotext',
+        id: 'infotext' + tcount++,
+        css: {
+          width: '50%',
+          margin: '3%',
+          'background-color': '#DDDDDD',
+          padding: '2%'
+        }
+      }).html(text.replaceAll('\n', '<br />')).appendTo('body').hide()
       return texts[element]
     }
-    const ltext0 = mkElement([1, 2.2], 0x777733, '1', 3000, 0, gradus1Login())
-    ltext0.on('pointerdown', () => {
-      window.open('?page=guidelines')
-    })
-    ltext0.buttonMode = true
+    mkElement([1, 2.2], 0x777733, '1', 3000, 0, gradus1Login())
 
-    let g2 = gradus2()
-    const url = g2.match(/\bhttps?:\/\/\S+/gi)
-    if (url !== null) {
-      g2 = g2.replace(url[0], 'click HERE.')
-    }
-    const g2_ = mkElement([1, 2.2], 0x777733, '2', 3000, 0, g2).on('pointerdown', () => {
-      if (url !== null) {
-        window.open(url[0], '_blank')
-      }
-    })
-    g2_.buttonMode = true
-    g2_.interactive = true
+    const g2 = gradus2()
+    mkElement([1, 2.2], 0x777733, '2', 3000, 0, g2)
 
-    const ltext = mkElement([1, 2.2], 0x777733, '3', 3000, 0, gradusVideoLink)
-    ltext.on('pointerdown', () => {
-      let vurl = window.prompt(uploadVideoText, uploadVideoPlaceholder)
-      if (vurl === null) return
-      vurl = vurl.trim()
-      if (/^https*:\/\//.test(vurl)) {
-        this.writeVideoUrl(vurl, 'gradusSelf')
-      }
-    })
-    ltext.buttonMode = true
-
-    mkElement([1, 2.2], 0x777733, '4', 3000, 0, arcturians1())
-    const anphy = mkElement([1, 2.2], 0x777733, '5', 3000, 0, arcturians2())
-    anphy.on('pointerdown', () => {
-      window.open('https://doi.org/10.5281/zenodo.438960', '_blank')
-    })
-    anphy.buttonMode = true
+    mkElement([1, 2.2], 0x777733, '3', 3000, 0, arcturians1())
+    mkElement([1, 2.2], 0x777733, '4', 3000, 0, arcturians2())
     wand.theNetwork = wand.visitedNetwork
+    this.videoSource = 'gradusSelf'
     const showMsg = i => {
-      console.log(i, this.rectInfo, texts, texts[i], 'THE SHOW GUY')
-      this.rectInfo.alpha = 1
-      this.rectInfo.zIndex = 2000
-      texts[i].alpha = 1
-      texts[i].interactive = true
-      const colors = i % 2 ? [0xffffff, 0x000000] : [0x000000, 0xffffff]
-      this.rectInfo.tint = colors[0]
-      texts[i].tint = colors[1]
+      // console.log(i, this.rectInfo, texts, texts[i], 'THE SHOW GUY')
+      // this.rectInfo.alpha = 1
+      // this.rectInfo.zIndex = 2000
+      // texts[i].alpha = 1
+      // texts[i].interactive = true
+      // const colors = i % 2 ? [0xffffff, 0x000000] : [0x000000, 0xffffff]
+      // this.rectInfo.tint = colors[0]
+      // texts[i].tint = colors[1]
+      // count = this.infoLength // Object.keys(texts).length
+      wand.$('canvas').hide()
+      texts[i].show()
       count = this.infoLength // Object.keys(texts).length
     }
     let count = 0
@@ -484,27 +464,33 @@ class SyncParnassum extends OABase {
       const show = (++count % tlength) !== 0
       this.rectInfo.alpha = Number(show)
       this.rectInfo.zIndex = 10 + 2000 * show
-      const colors = count % 2 ? [0xffffff, 0x000000] : [0x000000, 0xffffff]
       if (show) {
         // this.rectInfo.tint = 0xffffff * Math.random() / 2 + 0x777777
-        this.rectInfo.tint = colors[0]
+        wand.$('canvas').hide()
+      } else {
+        wand.$('canvas').show()
       }
       let i = 1
       for (const t in texts) {
-        texts[t].alpha = Number(count % tlength === i)
-        texts[t].interactive = count % tlength === i
-        texts[t].tint = colors[1]
+        // texts[t].alpha = Number(count % tlength === i)
+        // texts[t].interactive = count % tlength === i
+        // texts[t].tint = colors[1]
+        if (count % tlength === i) {
+          texts[t].show()
+        } else {
+          texts[t].hide()
+        }
         i++
       }
       if (!this.isInitialized) {
         this.start()
-        this.rectInfo.alpha = 0
+        // this.rectInfo.alpha = 0
         this.isInitialized = true
       }
     }
     mkBtn('fa-info', 'info', 'infos / dialogs', fun)
     // wand.$('#info-button').click()
-    this.infoLength = 2
+    this.infoLength = 4
     showMsg(1)
     this.showMsg = showMsg
   }
@@ -521,7 +507,6 @@ class SyncParnassum extends OABase {
     // const y = this.scaley(p)
     // const fs = this.scaley(f)
     const texts = {}
-    console.log('hey man, yeah here <<<<<<<=================')
     let tcount = 0
     const mkElement = (pos, color, element, zIndex, alpha, text) => {
       // texts[element] = a.mkTextFancy(text, [pos[0] * x, pos[1] * y], fs, color, zIndex, alpha)
@@ -599,7 +584,7 @@ class SyncParnassum extends OABase {
       wand.theNetwork = wand.starNetwork
 
       const showMsg = i => {
-        console.log(i, this.rectInfo, texts, texts[i], 'THE SHOW GUY')
+        // console.log(i, this.rectInfo, texts, texts[i], 'THE SHOW GUY')
         // this.rectInfo.alpha = 1
         // this.rectInfo.zIndex = 2000
         // texts[i].alpha = 1
@@ -617,12 +602,11 @@ class SyncParnassum extends OABase {
         const tlength = this.infoLength + 1 // Object.keys(texts).length + 1
         const show = (++count % tlength) !== 0
         // const colors = wand.magic.tint.randomPalette2()
-        this.rectInfo.alpha = Number(show)
-        this.rectInfo.zIndex = 10 + 2000 * show
-        const colors = count % 2 ? [0xffffff, 0x000000] : [0x000000, 0xffffff]
+        // this.rectInfo.alpha = Number(show)
+        // this.rectInfo.zIndex = 10 + 2000 * show
         if (show) {
           // this.rectInfo.tint = colors.bg
-          this.rectInfo.tint = colors[0]
+          // this.rectInfo.tint = colors[0]
           wand.$('canvas').hide()
         } else {
           wand.$('canvas').show()
@@ -674,7 +658,7 @@ class SyncParnassum extends OABase {
             }, 1000)
             console.log('MUSIC DURATION:', (seq.dur + seq.seq.interval * 0.3))
           }
-          this.rectInfo.alpha = 0
+          // this.rectInfo.alpha = 0
           this.isInitialized = true
         }
       }

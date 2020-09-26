@@ -96,20 +96,26 @@ class Router {
     //   }
     // }, 1000)
 
-    const lang = urlArgument('lang') || 'en'
+    const lang = urlArgument('lang')
+    let finished = 0
     const intervalId2 = setInterval(() => {
+      console.log('set lang and remove trans bar loop, finished')
       if (wand.$('#infotext0').length) {
-        const el = wand.$('.goog-te-combo')
-        el.val(lang)
-        triggerHtmlEvent(wand.$('.goog-te-combo').get(0), 'change')
-        clearInterval(intervalId2)
-        const els = wand.$('.skiptranslate')
-        if (els.length > 4) {
-          console.log('HEYYY 2233')
-          // clearInterval(intervalId)
-          els[0].remove()
-          wand.$('body').css('top', '0px')
+        if (lang) {
+          const el = wand.$('.goog-te-combo')
+          el.val(lang)
+          triggerHtmlEvent(wand.$('.goog-te-combo').get(0), 'change')
         }
+        finished++
+      }
+      const els = wand.$('.skiptranslate')
+      if (els.length > 4) {
+        els[0].remove()
+        finished++
+        wand.$('body').css('top', '0px')
+      }
+      if (finished >= 2) {
+        clearInterval(intervalId2)
       }
     }, 2000)
   }

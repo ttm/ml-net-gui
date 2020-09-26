@@ -1113,8 +1113,8 @@ class OABase {
       { feature: 'syncLinks', condition: 'copyInfoPages' }, // copy the text to send. Show instructions
       // interact some
       { feature: 'almostExtensionInfo', condition: 'interactMore2' },
-      { feature: 'extensionInfo', condition: 'loginWithExtension' },
-      { feature: 'socialSelf', condition: 'recUse' } // gradus reached
+      { feature: 'extensionInfo', condition: 'loginWithExtension' }
+      // { feature: 'socialSelf', condition: 'recUse' } // gradus reached
       // when logged in with extension, if more than 100 friends scrapped, make Lycoreia available TTM
       //
       // { feature: 'syncMusic', condition: 'recordSyncMusic' }, // discarded

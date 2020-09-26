@@ -7,7 +7,7 @@
 
 const linkify = require('linkifyjs/html')
 
-// starting message:
+const linkify2 = link => linkify(`<span class="notranslate">${link}<span>`)
 
 const visitorName = () => {
   if (window.oaReceivedMsg) {
@@ -20,7 +20,7 @@ const visitorName = () => {
 // Hear your music, ${visitorName()},
 const gradus1Login = () => {
   return `
-Yes! You have reached the Mount Parnassum!
+<b>Yes! You have reached the Mount Parnassum!</b>
 
 In this page, you can use all the features you unlocked while finishing the "Gradus ad Parnassum",
 now in your friendship network, the one yield by the friends and friendships which are available for you to see.
@@ -29,8 +29,6 @@ You should use and make audiovisual art with this page, Lycoreia, and Tithorea, 
 through the "You" browser extension.
 
 When you click on the Login button on the You extension, you visit more friends to check for mutual friendships.
-
-Click on this text to open the see the usage guidelines if you need them.
 
 :::
 `
@@ -109,7 +107,7 @@ const neighborNames = () => {
 
 const contributionLink = () => {
   // return document.location.origin + '/?page=donate'
-  return `${document.location.href.split('?')[0]}?page=donate`
+  return linkify(`<span class="notranslate">${document.location.href.split('?')[0]}?page=donate<span>`)
 }
 
 const defaultSyncDescription = () => {
@@ -386,6 +384,7 @@ Indeed, you have been invited to continue on this page in order to unlock music 
 `
 }
 
+// fixme: put this text on the video modal:
 const gradusVideoLink = `
 You may register the URLs of videos you uploaded using OA.
 
@@ -575,11 +574,12 @@ as the anthropologist finds suitable.
 
 Our Aquarium complies to free culture, software, midia, data, and transparency (self, civil society) guidelines.
 
-Click HERE to know more.
+Know more:
+${linkify2('https://doi.org/10.5281/zenodo.438960')}
 
 :::
 
-(press the [i] button above or login with the chrome extension if you have it)
+(press the [i] button above to continue your journey)
 `
 }
 

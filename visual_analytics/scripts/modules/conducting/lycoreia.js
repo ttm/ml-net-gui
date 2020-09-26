@@ -2,7 +2,7 @@
 const { Tone } = require('../maestro/all.js').base
 const { copyToClipboard, chooseUnique } = require('../utils.js')
 const { mkBtn } = require('./gui.js')
-const { guards, lycoreiaNew, uploadVideoText, uploadVideoPlaceholder } = require('./instructions.js')
+const { guards, lycoreiaNew } = require('./instructions.js')
 // const { guards, deucalion, lycorus, corycia } = require('./sayings.js')
 const Graph = require('graphology')
 const louvain = require('graphology-communities-louvain')
@@ -82,15 +82,9 @@ class Lycoreia {
             })
           },
           bind: () => {
-            $('<i/>', { class: 'fa fa-chess', id: 'member-icon' }).appendTo(
-              $('<button/>', {
-                class: 'btn',
-                id: 'member-button',
-                click: () => {
-                  this.increment('nodesAlpha')
-                }
-              }).attr('atitle', 'show members').insertAfter('#info-button')
-            )
+            mkBtn('fa-chess', 'member', 'show members', () => {
+              this.increment('nodesAlpha')
+            }, '#info-button')
           }
         },
         namesAlpha: {
@@ -107,15 +101,9 @@ class Lycoreia {
             })
           },
           bind: () => {
-            $('<i/>', { class: 'fa fa-mask', id: 'names-icon' }).appendTo(
-              $('<button/>', {
-                class: 'btn',
-                id: 'names-button',
-                click: () => {
-                  this.increment('namesAlpha')
-                }
-              }).attr('atitle', 'show names').insertAfter('#friendship-button')
-            )
+            mkBtn('fa-mask', 'names', 'show names', () => {
+              this.increment('namesAlpha')
+            }, '#friendship-button')
           }
         },
         edgesAlpha: {
@@ -132,15 +120,9 @@ class Lycoreia {
             })
           },
           bind: () => {
-            $('<i/>', { class: 'fa fa-bone', id: 'friendship-icon' }).appendTo(
-              $('<button/>', {
-                class: 'btn',
-                id: 'friendship-button',
-                click: () => {
-                  this.increment('edgesAlpha')
-                }
-              }).attr('atitle', 'show friendships').insertAfter('#member-button')
-            )
+            mkBtn('fa-bone', 'friendship', 'show friendships', () => {
+              this.increment('edgesAlpha')
+            }, '#member-button')
           }
         },
         colors: {
@@ -163,17 +145,9 @@ class Lycoreia {
             })
           },
           bind: () => {
-            $('<i/>', { class: 'fa fa-palette', id: 'pallete-icon' }).appendTo(
-              $('<button/>', {
-                class: 'btn',
-                id: 'pallete-button',
-                click: () => {
-                  this.increment('colors')
-                }
-              }).attr('atitle', 'change colors').css('background-color', 'gray')
-                .insertAfter('#names-button')
-            )
-            $('#pallete-button').click()
+            mkBtn('fa-palette', 'pallete', 'change colors', () => {
+              this.increment('colors')
+            }, '#names-button').click()
           }
         },
         muter: {
@@ -270,14 +244,14 @@ class Lycoreia {
         this.state.colors.bind()
         this.state.muter.bind()
         const d = $('<div/>', { id: 'div1' }).insertAfter('#muter-button')
-        d.html(' || ').css('display', 'inline')
+        d.html('||').css('display', 'inline').css('margin', '0 1% 0 2%')
         this.setRecorder()
         this.setPlayer()
         this.setCommunitiesInterface()
         this.setSubComInterface()
         this.setNodeClick()
         const d2 = $('<div/>', { id: 'div2' }).insertAfter('#sub-button')
-        d2.html(' || ').css('display', 'inline')
+        d2.html('||').css('display', 'inline').css('margin', '0 2% 0 1%')
       }
     }, 10000 * this.settings.timeStreach) // fixme: make better loading
   }
@@ -288,54 +262,77 @@ class Lycoreia {
       // wh: [a.width, a.height], zIndex: 1, color: 0xffaaaa, alpha: 0
       wh: [a.width, a.height], zIndex: 1, color: 0x9c9c9c, alpha: 0
     })
-    const f = this.settings.fontSize
-    const p = f / 2
-    const x = this.scalex(p)
-    const y = this.scaley(p)
-    const fs = this.scaley(f)
+    // const f = this.settings.fontSize
+    // const p = f / 2
+    // const x = this.scalex(p)
+    // const y = this.scaley(p)
+    // const fs = this.scaley(f)
     this.texts = []
+    let tcount = 0
     const mkElement = (pos, color, element, zIndex, alpha, text) => {
-      this.texts[element] = a.mkTextFancy(text, [pos[0] * x, pos[1] * y], fs, color, zIndex, alpha)
+      // this.texts[element] = a.mkTextFancy(text, [pos[0] * x, pos[1] * y], fs, color, zIndex, alpha)
+      // return this.texts[element]
+      this.texts[element] = wand.$('<div/>', {
+        class: 'infotext',
+        id: 'infotext' + tcount++,
+        css: {
+          width: '50%',
+          margin: '3%',
+          'background-color': '#DDDDDD',
+          padding: '2%'
+        }
+      }).html(text.replaceAll('\n', '<br />')).appendTo('body').hide()
       return this.texts[element]
     }
     let count = 0
     if (window.oaReceivedMsg) {
       console.log(count, 'YEAH RCVD MSG')
-      const atext = mkElement([1, 2.2], 0xffffff, 'lycoreiaNew', 3000, 0, lycoreiaNew)
-      atext.on('pointerdown', () => {
-        let vurl = window.prompt(uploadVideoText, uploadVideoPlaceholder)
-        if (vurl === null) return
-        vurl = vurl.trim()
-        if (/^https*:\/\//.test(vurl)) {
-          this.writeVideoUrl(vurl, 'lycoreia')
-        }
-      })
-      atext.buttonMode = true
-      atext.interactive = true
+      mkElement([1, 2.2], 0xffffff, 'lycoreiaNew', 3000, 0, lycoreiaNew)
+      // fixme: put element to register new video:
+      // atext.on('pointerdown', () => {
+      //   let vurl = window.prompt(uploadVideoText, uploadVideoPlaceholder)
+      //   if (vurl === null) return
+      //   vurl = vurl.trim()
+      //   if (/^https*:\/\//.test(vurl)) {
+      //     this.writeVideoUrl(vurl, 'lycoreia')
+      //   }
+      // })
+      // atext.buttonMode = true
+      // atext.interactive = true
 
       // mkElement([1, 2.2], 0x777733, 'deucalion', 3000, 0, deucalion)
       // mkElement([1, 5.2], 0x337733, 'lycorus', 3000, 0, lycorus())
       // mkElement([1, 5.2], 0x337733, 'corycia', 3000, 0, corycia())
       const fun = () => {
-        count++
         const tlength = Object.keys(this.texts).length + 1
-        const show = (count % tlength) !== 0
-        this.rect.alpha = Number(show)
-        this.rect.zIndex = 10 + 2000 * show
-        let i = 0
+        const show = (++count % tlength) !== 0
+        if (show) {
+          wand.$('canvas').hide()
+        } else {
+          wand.$('canvas').show()
+        }
+        // this.rect.alpha = Number(show)
+        // this.rect.zIndex = 10 + 2000 * show
+        let i = 1
         console.log(i, show, count, tlength, 'YEAH CLICK INFO')
         for (const t in this.texts) {
-          this.texts[t].alpha = Number(count % tlength === (i + 1))
-          this.texts[t].interactive = Boolean(count % tlength === (i + 1))
+          // this.texts[t].alpha = Number(count % tlength === (i + 1))
+          // this.texts[t].interactive = Boolean(count % tlength === (i + 1))
+          if (count % tlength === i) {
+            this.texts[t].show()
+          } else {
+            this.texts[t].hide()
+          }
           i++
         }
       }
       mkBtn('fa-info', 'info', 'infos / dialogs', fun).click()
     } else {
-      mkElement([1, 2.2], 0x777733, 'guards', 3000, 0, guards)
-      this.rect.alpha = 1
-      this.rect.zIndex = 10 + 2000
-      this.texts.guards.alpha = 1
+      wand.$('canvas').hide()
+      mkElement([1, 2.2], 0x777733, 'guards', 3000, 0, guards).show()
+      // this.rect.alpha = 1
+      // this.rect.zIndex = 10 + 2000
+      // this.texts.guards.alpha = 1
     }
   }
 
@@ -343,7 +340,7 @@ class Lycoreia {
     this.instruments.plucky = new Tone.PluckSynth({ volume: 0 }).toMaster()
     let count = 0
     mkBtn('fa-users-cog', 'com', 'communities', () => {
-      count = (++count) % (wand.currentNetwork.communities.count) + 1
+      count = (++count) % (wand.currentNetwork.communities.count + 1)
       this.showCommunity(count)
     }, '#music-button')
     wand.$('#com-button').click()
@@ -355,7 +352,7 @@ class Lycoreia {
     mkBtn('fa-users', 'sub', 'sub communities', () => {
       const cIndex = wand.currentNetwork.communityIndex
       const g = wand.currentNetwork.communityGraphs[cIndex]
-      count = (++count) % (g.communities.count) + 1
+      count = (++count) % (g.communities.count + 1)
       this.showSubCommunity(count, g)
     }, '#com-button')
   }
@@ -566,8 +563,8 @@ class Lycoreia {
         return { note, ii }
       })
     }
-    const c = voice.subcommunity ? 0xffff00 : 0x00ffff
-    const c2 = voice.subcommunity ? '#ffff00' : '#00ffff'
+    const c = voice.subcommunity === undefined ? 0xffff00 : 0x00ffff
+    const c2 = voice.subcommunity === undefined ? '#ffff00' : '#00ffff'
     const seq = new Tone.Pattern((time, info) => {
       instrument.triggerAttackRelease(Tone.Midi(info.note).toNote(), 0.01, time)
       d(() => {

@@ -381,11 +381,8 @@ class OABase {
     `)
     this.videoSource = 'gradusSelf'
     wand.$('#vUrl').on('keyup', function (event) {
-      // Number 13 is the "Enter" key on the keyboard
       if (event.keyCode === 13) {
-        // Cancel the default action, if needed
         event.preventDefault()
-        // Trigger the button element with a click
         document.getElementById('vSub').click()
       }
     })
@@ -503,13 +500,13 @@ class OABase {
             this.increment('namesAlpha')
           }, '#friendship-button')
 
-          this.texts.gradus.on('click', () => {
+          this.texts.gradus.on('pointerdown', () => {
             this.increment('namesSize')
           })
           this.increment('namesSize')
           this.texts.gradus.interactive = true
 
-          this.texts.orderSize.on('click', () => {
+          this.texts.orderSize.on('pointerdown', () => {
             this.scaley(this.increment('nodesSize'))
           })
           this.texts.orderSize.interactive = true
@@ -1188,7 +1185,7 @@ class OABase {
       console.log('(((( ended, no more set new levels )))')
       console.log('parnassum reached, ending gradus loop. Gradus, ad parnassum:', this.currentLevel, this.gradus.length)
       console.log('Get in contact with renato </./> fabbri (O AT O) gmail [UU DOT UU] com to further unlock Gradus ad Parnassum.')
-      this.texts.tip.text('-> make videos & synchronize')
+      this.texts.tip.html('<span style="background-color: lightgreen; padding: 0 2%;">&#x1F449 make videos & synchronize</span>')
       this.texts.achievement.text('achieved: social self, extension, vital info [i]')
       return true
     }

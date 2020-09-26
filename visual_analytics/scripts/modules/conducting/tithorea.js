@@ -782,9 +782,9 @@ class Tithorea {
         let i = 0
         for (const t in texts) {
           if (count % tlength === (i + 1)) {
-            this.texts[t].show()
+            texts[t].show()
           } else {
-            this.texts[t].hide()
+            texts[t].hide()
           }
           i++
         }

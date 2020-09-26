@@ -343,7 +343,7 @@ class OABase {
         'grid-template-columns': 'auto auto',
         'background-color': '#21F693',
         padding: '2px',
-        height: Math.floor(wand.artist.use.height * 0.060) + 'px'
+        height: Math.floor(wand.artist.use.height * 0.065) + 'px'
       }
     }).insertBefore('canvas').hide()
     wand.$(`<style type='text/css'>

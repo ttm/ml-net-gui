@@ -1,7 +1,7 @@
 /* global wand */
 const { mkBtn } = require('./gui.js')
 // const { guards, deucalion, lycorus, corycia } = require('./sayings.js')
-const { guards, tithoreaNew, tithoreaNew2, defaultSyncDescription, defaultSyncDescription2, defaultSyncDescription3, defaultSyncDescription4, defaultSyncDescription5, defaultSyncDescription6, defaultSyncDescription7, defaultSyncDescription8, defaultSyncDescription9 } = require('./instructions.js')
+const { guards, tithoreaNew, tithoreaNew2, defaultSyncDescription, defaultSyncDescription2, defaultSyncDescription3, defaultSyncDescription4, defaultSyncDescription5, defaultSyncDescription6, defaultSyncDescription7, defaultSyncDescription8, defaultSyncDescription9, uploadVideoText, uploadVideoPlaceholder } = require('./instructions.js')
 const { Tone } = require('../maestro/all.js').base
 const Graph = require('graphology')
 const louvain = require('graphology-communities-louvain')
@@ -249,7 +249,7 @@ class Tithorea {
         this.registerNetwork(g, 'current')
         // this.drawnNet = new wand.conductor.use.DrawnNet(wand.artist.use, wand.currentNetwork, [])
         const { conductor, artist } = wand
-        wand.extra.drawnNet = new conductor.use.DrawnNet(artist.use, wand.currentNetwork, [artist.use.width, artist.use.height * 0.9])
+        wand.extra.drawnNet = new conductor.use.DrawnNet(artist.use, wand.currentNetwork, [artist.use.width, artist.use.height])
         wand.drawnNet = this.drawnNet
 
         this.setStage()
@@ -284,9 +284,9 @@ class Tithorea {
 
   setNetInfo () {
     if (this.sync) {
-      this.texts.tip.text = `seed, steps: ${wand.currentNetwork.getNodeAttribute(this.theSeed, 'name')}, ${this.sync.progression.length - 1}`
+      this.texts.tip.html(`<span style="background-color: lightgreen; padding: 0 2%;">&#x1F449 seed, steps: ${wand.currentNetwork.getNodeAttribute(this.theSeed, 'name')}, ${this.sync.progression.length - 1}</span>`)
       const p = wand.magic.tithorea.sync.progression
-      this.texts.orderSize.text = `steps volume: ${p.slice(1, p.length - 1).map(i => i.length).join(', ')}`
+      this.texts.orderSize.html(`<button class="tooltip" style="cursor: pointer; font-size: 103%;">steps volume: ${p.slice(1, p.length - 1).map(i => i.length).join(', ')}<span class="tooltiptext" style="font-size:97%;">members size</span></button>`)
     }
   }
 
@@ -737,11 +737,6 @@ class Tithorea {
   }
 
   setDialogs () {
-    const a = wand.artist.use
-    this.rect = a.mkRectangle({
-      // wh: [a.width, a.height], zIndex: 1, color: 0xffaaaa, alpha: 0
-      wh: [a.width, a.height], zIndex: 1, color: 0x3c3c3c, alpha: 0
-    })
     // const f = this.settings.fontSize
     // const p = f / 2
     // const x = this.scalex(p)
@@ -800,55 +795,92 @@ class Tithorea {
 
   setStage () {
     this.texts = {} // pixi elements
-    const a = wand.artist.use
-    wand.rect1 = a.mkRectangle({
-      wh: [a.width, a.height * 0.055], zIndex: 200, color: 0xffffff, alpha: 0.85
-    })
-    wand.rect2 = a.mkRectangle({
-      wh: [a.width, a.height * 0.055], zIndex: 100, color: 0xbbbbbb, alpha: 1
-    })
-
     const f = this.settings.fontSize
-    const p = f / 2
-    const x = this.scalex(p)
-    const y = this.scaley(p)
+    // const p = f / 2
+    // const x = this.scalex(p)
+    // const y = this.scaley(p)
     const fs = this.scaley(f)
 
+    wand.$('<div/>', {
+      id: 'infodiv',
+      css: {
+        display: 'grid',
+        'grid-template-columns': 'auto auto auto',
+        'background-color': '#2196F3',
+        padding: '2px',
+        height: Math.floor(wand.artist.use.height * 0.065) + 'px'
+      }
+    }).insertBefore('canvas')
+    wand.$('<div/>', {
+      id: 'infodiv2',
+      css: {
+        display: 'grid',
+        'grid-template-columns': 'auto auto auto',
+        'background-color': '#21F693',
+        padding: '2px',
+        height: Math.floor(wand.artist.use.height * 0.065) + 'px'
+      }
+    }).insertBefore('canvas').hide()
+    wand.$(`<style type='text/css'>
+      .grid-item {
+        background-color: rgba(255, 255, 255, 0.8);
+        border-right: 1px solid rgba(0, 0, 0, 0.8);
+        padding: 0px;
+        font-size: ${Math.floor(fs)}px;
+        text-align: center;
+      }
+    </style>`).appendTo('head')
+
     const mkElement = (pos, color, element, zIndex = 300, alpha = 1) => {
-      this.texts[element] = a.mkTextFancy('', [pos[0] * x, pos[1] * y], fs, color, zIndex, alpha)
+      const idiv = zIndex === 300 ? '#infodiv' : '#infodiv2'
+      this.texts[element] = wand.$('<div/>', {
+        class: 'grid-item'
+      }).appendTo(idiv)
       return this.texts[element]
     }
 
-    mkElement([1, 2.2], 0x777733, 'adParnassum')
-    this.texts.adParnassum.text = 'at Tithorea for synchronization'
     const t1 = mkElement([1, 0.2], 0x333377, 'gradus')
+    this.texts.gradus.html(`<button class="tooltip" style="cursor: pointer; font-size: 103%;">name: ${wand.sageInfo.name}<span class="tooltiptext" style="font-size:97%;">names size</span></button>`)
     t1.on('pointerdown', () => {
       this.increment('namesSize')
     })
     this.increment('namesSize')
-    t1.buttonMode = true
-    t1.interactive = true
-    t1.text = `name: ${wand.sageInfo.name}`
+    mkElement([21, 0.2], 0x333377, 'tip')
+    const t2 = mkElement([54, 0.2], 0x773377, 'orderSize')
+    mkElement([1, 2.2], 0x777733, 'adParnassum')
+    this.texts.adParnassum.html('<span class="tooltip" style="cursor: pointer; font-size: 103%;background-color: yellow; padding: 0 2%;">at Tithorea for synchronization<span class="tooltiptext" style="font-size:97%;" onclick="">register video URL</span></span>').on('pointerdown', () => {
+      modal.css('display', 'block')
+    })
+    this.videoSource = 'tithorea'
+    const modal = wand.$('<div/>', { id: 'myModal', class: 'modal' }).appendTo('body')
+    wand.$('<div/>', { class: 'modal-content' }).appendTo(
+      modal
+    ).html(`
+    <label for="fname">${uploadVideoText}</label><br>
+    <input type="text" id="vUrl" placeholder="${uploadVideoPlaceholder}" style="width:70%"><br><br>
+    <button id="vSub" onclick="wand.magic.tithorea.writeVideoUrl()">Submit</button>
+    <button onclick="wand.$('#myModal').css('display', 'none')">Cancel</button>
+    `)
+    wand.$('#vUrl').on('keyup', function (event) {
+      if (event.keyCode === 13) {
+        event.preventDefault()
+        document.getElementById('vSub').click()
+      }
+    })
 
     mkElement([21, 2.2], 0x666600, 'achievement')
-    this.texts.achievement.text = `friends, friendships: ${wand.currentNetwork.order}, ${wand.currentNetwork.size}`
-
-    mkElement([21, 0.2], 0x333377, 'tip')
-
-    mkElement([54, 2.2], 0x337777, 'interactionCount') // todo: .text = 'yeah' // videos + syncs
-    const t2 = mkElement([54, 0.2], 0x773377, 'orderSize')
+    this.texts.achievement.text(`friends, friendships: ${wand.currentNetwork.order}, ${wand.currentNetwork.size}`)
     t2.on('pointerdown', () => {
       this.increment('nodesSize')
     })
     this.increment('nodesSize')
-    t2.buttonMode = true
-    t2.interactive = true
+    mkElement([54, 2.2], 0x337777, 'interactionCount') // todo: .text = 'yeah' // videos + syncs
 
-    mkElement([1, 0.1], 0x333377, 'nodeId', 600, 0)
     mkElement([1, 2.2], 0x777733, 'nodeName', 600, 0)
     mkElement([21, 0.2], 0x666600, 'nodeDegree', 600, 0)
-    mkElement([21, 2.2], 0x555599, 'nodeDegreeCentrality', 600, 0)
     mkElement([54, 2.2], 0x555599, 'step', 600, 0)
+    mkElement([1, 0.1], 0x333377, 'nodeId', 600, 0)
+    mkElement([21, 2.2], 0x555599, 'nodeDegreeCentrality', 600, 0)
   }
 
   setNodeInfo () {
@@ -864,21 +896,22 @@ class Tithorea {
       const texts = [
         ['nodeId', `id: ${a.sid || a.nid}`],
         ['nodeName', `name: ${a.name}`],
-        ['nodeDegree', `degree: ${a.degree} in ${net.degree_}`],
+        ['nodeDegree', `friends: ${a.degree} in ${net.degree_}`],
         ['nodeDegreeCentrality',
-          `degree centrality: ${tf(a.degreeCentrality)} in ${net.degreeCentrality}`],
+          `centrality: ${tf(a.degreeCentrality)} in ${net.degreeCentrality}`],
         ['step', `step: ${a.step}`]
       ]
       a.pixiElement.on('pointerover', () => {
         // console.log(n, a, 'NODE HOVERED')
-        wand.rect2.zIndex = 500
         texts.forEach(t => {
-          this.texts[t[0]].text = t[1]
-          this.texts[t[0]].alpha = 1
+          this.texts[t[0]].text(t[1])
+          // this.texts[t[0]].alpha = 1
         })
         // if (a.seed || a.activated) {
         //   return
         // }
+        wand.$('#infodiv2').show()
+        wand.$('#infodiv').hide()
         a.hovered = true
         this.styleNode(a)
         net.forEachNeighbor(n, (nn, na) => {
@@ -887,11 +920,9 @@ class Tithorea {
         })
       })
       a.pixiElement.on('pointerout', () => {
-        wand.rect2.zIndex = 100
-        texts.forEach(t => {
-          this.texts[t[0]].alpha = 0
-        })
         delete a.colorBlocked
+        wand.$('#infodiv').show()
+        wand.$('#infodiv2').hide()
         a.hovered = false
         this.styleNode(a)
         net.forEachNeighbor(n, (nn, na) => {
@@ -1003,11 +1034,22 @@ class Tithorea {
     this.descArea = tarea
   }
 
-  writeVideoUrl (vurl, desc) {
+  writeVideoUrl () { // fixme: check console output in both sync and self gradus
+    const { usid, unid, msid, mnid, page, syncKey } = wand.syncInfo
+    const desc = this.videoSource
+    let vurl = wand.$('#vUrl').val()
+    console.log(vurl)
+    if (vurl === null) return
+    vurl = vurl.trim()
+    console.log(vurl)
+    if (!(/^https*:\/\//.test(vurl))) return
     this.urlConfirmed = true
-    const { usid, unid, msid, mnid, page, syncCount } = wand.syncInfo
+    wand.$('#myModal').css('display', 'none')
+    console.log(
+      vurl, usid, unid, msid, mnid, syncKey, page, new Date(Date.now()).toISOString(), desc
+    )
     wand.transfer.mong.writeAny({
-      vurl, usid, unid, msid, mnid, syncCount, page, date: new Date(Date.now()).toISOString(), desc
+      vurl, usid, unid, msid, mnid, syncKey, page, date: new Date(Date.now()).toISOString(), desc
     })
   }
 

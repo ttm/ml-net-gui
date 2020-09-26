@@ -232,7 +232,7 @@ class Lycoreia {
           })
           this.registerNetwork(g, 'current')
           const u = wand.artist.use
-          this.drawnNet = new wand.conductor.use.DrawnNet(u, wand.currentNetwork, [u.width, u.height * 0.9])
+          this.drawnNet = new wand.conductor.use.DrawnNet(u, wand.currentNetwork, [u.width, u.height])
           wand.drawnNet = this.drawnNet
         }
         this.setStage()
@@ -257,11 +257,6 @@ class Lycoreia {
   }
 
   setDialogs () {
-    const a = wand.artist.use
-    this.rect = a.mkRectangle({
-      // wh: [a.width, a.height], zIndex: 1, color: 0xffaaaa, alpha: 0
-      wh: [a.width, a.height], zIndex: 1, color: 0x9c9c9c, alpha: 0
-    })
     // const f = this.settings.fontSize
     // const p = f / 2
     // const x = this.scalex(p)
@@ -655,14 +650,6 @@ class Lycoreia {
 
   setStage () {
     this.texts_ = {} // pixi elements
-    const a = wand.artist.use
-    wand.rect1 = a.mkRectangle({
-      wh: [a.width, a.height * 0.055], zIndex: 200, color: 0xffffff, alpha: 0.85
-    })
-    wand.rect2 = a.mkRectangle({
-      wh: [a.width, a.height * 0.055], zIndex: 100, color: 0xbbbbbb, alpha: 1
-    })
-
     const f = this.settings.fontSize
     // const p = f / 2
     // const x = this.scalex(p)
@@ -686,7 +673,7 @@ class Lycoreia {
         'grid-template-columns': 'auto auto',
         'background-color': '#21F693',
         padding: '2px',
-        height: Math.floor(wand.artist.use.height * 0.060) + 'px'
+        height: Math.floor(wand.artist.use.height * 0.065) + 'px'
       }
     }).insertBefore('canvas').hide()
     wand.$(`<style type='text/css'>
@@ -715,7 +702,7 @@ class Lycoreia {
     mkElement([21, 0.2], 0x333377, 'tip')
     mkElement([54, 0.2], 0x773377, 'orderSize')
     mkElement([1, 2.2], 0x777733, 'adParnassum')
-    this.texts_.adParnassum.html('<span class="tooltip" style="cursor: pointer; font-size: 103%;background-color: yellow; padding: 0 2%;">at Lycoreia<span class="tooltiptext" style="font-size:97%;" onclick="">register video URL</span></span>').on('pointerdown', () => {
+    this.texts_.adParnassum.html('<span class="tooltip" style="cursor: pointer; font-size: 103%;background-color: yellow; padding: 0 2%;">at Lycoreia for community detection<span class="tooltiptext" style="font-size:97%;" onclick="">register video URL</span></span>').on('pointerdown', () => {
       modal.css('display', 'block')
     })
     this.videoSource = 'lycoreia'
@@ -725,7 +712,7 @@ class Lycoreia {
     ).html(`
     <label for="fname">${uploadVideoText}</label><br>
     <input type="text" id="vUrl" placeholder="${uploadVideoPlaceholder}" style="width:70%"><br><br>
-    <button id="vSub" onclick="wand.magic.syncParnassum.writeVideoUrl()">Submit</button>
+    <button id="vSub" onclick="wand.magic.lycoreia.writeVideoUrl()">Submit</button>
     <button onclick="wand.$('#myModal').css('display', 'none')">Cancel</button>
     `)
     wand.$('#vUrl').on('keyup', function (event) {

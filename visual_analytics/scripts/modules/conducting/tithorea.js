@@ -1,7 +1,7 @@
 /* global wand */
 const { mkBtn } = require('./gui.js')
 // const { guards, deucalion, lycorus, corycia } = require('./sayings.js')
-const { guards, tithoreaNew, tithoreaNew2, uploadVideoText, uploadVideoPlaceholder, defaultSyncDescription, defaultSyncDescription2, defaultSyncDescription3, defaultSyncDescription4, defaultSyncDescription5, defaultSyncDescription6, defaultSyncDescription7, defaultSyncDescription8, defaultSyncDescription9 } = require('./instructions.js')
+const { guards, tithoreaNew, tithoreaNew2, defaultSyncDescription, defaultSyncDescription2, defaultSyncDescription3, defaultSyncDescription4, defaultSyncDescription5, defaultSyncDescription6, defaultSyncDescription7, defaultSyncDescription8, defaultSyncDescription9 } = require('./instructions.js')
 const { Tone } = require('../maestro/all.js').base
 const Graph = require('graphology')
 const louvain = require('graphology-communities-louvain')
@@ -59,15 +59,9 @@ class Tithorea {
             })
           },
           bind: () => {
-            $('<i/>', { class: 'fa fa-chess', id: 'member-icon' }).appendTo(
-              $('<button/>', {
-                class: 'btn',
-                id: 'member-button',
-                click: () => {
-                  this.increment('nodesAlpha')
-                }
-              }).attr('atitle', 'show members').insertAfter('#info-button')
-            )
+            mkBtn('fa-chess', 'member', 'show members', () => {
+              this.increment('nodesAlpha')
+            }, '#info-button')
           }
         },
         namesAlpha: {
@@ -84,15 +78,9 @@ class Tithorea {
             })
           },
           bind: () => {
-            $('<i/>', { class: 'fa fa-mask', id: 'names-icon' }).appendTo(
-              $('<button/>', {
-                class: 'btn',
-                id: 'names-button',
-                click: () => {
-                  this.increment('namesAlpha')
-                }
-              }).attr('atitle', 'show names').insertAfter('#friendship-button')
-            )
+            mkBtn('fa-mask', 'names', 'show names', () => {
+              this.increment('namesAlpha')
+            }, '#friendship-button')
           }
         },
         edgesAlpha: {
@@ -112,15 +100,9 @@ class Tithorea {
             })
           },
           bind: () => {
-            $('<i/>', { class: 'fa fa-bone', id: 'friendship-icon' }).appendTo(
-              $('<button/>', {
-                class: 'btn',
-                id: 'friendship-button',
-                click: () => {
-                  this.increment('edgesAlpha')
-                }
-              }).attr('atitle', 'show friendships').insertAfter('#member-button')
-            )
+            mkBtn('fa-bone', 'friendship', 'show friendships', () => {
+              this.increment('edgesAlpha')
+            }, '#member-button')
           }
         },
         colors: {
@@ -143,19 +125,9 @@ class Tithorea {
             })
           },
           bind: () => {
-            $('<i/>', { class: 'fa fa-palette', id: 'pallete-icon' }).appendTo(
-              $('<button/>', {
-                class: 'btn',
-                id: 'pallete-button',
-                click: () => {
-                  this.increment('colors')
-                }
-              }).attr('atitle', 'change colors').css('background-color', 'gray')
-                .insertAfter('#names-button')
-            )
-            $('#pallete-button').click()
-            $('#pallete-button').click()
-            $('#pallete-button').click()
+            mkBtn('fa-palette', 'pallete', 'change colors', () => {
+              this.increment('colors')
+            }, '#names-button').click().click().click()
           }
         },
         muter: {
@@ -211,18 +183,11 @@ class Tithorea {
             // }
           },
           bind: function () {
-            const $ = wand.$
             this.rec = wand.transfer.rec.rec()
             this.rec.filename = wand.sageInfo.name + ' @ Tithorea audiovisual music #oa #ourAquarium #oAquario ' + (new Date()).toISOString().split('.')[0]
-            $('<i/>', { class: 'fa fa-play', id: 'player-icon' }).appendTo(
-              $('<button/>', {
-                class: 'btn',
-                id: 'player-button',
-                click: () => {
-                  self.increment('player')
-                }
-              }).attr('atitle', 'change player').insertAfter('#div1')
-            )
+            mkBtn('fa-play', 'player', 'play music', () => {
+              self.increment('player')
+            }, '#div1')
             this.count = this.current = this.max
           }
         },
@@ -295,7 +260,7 @@ class Tithorea {
         this.state.muter.bind()
 
         const d = $('<div/>', { id: 'div1' }).insertAfter('#muter-button')
-        d.html(' || ').css('display', 'inline')
+        d.html(' || ').css('display', 'inline').css('margin', '0 1% 0 2%')
 
         this.state.player.bind()
 
@@ -777,41 +742,50 @@ class Tithorea {
       // wh: [a.width, a.height], zIndex: 1, color: 0xffaaaa, alpha: 0
       wh: [a.width, a.height], zIndex: 1, color: 0x3c3c3c, alpha: 0
     })
-    const f = this.settings.fontSize
-    const p = f / 2
-    const x = this.scalex(p)
-    const y = this.scaley(p)
-    const fs = this.scaley(f)
+    // const f = this.settings.fontSize
+    // const p = f / 2
+    // const x = this.scalex(p)
+    // const y = this.scaley(p)
+    // const fs = this.scaley(f)
     const texts = {}
+    let tcount = 0
     const mkElement = (pos, color, element, zIndex, alpha, text) => {
-      texts[element] = a.mkTextFancy(text, [pos[0] * x, pos[1] * y], fs, color, zIndex, alpha)
+      // texts[element] = a.mkTextFancy(text, [pos[0] * x, pos[1] * y], fs, color, zIndex, alpha)
+      // return texts[element]
+      texts[element] = wand.$('<div/>', {
+        class: 'infotext',
+        id: 'infotext' + tcount++,
+        css: {
+          width: '50%',
+          margin: '3%',
+          'background-color': '#DDDDDD',
+          padding: '2%'
+        }
+      }).html(text.replaceAll('\n', '<br />')).appendTo('body').hide()
       return texts[element]
     }
-    let count = 0
     if (wand.sageInfo) {
       // mkElement([1, 2.2], 0x777733, 'deucalion', 3000, 0, deucalion)
       // mkElement([1, 5.2], 0x337733, 'lycorus', 3000, 0, lycorus())
       // mkElement([1, 5.2], 0x337733, 'corycia', 3000, 0, corycia())
-      mkElement([1, 2.2], 0xffffaa, 'tit1', 3000, 0, tithoreaNew).on('pointerdown', () => {
-        let vurl = window.prompt(uploadVideoText, uploadVideoPlaceholder)
-        if (vurl === null) return
-        vurl = vurl.trim()
-        if (/^https*:\/\//.test(vurl)) {
-          this.writeVideoUrl(vurl, 'tithorea')
-        }
-      }).buttonMode = true
+      mkElement([1, 2.2], 0xffffaa, 'tit1', 3000, 0, tithoreaNew)
       mkElement([1, 2.2], 0xffffaa, 'tit2', 3000, 0, tithoreaNew2)
+      let count = 0
       const fun = () => {
-        count++
         const tlength = Object.keys(texts).length + 1
-        const show = (count % tlength) !== 0
-        this.rect.alpha = Number(show)
-        this.rect.zIndex = 10 + 2000 * show
+        const show = (++count % tlength) !== 0
+        if (show) {
+          wand.$('canvas').hide()
+        } else {
+          wand.$('canvas').show()
+        }
         let i = 0
         for (const t in texts) {
-          texts[t].alpha = Number(count % tlength === (i + 1))
-          texts[t].interactive = Boolean(count % tlength === (i + 1))
-          // console.log(texts[t], Number(count % tlength === (i + 1)))
+          if (count % tlength === (i + 1)) {
+            this.texts[t].show()
+          } else {
+            this.texts[t].hide()
+          }
           i++
         }
         // console.log(show, count, i, tlength, count % tlength)
@@ -819,10 +793,8 @@ class Tithorea {
       mkBtn('fa-info', 'info', 'infos / dialogs', fun).click()
     } else {
       console.log('not sage info')
-      mkElement([1, 2.2], 0x777733, 'guards', 3000, 0, guards)
-      this.rect.alpha = 1
-      this.rect.zIndex = 10 + 2000
-      texts.guards.alpha = 1
+      wand.$('canvas').hide()
+      mkElement([1, 2.2], 0x777733, 'guards', 3000, 0, guards).show()
     }
   }
 

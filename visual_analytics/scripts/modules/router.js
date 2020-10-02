@@ -65,8 +65,9 @@ class Router {
       }
     }
     const ft = wand.$('<div/>', { id: 'afooter', css: { width: '100%', display: 'flex', 'white-space': 'nowrap', 'overflow-x': 'auto' } }).appendTo('body')
+    const lflag = urlArgument('lang') ? `&lang=${urlArgument('lang')}` : ''
     wand.$('<a/>', {
-      href: '?page=about',
+      href: `?page=about${lflag}`,
       target: '_blank',
       css: {
         'margin-left': '1%',
@@ -100,7 +101,8 @@ class Router {
     let finished = 0
     const intervalId2 = setInterval(() => {
       console.log('set lang and remove trans bar loop, finished')
-      if (wand.$('#infotext0').length) {
+      // if (wand.$('#infotext0').length) {
+      if (wand.$('.goog-te-combo').length) {
         if (lang) {
           const el = wand.$('.goog-te-combo')
           el.val(lang)

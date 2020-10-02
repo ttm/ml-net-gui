@@ -97,7 +97,7 @@ const routes = {
   'music.html': test.testMusic,
   'looper.html': test.testLooper,
   'seq.html': test.testSeq,
-  'sync.html': test.testSync,
+  'audiovisualSync.html': test.testSync,
   'pat.html': test.testPattern,
   'rec.html': test.testRec,
   'rec2.html': test.testRec2,
@@ -120,6 +120,9 @@ const routes = {
   'editor.html': test.testEditor,
   'lz.html': test.testLz,
   'donate.html': () => test.testDonate(),
+  'donatePaypal.html': () => test.testDonatePaypal(),
+  'donatePagseguro.html': () => test.testDonatePagseguro(),
+  'donateBitcoin.html': () => test.testDonateBitcoin(),
   'contribute.html': () => test.testContribute(),
   'guidelines.html': () => test.testGuidelines(),
   'deploy.html': () => test.testDeploy(),
@@ -131,6 +134,8 @@ const routes = {
   'manDB.html': () => test.testManDb(),
   'manGit.html': () => test.testManGit(),
   'devLocal.html': () => test.testDevLocal(),
+  'sync.html': test.testSyncInfo,
+  'anphy.html': test.testAnPhy,
   'data_donated.html': () => console.log('a summary of the data donated in usage, upload and scrapping')
 }
 

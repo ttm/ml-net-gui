@@ -1099,37 +1099,136 @@ const testMkSyncId = () => {
   })
 }
 
-const testDonate = () => {
+const testDonatePaypal = () => {
+  $('canvas').hide()
   $('<div/>', {
     css: {
       width: '50%',
       margin: '2% 10%'
     }
   }).html(`
+  <h2>Donate using Paypal</h2>
 
-    Consider contributing with ideas, opinions, any other feedback to developing <b>Our Aquarium</b> and providing online instances.<br/>
-    Also with donations, or partnerships. Maybe you know some person or institution which would be interested in<br/>
-    maintaining, using or sponsoring this software or social angle.<br/>
+  <p>
+  You may donate using Paypal by clicking on the following image:
+  <form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top">
+    <input type="hidden" name="cmd" value="_donations" />
+    <input type="hidden" name="business" value="CWRTXTJF9C3N6" />
+    <input type="hidden" name="currency_code" value="BRL" />
+    <input type="image" src="https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif" border="0" name="submit" title="PayPal - The safer, easier way to pay online!" alt="Donate with PayPal button" />
+    <img alt="" border="0" src="https://www.paypal.com/pt_BR/i/scr/pixel.gif" width="1" height="1" />
+  </form>
+  </p>
+
+  <p>
+  Or using the following QR code:
+  <p>
+  <img src="doacao/qrPaypal.png" alt="QR Code for donating through Paypal">
+  </p>
+  </p>
+
+  <p>Or ${link('go back to the donations page', 'donate')}.</p>
+
+  <br>
+  :::
+  `).appendTo('body')
+}
+
+const testDonatePagseguro = () => {
+  $('canvas').hide()
+  $('<div/>', {
+    css: {
+      width: '50%',
+      margin: '2% 10%'
+    }
+  }).html(`
+  <h2>Donate using Pagseguro</h2>
+
+  <p>
+  You may donate using Pagseguro by clicking on the following image:
+  <!-- INICIO FORMULARIO BOTAO PAGSEGURO -->
+  <form action="https://pagseguro.uol.com.br/checkout/v2/donation.html" method="post">
+  <!-- NÃO EDITE OS COMANDOS DAS LINHAS ABAIXO -->
+  <input type="hidden" name="currency" value="BRL" />
+  <input type="hidden" name="receiverEmail" value="renato.fabbri@gmail.com" />
+  <input type="hidden" name="iot" value="button" />
+  <input type="image" src="https://stc.pagseguro.uol.com.br/public/img/botoes/doacoes/209x48-doar-assina.gif" name="submit" alt="Pague com PagSeguro - é rápido, grátis e seguro!" />
+  </form>
+  <!-- FINAL FORMULARIO BOTAO PAGSEGURO -->
+  </p>
+
+  <p>Or ${link('go back to the donations page', 'donate')}.</p>
+
+  <br>
+  :::
+  `).appendTo('body')
+}
+
+const testDonateBitcoin = () => {
+  $('canvas').hide()
+  $('<div/>', {
+    css: {
+      width: '50%',
+      margin: '2% 10%'
+    }
+  }).html(`
+  <h2>Donate using Bitcoins</h2>
+
+  <p>Transfer any amount of bitcoins to the wallet in the address:
+  <b>bc1qjw72xa6c8c924j8aj8y737q56let8envx4j0xd</b>
+  </p>
+
+  <p>
+  <p>
+  Or use the QR Code:
+  </p>
+  <img src="doacao/qrBitcoin.png" alt="QR Code for donating using the Bitcoin Wallet">
+  </p>
+
+  <p>Or ${link('go back to the donations page', 'donate')}.</p>
+
+  <br>
+  :::
+  `).appendTo('body')
+}
+
+const testDonate = () => {
+  const paragraphs = [
+    `Please contribute to Our Aquarium (OA). You can find many suggestions for addind to OA in the ${link('contributing page', 'contribute')}.
+    `,
+    `
+    This page is dedicated to monetary donations. Any amount may be transfered. We currently provide the following ways for you to accomplish a donation:
+    `
+  ].reduce((a, t) => a + `<p>${t}</p>`, '')
+
+  const items = [
+    `Donate through ${link('Paypal', 'donatePaypal')}.`,
+    `Donate through ${link('Pagseguro', 'donatePagseguro')}.`,
+    `Donate using ${link('Bitcoin', 'donateBitcoin')}.`,
+    'Write us at <a href="mailto:sync.aquarium@gmail.com" target="_blank"> sync <ADOT> aquarium <AT> gmail <ANOTHERDOR> com</a> to transfer into an online account or donate through any other means.'
+  ].reduce((a, t) => a + `<li>${t}</li>`, '')
+
+  $('<div/>', {
+    css: {
+      width: '50%',
+      margin: '2% 10%'
+    }
+  }).html(`
+  <h2>Donate to Our Aquarium</h2>
+
+  ${paragraphs}
+
+  ${items}
+
 <br/>
-    Any amount may be transfered. Please get in contact through:<br/>
-    <a href='mailto:sync.aquarium@gmail.com' target='_blank'> sync <ADOT> aquarium <AT> gmail <ANOTHERDOR> com</a><br/>
-<br/>
-    Can you receive online donations for us? Bitcoins and Aetherium?<br/>
-    We are still trying to provide facilitated donations though them.<br/>
-<br/>
+    <p>
+    We want to include other e-coins, such as Ethereum, but we have not managed to get into them.
+    If you wish to help us in including them, please write us.
+    </p>
 
-    We provide the Fundamental Cycle, through which any need or requirement someone puts time in may be rewarded.<br/>
-    If currently operates through synchronizations. One of which consists in sharing these pages with the musical elements.
-
-    The other is the synchronization which was presented after your music in the Gradus page without login.
-
-    Please donate so we can keep developing <b>Our Aquarium</b> and providing online instances.<br/>
+    <p>Please donate so <b>Our Aquarium</b> receives further developments and online instances.</p>
     <br/>
-    <br/>
-    This page is in fact the donation page for OA itself.
-    <br/>
-<br/>
-:::<br/><br/>
+:::
     `
   ).appendTo('body')
   $('canvas').hide()
@@ -1343,7 +1442,6 @@ const testGuidelines = () => {
 const testContribute = () => {
   $('canvas').hide()
   const paragraphs = [`
-
     Please contribute to the <b>Our Aquarium platform</b> (OA) with texts, ideas, opinions,
     any other feedback. Partnerships and donations are also encouraged.
     You might know someone or an institution which would be interested in
@@ -1374,7 +1472,7 @@ const testContribute = () => {
     'Find partners to think and maintain OA.',
     'Make videos, make synchronizations, use OA.',
     `Provide help for others to use OA (for example, in the 
-    <a href="http://www.e-chat.co/room/19930378" target="_blank">OA chat and help channel</a>)`,
+    <a href="https://webchat.freenode.net/#ouraquarium" target="_blank">OA chat and help channel</a>)`,
     'Take part writing the software underlying the OA platform (pages, extensions).',
     'Improve the scientific framework.',
     'Write academic articles alone or in partnership with the OA community.',
@@ -1396,26 +1494,33 @@ const testContribute = () => {
   Example ways in which you may assist:
   <ul>${todos}</ul>
 
+  <p>Of course, we also receive donations for example through Paypal or through Bitcoins. Please visit our ${link('donations page', 'donate')}.</p>
+
+  <br>
+
   :::
 
   `).appendTo('body')
 }
 
-const link = (text, path) => `<a href="?page=${path}">${text}</a>`
+const link = (text, path) => {
+  const ua = wand.router.use.urlArgument
+  const lflag = ua('lang') ? `&lang=${ua('lang')}` : ''
+  return `<a href="?page=${path + lflag}">${text}</a>`
+}
 
 const testAbout = () => {
   $('canvas').hide()
   const paragraphs = [
   `
-  Our Aquarium (OA) is a platform for harnessing your social self, or social organism,
-  through analyses, audiovisual creation, and gamification.
+  Our Aquarium (OA) is a platform for harnessing your social self (or social organism) through analyses, audiovisual creation, and gamification.
   `,
   `
   There are fundamental aspects about OA which you may wish to know more about:`
   ].reduce((a, t) => { return a + `<p>${t}</p>` }, '')
 
   const items = [
-    'The <a href="?page=extension">You extension</a> for your browser: the first gateway you should use to reach your social self.',
+    `The ${link('You extension', 'extension')} for your browser: the first gateway you should use to reach your social self.`,
     `${link('Usage guidelines', 'guidelines')}: learn basics about the OA and using it.`,
     `${link('Contributing to Our Aquarium', 'contribute')}.`,
     `${link('Frequently Asked Questions', 'faq')} about OA.`,
@@ -1446,10 +1551,8 @@ const testExtension = () => {
   `
   Installing and using the <b>You</b> extension is the first step towards fully acquiring your social
   networks in OA. Then, you will be able to better know yourself through your social self.
-  `,
   `
-  To install it, you should:`
-  ].reduce((a, t) => { return a + `<p>${t}</p>` }, '')
+  ].reduce((a, t) => a + `<p>${t}</p>`, '')
 
   const items = [
     'Download the file <a href="you.zip" target="_blank">you.zip</a> and unpack it.',
@@ -1478,10 +1581,10 @@ const testExtension = () => {
   ${paragraphs}
 
   To install it, you should:
-  <ul>${items}</ul>
+  <ol>${items}</ol>
 
   To use it, you should:
-  <ul>${items2}</ul>
+  <ol>${items2}</ol>
 
   :::
 
@@ -1586,4 +1689,66 @@ const testHidden = () => {
   `).appendTo('body')
 }
 
-module.exports = { testPlot, testRotateLayouts, testBlink, testExhibition1, testDiffusion, testMultilevelDiffusion, testMetaNetwork, testSparkMin, testSparkLosd, testMong, testGetNet0, testGetNet1, testGetNet2, testGetNet3, testNetIO, testGUI, testNetUpload, testNetUpload2, testMongIO, testMongNetIO, testMongBetterNetIO, testNetPage, testPuxi, testHtmlEls, testHtmlEls2, testGradus, testAdParnassum, testWorldPropertyPage, testAudio, testJQueryFontsAwesome, testObj, testColors, testMusic, testLooper, testSeq, testSync, testPattern, testRec, testRec2, testRecCanvas, testRecAudio, testRecAudioAndCanvas, testRecAudioAndCanvas2, testDiffusionLimited, testNoise, testLycoreia, testTithorea, testSyncParnassum, testEditor, testLz, testMkSyncId, testDonate, testGuidelines, testManDb, testManGit, testContribute, testDevLocal, testDeploy, testAbout, testExtension, testFAQ, testTheory, testHidden }
+const testSyncInfo = () => {
+  $('canvas').hide()
+  $('<div/>', {
+    css: {
+      width: '50%',
+      margin: '2% 10%'
+    }
+  }).html(`
+  <h2>Social Synchronization</h2>
+${`You can understand your interaction with your networks as exploration:
+  -> with analyzis; or with
+  -> midia generation / absorption,
+
+or as synergy:
+  -> by diffusion; or by
+  -> syncronization.
+
+Synchronization meaning a process in which you have an expected (or idealized) result, such as maturing a concept or framework, building a community, getting a project done, having an event happen.
+
+A diffusion is most often a synchronization: you want feedback messages, you want to create derivatives.
+A synchronization most often involves a fund, a monetary crowdsourcing (crowdfunding).
+A synchronization often involves an information crowdsourcing, for example to mature an idea, to find partners or sponsors, to understand how a proposal is accepted.
+
+The diffusion of goods may be essentially a diffusion (e.g. selling a product),
+although it most often is a synchronization (e.g. when envisioned a community of buyers, art, or research).
+
+Hope you synchronize yourself with Our Aquarium audiovisual music,
+it is available as a social and individual panaceia.
+  `.replaceAll('\n', '<br />')}
+  <br>
+  :::
+  `).appendTo('body')
+}
+
+const linkify = require('linkifyjs/html')
+const linkify2 = link => linkify(`<span class="notranslate">${link}<span>`)
+
+const testAnPhy = () => {
+  $('canvas').hide()
+  $('<div/>', {
+    css: {
+      width: '50%',
+      margin: '2% 10%'
+    }
+  }).html(`
+  <h2>Anthropological Physics</h2>
+${`You can see, play, interact and govern your social structures because they are yourself.
+In fact writing diaries is an ethnographic technique, and the diary may be used
+as the anthropologist finds suitable.
+
+Our Aquarium complies to free culture, software, midia, data, and transparency (self, civil society) guidelines.
+
+Know more:
+  `.replaceAll('\n', '<br />')}
+${linkify2('https://doi.org/10.5281/zenodo.438960')}
+
+  <br>
+  <br>
+  :::
+  `).appendTo('body')
+}
+
+module.exports = { testPlot, testRotateLayouts, testBlink, testExhibition1, testDiffusion, testMultilevelDiffusion, testMetaNetwork, testSparkMin, testSparkLosd, testMong, testGetNet0, testGetNet1, testGetNet2, testGetNet3, testNetIO, testGUI, testNetUpload, testNetUpload2, testMongIO, testMongNetIO, testMongBetterNetIO, testNetPage, testPuxi, testHtmlEls, testHtmlEls2, testGradus, testAdParnassum, testWorldPropertyPage, testAudio, testJQueryFontsAwesome, testObj, testColors, testMusic, testLooper, testSeq, testSync, testPattern, testRec, testRec2, testRecCanvas, testRecAudio, testRecAudioAndCanvas, testRecAudioAndCanvas2, testDiffusionLimited, testNoise, testLycoreia, testTithorea, testSyncParnassum, testEditor, testLz, testMkSyncId, testDonate, testGuidelines, testManDb, testManGit, testContribute, testDevLocal, testDeploy, testAbout, testExtension, testFAQ, testTheory, testHidden, testDonatePaypal, testDonatePagseguro, testDonateBitcoin, testSyncInfo, testAnPhy }

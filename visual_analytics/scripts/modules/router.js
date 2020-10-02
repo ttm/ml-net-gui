@@ -66,14 +66,14 @@ class Router {
     }
     const ft = wand.$('<div/>', { id: 'afooter', css: { width: '100%', display: 'flex', 'white-space': 'nowrap', 'overflow-x': 'auto' } }).appendTo('body')
     wand.$('<a/>', {
-      href: '?page=contribute',
+      href: '?page=about',
       target: '_blank',
       css: {
         'margin-left': '1%',
         display: 'inline-block',
         float: 'left'
       }
-    }).html('Contribute to Our Aquarium').appendTo(ft)
+    }).html('about Our Aquarium').appendTo(ft)
     wand.$('<div/>', { class: 'notranslate', css: { display: 'inline-block', 'margin-left': '30%', float: 'left' } }).appendTo(ft).html('language:')
     wand.$('<div/>', { id: 'google_translate_element', class: 'notranslate', css: { display: 'inline-block', 'margin-left': '1%', float: 'left' } }).appendTo(ft)
     wand.$('<script/>', {

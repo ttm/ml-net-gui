@@ -1103,7 +1103,7 @@ const testDonate = () => {
   $('<div/>', {
     css: {
       width: '50%',
-      margin: '10%'
+      margin: '2% 10%'
     }
   }).html(`
 
@@ -1154,7 +1154,7 @@ const testDeploy = () => {
   $('<div/>', {
     css: {
       width: '50%',
-      margin: '10%'
+      margin: '2% 10%'
     }
   }).html(`
   <h2>deploying OA</h2>
@@ -1190,7 +1190,7 @@ const testManDb = () => {
   $('<div/>', {
     css: {
       width: '50%',
-      margin: '10%'
+      margin: '2% 10%'
     }
   }).html(`
   <h2>deploying new OA instance: starting database</h2>
@@ -1232,7 +1232,7 @@ const testDevLocal = () => {
   $('<div/>', {
     css: {
       width: '50%',
-      margin: '10%'
+      margin: '2% 10%'
     }
   }).html(`
   <h2>Starting Our Aquarium locally</h2>
@@ -1279,15 +1279,13 @@ const testManGit = () => {
   $('<div/>', {
     css: {
       width: '50%',
-      margin: '10%'
+      margin: '2% 10%'
     }
   }).html(`
   <h2>deploying new OA instance: sharing the HTML</h2>
 
 
   ${paragraphs}
-  <br>
-  <br>
 
   Example ways in which you may assist:
   <ul>${items}</ul>
@@ -1326,7 +1324,7 @@ const testGuidelines = () => {
   ].reduce((a, t) => { return a + `<p>${t}</p>` }, '')
 
   const text = `
-  <h2>usage guidelines</h2>
+  <h2>Usage Guidelines</h2>
 
   ${paragraphs}
 
@@ -1337,7 +1335,7 @@ const testGuidelines = () => {
   $('<div/>', {
     css: {
       width: '50%',
-      margin: '10%'
+      margin: '2% 10%'
     }
   }).html(text).appendTo('body')
 }
@@ -1383,18 +1381,17 @@ const testContribute = () => {
     'Start a new instance of the OA platform.',
     `Write documentation about OA. The continuous development has entailed shallow documentation.
     Any writen or recorded piece will probably be referenced in the documentation if sent to the email above.`
-  ].reduce((a, t) => { return a + `<li>${t}</li>` }, '')
+  ].reduce((a, t) => a + `<li>${t}</li>`, '')
 
   $('<div/>', {
     css: {
       width: '50%',
-      margin: '10%'
+      margin: '2% 10%'
     }
   }).html(`
   <h2>Supporting Our Aquarium</h2>
 
   ${paragraphs}
-  <br>
 
   Example ways in which you may assist:
   <ul>${todos}</ul>
@@ -1404,4 +1401,189 @@ const testContribute = () => {
   `).appendTo('body')
 }
 
-module.exports = { testPlot, testRotateLayouts, testBlink, testExhibition1, testDiffusion, testMultilevelDiffusion, testMetaNetwork, testSparkMin, testSparkLosd, testMong, testGetNet0, testGetNet1, testGetNet2, testGetNet3, testNetIO, testGUI, testNetUpload, testNetUpload2, testMongIO, testMongNetIO, testMongBetterNetIO, testNetPage, testPuxi, testHtmlEls, testHtmlEls2, testGradus, testAdParnassum, testWorldPropertyPage, testAudio, testJQueryFontsAwesome, testObj, testColors, testMusic, testLooper, testSeq, testSync, testPattern, testRec, testRec2, testRecCanvas, testRecAudio, testRecAudioAndCanvas, testRecAudioAndCanvas2, testDiffusionLimited, testNoise, testLycoreia, testTithorea, testSyncParnassum, testEditor, testLz, testMkSyncId, testDonate, testGuidelines, testManDb, testManGit, testContribute, testDevLocal, testDeploy }
+const link = (text, path) => `<a href="?page=${path}">${text}</a>`
+
+const testAbout = () => {
+  $('canvas').hide()
+  const paragraphs = [
+  `
+  Our Aquarium (OA) is a platform for harnessing your social self, or social organism,
+  through analyses, audiovisual creation, and gamification.
+  `,
+  `
+  There are fundamental aspects about OA which you may wish to know more about:`
+  ].reduce((a, t) => { return a + `<p>${t}</p>` }, '')
+
+  const items = [
+    'The <a href="?page=extension">You extension</a> for your browser: the first gateway you should use to reach your social self.',
+    `${link('Usage guidelines', 'guidelines')}: learn basics about the OA and using it.`,
+    `${link('Contributing to Our Aquarium', 'contribute')}.`,
+    `${link('Frequently Asked Questions', 'faq')} about OA.`,
+    `${link('Conceptual remarks', 'theory')} on what OA is and consequences.`,
+    `${link('Hidden pages / features', 'hidden')}.`
+  ].reduce((a, t) => { return a + `<li>${t}</li>` }, '')
+
+  $('<div/>', {
+    css: {
+      width: '50%',
+      margin: '2% 10%'
+    }
+  }).html(`
+  <h2>About Our Aquarium</h2>
+
+  ${paragraphs}
+
+  <ul>${items}</ul>
+
+  <br>
+  :::
+  `).appendTo('body')
+}
+
+const testExtension = () => {
+  $('canvas').hide()
+  const paragraphs = [
+  `
+  Installing and using the <b>You</b> extension is the first step towards fully acquiring your social
+  networks in OA. Then, you will be able to better know yourself through your social self.
+  `,
+  `
+  To install it, you should:`
+  ].reduce((a, t) => { return a + `<p>${t}</p>` }, '')
+
+  const items = [
+    'Download the file <a href="you.zip" target="_blank">you.zip</a> and unpack it.',
+    'In the <b>Google Chrome</b> browser, go to "extensions (in the upper-right corner) -> manage extensions."',
+    'Enable developer mode (in the extensions panel you reached in step 2.',
+    'Click on the "Load unpacked" button (in the extension panel). Select the folder you unpacked in step 1 (where you have the README.md file and the "scripts" folder").'
+  ].reduce((a, t) => { return a + `<li>${t}</li>` }, '')
+
+  const items2 = [
+    'Click on the badge of the You extension. It is also on the upper-right corner. You may need to pin the You extension in the extensions menu (also in the upper-right corner).',
+    'Click on the pink button to retrieve some of your data. You should have Facebook logged in. Other social networks are enabled after you examine your friendship network (unfortunatelly, they are currently only available on Facebook).',
+    'Your browser will open your profile page to verify your identity, will then load your friends page and scroll down to have all your friends, and then will visit the mutual friends page of each friend. This process will probably take only a few minutes, wait for it to finish.',
+    'After you retrieved your friends and at least some of your mutual friends, click on the You extension badge again. You should see your name, id, number of friends, number of friends visited (for mutual friends), and friendships found.',
+    'Click on any of the yellow buttons: "Gradus", "Lycoreia", or "Tithorea". They are specific pages for you to analyze and make audiovisual art with your social self and are only reacheable through the You browser extension. We suggest you use each of them at least a few times.',
+    'Click again in the pink button from time to time. Wait about 1h before clicking again on the pink button. Facebook limits the access to specific features in a short timespan.'
+  ].reduce((a, t) => { return a + `<li>${t}</li>` }, '')
+
+  $('<div/>', {
+    css: {
+      width: '50%',
+      margin: '2% 10%'
+    }
+  }).html(`
+  <h2>The <b>You extension</b></h2>
+
+  ${paragraphs}
+
+  To install it, you should:
+  <ul>${items}</ul>
+
+  To use it, you should:
+  <ul>${items2}</ul>
+
+  :::
+
+  `).appendTo('body')
+}
+
+const testFAQ = () => {
+  $('canvas').hide()
+  const qa = [
+    [
+      'What are the platforms I can use within OA?',
+      'Facebook, Instagram, Twitter, WhatsApp, Telegram.'
+    ],
+    [
+      'How can I start analyzing and make art with an specific platform, for example: Instagram?',
+      `Install and use the ${link('You extension', 'extension')}.`
+    ],
+    [
+      'Why do we start with Facebook?',
+      'One of the core objectives of OA is to enable self-knowledge, and for such, the friendship network is more powerful then interaction networks. The friendship network is only available in Facebook.'
+    ],
+    [
+      'I have a suggestion for OA to include a feature or a social network platform or to simplify or modify something. How should I proceed?',
+      `Visit the ${link('contribute', 'contribute')} page. There, you will find and email to which messages should be sent.`
+    ],
+    [
+      'What are all the pages and features in OA?',
+      `You should read the ${link('about', 'about')} page and pages linked therein. Further pages and features are unraveled with usage.`
+    ]
+  ].reduce((a, q) => a + `<p><b>${q[0]}</b><br>${q[1]}</p>`, '')
+
+  $('<div/>', {
+    css: {
+      width: '50%',
+      margin: '2% 10%'
+    }
+  }).html(`
+  <h2>Frequently Asked Questions (FAQ)</h2>
+
+  ${qa}
+
+  <br>
+  :::
+  `).appendTo('body')
+}
+
+const testTheory = () => {
+  $('canvas').hide()
+  const theoryItems = [
+    `${link('Synchronization', 'sync')}: diffusion of information that changes the network functionality.`,
+    `Ethics, privacy in the ${link('anthropological physics', 'anphy')}.`
+  ].reduce((a, t) => { return a + `<li>${t}</li>` }, '')
+
+  $('<div/>', {
+    css: {
+      width: '50%',
+      margin: '2% 10%'
+    }
+  }).html(`
+  <h2>Theoretical / Conceptual considerations</h2>
+
+  <ul>${theoryItems}</ul>
+
+  <br>
+  :::
+  `).appendTo('body')
+}
+
+const testHidden = () => {
+  $('canvas').hide()
+  const paragraphs = [
+    'OA is designed as a progressive journey to uncover your social self to yourself.',
+    'By making art, analyses, synchronizations, installing extensions, accessing pages, you enable new pages and features.',
+    'Therefore, many of the pages /features are hidden for a newcomer:'
+  ].reduce((a, t) => { return a + `<p>${t}</p>` }, '')
+
+  const items = [
+    'Features in the Gradus ad Parnassum are only enabled for the person after s/he hears the musical piece dedicated to her/him and follows the instructions.',
+    'Oracles, interfaces dedicated to divination.',
+    'Meditation pages with cycles for breathing, sonic do-in, binaural beats and many other features.',
+    `Utensils for accessing and gathering data from social networking platforms such as Instagram, Twitter, WhatsApp, Telegram, emails, etc. You should start with the ${link('You extension', 'extension')}.`,
+    'Gadgets to make audiovisual art or probe the capabilities of your system',
+    'Manuals to install and deply new instances of the OA platform.',
+    `Advanced interfaces for designing ${link('synchronizations', 'sync')}.`,
+    'Advanced interfaces to analyze your social networks or the network resulting from all the data donated to OA or one against the other.'
+  ].reduce((a, t) => { return a + `<li>${t}</li>` }, '')
+
+  $('<div/>', {
+    css: {
+      width: '50%',
+      margin: '2% 10%'
+    }
+  }).html(`
+  <h2>Hidden pages and features</h2>
+
+  ${paragraphs}
+
+  <ul>${items}</ul>
+
+  <br>
+  :::
+  `).appendTo('body')
+}
+
+module.exports = { testPlot, testRotateLayouts, testBlink, testExhibition1, testDiffusion, testMultilevelDiffusion, testMetaNetwork, testSparkMin, testSparkLosd, testMong, testGetNet0, testGetNet1, testGetNet2, testGetNet3, testNetIO, testGUI, testNetUpload, testNetUpload2, testMongIO, testMongNetIO, testMongBetterNetIO, testNetPage, testPuxi, testHtmlEls, testHtmlEls2, testGradus, testAdParnassum, testWorldPropertyPage, testAudio, testJQueryFontsAwesome, testObj, testColors, testMusic, testLooper, testSeq, testSync, testPattern, testRec, testRec2, testRecCanvas, testRecAudio, testRecAudioAndCanvas, testRecAudioAndCanvas2, testDiffusionLimited, testNoise, testLycoreia, testTithorea, testSyncParnassum, testEditor, testLz, testMkSyncId, testDonate, testGuidelines, testManDb, testManGit, testContribute, testDevLocal, testDeploy, testAbout, testExtension, testFAQ, testTheory, testHidden }

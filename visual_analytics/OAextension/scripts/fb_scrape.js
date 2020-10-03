@@ -16,6 +16,16 @@ chrome.runtime.onMessage.addListener(
   }
 )
 
+const monload = work => {
+  if (document.readyState !== 'complete') {
+    window.addEventListener('load', (event) => {
+      work()
+    })
+  } else {
+    work()
+  }
+}
+
 function saveText (filename, text) {
   if (this.executed === undefined) {
     this.executed = true
@@ -23,7 +33,7 @@ function saveText (filename, text) {
     a.setAttribute('href', 'data:text/json;charset=utf-8,' + encodeURIComponent(text))
     a.setAttribute('download', filename)
     a.click()
-    alert('you can now visit Gradus, Lycoreia, and Tithorea with your network using the extension. E-mail the downloaded file to: ' + emailAddress)
+    alert('you can now visit Gradus, Lycoreia, and Tithorea with your network using the extension.')
   }
 }
 
@@ -135,7 +145,9 @@ const scrapeNameIdNewFb = () => {
   } else {
     sid = curUrl.match(/facebook.com\/(.*)\b/)[1]
   }
-  window.onload = () => {
+  console.log('DOC state:', document.readyState, 'YEAH')
+  monload(() => {
+    console.log('DOM fully loaded and parsed')
     setTimeout(() => {
       const h1elements = getElementsByXPath('//*/h1')
       let h1el
@@ -154,7 +166,7 @@ const scrapeNameIdNewFb = () => {
       const userData = { name, codename, sid, nid, newfb: true }
       chrome.runtime.sendMessage({ message: 'scrapped_user', userData })
     }, 4000)
-  }
+  })
 }
 
 const scrapeNameId = () => {
@@ -195,7 +207,7 @@ const getElementsByXPath = (xpath, parent) => {
 
 const scrollDelayInMilliSeconds = 300
 const scrollMagnitude = 1000
-const emailAddress = 'sync.aquarium@gmail.com'
+// const emailAddress = 'sync.aquarium@gmail.com'
 
 const scrollTillEnd = (newfb, call = () => console.log('scrolling complete')) => {
   console.log('NEW?:', newfb)
@@ -223,7 +235,8 @@ const scrollTillEnd = (newfb, call = () => console.log('scrolling complete')) =>
     }
   }
 
-  window.onload = () => {
+  // window.onload = () => {
+  monload(() => {
     const time = setInterval(function () {
       document.documentElement.scrollTop += scrollMagnitude
       if (criterion()) {
@@ -232,5 +245,5 @@ const scrollTillEnd = (newfb, call = () => console.log('scrolling complete')) =>
         call()
       }
     }, scrollDelayInMilliSeconds)
-  }
+  })
 }

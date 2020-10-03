@@ -5,6 +5,7 @@ const { mkBtn } = require('./gui.js')
 const { guards, lycoreiaNew, uploadVideoText, uploadVideoPlaceholder } = require('./instructions.js')
 // const { guards, deucalion, lycorus, corycia } = require('./sayings.js')
 const Graph = require('graphology')
+const { monload } = require('../utils.js')
 const louvain = require('graphology-communities-louvain')
 const netmetrics = require('graphology-metrics')
 const netdegree = require('graphology-metrics/degree')
@@ -40,7 +41,6 @@ class Lycoreia {
     const self = this
     const defaultSettings = {
       fontSize: 20,
-      timeStreach: 0.001,
       state: {
         nodesSize: {
           // current val = min + (max - min) * (count % step), in increment(attr)
@@ -180,7 +180,7 @@ class Lycoreia {
     this.copyToClipboard = copyToClipboard
     wand.extra.exhibition = wand.test.testExhibition1('gradus')
     wand.currentNetwork = wand.extra.exhibition.drawnNet.net
-    setTimeout(() => {
+    monload(() => {
       wand.extra.exhibition.remove()
       delete wand.extra.exhibition
       delete wand.currentNetwork
@@ -253,7 +253,7 @@ class Lycoreia {
         const d2 = $('<div/>', { id: 'div2' }).insertAfter('#sub-button')
         d2.html('||').css('display', 'inline').css('margin', '0 2% 0 1%')
       }
-    }, 10000 * this.settings.timeStreach) // fixme: make better loading
+    })
   }
 
   setDialogs () {

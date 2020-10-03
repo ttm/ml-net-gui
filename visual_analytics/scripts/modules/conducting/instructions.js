@@ -276,6 +276,20 @@ Good luck in knowing thyself.
 `
 }
 
+const defaultSyncDescription10 = () => {
+  return `
+Whenever one presents something that has the potential to destabilize
+the status quo, the system coopts such individual or group.
+That is: the organizations in power offers some context of value,
+money, or jobs, by which the ones in action will not have the same
+condition or impetus to continue such destabilization.
+
+Thus: propose and practice *dangerous ideas*.
+
+:::
+`
+}
+
 const syncDescription = () => {
   return wand.syncInfo.syncDescription || defaultSyncDescription()
 }
@@ -634,4 +648,4 @@ const toSeedText = seedName => {
 // OA is writen in the WYSINB (what you see is not beautiful) style.
 // It is meant to be very functional and simple and development friendly.
 
-module.exports = { tithorea1, lycoreia1, gradus1, gradus2, gradus3, gradusRec, gradusSyncLinks, gradusVideoLink, gradusExtensionInfo, uploadVideoText, uploadVideoPlaceholder, lycoreiaNew, arcturians1, arcturians2, guards, tithoreaNew2, tithoreaNew, defaultSyncDescription, defaultSyncDescription2, defaultSyncDescription3, defaultSyncDescription4, defaultSyncDescription5, defaultSyncDescription6, defaultSyncDescription7, toSeedText, defaultSyncDescription8, gradus1Login, defaultSyncDescription9, gradus1b, gradusSyncLinks2 }
+module.exports = { tithorea1, lycoreia1, gradus1, gradus2, gradus3, gradusRec, gradusSyncLinks, gradusVideoLink, gradusExtensionInfo, uploadVideoText, uploadVideoPlaceholder, lycoreiaNew, arcturians1, arcturians2, guards, tithoreaNew2, tithoreaNew, defaultSyncDescription, defaultSyncDescription2, defaultSyncDescription3, defaultSyncDescription4, defaultSyncDescription5, defaultSyncDescription6, defaultSyncDescription7, toSeedText, defaultSyncDescription8, gradus1Login, defaultSyncDescription9, gradus1b, gradusSyncLinks2, defaultSyncDescription10 }

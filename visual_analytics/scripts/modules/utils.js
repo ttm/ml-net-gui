@@ -93,4 +93,14 @@ function mobileAndTabletCheck () {
   return check
 }
 
-module.exports = { chooseUnique, chunkArray, inplaceShuffle, randChunkSplit, copyToClipboard, rot13Fast, rot, mobileAndTabletCheck }
+const monload = work => {
+  if (document.readyState !== 'complete') {
+    window.addEventListener('load', (event) => {
+      work()
+    })
+  } else {
+    work()
+  }
+}
+
+module.exports = { chooseUnique, chunkArray, inplaceShuffle, randChunkSplit, copyToClipboard, rot13Fast, rot, mobileAndTabletCheck, monload }

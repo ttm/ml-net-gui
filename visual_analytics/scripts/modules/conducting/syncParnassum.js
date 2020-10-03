@@ -4,7 +4,7 @@ const { OABase } = require('./oabase')
 const { mkBtn } = require('./gui.js')
 const { gradus1b, gradus2, gradusRec, gradusSyncLinks2, gradusExtensionInfo, arcturians1, arcturians2, gradus1Login } = require('./instructions.js')
 const { Tone } = require('../maestro/all.js').base
-const { copyToClipboard } = require('./utils.js')
+const { copyToClipboard, monload } = require('../utils.js')
 
 const netmetrics = require('graphology-metrics')
 const netdegree = require('graphology-metrics/degree')
@@ -30,71 +30,14 @@ class SyncParnassum extends OABase {
 
     // const now = performance.now()
     // this.settings.timeStreach = 0.001 // fixme: remove, make flag...
-    if (window.oaReceivedMsg) { // gradus for the user network, from extension:
-      this.settings.timeStreach = 0.001
-      this.settings.currentLevel = 14
-      wand.maestro.synths.speaker.volume = -1 // 1 or 0 is 1, [0, 1] is ok range
-      this.allNetworks = [window.oaReceivedMsg.data.graph]
-      const g = Graph.from(window.oaReceivedMsg.data.graph)
-      this.registerNetwork(g, 'full')
-      const nodesToRemove = []
-      g.forEachNode((n, a) => {
-        if (!a.scrapped) {
-          nodesToRemove.push(n)
-        }
-      })
-      nodesToRemove.forEach(n => {
-        g.dropNode(n)
-      })
-      this.registerNetwork(g, 'visited') // make the small networks derived from the person
-      this.registerNetwork(g, 'current') // fixme: dont redundant?
-      this.setRecorder()
-      this.makeUserNetworks()
-      console.log('finished initialization 2')
-      this.setInfo2()
-      wand.$('#loading').css('visibility', 'hidden')
-    } else { // gradus received through sync:
-      const { syncKey, usid, unid, syncId } = wand.syncInfo
-      // const { usid, unid, syncId, syncKey, msid, mnid } = wand.syncInfo
-      const act = () => {
-        // if (syncId === null || ) {
-        if (wand.syncInfo.syncKey) {
-          console.log(' // member accessing OA is a seed (new DB encoded):')
-          return wand.transfer.mong.findAny({ syncKey }).then(res2 => { // fixme: remove
-            console.log('SYNC at gradus:', res2)
-            wand.syncInfo.syncDescription = res2.desc
-            wand.sageInfo = res2.sageInfo
-            wand.syncInfo.syncRemovedNodes = res2.removedNodes
-            wand.syncRes = res2 // has sync, desc, removedNodes, syncKey, sageInfo
-            this.sync = res2.sync
-            return wand.transfer.mong.findUserNetwork(res2.sageInfo.sid, res2.sageInfo.nid)
-          })
-        } else if (syncId === null) {
-          console.log(' // member accessing OA is a seed (old URL encoded):')
-          return wand.transfer.mong.findUserNetwork(usid, unid)
-        } else {
-          console.log(' // member is part of a diffusion started by a seed:')
-          return wand.transfer.mong.findAny({ syncId }).then(r => {
-            console.log('FOUND:', r)
-            this.sync = r.sync
-            wand.syncInfo.syncDescription = r.syncDescription
-            return wand.transfer.mong.findUserNetwork(r.usid, r.unid)
-          })
-        }
-      }
-      act().then(r => {
-        console.log('loaded user network')
-        this.allNetworks = r
-        const g = wand.net.use.utils.loadJsonString(this.allNetworks[0].text)
-        if (wand.syncInfo.syncRemovedNodes[0] !== '') {
-          wand.syncInfo.syncRemovedNodes.forEach(n => {
-            g.dropNode(n)
-          })
-        }
-
+    monload(() => {
+      if (window.oaReceivedMsg) { // gradus for the user network, from extension:
+        this.settings.timeStreach = 0.001
+        this.settings.currentLevel = 14
+        wand.maestro.synths.speaker.volume = -1 // 1 or 0 is 1, [0, 1] is ok range
+        this.allNetworks = [window.oaReceivedMsg.data.graph]
+        const g = Graph.from(window.oaReceivedMsg.data.graph)
         this.registerNetwork(g, 'full')
-        this.mkNames()
-
         const nodesToRemove = []
         g.forEachNode((n, a) => {
           if (!a.scrapped) {
@@ -104,20 +47,79 @@ class SyncParnassum extends OABase {
         nodesToRemove.forEach(n => {
           g.dropNode(n)
         })
-        this.registerNetwork(g, 'current') // make the small networks derived from the person
-
+        this.registerNetwork(g, 'visited') // make the small networks derived from the person
+        this.registerNetwork(g, 'current') // fixme: dont redundant?
         this.setRecorder()
-        this.makeMemberNetworks()
-        this.memberMusicSeqs = [this.makeMemberMusic(0, 0)]
-        for (let i = 1; i < this.plots.length; i++) {
-          // send var for plots length or catch value in seq iteration:
-          this.memberMusicSeqs.push(this.makeMemberMusic(i, this.memberMusicSeqs[i - 1].dur))
-        }
-        console.log('finished initialization')
-        this.setInfo()
+        this.makeUserNetworks()
+        console.log('finished initialization 2')
+        this.setInfo2()
         wand.$('#loading').css('visibility', 'hidden')
-      })
-    }
+      } else { // gradus received through sync:
+        const { syncKey, usid, unid, syncId } = wand.syncInfo
+        // const { usid, unid, syncId, syncKey, msid, mnid } = wand.syncInfo
+        const act = () => {
+          // if (syncId === null || ) {
+          if (wand.syncInfo.syncKey) {
+            console.log(' // member accessing OA is a seed (new DB encoded):')
+            return wand.transfer.mong.findAny({ syncKey }).then(res2 => { // fixme: remove
+              console.log('SYNC at gradus:', res2)
+              wand.syncInfo.syncDescription = res2.desc
+              wand.sageInfo = res2.sageInfo
+              wand.syncInfo.syncRemovedNodes = res2.removedNodes
+              wand.syncRes = res2 // has sync, desc, removedNodes, syncKey, sageInfo
+              this.sync = res2.sync
+              return wand.transfer.mong.findUserNetwork(res2.sageInfo.sid, res2.sageInfo.nid)
+            })
+          } else if (syncId === null) {
+            console.log(' // member accessing OA is a seed (old URL encoded):')
+            return wand.transfer.mong.findUserNetwork(usid, unid)
+          } else {
+            console.log(' // member is part of a diffusion started by a seed:')
+            return wand.transfer.mong.findAny({ syncId }).then(r => {
+              console.log('FOUND:', r)
+              this.sync = r.sync
+              wand.syncInfo.syncDescription = r.syncDescription
+              return wand.transfer.mong.findUserNetwork(r.usid, r.unid)
+            })
+          }
+        }
+        act().then(r => {
+          console.log('loaded user network')
+          this.allNetworks = r
+          const g = wand.net.use.utils.loadJsonString(this.allNetworks[0].text)
+          if (wand.syncInfo.syncRemovedNodes[0] !== '') {
+            wand.syncInfo.syncRemovedNodes.forEach(n => {
+              g.dropNode(n)
+            })
+          }
+
+          this.registerNetwork(g, 'full')
+          this.mkNames()
+
+          const nodesToRemove = []
+          g.forEachNode((n, a) => {
+            if (!a.scrapped) {
+              nodesToRemove.push(n)
+            }
+          })
+          nodesToRemove.forEach(n => {
+            g.dropNode(n)
+          })
+          this.registerNetwork(g, 'current') // make the small networks derived from the person
+
+          this.setRecorder()
+          this.makeMemberNetworks()
+          this.memberMusicSeqs = [this.makeMemberMusic(0, 0)]
+          for (let i = 1; i < this.plots.length; i++) {
+            // send var for plots length or catch value in seq iteration:
+            this.memberMusicSeqs.push(this.makeMemberMusic(i, this.memberMusicSeqs[i - 1].dur))
+          }
+          console.log('finished initialization')
+          this.setInfo()
+          wand.$('#loading').css('visibility', 'hidden')
+        })
+      }
+    })
   }
 
   makeMemberMusic (option = 0, adur = 0) {

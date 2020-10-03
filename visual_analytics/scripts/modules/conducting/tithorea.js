@@ -1,9 +1,10 @@
 /* global wand */
 const { mkBtn } = require('./gui.js')
 // const { guards, deucalion, lycorus, corycia } = require('./sayings.js')
-const { guards, tithoreaNew, tithoreaNew2, defaultSyncDescription, defaultSyncDescription2, defaultSyncDescription3, defaultSyncDescription4, defaultSyncDescription5, defaultSyncDescription6, defaultSyncDescription7, defaultSyncDescription8, defaultSyncDescription9, uploadVideoText, uploadVideoPlaceholder } = require('./instructions.js')
+const { guards, tithoreaNew, tithoreaNew2, defaultSyncDescription, defaultSyncDescription2, defaultSyncDescription3, defaultSyncDescription4, defaultSyncDescription5, defaultSyncDescription6, defaultSyncDescription7, defaultSyncDescription8, defaultSyncDescription9, uploadVideoText, uploadVideoPlaceholder, defaultSyncDescription10 } = require('./instructions.js')
 const { Tone } = require('../maestro/all.js').base
 const Graph = require('graphology')
+const { monload } = require('../utils.js')
 const louvain = require('graphology-communities-louvain')
 const netmetrics = require('graphology-metrics')
 const netdegree = require('graphology-metrics/degree')
@@ -19,7 +20,6 @@ class Tithorea {
     const self = this
     const defaultSettings = {
       fontSize: 20,
-      timeStreach: 0.001,
       state: {
         nodesSize: {
           // current val = min + (max - min) * (count % step), in increment(attr)
@@ -226,7 +226,7 @@ class Tithorea {
     this.settings.widthProportion = wand.artist.use.width / refWidth
     wand.extra.exhibition = wand.test.testExhibition1('gradus')
     wand.currentNetwork = wand.extra.exhibition.drawnNet.net
-    setTimeout(() => {
+    monload(() => {
       wand.extra.exhibition.remove()
       delete wand.extra.exhibition
       delete wand.currentNetwork
@@ -279,7 +279,7 @@ class Tithorea {
         this.removedNodesUrl = ''
         this.resetNetwork()
       }
-    }, 10000 * this.settings.timeStreach) // fixme: make better loading
+    })
   }
 
   setNetInfo () {
@@ -1008,7 +1008,8 @@ class Tithorea {
       defaultSyncDescription6(),
       defaultSyncDescription7(),
       defaultSyncDescription8(),
-      defaultSyncDescription9()
+      defaultSyncDescription9(),
+      defaultSyncDescription10()
     ]
     let counter = 0
     $('<button/>').html('template change').on('click', () => {

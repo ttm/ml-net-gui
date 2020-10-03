@@ -80,7 +80,6 @@ va-e-dev:
 va-eOA-zip:
 	cd visual_analytics && npm run buildE && zip -vr you.zip OAextension/
 
-
 # testing of the client code must be performed on the client. The /test page should be accessed,
 # e.g. https://0.0.0.0:8080/test/
 

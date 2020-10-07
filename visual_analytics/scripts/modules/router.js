@@ -75,6 +75,16 @@ class Router {
         float: 'left'
       }
     }).html('about Our Aquarium').appendTo(ft)
+    wand.$('<div/>', { class: 'notranslate', css: { display: 'inline-block', 'margin-left': '1%', float: 'left' } }).appendTo(ft).html(' / ')
+    wand.$('<a/>', {
+      href: `?page=donate${lflag}`,
+      target: '_blank',
+      css: {
+        'margin-left': '1%',
+        display: 'inline-block',
+        float: 'left'
+      }
+    }).html('Donate').appendTo(ft)
     wand.$('<div/>', { class: 'notranslate', css: { display: 'inline-block', 'margin-left': '30%', float: 'left' } }).appendTo(ft).html('language:')
     wand.$('<div/>', { id: 'google_translate_element', class: 'notranslate', css: { display: 'inline-block', 'margin-left': '1%', float: 'left' } }).appendTo(ft)
     wand.$('<script/>', {
@@ -116,8 +126,18 @@ class Router {
         finished++
         wand.$('body').css('top', '0px')
       }
-      if (finished >= 2) {
+      if (finished >= 2) { // fixme: better clear interval?
         clearInterval(intervalId2)
+        if (wand.$('.goog-te-combo').val().length === 0) {
+          const aint = setInterval(() => {
+            const els = wand.$('.skiptranslate')
+            if (els.length > 4) {
+              els[0].remove()
+              wand.$('body').css('top', '0px')
+              clearInterval(aint)
+            }
+          }, 1000)
+        }
       }
     }, 2000)
   }

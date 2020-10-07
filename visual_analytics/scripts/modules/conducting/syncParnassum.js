@@ -85,6 +85,11 @@ class SyncParnassum extends OABase {
         }
         act().then(r => {
           console.log('loaded user network')
+          wand.$('#loading').css('visibility', 'hidden')
+          if (typeof r === 'string') {
+            this.setInfoBlocked()
+            return
+          }
           this.allNetworks = r
           const g = wand.net.use.utils.loadJsonString(this.allNetworks[0].text)
           if (wand.syncInfo.syncRemovedNodes[0] !== '') {
@@ -116,7 +121,6 @@ class SyncParnassum extends OABase {
           }
           console.log('finished initialization')
           this.setInfo()
-          wand.$('#loading').css('visibility', 'hidden')
         })
       }
     })
@@ -464,8 +468,8 @@ class SyncParnassum extends OABase {
     const fun = () => {
       const tlength = this.infoLength + 1 // Object.keys(texts).length + 1
       const show = (++count % tlength) !== 0
-      this.rectInfo.alpha = Number(show)
-      this.rectInfo.zIndex = 10 + 2000 * show
+      // this.rectInfo.alpha = Number(show)
+      // this.rectInfo.zIndex = 10 + 2000 * show
       if (show) {
         // this.rectInfo.tint = 0xffffff * Math.random() / 2 + 0x777777
         wand.$('canvas').hide()
@@ -702,7 +706,8 @@ class SyncParnassum extends OABase {
       // const mfield = a.sid ? 'msid' : 'mnid'
       // return `${window.location.origin}/?page=ankh_&${mfield}=${mstr}&syncId=${syncId}`
       const r = wand.utils.rot
-      return `${document.location.href.split('?')[0]}?page=ankh_&syncKey=${wand.syncInfo.syncKey}&mnid=${r(a.nid || '')}&msid=${r(a.sid || '')}&lang=${wand.router.use.urlArgument('lang')}`
+      const langa = wand.router.use.urlArgument('lang') ? `&lang=${wand.router.use.urlArgument('lang')}` : ''
+      return `${document.location.href.split('?')[0]}?page=ankh_&syncKey=${wand.syncInfo.syncKey}&mnid=${r(a.nid || '')}&msid=${r(a.sid || '')}${langa}`
     }
     // from here on for both cases:
     const memberTexts = []
@@ -840,6 +845,25 @@ class SyncParnassum extends OABase {
       return { drawnNet, sync: undefined }
     }
     this.plots = this.nets.map(net => plotNet(net))
+  }
+
+  setInfoBlocked () {
+    wand.$('<div/>', {
+      class: 'infotext',
+      css: {
+        width: '50%',
+        margin: '3%',
+        'background-color': '#DDDDDD',
+        padding: '2%'
+      }
+    }).html(`You stand on the verge to Gradus ad Parnassum, that is: to your voyage into mount Parnassus.
+
+    It is prudent to advance only if someone sends you a link to a musical piece dedicated to you,
+    or if installed the <b>You</b> extension, which you can find by skimming the "about Our Aquarium" pages.
+
+    :::
+    `.replaceAll('\n', '<br />')).appendTo('body')
+    wand.$('canvas').hide()
   }
 }
 

@@ -51,7 +51,7 @@ class OABase {
           }
         },
         nodesAlpha: {
-          count: 0,
+          count: 6,
           max: 1,
           min: 0,
           steps: 10,
@@ -78,7 +78,7 @@ class OABase {
           }
         },
         edgesAlpha: {
-          count: 0, // interactions count
+          count: 6, // interactions count
           max: 1,
           min: 0,
           steps: 10,
@@ -389,7 +389,8 @@ class OABase {
     // wand.$('<span/>', { class: 'close' }).html('&times;').appendTo(modalContent)
 
     // wand.$('<p/>').text(uploadVideoText + '\n' + uploadVideoPlaceholder).appendTo(modalContent)
-    this.texts.adParnassum.html('<span class="tooltip" style="cursor: pointer; font-size: 103%;background-color: yellow; padding: 0 2%;">ad parnassum: 1+ <span class="tooltiptext" style="font-size:97%;" onclick="">register video URL</span></span>').on('pointerdown', () => {
+    const str = window.oaReceivedMsg ? 'arrived' : 'ongoing'
+    this.texts.adParnassum.html(`<span class="tooltip" style="cursor: pointer; font-size: 103%;background-color: yellow; padding: 0 2%;">ad parnassum: ${str} <span class="tooltiptext" style="font-size:97%;" onclick="">register video URL</span></span>`).on('pointerdown', () => {
       // modal.style.display = 'block'
       modal.css('display', 'block')
       // let vurl = window.prompt(uploadVideoText, uploadVideoPlaceholder)
@@ -516,7 +517,7 @@ class OABase {
           window.sss = s
           if (!window.oaReceivedMsg) { // load one of the networks
             ['star', '10%', '30%', '60%', '80%', '100%'].forEach((ss, i) => {
-              s.append($('<option/>').val(i).html(`${wand.syncInfo.pageMemberName} - ${ss}`))
+              s.append($('<option/>').val(i).html(`${wand.syncInfo.pageMemberName}, size: ${ss}`))
             })
             // this.allNetworks.forEach((n, i) => {
             //   s.append($('<option/>').val(i).html(n.name))
@@ -717,9 +718,9 @@ class OABase {
         }
       },
       minClickOnNodesEdgesVisible: {
-        tip: 'click on the new buttons',
+        tip: 'click on the buttons above',
         condition: () => {
-          if (s.nodesAlpha.count >= 2 && s.edgesAlpha.count >= 2) {
+          if (s.nodesAlpha.count >= 8 && s.edgesAlpha.count >= 8) {
             self.conditionMet = true
           }
         }
@@ -755,7 +756,7 @@ class OABase {
         tip: 'reach 50 interactions',
         condition: () => {
           wand.extra.counter = self.counter
-          if (Object.keys(s).reduce((a, i) => a + s[i].count, 0) > 50) {
+          if (Object.keys(s).reduce((a, i) => a + s[i].count, 0) >= 50) {
             self.conditionMet = true
           }
         }
@@ -787,7 +788,7 @@ class OABase {
         }
       },
       inputUrl: {
-        tip: 'insert video URL',
+        tip: 'click on the yellow "ad parnassum: ongoing"',
         condition: () => {
           if (this.urlConfirmed) {
             this.conditionMet = true
@@ -1104,14 +1105,14 @@ class OABase {
       { feature: 'nodeInfo', condition: 'hoverNodes' },
       { feature: 'nodeInfoClick', condition: 'playExplorer' }, // put URL upload on info page TTM
       { feature: 'muteButton', condition: 'playWithMute' },
-      { feature: 'videoLink', condition: 'inputUrl' },
-      // interact some
-      { feature: 'almostSyncLinks', condition: 'interactMore2' },
-      { feature: 'syncLinks', condition: 'copyInfoPages' }, // copy the text to send. Show instructions
-      // interact some
-      { feature: 'almostExtensionInfo', condition: 'interactMore2' },
-      { feature: 'extensionInfo', condition: 'loginWithExtension' }
-      // { feature: 'socialSelf', condition: 'recUse' } // gradus reached
+      { feature: 'videoLink', condition: 'inputUrl' }
+      // // interact some
+      // { feature: 'almostSyncLinks', condition: 'interactMore2' },
+      // { feature: 'syncLinks', condition: 'copyInfoPages' }, // copy the text to send. Show instructions
+      // // interact some
+      // { feature: 'almostExtensionInfo', condition: 'interactMore2' },
+      // { feature: 'extensionInfo', condition: 'loginWithExtension' }
+      // // { feature: 'socialSelf', condition: 'recUse' } // gradus reached
       // when logged in with extension, if more than 100 friends scrapped, make Lycoreia available TTM
       //
       // { feature: 'syncMusic', condition: 'recordSyncMusic' }, // discarded
@@ -1153,7 +1154,7 @@ class OABase {
     }
 
     const step = this.gradus[this.currentLevel]
-    this.texts.gradus.html(`<button class="tooltip" style="cursor: pointer; font-size: 103%;">gradus: ${this.currentLevel} <span class="tooltiptext" style="font-size:97%;">names size</span></button>`)
+    this.texts.gradus.html(`<button class="tooltip" style="cursor: pointer; font-size: 103%;">you are at gradus: ${this.currentLevel} <span class="tooltiptext" style="font-size:97%;">names size</span></button>`)
     // this.texts.gradus.scale.set(1.2)
 
     const condition = this.conditions[step.condition]
@@ -1165,7 +1166,7 @@ class OABase {
     const feature = this.features[step.feature]
     feature.alg() // this sets gradus
     const a = this.texts.achievement
-    a.text(`achieved: ${feature.achievement}`)
+    a.text(`feature achieved: ${feature.achievement}`)
     // a.tint = a.tint === 0x666600 ? 0x660066 : 0x666600
     // this.texts.achievement.scale.set(0.8)
 
@@ -1185,8 +1186,8 @@ class OABase {
       console.log('(((( ended, no more set new levels )))')
       console.log('parnassum reached, ending gradus loop. Gradus, ad parnassum:', this.currentLevel, this.gradus.length)
       console.log('Get in contact with renato </./> fabbri (O AT O) gmail [UU DOT UU] com to further unlock Gradus ad Parnassum.')
-      this.texts.tip.html('<span style="background-color: lightgreen; padding: 0 2%;">&#x1F449 make videos & synchronize</span>')
-      this.texts.achievement.text('achieved: social self, extension, vital info [i]')
+      this.texts.tip.html('<span style="background-color: lightgreen; padding: 0 2%;">&#x1F449 read "about OA", install the <b>You</b> extension</span>')
+      this.texts.achievement.text('achieved: mount Parnassus reached')
       return true
     }
     return false

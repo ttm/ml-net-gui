@@ -23,12 +23,14 @@ const gradus1Login = () => {
 <b>Yes! You have reached the Mount Parnassum!</b>
 
 In this page, you can use all the features you unlocked while finishing the "Gradus ad Parnassum",
-now in your friendship network, the one yield by the friends and friendships which are available for you to see.
+now in your own friendship network, the one yield by the friends and friendships which are available for you to see.
 
 You should use and make audiovisual art with this page, Lycoreia, and Tithorea, the three pages available
-through the "You" browser extension.
+through the "<b>You</b>" browser extension.
 
-When you click on the Login button on the You extension, you visit more friends to check for mutual friendships.
+When you click on the pink button on the "<b>You</b>" extension, you visit more friends to check for mutual friendships.
+
+(click on the [i] button above to continue your journey)
 
 :::
 `
@@ -61,19 +63,19 @@ OA @ ${visitorName()}, ${(new Date()).toISOString().split('.')[0]}.
 
 // const linkify = require('linkifyjs')
 // const linkifyjq = require('linkifyjs/jquery')
-const gradus1b = () => {
-  return `
-  ${toSeedText(visitorName())}
+const gradus1b = () => `
+<b>${visitorName()}</b>, you have a music dedicated to you: "${wand.musicName || musicName(visitorName())}".
+  <br />
 
-  Also, please read kindness:
-
+  First, please kindly read:
   <div style="background-color: #AAAAAA; padding: 2%;">
     ${linkify(syncDescription())}
   </div>
 
-  :::
+  <div style="text-align: center">
+    <button style="background-color: #3D9970;cursor: pointer;transform: scale(2);" onclick="wand.$('#info-button').click()">Listen to your music!</button>
+  </div>
   `
-}
 
 // Hope you reach the interaction networks from Twitter, Instagram, and other communication platforms.
 // Hope you reach the concept networks, oracles (such as the chatter bots), puzzles, and audiovisual instruments.
@@ -106,8 +108,7 @@ const neighborNames = () => {
 }
 
 const contributionLink = () => {
-  // return document.location.origin + '/?page=donate'
-  return linkify(`<span class="notranslate">${document.location.href.split('?')[0]}?page=donate<span>`)
+  return linkify2(`${document.location.href.split('?')[0]}?page=contribute`)
 }
 
 const defaultSyncDescription = () => {
@@ -117,9 +118,6 @@ needs your help.
 
 It requires constant development and maintenance,
 which rely on donations and voluntaries.
-
-Replace this message and related link to synchronize your social body
-with another matter.
 
 Thank you very much!
 
@@ -300,11 +298,15 @@ const gradus2 = () => {
   return `
 ${syncDescription()}
 
+===
+
 You will now start your usage of this interface to explore your social complex network, or social organism, ${visitorName()}.
-Suggestion: reach at least your synchronization links.
+Suggestion: reach at least Tithorea (from the <b>You</b> extension) and get the synchronization musical pieces to send to your friends.
 Follow the instructions given in the "tip" field at each level (gradus).
 
 (press the [i] button above)
+
+:::
 `
 }
 
@@ -322,10 +324,8 @@ const gradusSyncLinks2 = syncNames => {
     t = `
     You are a leaf, that is, the last person in your synchronization branch.
     Thus no further music links are to be sent.
-    You may wish to notify who sent you the link, or ${wand.syncInfo.syncMemberName}.
+    You may wish to notify who sent you the link, or ${wand.syncInfo.syncMemberName} (who probably started the musical synchronization).
     Keep using OA in order to make art and your own synchronizations or to better know your social networks.
-
-    Click here to get in touch. You have special credentials because you are a leaf member.
     `
   }
 
@@ -351,8 +351,6 @@ const gradusSyncLinks = syncNames => {
     Thus no further music links are to be sent.
     You may wish to notify who sent you the link, or ${wand.syncInfo.syncMemberName}.
     Keep using OA in order to make art and your own synchronizations or to better know your social networks.
-
-    Click here to get in touch. You have special credentials because you are a leaf member.
     `
   }
 
@@ -443,37 +441,6 @@ You will then have access to the synchronization page.
 (login to access your communitites)
 `
 
-const tithorea1 = `
-Welcome to Tithorea.
-
-You can understand your interaction with your networks
-as exploration:
-
-  -> with analyzis; or with
-  -> midia generation / absorption,
-
-or as synergy:
-  -> by diffusion; or by
-  -> syncronization.
-
-Synchronization meaning a process in which you have
-an expected (or idealized) result, such as maturing a concept or framework,
-building a community, getting a project done, having an event happen.
-
-A diffusion is most often a synchronization: you want feedback messages,
-you want to create derivatives.
-A synchronization most often involves a fund, a monetary crowdsourcing (crowdfunding).
-A synchronization often involves an information crowdsourcing, for example
-to mature an idea, to find partners or sponsors, to understand how a proposal is accepted.
-
-The diffusion of goods may be essentially a diffusion (e.g. selling a product),
-although it most often is a synchronization (e.g. when envisioned a community of buyers, art, or research).
-
-Hope you synchronize yourself with Our Aquarium audiovisual music,
-it is available as a social and individual panaceia.
-
-`
-
 const uploadVideoText = 'Upload the file you downloaded and enter video URL here:'
 
 const uploadVideoPlaceholder = 'something as https://www.youtube... (start with https:// or http://)'
@@ -489,7 +456,8 @@ Click on the buttons to see them, use the music button to cycle through them.
 
 Create the audiovisual environment, a music, record and upload the video.
 
-Click here to register your video URL after you record it.
+Click on the yellow segment ("at Lycoreia for community detection")
+to register your video URL after you record it.
 
 :::
 
@@ -512,11 +480,12 @@ send to him/her to accomplish the synchronization.
 
 You should also create the audiovisual environment, a music, record and upload the video.
 
-Click HERE to register your video URL.
+Click on the yellow segment ("at Tithorea for synchronization")
+to register your video URL.
 
 :::
 
-(press the [i] button above to exit this message)
+(press the [i] button above to continue your journey)
 `
 
 const tithoreaNew2 = `
@@ -532,7 +501,7 @@ Don't forget to choose or write the synchronization description by clicking on t
 It is where you define what your social body will mature, embrace, or make happen.
 
 Perform synchronizations and input recorded videos to unlock further features.
-Further pages for analysis, synchronization, art, await your progress.
+Pages for analysis, synchronization, art, await your progress.
 In fact, you will soon gain access to other components of Our Aquarium,
 such as for meditation and for representing cognitive structures.
 
@@ -541,7 +510,7 @@ individual and social bodies.
 
 :::
 
-(press the [i] button above to exit this message)
+(press the [i] button above to continue your journey)
 `
 
 const arcturians1 = () => {
@@ -549,7 +518,7 @@ const arcturians1 = () => {
 You can understand your interaction with your networks
 as exploration:
 
-  -> with analyzis; or with
+  -> through analyses; or through
   -> midia generation / absorption,
 
 or as synergy:
@@ -564,12 +533,13 @@ A diffusion is most often a synchronization: you want feedback messages,
 you want to create derivatives.
 A synchronization most often involves a fund, a monetary crowdsourcing (crowdfunding).
 A synchronization often involves an information crowdsourcing, for example
-to mature an idea, to find partners or sponsors, to understand how a proposal is accepted.
+to mature an idea, to find partners, donators or sponsors, or to understand how a proposal is accepted.
 
 The diffusion of goods may be essentially a diffusion (e.g. selling a product),
 although it most often is a synchronization (e.g. when envisioned a community of buyers, art, event, or research).
 
-Hope you synchronize yourself with Our Aquarium audiovisual music, it is available as a social and individual panaceia.
+Hope you synchronize yourself with Our Aquarium audiovisual music,
+it is available as a social and individual panaceia.
 
 :::
 
@@ -580,13 +550,13 @@ Hope you synchronize yourself with Our Aquarium audiovisual music, it is availab
 // , ${visitorName()}.
 //
 
-const arcturians2 = () => {
-  return `
-You can see, play, interact and govern your social structures because they are yourself.
-In fact writing diaries is an ethnographic technique, and the diary may be used
+const arcturians2 = () => `
+You can see, play, interact and govern your social structures because, in some senses,
+they are yourself.
+In fact, writing diaries is an ethnographic technique, and the diary may be used
 as the anthropologist finds suitable.
 
-Our Aquarium complies to free culture, software, midia, data, and transparency (self, civil society) guidelines.
+Our Aquarium complies to free culture, software, midia, data, and (self and civil society) transparency guidelines.
 
 Know more:
 ${linkify2('https://doi.org/10.5281/zenodo.438960')}
@@ -595,25 +565,25 @@ ${linkify2('https://doi.org/10.5281/zenodo.438960')}
 
 (press the [i] button above to continue your journey)
 `
-}
 
 const guards = `
-You stand by the gates of Lycorea.
+You stand by the gates of Lycoreia.
 
 The wind is strong, but you are confortable in your vestments, you knew that you
 would be for some time at ~2,500 meters above the ocean.
 
 Five guards come near you, inspect your clothes, and, with respect the chief says:
 
-"Congratulation on reaching Lycorea, dear sage.
+"Congratulation on reaching Lycoreia, dear sage.
 We cannot allow you any further without knowing who you are.
-Please identify yourself ('login or pray' using the wand extension).
-Thus visit the 'Gradus ad Parnassum' (and install the chrome extension)
+Please identify yourself ('login' using the wand extension).
+
+Visit the 'about Our Aquarium' pages and install the chrome extension
 if you cannot identify yourself."
 
 :::
 
-(press the [i] button above or login with the chrome extension if you have it)
+(login with the chrome extension or install it)
 `
 
 const randomWords = () => {
@@ -648,4 +618,4 @@ const toSeedText = seedName => {
 // OA is writen in the WYSINB (what you see is not beautiful) style.
 // It is meant to be very functional and simple and development friendly.
 
-module.exports = { tithorea1, lycoreia1, gradus1, gradus2, gradus3, gradusRec, gradusSyncLinks, gradusVideoLink, gradusExtensionInfo, uploadVideoText, uploadVideoPlaceholder, lycoreiaNew, arcturians1, arcturians2, guards, tithoreaNew2, tithoreaNew, defaultSyncDescription, defaultSyncDescription2, defaultSyncDescription3, defaultSyncDescription4, defaultSyncDescription5, defaultSyncDescription6, defaultSyncDescription7, toSeedText, defaultSyncDescription8, gradus1Login, defaultSyncDescription9, gradus1b, gradusSyncLinks2, defaultSyncDescription10 }
+module.exports = { lycoreia1, gradus1, gradus2, gradus3, gradusRec, gradusSyncLinks, gradusVideoLink, gradusExtensionInfo, uploadVideoText, uploadVideoPlaceholder, lycoreiaNew, arcturians1, arcturians2, guards, tithoreaNew2, tithoreaNew, defaultSyncDescription, defaultSyncDescription2, defaultSyncDescription3, defaultSyncDescription4, defaultSyncDescription5, defaultSyncDescription6, defaultSyncDescription7, toSeedText, defaultSyncDescription8, gradus1Login, defaultSyncDescription9, gradus1b, gradusSyncLinks2, defaultSyncDescription10 }

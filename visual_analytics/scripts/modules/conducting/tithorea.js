@@ -264,7 +264,6 @@ class Tithorea {
 
         this.state.player.bind()
 
-        this.setNetInfo()
         this.setSyncBuilder()
         this.setSyncConsolidate()
         this.removerActive = false
@@ -278,6 +277,7 @@ class Tithorea {
         this.removedNodes = []
         this.removedNodesUrl = ''
         this.resetNetwork()
+        this.setNetInfo()
       }
     })
   }
@@ -285,7 +285,7 @@ class Tithorea {
   setNetInfo () {
     if (this.sync) {
       this.texts.tip.html(`<span style="background-color: lightgreen; padding: 0 2%;">&#x1F449 seed, steps: ${wand.currentNetwork.getNodeAttribute(this.theSeed, 'name')}, ${this.sync.progression.length - 1}</span>`)
-      const p = wand.magic.tithorea.sync.progression
+      const p = this.sync.progression
       this.texts.orderSize.html(`<button class="tooltip" style="cursor: pointer; font-size: 103%;">steps volume: ${p.slice(1, p.length - 1).map(i => i.length).join(', ')}<span class="tooltiptext" style="font-size:97%;">members size</span></button>`)
     }
   }
@@ -326,7 +326,8 @@ class Tithorea {
 
             // const url = a.urlStr + this.removedNodesUrl + this.descUrl())
             const r = wand.utils.rot
-            const url = `${document.location.href.split('?')[0]}?page=ankh_&syncKey=${key}&mnid=${r(a.nid || '')}&msid=${r(a.sid || '')}&lang=${wand.$('.goog-te-combo').val()}`
+            const alang = wand.$('.goog-te-combo').val() === '' ? '' : `&lang=${wand.$('.goog-te-combo').val()}`
+            const url = `${document.location.href.split('?')[0]}?page=ankh_&syncKey=${key}&mnid=${r(a.nid || '')}&msid=${r(a.sid || '')}${alang}`
             this.saveSync(key).then(_ => {
               wand.utils.copyToClipboard(url)
               wand.transfer.mong.findAny({ syncKey: key }).then(res2 => { // fixme: remove
@@ -789,7 +790,7 @@ class Tithorea {
     } else {
       console.log('not sage info')
       wand.$('canvas').hide()
-      mkElement([1, 2.2], 0x777733, 'guards', 3000, 0, guards).show()
+      mkElement([1, 2.2], 0x777733, 'guards', 3000, 0, guards.replaceAll('Lycoreia', 'Tithorea')).show()
     }
   }
 

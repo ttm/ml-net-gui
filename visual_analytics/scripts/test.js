@@ -1062,7 +1062,8 @@ const testEditor = () => {
       'z-index': 1,
       left: 0,
       top: 0,
-      padding: '100px'
+      padding: '100px',
+      background: '#6DC2E1'
     }
   }).appendTo('body')
 
@@ -1104,7 +1105,10 @@ const testDonatePaypal = () => {
   $('<div/>', {
     css: {
       width: '50%',
-      margin: '2% 10%'
+      margin: '2% 10%',
+      background: '#6DC2E1',
+      padding: '2%',
+      border: 'solid green 5px'
     }
   }).html(`
   <h2>Donate using Paypal</h2>
@@ -1139,7 +1143,10 @@ const testDonatePagseguro = () => {
   $('<div/>', {
     css: {
       width: '50%',
-      margin: '2% 10%'
+      margin: '2% 10%',
+      background: '#6DC2E1',
+      padding: '2%',
+      border: 'solid green 5px'
     }
   }).html(`
   <h2>Donate using Pagseguro</h2>
@@ -1169,7 +1176,10 @@ const testDonateBitcoin = () => {
   $('<div/>', {
     css: {
       width: '50%',
-      margin: '2% 10%'
+      margin: '2% 10%',
+      background: '#6DC2E1',
+      padding: '2%',
+      border: 'solid green 5px'
     }
   }).html(`
   <h2>Donate using Bitcoins</h2>
@@ -1211,7 +1221,10 @@ const testDonate = () => {
   $('<div/>', {
     css: {
       width: '50%',
-      margin: '2% 10%'
+      margin: '2% 10%',
+      background: '#6DC2E1',
+      padding: '2%',
+      border: 'solid green 5px'
     }
   }).html(`
   <h2>Donate to Our Aquarium</h2>
@@ -1253,7 +1266,10 @@ const testDeploy = () => {
   $('<div/>', {
     css: {
       width: '50%',
-      margin: '2% 10%'
+      margin: '2% 10%',
+      background: '#6DC2E1',
+      padding: '2%',
+      border: 'solid green 5px'
     }
   }).html(`
   <h2>deploying OA</h2>
@@ -1289,7 +1305,10 @@ const testManDb = () => {
   $('<div/>', {
     css: {
       width: '50%',
-      margin: '2% 10%'
+      margin: '2% 10%',
+      background: '#6DC2E1',
+      padding: '2%',
+      border: 'solid green 5px'
     }
   }).html(`
   <h2>deploying new OA instance: starting database</h2>
@@ -1331,7 +1350,10 @@ const testDevLocal = () => {
   $('<div/>', {
     css: {
       width: '50%',
-      margin: '2% 10%'
+      margin: '2% 10%',
+      background: '#6DC2E1',
+      padding: '2%',
+      border: 'solid green 5px'
     }
   }).html(`
   <h2>Starting Our Aquarium locally</h2>
@@ -1378,7 +1400,10 @@ const testManGit = () => {
   $('<div/>', {
     css: {
       width: '50%',
-      margin: '2% 10%'
+      margin: '2% 10%',
+      background: '#6DC2E1',
+      padding: '2%',
+      border: 'solid green 5px'
     }
   }).html(`
   <h2>deploying new OA instance: sharing the HTML</h2>
@@ -1434,7 +1459,10 @@ const testGuidelines = () => {
   $('<div/>', {
     css: {
       width: '50%',
-      margin: '2% 10%'
+      margin: '2% 10%',
+      background: '#6DC2E1',
+      padding: '2%',
+      border: 'solid green 5px'
     }
   }).html(text).appendTo('body')
 }
@@ -1484,7 +1512,10 @@ const testContribute = () => {
   $('<div/>', {
     css: {
       width: '50%',
-      margin: '2% 10%'
+      margin: '2% 10%',
+      background: '#6DC2E1',
+      padding: '2%',
+      border: 'solid green 5px'
     }
   }).html(`
   <h2>Supporting Our Aquarium</h2>
@@ -1531,7 +1562,10 @@ const testAbout = () => {
   $('<div/>', {
     css: {
       width: '50%',
-      margin: '2% 10%'
+      margin: '2% 10%',
+      background: '#6DC2E1',
+      padding: '2%',
+      border: 'solid green 5px'
     }
   }).html(`
   <h2>About Our Aquarium</h2>
@@ -1573,7 +1607,10 @@ const testExtension = () => {
   $('<div/>', {
     css: {
       width: '50%',
-      margin: '2% 10%'
+      margin: '2% 10%',
+      background: '#6DC2E1',
+      padding: '2%',
+      border: 'solid green 5px'
     }
   }).html(`
   <h2>The <b>You extension</b></h2>
@@ -1619,7 +1656,10 @@ const testFAQ = () => {
   $('<div/>', {
     css: {
       width: '50%',
-      margin: '2% 10%'
+      margin: '2% 10%',
+      background: '#6DC2E1',
+      padding: '2%',
+      border: 'solid green 5px'
     }
   }).html(`
   <h2>Frequently Asked Questions (FAQ)</h2>
@@ -1641,7 +1681,10 @@ const testTheory = () => {
   $('<div/>', {
     css: {
       width: '50%',
-      margin: '2% 10%'
+      margin: '2% 10%',
+      background: '#6DC2E1',
+      padding: '2%',
+      border: 'solid green 5px'
     }
   }).html(`
   <h2>Theoretical / Conceptual considerations</h2>
@@ -1675,7 +1718,10 @@ const testHidden = () => {
   $('<div/>', {
     css: {
       width: '50%',
-      margin: '2% 10%'
+      margin: '2% 10%',
+      background: '#6DC2E1',
+      padding: '2%',
+      border: 'solid green 5px'
     }
   }).html(`
   <h2>Hidden pages and features</h2>
@@ -1694,7 +1740,10 @@ const testSyncInfo = () => {
   $('<div/>', {
     css: {
       width: '50%',
-      margin: '2% 10%'
+      margin: '2% 10%',
+      background: '#6DC2E1',
+      padding: '2%',
+      border: 'solid green 5px'
     }
   }).html(`
   <h2>Social Synchronization</h2>
@@ -1731,7 +1780,10 @@ const testAnPhy = () => {
   $('<div/>', {
     css: {
       width: '50%',
-      margin: '2% 10%'
+      margin: '2% 10%',
+      background: '#6DC2E1',
+      padding: '2%',
+      border: 'solid green 5px'
     }
   }).html(`
   <h2>Anthropological Physics</h2>

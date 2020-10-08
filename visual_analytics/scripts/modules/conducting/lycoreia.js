@@ -334,7 +334,7 @@ class Lycoreia {
   setCommunitiesInterface () {
     this.instruments.plucky = new Tone.PluckSynth({ volume: 0 }).toMaster()
     let count = 0
-    mkBtn('fa-users-cog', 'com', 'communities', () => {
+    mkBtn('fa-users-cog', 'com', 'highlight next community', () => {
       count = (++count) % (wand.currentNetwork.communities.count + 1)
       this.showCommunity(count)
     }, '#music-button')
@@ -344,7 +344,7 @@ class Lycoreia {
   setSubComInterface () {
     this.instruments.membrane = new Tone.MembraneSynth({ volume: -20 }).toMaster()
     let count = 0
-    mkBtn('fa-users', 'sub', 'sub communities', () => {
+    mkBtn('fa-users', 'sub', 'highlight next subcommunity', () => {
       const cIndex = wand.currentNetwork.communityIndex
       const g = wand.currentNetwork.communityGraphs[cIndex]
       count = (++count) % (g.communities.count + 1)

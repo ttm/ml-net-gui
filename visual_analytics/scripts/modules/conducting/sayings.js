@@ -29,7 +29,7 @@ Your Gradus ad Parnassum is dedicated to acquiring intimacy with your social bod
 your social organism. It involves exploring the structures, making audiovisual music,
 and exploiting your social self to render results, whatever results you conceive.
 
-I give you community the detection relic, use it until you see all your communities.
+I give you the community detection relic, use it until you see all your communities.
 Come back to me to talk to Lycorus, he is interested in your alertness and appreciation of your collective existence."
 
 (click the info button again)

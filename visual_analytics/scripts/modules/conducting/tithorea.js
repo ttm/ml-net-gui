@@ -267,7 +267,7 @@ class Tithorea {
         this.setSyncBuilder()
         this.setSyncConsolidate()
         this.removerActive = false
-        mkBtn('fa-user-times', 'remove', 'remove users', () => {
+        mkBtn('fa-user-times', 'remove', 'remove user', () => {
           this.removerActive = !this.removerActive
           const c = this.removerActive ? '#ff0000' : '#ffffff'
           $('#remove-button').css('background-color', c)
@@ -1010,7 +1010,8 @@ class Tithorea {
       defaultSyncDescription7(),
       defaultSyncDescription8(),
       defaultSyncDescription9(),
-      defaultSyncDescription10()
+      defaultSyncDescription10(),
+      defaultSyncDescription11()
     ]
     let counter = 0
     $('<button/>').html('template change').on('click', () => {

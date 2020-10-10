@@ -31,7 +31,12 @@ class SyncParnassum extends OABase {
     // const now = performance.now()
     // this.settings.timeStreach = 0.001 // fixme: remove, make flag...
     monload(() => {
+      wand.$('#loading').css('visibility', 'hidden')
       if (window.oaReceivedMsg) { // gradus for the user network, from extension:
+        if (wand.$.isEmptyObject(window.oaReceivedMsg.data.graph)) {
+          this.setInfoBlocked()
+          return
+        }
         this.settings.timeStreach = 0.001
         this.settings.currentLevel = 14
         wand.maestro.synths.speaker.volume = -1 // 1 or 0 is 1, [0, 1] is ok range
@@ -53,7 +58,6 @@ class SyncParnassum extends OABase {
         this.makeUserNetworks()
         console.log('finished initialization 2')
         this.setInfo2()
-        wand.$('#loading').css('visibility', 'hidden')
       } else { // gradus received through sync:
         const { syncKey, usid, unid, syncId } = wand.syncInfo
         // const { usid, unid, syncId, syncKey, msid, mnid } = wand.syncInfo
@@ -85,7 +89,6 @@ class SyncParnassum extends OABase {
         }
         act().then(r => {
           console.log('loaded user network')
-          wand.$('#loading').css('visibility', 'hidden')
           if (typeof r === 'string') {
             this.setInfoBlocked()
             return
@@ -859,7 +862,7 @@ class SyncParnassum extends OABase {
     }).html(`You stand on the verge to Gradus ad Parnassum, that is: to your voyage into mount Parnassus.
 
     It is prudent to advance only if someone sends you a link to a musical piece dedicated to you,
-    or if installed the <b>You</b> extension, which you can find by skimming the "about Our Aquarium" pages.
+    or if installed the <b>You</b> extension, which you can find by skimming through the "about Our Aquarium" pages, and making "Login".
 
     :::
     `.replaceAll('\n', '<br />')).appendTo('body')

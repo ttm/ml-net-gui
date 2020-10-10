@@ -10,7 +10,7 @@ const linkify = require('linkifyjs/html')
 const linkify2 = link => linkify(`<span class="notranslate">${link}<span>`)
 
 const visitorName = () => {
-  if (window.oaReceivedMsg) {
+  if (window.oaReceivedMsg && window.oaReceivedMsg.data.graph.attributes) {
     return window.oaReceivedMsg.data.graph.attributes.userData.name
   } else {
     return wand.syncInfo.pageMemberName

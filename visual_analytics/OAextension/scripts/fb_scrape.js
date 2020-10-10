@@ -29,10 +29,10 @@ const monload = work => {
 function saveText (filename, text) {
   if (this.executed === undefined) {
     this.executed = true
-    const a = document.createElement('a')
-    a.setAttribute('href', 'data:text/json;charset=utf-8,' + encodeURIComponent(text))
-    a.setAttribute('download', filename)
-    a.click()
+    // const a = document.createElement('a')
+    // a.setAttribute('href', 'data:text/json;charset=utf-8,' + encodeURIComponent(text))
+    // a.setAttribute('download', filename)
+    // a.click()
     alert('you can now visit Gradus, Lycoreia, and Tithorea with your network using the extension.')
   }
 }

@@ -1,7 +1,7 @@
 /* global wand */
 const { mkBtn } = require('./gui.js')
 // const { guards, deucalion, lycorus, corycia } = require('./sayings.js')
-const { guards, tithoreaNew, tithoreaNew2, defaultSyncDescription, defaultSyncDescription2, defaultSyncDescription3, defaultSyncDescription4, defaultSyncDescription5, defaultSyncDescription6, defaultSyncDescription7, defaultSyncDescription8, defaultSyncDescription9, uploadVideoText, uploadVideoPlaceholder, defaultSyncDescription10 } = require('./instructions.js')
+const { guards, tithoreaNew, tithoreaNew2, defaultSyncDescription, defaultSyncDescription2, defaultSyncDescription3, defaultSyncDescription4, defaultSyncDescription5, defaultSyncDescription6, defaultSyncDescription7, defaultSyncDescription8, defaultSyncDescription9, uploadVideoText, uploadVideoPlaceholder, defaultSyncDescription10, defaultSyncDescription11 } = require('./instructions.js')
 const { Tone } = require('../maestro/all.js').base
 const Graph = require('graphology')
 const { monload } = require('../utils.js')

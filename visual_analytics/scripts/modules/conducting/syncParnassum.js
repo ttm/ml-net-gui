@@ -323,7 +323,7 @@ class SyncParnassum extends OABase {
       return this.registerNetwork(sg2, 'r' + size)
     }
 
-    const max = wand.currentNetwork.order > 500 ? 500 : wand.currentNetwork.order
+    const max = wand.currentNetwork.order > 150 ? 150 : wand.currentNetwork.order
     const sizes = [0.1, 0.3, 0.6, 0.8, 1].map(prop => Math.floor(max * prop))
     const nets = [wand.starNetwork]
     nets.push(rsize(sizes[0], undefined))

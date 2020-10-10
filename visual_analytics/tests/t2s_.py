@@ -2,8 +2,6 @@ import os
 
 # atext = 'And so you think you should conquer the world, and I believe you. The thing is: you are more than that. First, take a look a Tithorea, it is where you design the synchronization.'
 
-atext = 'a banana for you. Come on, man!'
-
 '''
 You are being invited to a journey in which there are three locations:
 1) Gradus; 2) Lycoreia; 3) Tithorea.
@@ -15,9 +13,9 @@ In the Lycoreia (for community detection); 3) Tithorea (for designing the synchr
 tdict = {
     'journeyNew': '''
     So you wish to know about the Aquarium. Nice and welcome, these are probably your first steps
-    in exploring and harnessing your social body.
+    in trully exploring and harnessing your social body.
 
-    You usually start by listening to a musical piece dedicated to you.
+    You usually start by listening to a musical piece dedicated to you, sent to you by some friend.
     Then you start the 'Gradus ad Parnassum', an introduction to the most basic features in the Aquarium.
     Then you install the 'You' browser extension. It enables you to visit 'Lycoreia', where you explore the
     community structure of your social body or organism.
@@ -28,8 +26,9 @@ tdict = {
 
     Our Aquarium interfaces allow for the creation of multiple audiovisual music pieces
     from your networks for you to enjoy and share.
+    Features in OA are unlocked as you go along your journey.
 
-    Good luck in your journey!
+    Good luck and enjoy!
     ''',
 
     # 'journey': '''
@@ -59,7 +58,7 @@ tdict = {
 
     # It is an attempt to enable ourselves to shape the world into something better, that fits our own needs and desires.
 
-    # The main mechanism provided by OA to achieve such results is the synchronization: a way in which you networks embraces the proposals you have.
+    # The main mechanism provided by OA to achieve such results is the synchronization: a way in which your networks embraces the proposals you have.
 
     # Other instruments are also provided: interfaces for mediation, divination, audiovisual creation, cognitive representation and sharing, narratives.
 
@@ -70,26 +69,29 @@ tdict = {
     # ''',
 
     # 'gradus': '''
-    # The 'Gradus ad Parnassum' is a progressive learning journey to the mount Parnassus.
+    # The 'Gradus ad Parnassum' is a progressive learning journey.
 
     # You may reach the 'Gradus ad Parnassum' interface by: 1) receiving a musical piece dedicated to you; or 2) installing the 'You' extension.
 
     # When receiving a musical piece, a step-by-step process is started, where you should keep track of the achieved feature and the instruction for current step, in the middle column, in order to unlock new features.
 
-    # If using the 'You' browser extension, the features in this page are all unlocked, and you can select between two flavours of your network: 1) visited (where only the portion of your network which you visited with the 'You' extension is shown); 2) full (where all the connected members are shown).
+    # If using the 'You' browser extension, the features in this page are all unlocked, and you can select between two flavours of your network:
+    # 1) visited (where only the visited portion of your network is shown);
+    # 2) full (where all the connected members are shown).
     # Notice that 1) and 2) are equivalent if all the network was visited.
 
-    # In summary, you can: change the network portion being visualized;
+    # In summary, you can:
+    # change the network portion being visualized;
     # change node transparency;
+    # change node size;
     # change edge transparency;
     # change name transparency;
     # change name size;
-    # change node size;
     # randomize the colors in use for background, nodes, edges, and names;
     # perform complex and simple audiovisual music;
     # toggle mute;
     # and toggle information screens.
-    # You may also register the videos you made using OA and uploaded through their URLs by clicking on the yellow section.
+    # You may also check in any video you made using OA: first upload the video, then input its URL by clicking on the yellow section.
 
     # Enjoy! We wish you the best of luck!
     # ''',
@@ -102,33 +104,36 @@ tdict = {
 
     # If you click the 'make musical sequence' button, it will start cycling the communities, one community per second. 
     # It will cycle through the subcommunities of the community if the last button pressed was to see a subcommunity.
-    # It will cycle through the communities of the network if the last button pressed was to see a community (that is: not a subcommunity).
+    # It will cycle through the communities of the network if the last button pressed was to see a community.
     # 
     # You can remove any of the cycling animations and sounds by clicking on the button created.
 
-    # You need to hit the record button to record the video, which is different from most other OA interfaces.
+    # You need to hit the record button to start recording the video, which is different from most other OA interfaces.
 
-    # Once you upload a video, you may register the URL by clicking on the yellow section.
+    # Once you upload a video, you may check in the URL by clicking on the yellow section.
 
     # Enjoy! We wish you the best of luck.
     # ''',
 
-    # 'tithorea': '''
-    # Tithorea is where you design your synchronizations.
+    'tithorea': '''
+    Tithorea is where you design your synchronizations.
 
-    # You should read carefully the starting information pages, they are handy references.
+    You should read carefully the starting information pages, they are handy references.
 
-    # In summary, you click on the 'remove user' button to remove duplicates of yourself if you have another profile for yourself.
-    # Then click on the 'synchronization description' to select a description from the templates or write your own.
-    # For example, we will here write about the poetry of Gilka Machado, which we believe should be better known.
+    In summary, you click on the 'remove user' button to remove any another additional profiles of yourself (if you have them).
+    Then click on the 'synchronization description' to select a description from the templates or write your own.
+    For example, we will here write about the poetry of Gilka Machado, which we believe should be better known, she was a brazilian symbolist.
 
-    # Lastly, click on a participant to set it as the seed. Click again to consolidate such participant as a seed and get the link to send him or her.
-    # You can select as many seeds as you wish. We suggest you to select at least five seeds to have an effective synchronization.
+    Lastly, click on a participant to set it as the seed. Click again to consolidate such participant as a seed and get the link of your friend's music to set forward.
+    You can select as many seeds as you wish. We suggest you to select at least five seeds to have an effective synchronization.
 
-    # To may wish to have a specific participant as a seed. To find such participant, you should initially hover (or mouse over) the nodes. After you perform some synchronizations, you will enable features to find specific participants.
+    You may wish to have a specific participant as a seed. To find such participant, you should initially mouse over the nodest
+    After you perform some synchronizations, you will enable further features to find specific participants.
 
-    # Enjoy and good luck!
-    # ''',
+    Finally, as with other pages in Our Aquarium, you can make audiovisual music in Tithorea, making art from a synchronization map.
+
+    Enjoy and good luck!
+    ''',
 
     # 'extInstall': '''
     # Installing and using the <b>You</b> extension is the first step towards fully acquiring your social

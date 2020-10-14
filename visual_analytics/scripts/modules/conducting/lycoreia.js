@@ -57,7 +57,7 @@ class Lycoreia {
         },
         namesSize: {
           count: 0,
-          max: 2,
+          max: 1.5,
           min: 0.3,
           steps: 10,
           current: 0.5,
@@ -276,7 +276,7 @@ class Lycoreia {
           'background-color': '#DDDDDD',
           padding: '2%'
         }
-      }).html(text.replaceAll('\n', '<br />')).appendTo('body').hide()
+      }).html(text.replace(/\n/g, '<br />')).appendTo('body').hide()
       return this.texts[element]
     }
     let count = 0

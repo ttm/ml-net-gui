@@ -40,6 +40,9 @@ class Speaker {
 
   constructor (sentences = [], languages = []) {
     this.synth = window.speechSynthesis
+    if (!this.synth) {
+      return
+    }
     this.languages = languages
     this.sentences = sentences
     if (!languages || languages.length === 0) {

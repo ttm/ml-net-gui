@@ -1,7 +1,7 @@
 /* global wand */
 const { mkBtn } = require('./gui.js')
 // const { guards, deucalion, lycorus, corycia } = require('./sayings.js')
-const { guards, tithoreaNew, tithoreaNew2, defaultSyncDescription, defaultSyncDescription2, defaultSyncDescription3, defaultSyncDescription4, defaultSyncDescription5, defaultSyncDescription6, defaultSyncDescription7, defaultSyncDescription8, defaultSyncDescription9, uploadVideoText, uploadVideoPlaceholder, defaultSyncDescription10, defaultSyncDescription11 } = require('./instructions.js')
+const { guards, tithoreaNew, tithoreaNew2, defaultSyncDescription, defaultSyncDescription2, defaultSyncDescription3, defaultSyncDescription4, defaultSyncDescription5, defaultSyncDescription6, defaultSyncDescription7, defaultSyncDescription8, defaultSyncDescription9, uploadVideoText, uploadVideoPlaceholder, defaultSyncDescription10, defaultSyncDescription11, defaultSyncDescription12 } = require('./instructions.js')
 const { Tone } = require('../maestro/all.js').base
 const Graph = require('graphology')
 const { monload } = require('../utils.js')
@@ -757,7 +757,7 @@ class Tithorea {
           'background-color': '#DDDDDD',
           padding: '2%'
         }
-      }).html(text.replaceAll('\n', '<br />')).appendTo('body').hide()
+      }).html(text.replace(/\n/g, '<br />')).appendTo('body').hide()
       return texts[element]
     }
     if (wand.sageInfo) {
@@ -790,7 +790,7 @@ class Tithorea {
     } else {
       console.log('not sage info')
       wand.$('canvas').hide()
-      mkElement([1, 2.2], 0x777733, 'guards', 3000, 0, guards.replaceAll('Lycoreia', 'Tithorea')).show()
+      mkElement([1, 2.2], 0x777733, 'guards', 3000, 0, guards.replace(/Lycoreia/g, 'Tithorea')).show()
     }
   }
 
@@ -1011,7 +1011,8 @@ class Tithorea {
       defaultSyncDescription8(),
       defaultSyncDescription9(),
       defaultSyncDescription10(),
-      defaultSyncDescription11()
+      defaultSyncDescription11(),
+      defaultSyncDescription12()
     ]
     let counter = 0
     $('<button/>').html('template change').on('click', () => {

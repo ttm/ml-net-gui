@@ -1,4 +1,21 @@
 /* global wand */
+// window.onerror = function (msg, url, lineNo, columnNo, error) {
+//   var string = msg.toLowerCase()
+//   var substring = 'script error'
+//   if (string.indexOf(substring) > -1) {
+//     window.alert('Script Error: See Browser Console for Detail')
+//   } else {
+//     var message = [
+//       'Message: ' + msg,
+//       'URL: ' + url,
+//       'Line: ' + lineNo,
+//       'Column: ' + columnNo,
+//       'Error object: ' + JSON.stringify(error)
+//     ].join(' - ')
+//
+//     window.alert(message)
+//   }
+// }
 window.wand = {
   artist: require('./modules/artist.js'),
   maestro: require('./modules/maestro/all.js'),
@@ -10,6 +27,10 @@ window.wand = {
   test: require('./test.js'),
   $: require('jquery'),
   extra: {}
+}
+
+if (wand.utils.mobileAndTabletCheck()) {
+  window.alert('You do not have the credentials necessary to fully access this website using a mobile ot tablet device. You may try your luck but use a regular desktop browser for a better experience.')
 }
 
 wand.magic = {
@@ -137,10 +158,6 @@ const routes = {
   'sync.html': test.testSyncInfo,
   'anphy.html': test.testAnPhy,
   'data_donated.html': () => console.log('a summary of the data donated in usage, upload and scrapping')
-}
-
-if (wand.utils.mobileAndTabletCheck()) {
-  window.alert('You do not have the credentials necessary to fully access this website using a mobile ot tablet device. You may try your luck but use a regular desktop browser for a better experience.')
 }
 
 const _router = new wand.router.use.Router(routes)

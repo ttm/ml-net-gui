@@ -1555,8 +1555,8 @@ const testAbout = () => {
     `${link('Usage guidelines', 'guidelines')}: learn basics about the OA and using it.`,
     `${link('Contributing to Our Aquarium', 'contribute')}.`,
     `${link('Frequently Asked Questions', 'faq')} about OA.`,
-    `${link('Conceptual remarks', 'theory')} on what OA is and consequences.`,
-    `${link('Hidden pages / features', 'hidden')}.`
+    `${link('Hidden pages / features', 'hidden')}.`,
+    `${link('Conceptual remarks', 'theory')} on what OA is and consequences.`
   ].reduce((a, t) => { return a + `<li>${t}</li>` }, '')
 
   $('<div/>', {
@@ -1574,6 +1574,7 @@ const testAbout = () => {
 
   <ul>${items}</ul>
 
+   <p>Check these <a href="https://www.youtube.com/watch?v=I2HAOdlqs2Y&list=PLbjVsyv1yKmnnNu1PUXRcURfZSPQcmsA3" target="_blank" style="color:#aa0000;">videos on Our Aquarium's basics</a>.</p>
   <br>
   :::
   `).appendTo('body')
@@ -1613,7 +1614,7 @@ const testExtension = () => {
       border: 'solid green 5px'
     }
   }).html(`
-  <h2>The <b>You extension</b></h2>
+  <h2>The You extension</h2>
 
   ${paragraphs}
 
@@ -1622,6 +1623,8 @@ const testExtension = () => {
 
   To use it, you should:
   <ol>${items2}</ol>
+
+  <p>Check this <a href="https://www.youtube.com/watch?v=pIVSuHU8HKs&list=PLbjVsyv1yKmnnNu1PUXRcURfZSPQcmsA3" target="_blank" style="color:#aa0000;">video on installing and using the You extension</a>.</p>
 
   :::
 
@@ -1766,7 +1769,7 @@ although it most often is a synchronization (e.g. when envisioned a community of
 
 Hope you synchronize yourself with Our Aquarium audiovisual music,
 it is available as a social and individual panaceia.
-  `.replaceAll('\n', '<br />')}
+  `.replace(/\n/g, '<br />')}
   <br>
   :::
   `).appendTo('body')
@@ -1794,7 +1797,7 @@ as the anthropologist finds suitable.
 Our Aquarium complies to free culture, software, midia, data, and transparency (self, civil society) guidelines.
 
 Know more:
-  `.replaceAll('\n', '<br />')}
+  `.replace(/\n/g, '<br />')}
 ${linkify2('https://doi.org/10.5281/zenodo.438960')}
 
   <br>

@@ -31,7 +31,6 @@ class SyncParnassum extends OABase {
     // const now = performance.now()
     // this.settings.timeStreach = 0.001 // fixme: remove, make flag...
     monload(() => {
-      wand.$('#loading').css('visibility', 'hidden')
       if (window.oaReceivedMsg) { // gradus for the user network, from extension:
         if (wand.$.isEmptyObject(window.oaReceivedMsg.data.graph)) {
           this.setInfoBlocked()
@@ -58,6 +57,7 @@ class SyncParnassum extends OABase {
         this.makeUserNetworks()
         console.log('finished initialization 2')
         this.setInfo2()
+        wand.$('#loading').css('visibility', 'hidden')
       } else { // gradus received through sync:
         const { syncKey, usid, unid, syncId } = wand.syncInfo
         // const { usid, unid, syncId, syncKey, msid, mnid } = wand.syncInfo
@@ -124,6 +124,7 @@ class SyncParnassum extends OABase {
           }
           console.log('finished initialization')
           this.setInfo()
+          wand.$('#loading').css('visibility', 'hidden')
         })
       }
     })
@@ -326,7 +327,7 @@ class SyncParnassum extends OABase {
       return this.registerNetwork(sg2, 'r' + size)
     }
 
-    const max = wand.currentNetwork.order > 150 ? 150 : wand.currentNetwork.order
+    const max = wand.currentNetwork.order > 500 ? 500 : wand.currentNetwork.order
     const sizes = [0.1, 0.3, 0.6, 0.8, 1].map(prop => Math.floor(max * prop))
     const nets = [wand.starNetwork]
     nets.push(rsize(sizes[0], undefined))
@@ -441,7 +442,7 @@ class SyncParnassum extends OABase {
           'background-color': '#DDDDDD',
           padding: '2%'
         }
-      }).html(text.replaceAll('\n', '<br />')).appendTo('body').hide()
+      }).html(text.replace(/\n/g, '<br />')).appendTo('body').hide()
       return texts[element]
     }
     mkElement([1, 2.2], 0x777733, '1', 3000, 0, gradus1Login())
@@ -529,7 +530,7 @@ class SyncParnassum extends OABase {
           'background-color': '#DDDDDD',
           padding: '2%'
         }
-      }).html(text.replaceAll('\n', '<br />')).appendTo('body').hide()
+      }).html(text.replace(/\n/g, '<br />')).appendTo('body').hide()
       return texts[element]
     }
     mkElement([1, 2.2], 0x777733, '1', 3000, 0, gradus1b())
@@ -865,7 +866,7 @@ class SyncParnassum extends OABase {
     or if installed the <b>You</b> extension, which you can find by skimming through the "about Our Aquarium" pages, and making "Login".
 
     :::
-    `.replaceAll('\n', '<br />')).appendTo('body')
+    `.replace(/\n/g, '<br />')).appendTo('body')
     wand.$('canvas').hide()
   }
 }

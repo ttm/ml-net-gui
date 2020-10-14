@@ -30,7 +30,7 @@ through the "<b>You</b>" browser extension.
 
 When you click on the pink button on the "<b>You</b>" extension, you visit more friends to check for mutual friendships.
 
-(click on the [i] button above to continue your journey)
+( click on the [i] button above to continue your journey or check this <a href="https://www.youtube.com/watch?v=JDgiVGNABN4&list=PLbjVsyv1yKmnnNu1PUXRcURfZSPQcmsA3" target="_blank">video on what Gradus is and how to use it</a> )
 
 :::
 `
@@ -117,7 +117,7 @@ Your music, and the Our Aquarium platform,
 needs your help.
 
 It requires constant development and maintenance,
-which rely on donations and voluntaries.
+which rely on donations and volunteers.
 
 Thank you very much!
 
@@ -200,9 +200,9 @@ const defaultSyncDescription5 = () => {
   return `
 Archangel Michel:
 
-Humanity may reach immortality in less than 40 yeas, no person will die from desease or age.
-To enable so, you need to synchronize your social body and help reaching generalized well-being.
-It is a shistsu performed in your social network through art proposals,
+Humanity may reach immortality in less than 40 yeas, no person will die from disease or age.
+To enable so, you need to synchronize your social body and help to reach generalized well-being.
+It is shiatsu performed in your social network through art proposals,
 and performed in your individual body through meditation.
 
 The Aquarium platform provides the mechanisms to know and synchronize yourself.
@@ -219,10 +219,10 @@ ${contributionLink()}
 
 const defaultSyncDescription6 = () => {
   return `
-Our social bodies are ecossystems, biomes constituted by human individuals,
-ideas, machines, and the Eath and Universe.
+Our social bodies are ecosystems, biomes constituted by human individuals,
+ideas, machines, and the Earth and Universe.
 
-Our networks perform a choreographies which animate the collective organism(s).
+Our networks perform choreographies that animate the collective organism(s).
 
 Make audiovisual music and synchronizations with Our Aquarium,
 they are healing massages.
@@ -251,13 +251,13 @@ Hi, hope you like what is ahead and using Our Aquarium,
 and that you find good usage to it in the regency of your social body.
 
 We would like to continue developing OA, enabling you to better and further
-musify, make audiovidiovisual artifacts, analyze and synchronize yourself
+make music, audiovisual artifacts, analyses and synchronizations with yourself
 through your social networks, body, or self.
 
 Please contribute so that we can continue to provide you and everyone
 the OA software and working online instances.
 
-Click on the "Contribute to Our Aquarium" in this screen.
+Click on the "Contribute to Our Aquarium" on this screen.
 
 :::
 `
@@ -298,6 +298,20 @@ are taken into account.
 Please donate to Our Aquarium and help us get this project going.
 
 :::
+`
+
+const defaultSyncDescription12 = () => `
+The world can be a better place for us to live in,
+and we can be better inhabitants.
+
+Use Our Aquarium to activate your social bodies.
+We will heal all our wounds while our collective organisms achieve the changes
+we envision, and we enjoy audiovisual social art.
+
+Don't hesitate to use Our Aquarium also to reach well-being for yourself,
+your family and friends: offering products, services, places, and equipment, etc.
+
+Check the "About Our Aquarium" link, donate, good luck!
 `
 
 const syncDescription = () => {
@@ -343,7 +357,7 @@ const gradusSyncLinks2 = syncNames => {
 
   return `
   ${t}
-  <b>Press the [i] button above to continue your journey to the Parnassum.</b>
+  <b>Press the [i] button above to continue your journey to the Parnassum</b> or check this <a href="https://www.youtube.com/watch?v=JDgiVGNABN4&list=PLbjVsyv1yKmnnNu1PUXRcURfZSPQcmsA3" target="_blank">video on what Gradus is and how to use it.</a> 
   `
 }
 
@@ -473,7 +487,7 @@ to register your video URL after you record it.
 
 :::
 
-(press the [i] button above to exit this message)
+( press the [i] button above to continue your journey or check this <a href="https://www.youtube.com/watch?v=eJMdNimxdbY&list=PLbjVsyv1yKmnnNu1PUXRcURfZSPQcmsA3" target="_blank">video on what Lycoreia is and how to use it</a> )
 `
 
 const tithoreaNew = `
@@ -497,7 +511,7 @@ to register your video URL.
 
 :::
 
-(press the [i] button above to continue your journey)
+( press the [i] button above to continue your journey or check this <a href="https://www.youtube.com/watch?v=4LBptCTzXH8&list=PLbjVsyv1yKmnnNu1PUXRcURfZSPQcmsA3" target="_blank">video on what Tithorea is and how to use it</a> )
 `
 
 const tithoreaNew2 = `
@@ -630,4 +644,4 @@ const toSeedText = seedName => {
 // OA is writen in the WYSINB (what you see is not beautiful) style.
 // It is meant to be very functional and simple and development friendly.
 
-module.exports = { lycoreia1, gradus1, gradus2, gradus3, gradusRec, gradusSyncLinks, gradusVideoLink, gradusExtensionInfo, uploadVideoText, uploadVideoPlaceholder, lycoreiaNew, arcturians1, arcturians2, guards, tithoreaNew2, tithoreaNew, defaultSyncDescription, defaultSyncDescription2, defaultSyncDescription3, defaultSyncDescription4, defaultSyncDescription5, defaultSyncDescription6, defaultSyncDescription7, toSeedText, defaultSyncDescription8, gradus1Login, defaultSyncDescription9, gradus1b, gradusSyncLinks2, defaultSyncDescription10, defaultSyncDescription11 }
+module.exports = { lycoreia1, gradus1, gradus2, gradus3, gradusRec, gradusSyncLinks, gradusVideoLink, gradusExtensionInfo, uploadVideoText, uploadVideoPlaceholder, lycoreiaNew, arcturians1, arcturians2, guards, tithoreaNew2, tithoreaNew, defaultSyncDescription, defaultSyncDescription2, defaultSyncDescription3, defaultSyncDescription4, defaultSyncDescription5, defaultSyncDescription6, defaultSyncDescription7, toSeedText, defaultSyncDescription8, gradus1Login, defaultSyncDescription9, gradus1b, gradusSyncLinks2, defaultSyncDescription10, defaultSyncDescription11, defaultSyncDescription12 }

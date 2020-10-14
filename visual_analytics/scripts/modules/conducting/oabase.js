@@ -40,7 +40,7 @@ class OABase {
         },
         namesSize: {
           count: 0,
-          max: 3,
+          max: 1.5,
           min: 0.3,
           steps: 10,
           current: 1.3,

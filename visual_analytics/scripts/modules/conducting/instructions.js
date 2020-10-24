@@ -73,7 +73,7 @@ const gradus1b = () => `
   </div>
 
   <div style="text-align: center">
-    <button style="background-color: #3D9970;cursor: pointer;transform: scale(2);" onclick="wand.$('#info-button').click()">Listen to your music!</button>
+    <button style="background-color: #3D9970;cursor: pointer;transform: scale(2);" onclick="wand.maestro.base.Tone.start();console.log('YEAH< HAPPENING');wand.$('#info-button').click()">Listen to your music!</button>
   </div>
   `
 
@@ -301,18 +301,37 @@ Please donate to Our Aquarium and help us get this project going.
 `
 
 const defaultSyncDescription12 = () => `
-The world can be a better place for us to live in,
-and we can be better inhabitants.
+You do know that you have a social body?!
+Our Aquarium provides you the means to explore and maneuver your social body.
 
-Use Our Aquarium to activate your social bodies.
-We will heal all our wounds while our collective organisms achieve the changes
-we envision, and we enjoy audiovisual social art.
+The first step is to know it.
+That will give you the opportunity for a journey,
+the "Gradus ad Parnassum", which leads you to Lycoreia and Tithorea.
 
-Don't hesitate to use Our Aquarium also to reach well-being for yourself,
-your family and friends: offering products, services, places, and equipment, etc.
+In such locations, you can seek bliss for you, your family, friends, and the wide world
+by presenting products, services, locations, equipment, art, ideas, candidates, etc.
 
-Check the "About Our Aquarium" link, donate, good luck!
+You social body furnishes you with many benefits, such as the healing of wounds
+while our collective organisms achieve changes and we enjoy audiovisual social art.
+
+Check the "About Our Aquarium" link and good luck!
+
+( this is an audiovisual tribute to the art and thought of Jorge Antunes: http://jorgeantunes.com.br/ )
 `
+
+// const defaultSyncDescription12Legacy = () => `
+// The world can be a better place for us to live in,
+// and we can be better inhabitants.
+//
+// Use Our Aquarium to activate your social bodies.
+// We will heal all our wounds while our collective organisms achieve the changes
+// we envision, and we enjoy audiovisual social art.
+//
+// Don't hesitate to use Our Aquarium also to reach well-being for yourself,
+// your family and friends: offering products, services, places, and equipment, etc.
+//
+// Check the "About Our Aquarium" link, good luck!
+// `
 
 const syncDescription = () => {
   return wand.syncInfo.syncDescription || defaultSyncDescription()

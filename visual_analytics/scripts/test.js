@@ -530,7 +530,8 @@ const testMusic = () => {
       release: 0.9
     }
   }).toMaster()
-  const polySynth = new Tone.PolySynth(6, Tone.Synth, {
+  // const polySynth = new Tone.PolySynth(6, Tone.Synth, {
+  const polySynth = new Tone.PolySynth(Tone.Synth, {
     oscillator: {
       type: 'square'
     }
@@ -586,6 +587,7 @@ const testLooper = () => {
     class: 'btn',
     id: 'friendship-button',
     click: () => {
+      wand.maestro.base.Tone.start()
       wand.maestro.base.Tone.Transport.toggle()
     }
   }).prependTo('body').html('asd')

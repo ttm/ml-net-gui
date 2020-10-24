@@ -136,9 +136,12 @@ class SyncParnassum extends OABase {
     // use this.sync to make all nodes into visible with music
     console.log('HEY MAN')
 
-    const instrument = new Tone.PluckSynth({ volume: 0 }).toMaster()
-    const membSynth = new Tone.MembraneSynth({ volume: -10 }).toMaster()
-    const membSynth2 = new Tone.MembraneSynth({ volume: 0 }).toMaster()
+    // const instrument = new Tone.MetalSynth({ volume: -15 }).toDestination()
+    const instrument = new Tone.FMSynth({ volume: -10, modulationIndex: 1000 }).toDestination()
+    window.mIII = instrument
+    // const instrument = new Tone.MembraneSynth({ volume: -15 }).toDestination()
+    const membSynth = new Tone.MembraneSynth({ volume: -20 }).toDestination()
+    const membSynth2 = new Tone.MembraneSynth({ volume: 0 }).toDestination()
 
     const extent = net.degreeExtent
     const ambit = extent[1] - extent[0] || 1
@@ -182,6 +185,7 @@ class SyncParnassum extends OABase {
         // instrument.triggerAttackRelease(Tone.Midi(info.note).toNote(), 0.01, time + i * 0.5 / step.length)
         const note = 40 + 40 * (net.getNodeAttribute(n, 'degree') - extent[0]) / ambit
         instrument.triggerAttackRelease(Tone.Midi(note).toNote(), 0.01, time + i * 2 / step.length)
+        // instrument.triggerAttack(Tone.Midi(note).toNote(), time + i * 2 / step.length)
         d(() => {
           net.getNodeAttribute(n, 'pixiElement').alpha = 0.7
           net.getNodeAttribute(n, 'textElement').alpha = 0.7
@@ -407,6 +411,7 @@ class SyncParnassum extends OABase {
       playing = !playing
       console.log('hidden play pressed')
       if (playing) {
+        wand.maestro.base.Tone.start()
         wand.maestro.base.Tone.Transport.start()
         wand.$('#play-button').css('background-color', 'red')
         wand.$('#record-button').click() // start recording
@@ -643,9 +648,12 @@ class SyncParnassum extends OABase {
             wand.$('#info-button').show()
             this.start()
           } else {
-            this.setPlay()
+            // this.setPlay()
             // wand.$('#info-button').hide()
-            wand.$('#play-button').click() // start play and record
+            // wand.$('#play-button').click() // start play and record
+            wand.maestro.base.Tone.Transport.start()
+            wand.$('#record-button').click() // start recording
+
             const seq = this.memberMusicSeqs[this.memberMusicSeqs.length - 1]
             // d(() => { // periodically check condition given by last
             //   alert(gradusRec())
@@ -661,7 +669,9 @@ class SyncParnassum extends OABase {
                 clearInterval(inter)
                 alert(gradusRec())
                 wand.$('#info-button').show()
-                wand.$('#play-button').click() // stop play and record
+                // wand.$('#play-button').click() // stop play and record
+                wand.maestro.base.Tone.Transport.stop()
+                wand.$('#record-button').click() // stop recording
                 showMsg(2)
                 this.start()
               }

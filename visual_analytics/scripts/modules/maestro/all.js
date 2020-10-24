@@ -1,4 +1,4 @@
 module.exports = {
-  synths: require('./synths.js'),
-  base: require('./base.js')
+  base: require('./base.js'),
+  synths: require('./synths.js')
 }

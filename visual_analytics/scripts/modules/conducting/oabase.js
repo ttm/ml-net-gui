@@ -1160,7 +1160,7 @@ class OABase {
     const condition = this.conditions[step.condition]
     this.currentCondition = condition.condition // this sets gradus
     // this.texts.tip.text(`-> ${condition.tip}`)
-    this.texts.tip.html(`<span style="background-color: lightgreen; padding: 0 2%;">&#x1F449 ${condition.tip}</span>`)
+    this.texts.tip.html(`<span style="background-color: lightgreen; padding: 0 2%;">dare: ${condition.tip}</span>`)
     // this.texts.tip.scale.set(1.2)
 
     const feature = this.features[step.feature]
@@ -1186,8 +1186,9 @@ class OABase {
       console.log('(((( ended, no more set new levels )))')
       console.log('parnassum reached, ending gradus loop. Gradus, ad parnassum:', this.currentLevel, this.gradus.length)
       console.log('Get in contact with renato </./> fabbri (O AT O) gmail [UU DOT UU] com to further unlock Gradus ad Parnassum.')
-      this.texts.tip.html('<span style="background-color: lightgreen; padding: 0 2%;">&#x1F449 read "about OA", install the <b>You</b> extension</span>')
-      this.texts.achievement.text('achieved: mount Parnassus reached')
+      this.texts.tip.html('<span style="background-color: lightgreen; padding: 0 2%;">dare: read "about OA", install the <b>You</b> extension</span>')
+      // this.texts.achievement.text('achieved: mount Parnassus reached')
+      this.texts.achievement.html('achieved: direction to the <b class="notranslate">You</b> extension')
       return true
     }
     return false
@@ -1749,6 +1750,8 @@ class OABase {
     mkBtn('fa-play', 'play', 'play synchronization', () => {
       playing = !playing
       if (playing) {
+        console.log('yeah, playing TTM')
+        wand.maestro.base.Tone.start()
         wand.maestro.base.Tone.Transport.start()
       } else {
         wand.maestro.base.Tone.Transport.stop()

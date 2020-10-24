@@ -48,7 +48,7 @@
     "stats-js": "^1.0.1",
     "superagent": "^5.2.2",
     "tinycolor2": "^1.4.1",
-    "tone": "^13.8.25"
+    "tone": "^14.7.58"
   },
   "standard": {
     "ignore": [

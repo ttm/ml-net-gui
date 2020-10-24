@@ -1517,9 +1517,10 @@ class OABase {
 
     const membSynth = new Tone.Noise('brown').toMaster()
     const metal = new Tone.MetalSynth({
-      resonance: 100, octaves: 0.01, harmonicity: 10, frequency: 500, volume: -10
+      // resonance: 10, octaves: 24, harmonicity: 10, frequency: 300, volume: -10
+      volume: -5
     }).toMaster()
-    const plucky2 = new Tone.PluckSynth({ volume: 10 }).toMaster()
+    const plucky2 = new Tone.FMSynth({ volume: -10 }).toMaster()
 
     const hdegrees = hubs.map(i => i.d)
     const maxhd = Math.max(...hdegrees)
@@ -1528,13 +1529,13 @@ class OABase {
     const seq = new Tone.Pattern((time, node) => {
       const a = net.getNodeAttributes(node)
       membSynth.playbackRate = 0.1 + (a.degree - minhd) / ambit
-      membSynth.volume.value = a.degreeCentrality
+      membSynth.volume.value = -a.degreeCentrality * 10
       membSynth.start()
-      membSynth.stop('+8n')
+      membSynth.stop('+4n')
       b(a, time, 'more')
       seq.counter++
       if (seq.counter % 9 === 0) {
-        if (seq2.state === 'started') {
+        if (seq.counter % 18 === 0) {
           seq2.stop()
         } else {
           seq2.start()
@@ -1556,14 +1557,14 @@ class OABase {
     const seq2 = new Tone.Sequence((time, _) => {
       const node = inter[intercount++ % inter.length]
       const a = net.getNodeAttributes(node)
-      metal.frequency.value = a.degree
-      metal.triggerAttackRelease(0.01, time)
+      // metal.frequency.value = a.degree
+      metal.triggerAttackRelease(Tone.Midi(a.degree * 3 + 20), 0.01, time)
       b(a, time, 'more2')
     }, [null, 1, null, [null, 1]], '4n')
 
     const seq3 = new Tone.Pattern((time, node) => {
       const a = net.getNodeAttributes(node)
-      plucky2.triggerAttackRelease(Tone.Midi(70 + 5 * a.degree).toNote(), 0.01, time)
+      plucky2.triggerAttackRelease(Tone.Midi(40 + 5 * a.degree).toNote(), 0.01, time)
       b(a, time, 'less2')
     }, periphery.map(i => i.n), 'upDown')
     seq3.interval = '8n'

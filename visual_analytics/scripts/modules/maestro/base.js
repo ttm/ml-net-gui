@@ -1,5 +1,6 @@
 /* global wand */
 const Tone = require('tone')
+Tone.Master.volume.value = -15
 // window.OscillatorNode = Tone.OscillatorNode
 const Scribble = require('scribbletune')
 // use https://github.com/Okazari/Rythm.js to dance using a wav file,

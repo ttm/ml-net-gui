@@ -172,6 +172,8 @@ class OABase {
             //   }).attr('atitle', 'change player').insertAfter('#pallete-button')
             // )
             mkBtn('fa-music', 'player', 'play music', () => {
+              Tone.start()
+              Tone.Transport.start()
               self.increment('player')
             }, '#pallete-button')
           }

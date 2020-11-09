@@ -29,9 +29,9 @@ window.wand = {
   extra: {}
 }
 
-if (wand.utils.mobileAndTabletCheck()) {
-  window.alert('You do not have the credentials necessary to fully access this website using a mobile ot tablet device. You may try your luck but use a regular desktop browser for a better experience.')
-}
+// if (wand.utils.mobileAndTabletCheck()) {
+//   window.alert('You do not have the credentials necessary to fully access this website using a mobile ot tablet device. You may try your luck but use a regular desktop browser for a better experience.')
+// }
 
 wand.magic = {
   Gradus: wand.conductor.use.gradus.Gradus,
@@ -157,6 +157,12 @@ const routes = {
   'devLocal.html': () => test.testDevLocal(),
   'sync.html': test.testSyncInfo,
   'anphy.html': test.testAnPhy,
+  'meditation.html': test.testMeditation,
+  'meditation2.html': test.testMeditation2,
+  'meditation3.html': test.testMeditation3,
+  'waa.html': test.waa,
+  'waaFM.html': test.waaFM,
+  'waaFM2.html': test.waaFM2,
   'data_donated.html': () => console.log('a summary of the data donated in usage, upload and scrapping')
 }
 

@@ -1808,4 +1808,389 @@ ${linkify2('https://doi.org/10.5281/zenodo.438960')}
   `).appendTo('body')
 }
 
-module.exports = { testPlot, testRotateLayouts, testBlink, testExhibition1, testDiffusion, testMultilevelDiffusion, testMetaNetwork, testSparkMin, testSparkLosd, testMong, testGetNet0, testGetNet1, testGetNet2, testGetNet3, testNetIO, testGUI, testNetUpload, testNetUpload2, testMongIO, testMongNetIO, testMongBetterNetIO, testNetPage, testPuxi, testHtmlEls, testHtmlEls2, testGradus, testAdParnassum, testWorldPropertyPage, testAudio, testJQueryFontsAwesome, testObj, testColors, testMusic, testLooper, testSeq, testSync, testPattern, testRec, testRec2, testRecCanvas, testRecAudio, testRecAudioAndCanvas, testRecAudioAndCanvas2, testDiffusionLimited, testNoise, testLycoreia, testTithorea, testSyncParnassum, testEditor, testLz, testMkSyncId, testDonate, testGuidelines, testManDb, testManGit, testContribute, testDevLocal, testDeploy, testAbout, testExtension, testFAQ, testTheory, testHidden, testDonatePaypal, testDonatePagseguro, testDonateBitcoin, testSyncInfo, testAnPhy }
+function testMeditation () {
+  console.log('yeah man')
+  // binaural:
+  // - 2 sliders for the sines
+  // toggle button for on/off
+  const Tone = wand.maestro.base.Tone
+  const osc1 = new Tone.MonoSynth({
+    oscillator: {
+      type: 'sine'
+    },
+    envelope: {
+      attack: 0.1
+    }
+  }).toDestination()
+  osc1.triggerAttackRelease(440, 60)
+  $('<input/>', {
+    type: 'checkbox'
+  }).appendTo('body').change(function () {
+    console.log('changed', this)
+    if (this.checked) {
+      Tone.start()
+      Tone.Master.mute = false
+      // play
+    } else {
+      Tone.Master.mute = true
+      // stop
+    }
+  })
+}
+
+function testMeditation2 () {
+  // binaural:
+  // - 2 sliders for the sines
+  // toggle button for on/off
+  const Tone = wand.maestro.base.Tone
+
+  const panner1 = new Tone.Panner(-1).toDestination()
+
+  const panner2 = new Tone.Panner(1).toDestination()
+
+  const lf = wand.router.use.urlArgument('l') || 200
+  const rf = wand.router.use.urlArgument('r') || 204
+
+  const osc1 = new Tone.Oscillator(lf).connect(panner1).start()
+  const osc2 = new Tone.Oscillator(rf).connect(panner2).start()
+
+  window.oscs = { osc1, osc2 }
+
+  const grid = wand.$('<div/>', {
+    id: 'infodiv2',
+    css: {
+      display: 'grid',
+      'grid-template-columns': 'auto auto auto',
+      'background-color': '#21F693',
+      padding: '8px',
+      margin: '0 auto',
+      // height: Math.floor(wand.artist.use.height * 0.065) + 'px',
+      width: '30%'
+    }
+  }).insertBefore('canvas')
+
+  $('<label/>', {
+    for: 'onoff'
+  }).appendTo(grid).text('On / Off: ')
+  $('<input/>', {
+    type: 'checkbox',
+    name: 'onoff',
+    id: 'onoff'
+  }).appendTo(grid).change(function () {
+    console.log('changed', this)
+    if (this.checked) {
+      Tone.start()
+      Tone.Master.mute = false
+      // play
+      vonoff.text('Playing')
+    } else {
+      Tone.Master.mute = true
+      // stop
+      vonoff.text('Stopped')
+    }
+  })
+  const vonoff = $('<div/>', { id: 'vonoff' }).appendTo(grid).text('Stopped')
+  Tone.Master.mute = true
+
+  $('<label/>', {
+    for: 'left'
+  }).appendTo(grid).text('Left channel: ')
+  $('<input/>', {
+    type: 'range',
+    min: 20,
+    max: 800,
+    value: lf,
+    step: 1,
+    name: 'left',
+    id: 'left'
+  }).appendTo(grid).change(function () {
+    window.ttT = this
+    osc1.frequency.value = this.value
+    vleft.text(this.value + ' Hz')
+  })
+  const vleft = $('<div/>', { id: 'vleft' }).appendTo(grid).text(lf + ' Hz')
+
+  $('<label/>', {
+    for: 'right'
+  }).appendTo(grid).text('Right channel: ')
+  $('<input/>', {
+    type: 'range',
+    min: 20,
+    max: 800,
+    value: rf,
+    step: 1,
+    name: 'right',
+    id: 'right'
+  }).appendTo(grid).change(function () {
+    window.ttT = this
+    osc2.frequency.value = this.value
+    vright.text(this.value + ' Hz')
+  })
+  const vright = $('<div/>', { id: 'vright' }).appendTo(grid).text(rf + ' Hz')
+
+  $('canvas').hide()
+}
+
+function testMeditation3 () {
+  // binaural:
+  // - 2 sliders for the sines
+  // toggle button for on/off
+  const Tone = wand.maestro.base.Tone
+
+  const panner1 = new Tone.Panner(-1).toDestination()
+
+  const panner2 = new Tone.Panner(1).toDestination()
+
+  const lf = wand.router.use.urlArgument('l') || 200
+  const rf = wand.router.use.urlArgument('r') || 204
+
+  const osc1 = new Tone.Oscillator(lf).connect(panner1).start()
+  const osc2 = new Tone.Oscillator(rf).connect(panner2).start()
+
+  window.oscs = { osc1, osc2 }
+
+  const grid = wand.$('<div/>', {
+    id: 'infodiv2',
+    css: {
+      display: 'grid',
+      'grid-template-columns': 'auto auto auto',
+      'background-color': '#21F693',
+      padding: '8px',
+      margin: '0 auto',
+      // height: Math.floor(wand.artist.use.height * 0.065) + 'px',
+      width: '30%'
+    }
+  }).insertBefore('canvas')
+
+  $('<label/>', {
+    for: 'onoff'
+  }).appendTo(grid).text('On / Off: ')
+  $('<input/>', {
+    type: 'checkbox',
+    name: 'onoff',
+    id: 'onoff'
+  }).appendTo(grid).change(function () {
+    console.log('changed', this)
+    if (this.checked) {
+      Tone.start()
+      Tone.Master.mute = false
+      // play
+      vonoff.text('Playing')
+    } else {
+      Tone.Master.mute = true
+      // stop
+      vonoff.text('Stopped')
+    }
+  })
+  const vonoff = $('<div/>', { id: 'vonoff' }).appendTo(grid).text('Stopped')
+  Tone.Master.mute = true
+
+  $('<label/>', {
+    for: 'left'
+  }).appendTo(grid).text('Left channel: ')
+  $('<input/>', {
+    type: 'range',
+    min: 20,
+    max: 800,
+    value: lf,
+    step: 1,
+    name: 'left',
+    id: 'left'
+  }).appendTo(grid).change(function () {
+    window.ttT = this
+    osc1.frequency.value = this.value
+    vleft.text(this.value + ' Hz')
+  })
+  const vleft = $('<div/>', { id: 'vleft' }).appendTo(grid).text(lf + ' Hz')
+
+  $('<label/>', {
+    for: 'right'
+  }).appendTo(grid).text('Right channel: ')
+  $('<input/>', {
+    type: 'range',
+    min: 20,
+    max: 800,
+    value: rf,
+    step: 1,
+    name: 'right',
+    id: 'right'
+  }).appendTo(grid).change(function () {
+    window.ttT = this
+    osc2.frequency.value = this.value
+    vright.text(this.value + ' Hz')
+  })
+  const vright = $('<div/>', { id: 'vright' }).appendTo(grid).text(rf + ' Hz')
+
+  $('canvas').hide()
+}
+
+function waa () {
+  const AudioContext = window.AudioContext || window.webkitAudioContext
+
+  const audioContext = new AudioContext()
+  $('<audio/>', {
+    src: 'assets/sounds/goat1.mp3',
+    id: 'maudio'
+  }).appendTo('body')
+  // if CORS: https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS
+
+  const track = audioContext.createMediaElementSource($('#maudio')[0]).connect(audioContext.destination)
+
+  $('<span/>').html('Play/Payse').appendTo(
+    $('<button/>', {
+      'data-playing': 'false',
+      'aria-checked': 'false',
+      role: 'switch',
+      id: 'mbtn'
+    }).appendTo('body').click(function () {
+      if (audioContext.state === 'suspended') { // autoplay policy
+        audioContext.resume()
+      }
+
+      if (this.dataset.playing === 'false') {
+        $('audio')[0].play()
+        this.dataset.playing = 'true'
+      } else {
+        $('audio')[0].pause()
+        this.dataset.playing = 'false'
+      }
+    })
+  )
+
+  $('audio').on('ended', () => {
+    $('#mbtn')[0].dataset.playing = 'false'
+    console.log('ended man')
+  })
+
+  window.ttt = track
+  window.aaa = audioContext
+
+  $('canvas').hide()
+}
+
+function waaFM () {
+  $('canvas').hide()
+  const ctx = new window.AudioContext() || window.webkitAudioContext()
+  const out = ctx.destination
+
+  const E = ctx.createOscillator() // Modulator
+  const F = ctx.createOscillator() // Carrier
+  const F2 = ctx.createOscillator() // Carrier2
+  const audioContext = ctx
+
+  window.oscs = { E, F, F2 }
+
+  // Setting frequencies
+  E.frequency.value = 0.1
+  F.frequency.value = 440
+  F2.frequency.value = 444
+
+  // Modulation depth
+  const eGain = ctx.createGain()
+  eGain.gain.value = 100
+  const eGain2 = ctx.createGain()
+  eGain2.gain.value = 0.01
+
+  // Wiring everything up
+  E.connect(eGain)
+  eGain.connect(F.frequency)
+  eGain.connect(F2.frequency)
+  F.connect(eGain2)
+  F2.connect(eGain2)
+  eGain2.connect(out)
+
+  // Start making sound
+  $('<span/>').html('Play/Payse').appendTo(
+    $('<button/>', {
+      'data-playing': 'false',
+      'aria-checked': 'false',
+      role: 'switch',
+      id: 'mbtn'
+    }).appendTo('body').click(function () {
+      if (audioContext.state === 'suspended') { // autoplay policy
+        audioContext.resume()
+      }
+
+      if (this.dataset.playing === 'false') {
+        E.start()
+        F.start()
+        F2.start()
+        this.dataset.playing = 'true'
+      } else {
+        E.stop()
+        F.stop()
+        F2.stop()
+        this.dataset.playing = 'false'
+      }
+    })
+  )
+}
+
+function waaFM2 () {
+  $('canvas').hide()
+  const ctx = new window.AudioContext() || window.webkitAudioContext()
+  const out = ctx.destination
+
+  const E = ctx.createOscillator() // Modulator
+  const F = ctx.createOscillator() // Carrier
+  const F2 = ctx.createOscillator() // Carrier2
+  const audioContext = ctx
+
+  window.oscs = { E, F, F2 }
+
+  // Setting frequencies
+  E.frequency.value = 0.01
+  F.frequency.value = 440
+  F2.frequency.value = 455
+
+  // Modulation depth
+  const eGain = ctx.createGain()
+  eGain.gain.value = 400
+
+  // Wiring everything up
+  E.connect(eGain)
+  eGain.connect(F.frequency)
+  eGain.connect(F2.frequency)
+
+  // pan:
+  const pan = ctx.createStereoPanner()
+  const pan2 = ctx.createStereoPanner()
+  pan.pan.value = -1
+  pan2.pan.value = 1
+
+  // master gain:
+  const eGain2 = ctx.createGain()
+  eGain2.gain.value = 0.01
+
+  F.connect(pan).connect(eGain2)
+  F2.connect(pan2).connect(eGain2)
+  eGain2.connect(out)
+
+  // Start making sound
+  $('<span/>').html('Play/Payse').appendTo(
+    $('<button/>', {
+      'data-playing': 'false',
+      'aria-checked': 'false',
+      role: 'switch',
+      id: 'mbtn'
+    }).appendTo('body').click(function () {
+      if (audioContext.state === 'suspended') { // autoplay policy
+        audioContext.resume()
+      }
+
+      if (this.dataset.playing === 'false') {
+        E.start()
+        F.start()
+        F2.start()
+        this.dataset.playing = 'true'
+      } else {
+        E.stop()
+        F.stop()
+        F2.stop()
+        this.dataset.playing = 'false'
+      }
+    })
+  )
+}
+
+module.exports = { testPlot, testRotateLayouts, testBlink, testExhibition1, testDiffusion, testMultilevelDiffusion, testMetaNetwork, testSparkMin, testSparkLosd, testMong, testGetNet0, testGetNet1, testGetNet2, testGetNet3, testNetIO, testGUI, testNetUpload, testNetUpload2, testMongIO, testMongNetIO, testMongBetterNetIO, testNetPage, testPuxi, testHtmlEls, testHtmlEls2, testGradus, testAdParnassum, testWorldPropertyPage, testAudio, testJQueryFontsAwesome, testObj, testColors, testMusic, testLooper, testSeq, testSync, testPattern, testRec, testRec2, testRecCanvas, testRecAudio, testRecAudioAndCanvas, testRecAudioAndCanvas2, testDiffusionLimited, testNoise, testLycoreia, testTithorea, testSyncParnassum, testEditor, testLz, testMkSyncId, testDonate, testGuidelines, testManDb, testManGit, testContribute, testDevLocal, testDeploy, testAbout, testExtension, testFAQ, testTheory, testHidden, testDonatePaypal, testDonatePagseguro, testDonateBitcoin, testSyncInfo, testAnPhy, testMeditation, testMeditation2, testMeditation3, waa, waaFM, waaFM2 }

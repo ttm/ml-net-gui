@@ -163,6 +163,8 @@ const routes = {
   'waa.html': test.waa,
   'waaFM.html': test.waaFM,
   'waaFM2.html': test.waaFM2,
+  'metaBinaural.html': test.binauralMeta,
+  'metaBinaural2.html': test.binauralMeta2,
   'data_donated.html': () => console.log('a summary of the data donated in usage, upload and scrapping')
 }
 

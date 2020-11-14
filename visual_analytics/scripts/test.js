@@ -1542,6 +1542,10 @@ const link = (text, path) => {
   return `<a href="?page=${path + lflag}">${text}</a>`
 }
 
+const linkL = path => {
+  return `<a href="${path}">${path}</a>`
+}
+
 const testAbout = () => {
   $('canvas').hide()
   const paragraphs = [
@@ -2127,8 +2131,9 @@ function waaFM () {
 }
 
 function waaFM2 () {
+  // skull screening: http://localhost:8080/?page=waaFM2&l=400.1&r=400&o=2&a=200&g=0.01
   $('canvas').hide()
-  const ctx = new window.AudioContext() || window.webkitAudioContext()
+  const ctx = new (window.AudioContext || window.webkitAudioContext)()
   const out = ctx.destination
 
   const E = ctx.createOscillator() // Modulator
@@ -2139,13 +2144,14 @@ function waaFM2 () {
   window.oscs = { E, F, F2 }
 
   // Setting frequencies
-  E.frequency.value = 0.01
-  F.frequency.value = 440
-  F2.frequency.value = 455
+  const a = wand.router.use.urlArgument
+  E.frequency.value = a('o') || 0.01
+  F.frequency.value = a('l') || 440
+  F2.frequency.value = a('r') || 455
 
   // Modulation depth
   const eGain = ctx.createGain()
-  eGain.gain.value = 400
+  eGain.gain.value = a('a') || 400
 
   // Wiring everything up
   E.connect(eGain)
@@ -2160,7 +2166,7 @@ function waaFM2 () {
 
   // master gain:
   const eGain2 = ctx.createGain()
-  eGain2.gain.value = 0.01
+  eGain2.gain.value = a('g') || 0.01
 
   F.connect(pan).connect(eGain2)
   F2.connect(pan2).connect(eGain2)
@@ -2191,6 +2197,200 @@ function waaFM2 () {
       }
     })
   )
+  $('<div/>').html(`
+  <h2>Hyper-binaural beats</h2>
+  This page makes available a simple interface for binaural beats + Martigli oscillations.
+
+  <h3>URL arguments description:</h3>
+  <ul>
+  <li>
+  l: left frequency. Default: 440 Hz. Current: ${a('l')} Hz
+  </li>
+  <li>
+  r: right frequency. Default: 455 Hz. Current: ${a('r')} Hz
+  </li>
+  <li>
+  o: Martigli oscillation frequency. Default: 0.01 Hz. Current: ${a('o')} Hz
+  </li>
+  <li>
+  a: Martigli oscillation depth. Default: 400 Hz. Current: ${a('a')} Hz
+  </li>
+  <li>
+  g: master gain. Default: 0.01 RMS. Current: ${a('g')} RMS
+  </li>
+  </ul>
+
+  Examples:
+  <ul>
+  <li>
+  skull screening: ${linkL('?page=waaFM2&l=400.1&r=400&o=2&a=200&g=0.01')}
+  </li>
+  <li>
+  skull screening 2: ${linkL('?page=waaFM2&l=400.2&r=400&o=0.5&a=50&g=0.01')}
+  </li>
+  <li>
+  concentration sweep: ${linkL('?page=waaFM2&l=400&r=415&o=0.01&a=200&g=0.01')}
+  </li>
+  <li>
+  concentration sweep2: ${linkL('?page=waaFM2&l=400&r=410&o=0.01&a=200&g=0.01')}
+  </li>
+  <li>
+  Alpha (|l - r| in 8-13 Hz).
+  </li>
+  <li>
+  Beta (|l - r| in 13-30 Hz).
+  </li>
+  <li>
+  Theta (|l - r| in 1-5 Hz).
+  </li>
+  <li>
+  Delta (|l - r| in 4-8 Hz).
+  </li>
+  </ul>
+  <br><br>
+  :::
+  `).appendTo('body')
 }
 
-module.exports = { testPlot, testRotateLayouts, testBlink, testExhibition1, testDiffusion, testMultilevelDiffusion, testMetaNetwork, testSparkMin, testSparkLosd, testMong, testGetNet0, testGetNet1, testGetNet2, testGetNet3, testNetIO, testGUI, testNetUpload, testNetUpload2, testMongIO, testMongNetIO, testMongBetterNetIO, testNetPage, testPuxi, testHtmlEls, testHtmlEls2, testGradus, testAdParnassum, testWorldPropertyPage, testAudio, testJQueryFontsAwesome, testObj, testColors, testMusic, testLooper, testSeq, testSync, testPattern, testRec, testRec2, testRecCanvas, testRecAudio, testRecAudioAndCanvas, testRecAudioAndCanvas2, testDiffusionLimited, testNoise, testLycoreia, testTithorea, testSyncParnassum, testEditor, testLz, testMkSyncId, testDonate, testGuidelines, testManDb, testManGit, testContribute, testDevLocal, testDeploy, testAbout, testExtension, testFAQ, testTheory, testHidden, testDonatePaypal, testDonatePagseguro, testDonateBitcoin, testSyncInfo, testAnPhy, testMeditation, testMeditation2, testMeditation3, waa, waaFM, waaFM2 }
+function binauralMeta () {
+  // just as previous function
+  // but has a rate for decreasing Martigli oscillation (Hz / min)
+  // and for decreasing right channel freq (Hz / min)
+  // + 2-3 words to be repeated with some density (words / min)
+  $('canvas').hide()
+  const ctx = new window.AudioContext() || window.webkitAudioContext()
+  const out = ctx.destination
+
+  const E = ctx.createOscillator() // Modulator
+  const F = ctx.createOscillator() // Carrier
+  const F2 = ctx.createOscillator() // Carrier2
+  const audioContext = ctx
+
+  window.oscs = { E, F, F2 }
+
+  // Setting frequencies
+  const a = wand.router.use.urlArgument
+  E.frequency.value = a('o') || 0.01
+  F.frequency.value = a('l') || 440
+  F2.frequency.value = a('r') || 455
+
+  // Modulation depth
+  const eGain = ctx.createGain()
+  eGain.gain.value = a('a') || 400
+
+  // Wiring everything up
+  E.connect(eGain)
+  eGain.connect(F.frequency)
+  eGain.connect(F2.frequency)
+
+  // pan:
+  const pan = ctx.createStereoPanner()
+  const pan2 = ctx.createStereoPanner()
+  pan.pan.value = -1
+  pan2.pan.value = 1
+
+  // master gain:
+  const eGain2 = ctx.createGain()
+  eGain2.gain.value = a('g') || 0.01
+
+  F.connect(pan).connect(eGain2)
+  F2.connect(pan2).connect(eGain2)
+  eGain2.connect(out)
+
+  // Start making sound
+  $('<span/>').html('Play/Payse').appendTo(
+    $('<button/>', {
+      'data-playing': 'false',
+      'aria-checked': 'false',
+      role: 'switch',
+      id: 'mbtn'
+    }).appendTo('body').click(function () {
+      if (audioContext.state === 'suspended') { // autoplay policy
+        audioContext.resume()
+      }
+
+      if (this.dataset.playing === 'false') {
+        E.start()
+        F.start()
+        F2.start()
+        this.dataset.playing = 'true'
+        // const d = (a('d') || 0) / 600 // because it will change freq each 100ms
+        const b = (a('b') || 0) / 600 // because it will change freq each 100ms
+        const d = Math.pow(0.5, 1 / 600)
+        setInterval(() => {
+          E.frequency.value *= d
+          F2.frequency.value -= b
+        }, 100)
+      } else {
+        E.stop()
+        F.stop()
+        F2.stop()
+        this.dataset.playing = 'false'
+      }
+    })
+  )
+  $('<div/>').html(`
+  <h2>Hyper-binaural beats</h2>
+  This page makes available a simple interface for binaural beats + Martigli oscillations.
+
+  <h3>URL arguments description:</h3>
+  <ul>
+  <li>
+  l: left frequency. Default: 440 Hz. Current: ${a('l')} Hz
+  </li>
+  <li>
+  r: right frequency. Default: 455 Hz. Current: ${a('r')} Hz
+  </li>
+  <li>
+  o: Martigli oscillation frequency. Default: 0.01 Hz. Current: ${a('o')} Hz
+  </li>
+  <li>
+  a: Martigli oscillation depth. Default: 400 Hz. Current: ${a('a')} Hz
+  </li>
+  <li>
+  g: master gain. Default: 0.01 RMS. Current: ${a('g')} RMS
+  </li>
+  </ul>
+
+  Examples:
+  <ul>
+  <li>
+  skull screening: ${linkL('?page=waaFM2&l=400.1&r=400&o=2&a=200&g=0.01')}
+  </li>
+  <li>
+  skull screening 2: ${linkL('?page=waaFM2&l=400.2&r=400&o=0.5&a=50&g=0.01')}
+  </li>
+  <li>
+  concentration sweep: ${linkL('?page=waaFM2&l=400&r=415&o=0.01&a=200&g=0.01')}
+  </li>
+  <li>
+  concentration sweep2: ${linkL('?page=waaFM2&l=400&r=410&o=0.01&a=200&g=0.01')}
+  </li>
+  <li>
+  Alpha (|l - r| in 8-13 Hz).
+  </li>
+  <li>
+  Beta (|l - r| in 13-30 Hz).
+  </li>
+  <li>
+  Theta (|l - r| in 1-5 Hz).
+  </li>
+  <li>
+  Delta (|l - r| in 4-8 Hz).
+  </li>
+  </ul>
+  <br><br>
+  :::
+  `).appendTo('body')
+}
+
+function binauralMeta2 () {
+  // just as binauralMeta but also add oscillation on the pan
+}
+
+function binauralMeta3 () {
+  // just as binauralMeta2 but add encoded time to start on the URL
+  // and let add more than one oscillatory voice
+}
+
+module.exports = { testPlot, testRotateLayouts, testBlink, testExhibition1, testDiffusion, testMultilevelDiffusion, testMetaNetwork, testSparkMin, testSparkLosd, testMong, testGetNet0, testGetNet1, testGetNet2, testGetNet3, testNetIO, testGUI, testNetUpload, testNetUpload2, testMongIO, testMongNetIO, testMongBetterNetIO, testNetPage, testPuxi, testHtmlEls, testHtmlEls2, testGradus, testAdParnassum, testWorldPropertyPage, testAudio, testJQueryFontsAwesome, testObj, testColors, testMusic, testLooper, testSeq, testSync, testPattern, testRec, testRec2, testRecCanvas, testRecAudio, testRecAudioAndCanvas, testRecAudioAndCanvas2, testDiffusionLimited, testNoise, testLycoreia, testTithorea, testSyncParnassum, testEditor, testLz, testMkSyncId, testDonate, testGuidelines, testManDb, testManGit, testContribute, testDevLocal, testDeploy, testAbout, testExtension, testFAQ, testTheory, testHidden, testDonatePaypal, testDonatePagseguro, testDonateBitcoin, testSyncInfo, testAnPhy, testMeditation, testMeditation2, testMeditation3, waa, waaFM, waaFM2, binauralMeta, binauralMeta2, binauralMeta3 }

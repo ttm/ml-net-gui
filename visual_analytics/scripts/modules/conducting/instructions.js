@@ -265,8 +265,8 @@ Click on the "Contribute to Our Aquarium" on this screen.
 
 const defaultSyncDescription9 = () => {
   return `
-Audiovisualize your social body, network, self, is a way to acquire self-knowledge.
-And to achieve harmony among your social tissue.
+Audiovisualize your social body, network, self! It is a way to acquire self-knowledge.
+And to achieve harmony within your social tissue.
 
 Good luck in knowing thyself.
 
@@ -351,6 +351,22 @@ Please check:
 //
 // Check the "About Our Aquarium" link, good luck!
 // `
+
+const defaultSyncDescription15 = () => `
+Pray for all the people you see while your music is playing.
+
+Pray for your social body, for Humanity.
+
+Pray that your light is strong and shine upon all others.
+
+You are a candle. You are a luminary. You are a beacon.
+
+Thank everyone and yourself.
+
+Grace, peace, and love.
+
+:::
+`
 
 const syncDescription = () => {
   return wand.syncInfo.syncDescription || defaultSyncDescription()
@@ -682,4 +698,4 @@ const toSeedText = seedName => {
 // OA is writen in the WYSINB (what you see is not beautiful) style.
 // It is meant to be very functional and simple and development friendly.
 
-module.exports = { lycoreia1, gradus1, gradus2, gradus3, gradusRec, gradusSyncLinks, gradusVideoLink, gradusExtensionInfo, uploadVideoText, uploadVideoPlaceholder, lycoreiaNew, arcturians1, arcturians2, guards, tithoreaNew2, tithoreaNew, defaultSyncDescription, defaultSyncDescription2, defaultSyncDescription3, defaultSyncDescription4, defaultSyncDescription5, defaultSyncDescription6, defaultSyncDescription7, toSeedText, defaultSyncDescription8, gradus1Login, defaultSyncDescription9, gradus1b, gradusSyncLinks2, defaultSyncDescription10, defaultSyncDescription11, defaultSyncDescription12, defaultSyncDescription13, defaultSyncDescription14 }
+module.exports = { lycoreia1, gradus1, gradus2, gradus3, gradusRec, gradusSyncLinks, gradusVideoLink, gradusExtensionInfo, uploadVideoText, uploadVideoPlaceholder, lycoreiaNew, arcturians1, arcturians2, guards, tithoreaNew2, tithoreaNew, defaultSyncDescription, defaultSyncDescription2, defaultSyncDescription3, defaultSyncDescription4, defaultSyncDescription5, defaultSyncDescription6, defaultSyncDescription7, toSeedText, defaultSyncDescription8, gradus1Login, defaultSyncDescription9, gradus1b, gradusSyncLinks2, defaultSyncDescription10, defaultSyncDescription11, defaultSyncDescription12, defaultSyncDescription13, defaultSyncDescription14, defaultSyncDescription15 }

@@ -1,0 +1,3 @@
+{
+  "ignore": ["scripts/bundle.js", "extension/scripts/background_ok.js"]
+}

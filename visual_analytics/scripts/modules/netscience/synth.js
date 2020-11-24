@@ -34,8 +34,8 @@ const girvanNewman_ = (zOut) => {
   return girvanNewman(Graph, { zOut: zOut })
 }
 
-const erdosRenyi_ = (order, prob) => {
-  return erdosRenyi(Graph, { order: order, probability: prob })
+const erdosRenyi_ = (order, probability) => {
+  return erdosRenyi(Graph, { order, probability })
 }
 
 const minimal = () => {

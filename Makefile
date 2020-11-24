@@ -80,6 +80,16 @@ va-e-dev:
 va-eOA-zip:
 	cd visual_analytics && npm run buildE && zip -vr you.zip OAextension/
 
+# new va, cleaner, rewritten:
+va2-install:
+	cd va2 && npm i
+va2-dev:
+	cd va2 && npm run dev
+va2-devE:
+	cd va2 && npm run devE
+va2-fix:
+	cd va2 && npm run fixme
+
 # testing of the client code must be performed on the client. The /test page should be accessed,
 # e.g. https://0.0.0.0:8080/test/
 

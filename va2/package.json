@@ -1,0 +1,48 @@
+{
+  "name": "va2",
+  "devDependencies": {
+    "standard": "*"
+  },
+  "scripts": {
+    "build": "browserify scripts/main.js > scripts/bundle.js",
+    "dev": "nodemon app.js --exec 'standard && npm run build && node'",
+    "buildE": "browserify OAextension/scripts/background.js > OAextension/scripts/background_ok.js",
+    "devE": "nodemon app.js --exec 'npm run test && npm run build && npm run buildE && node'",
+    "fixme": "standard --fix"
+  },
+  "dependencies": {
+    "@fortawesome/fontawesome-free": "^5.13.1",
+    "browserify": "^17.0.0",
+    "chroma-js": "^2.1.0",
+    "color-scheme": "^1.0.1",
+    "dat.gui": "^0.7.7",
+    "distinct-colors": "^3.0.0",
+    "fast-sha256": "^1.3.0",
+    "graphology": "^0.17.1",
+    "graphology-communities-louvain": "^1.2.0",
+    "graphology-components": "^0.1.0",
+    "graphology-generators": "^0.10.1",
+    "graphology-layout": "^0.2.0",
+    "graphology-layout-forceatlas2": "^0.4.3",
+    "graphology-metrics": "^1.8.0",
+    "graphology-types": "^0.19.0",
+    "jquery": "^3.5.1",
+    "linkifyjs": "^2.1.9",
+    "lz-string": "^1.4.4",
+    "mongodb-stitch-browser-sdk": "^4.8.0",
+    "nodemon": "^2.0.3",
+    "pixi-projection": "^0.3.11",
+    "pixi.js": "^5.3.3",
+    "react": "^17.0.1",
+    "react-dom": "^17.0.1",
+    "scribbletune": "^3.15.0",
+    "stats-js": "^1.0.1",
+    "tinycolor2": "^1.4.1",
+    "tone": "^14.7.58"
+  },
+  "standard": {
+    "ignore": [
+      "**/bundle.js"
+    ]
+  }
+}

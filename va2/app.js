@@ -3,7 +3,7 @@ const path = require('path')
 const fs = require('fs')
 
 http.createServer(function (req, res) {
-  const filePath = req.url.includes('.html') || req.url.includes('?p=') ? './index.html' : '.' + req.url
+  const filePath = req.url.includes('.html') || req.url.includes('?p=') || req.url.includes('?m=') ? './index.html' : '.' + req.url
   const extname = req.url.includes('.html') ? '.html' : String(path.extname(filePath)).toLowerCase()
   const mimeTypes = {
     '.html': 'text/html',

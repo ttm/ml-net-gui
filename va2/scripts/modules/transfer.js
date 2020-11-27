@@ -39,3 +39,15 @@ e.findAny = data => {
     return db.collection(auth.collections.test).findOne(data)
   })
 }
+
+e.findAll = query => {
+  return client.auth.loginWithCredential(new s.AnonymousCredential()).then(user => {
+    return db.collection(auth.collections.test).find(query).asArray()
+  })
+}
+
+e.remove = query => {
+  return client.auth.loginWithCredential(new s.AnonymousCredential()).then(user => {
+    return db.collection(auth.collections.test).deleteMany(query)
+  })
+}

@@ -555,15 +555,63 @@ e.mkMed = () => {
 
   const grid = utils.mkGrid(2)
 
+  const s = $('<select/>', { id: 'mselect' }).appendTo(grid)
+    .append($('<option/>').val(-1).html('~ creating ~'))
+    .attr('title', 'Select template to load, edit, or delete.')
+    .on('change', aself => {
+      // load them
+      const ii = aself.currentTarget.value
+      console.log(ii)
+      if (ii === '-1') {
+        return
+      }
+      const e = window.allthem2[ii]
+      mdiv.val(e.meditation)
+      fl.val(e.fl)
+      fr.val(e.fr)
+      mp0.val(e.mp0)
+      mp1.val(e.mp1)
+      ma.val(e.ma)
+      md.val(e.md)
+      d.val(e.d)
+      mfp.setDate(e.dateTime)
+      ellipse.prop('checked', e.ellipse)
+      obutton.attr('disabled', false).html(`Open: ${mdiv.val()}`)
+    })
+  window.allthem = transfer.findAll({ meditation: { $exists: true } }).then(r => {
+    window.allthem2 = r
+    r.forEach((i, ii) => {
+      s.append($('<option/>', { class: 'pres' }).val(ii).html(i.meditation))
+    })
+  })
+  window.ass = s
+  $('<button/>').html('Delete').appendTo(grid)
+    .click(() => {
+      // console.log('delete current settings')
+      // console.log($('.pres option[value="2"]'))
+      // console.log($('option[value="2"]'))
+      console.log($(`option[value="${$('#mselect').val()}"].pres`))
+      // $(`option[value="${$('#mselect').val()}"].pres`).remove()
+      const moption = $(`option[value="${$('#mselect').val()}"].pres`)
+      window.moption = moption
+      transfer.remove({ meditation: window.allthem2[moption[0].value].meditation })
+      moption.remove()
+      // console.log($('#mselect').val())
+    })
+    .attr('title', 'Delete the meditation loaded in the dropdown menu.')
+    // .attr('disabled', true)
+  // $('<span/>').html('').appendTo(grid)
   $('<span/>').html('id:').appendTo(grid)
   const mdiv = $('<input/>', {
     placeholder: 'id for the meditation'
   }).appendTo(grid)
+    .attr('title', 'The ID for the meditation (will appear on the URL).')
 
   $('<span/>').html('when:').appendTo(grid)
   const adiv = $('<input/>', {
     placeholder: 'select date and time'
   }).appendTo(grid)
+    .attr('title', 'Select a date and time for the mentalization to occur.')
   const mfp = flatpickr(adiv, {
     enableTime: true
   })
@@ -572,54 +620,107 @@ e.mkMed = () => {
   const fl = $('<input/>', {
     placeholder: 'freq in Herz'
   }).appendTo(grid)
+    .attr('title', 'Frequency on the left channel.')
 
   $('<span/>').html('freq right:').appendTo(grid)
   const fr = $('<input/>', {
     placeholder: 'freq in Herz'
   }).appendTo(grid)
-
-  $('<span/>').html('Martigli initial freq:').appendTo(grid)
-  const mf0 = $('<input/>', {
-    placeholder: 'freq in miliHerz'
-  }).appendTo(grid)
-
-  $('<span/>').html('Martigli final freq:').appendTo(grid)
-  const mf1 = $('<input/>', {
-    placeholder: 'freq in miliHerz'
-  }).appendTo(grid)
+    .attr('title', 'Frequency on the right channel.')
 
   $('<span/>').html('Martigli amplitude:').appendTo(grid)
   const ma = $('<input/>', {
     placeholder: 'in Herz'
   }).appendTo(grid)
+    .attr('title', 'Variation span of the frequency to guide breathing.')
+
+  $('<span/>').html('Martigli initial period:').appendTo(grid)
+  const mp0 = $('<input/>', {
+    placeholder: 'period in seconds'
+  }).appendTo(grid)
+    .attr('title', 'Initial duration of the breathing cycle.')
+
+  $('<span/>').html('Martigli final period:').appendTo(grid)
+  const mp1 = $('<input/>', {
+    placeholder: 'period in seconds'
+  }).appendTo(grid)
+    .attr('title', 'Final duration of the breathing cycle.')
 
   $('<span/>').html('Martigli transition:').appendTo(grid)
   const md = $('<input/>', {
     placeholder: 'duration in seconds'
   }).appendTo(grid)
+    .attr('title', 'Duration of the transition from the initial to the final Martigli period.')
 
   $('<span/>').html('total duration:').appendTo(grid)
   const d = $('<input/>', {
     placeholder: 'in seconds (0 if forever)'
   }).appendTo(grid)
+    .attr('title', 'Duration of the meditation in seconds.')
 
+  $('<span/>').html('breathing ellipse:').appendTo(grid)
+  const ellipse = $('<input/>', {
+    type: 'checkbox'
+  }).appendTo(grid)
+    .attr('title', 'Breath-scaled circle is ellipsoid if checked.')
+
+  const f = parseFloat
   $('<button/>')
+    .attr('title', 'Create the meditation with the settings defined.')
     .html('Create')
     .click(() => {
       console.log('the date:', mfp.selectedDates[0])
-      console.log('the id:', mdiv.val())
-      transfer.writeAny({
-        meditation: mdiv.val(),
-        dateTime: mfp.selectedDates[0],
-        fl: fl.val(),
-        fr: fr.val(),
-        mf0: mf0.val(),
-        mf1: mf1.val(),
-        ma: ma.val(),
-        md: md.val(),
-        d: d.val()
-      }).then(resp => console.log(resp))
+      console.log('the id:', mdiv.val() === '')
+      const mdict = {
+        fl: f(fl.val()),
+        fr: f(fr.val()),
+        mp0: f(mp0.val()),
+        mp1: f(mp1.val()),
+        ma: f(ma.val()),
+        md: f(md.val()),
+        d: f(d.val())
+      }
+      for (const key in mdict) {
+        if (isNaN(mdict[key])) {
+          window.alert(`define the value for ${key}.`)
+          return
+        }
+      }
+      console.log(mdict, 'MDICT')
+      mdict.dateTime = mfp.selectedDates[0]
+      if (mdict.dateTime === undefined || mdict.dateTime < new Date()) {
+        window.alert('define a date which has not passed.')
+        return
+      }
+      mdict.meditation = mdiv.val()
+      if (mdict.meditation === '') {
+        window.alert('define the meditation id.')
+      }
+      for (let i = 0; i < window.allthem2.length; i++) {
+        if (mdict.meditation === window.allthem2[i].meditation) {
+          window.alert('change the meditation id to be unique.')
+          return
+        }
+      }
+      mdict.ellipse = ellipse.prop('checked')
+      console.log(fl.val())
+      if (f(fr.val()) < 4) return
+      transfer.writeAny(mdict).then(resp => console.log(resp))
+      // enable button with the name
+      s.append($('<option/>', { class: 'pres' }).val(window.allthem2.length).html(mdict.meditation))
+      s.val(window.allthem2.length)
+      window.allthem2.push(mdict)
+      obutton.attr('disabled', false).html(`Open: ${mdiv.val()}`)
     }).appendTo(grid)
+  const obutton = $('<button/>')
+    .html('Open')
+    .attr('title', 'Open URL of the meditation.')
+    .click(() => {
+      // open url with
+      window.open(`?m=${mdiv.val()}`)
+    })
+    .appendTo(grid)
+    .attr('disabled', true)
   window.transfer = transfer
   window.mdiv = mdiv
 }
@@ -631,24 +732,254 @@ e.meditation = mid => {
     console.log(r)
     window.rrr = r
     window.startTimer = startTimer
+    if (r === null) {
+      grid.css('background', 'red')
+      countdown.text("don't exist")
+      conoff.attr('disabled', true)
+      vonoff.text('-----')
+    }
     const dur = (r.dateTime.getTime() - (new Date()).getTime()) / 1000
-    startTimer(dur, $('<span/>').appendTo('body'))
+    startTimer(dur, $('<span/>').appendTo('body'), r)
   })
-  function startTimer (duration, display) {
-    setInterval(function () {
+  function startTimer (duration, display, settings) {
+    if (duration < 0) {
+      vonoff.text('Already started, maybe finished, ask team for another session.')
+      conoff.attr('checked', true)
+      conoff.attr('disabled', true)
+      countdown.text('finished')
+      grid.css('background', '#bbaaff')
+      return
+    }
+    setSounds(settings, duration, display)
+    // const { synth, synth2, mod } = setSounds(settings, duration, display)
+    // const timer = setInterval(function () {
+    // }, 100)
+  }
+  const nodeContainer = new PIXI.ParticleContainer(10000, {
+    scale: true,
+    // rotation: true,
+    // alpha: true,
+    position: true
+  })
+
+  const myCircle = new PIXI.Graphics()
+    .beginFill(0xffffff)
+    .drawCircle(0, 0, 5)
+    .endFill()
+  const myCircle_ = new PIXI.Graphics()
+    .beginFill(0xffffff)
+    .drawCircle(0, 0, 5)
+    .endFill()
+
+  const myCircle2 = new PIXI.Graphics()
+    .beginFill(0xffff00)
+    .drawCircle(0, 0, 5)
+    .endFill()
+  const myCircle3 = new PIXI.Graphics()
+    .beginFill(0x00ff00)
+    .drawCircle(0, 0, 5)
+    .endFill()
+
+  const myCircle4 = new PIXI.Graphics()
+    .beginFill(0x4444ff)
+    .drawCircle(0, 0, 5)
+    .endFill()
+
+  const app = new PIXI.Application({
+    width: window.innerWidth,
+    height: window.innerHeight * 0.85
+  })
+  document.body.appendChild(app.view)
+  const [w, h] = [app.view.width, app.view.height]
+
+  const circleTexture = app.renderer.generateTexture(myCircle)
+  // const circleTexture = PIXI.Texture.from('assets/heart.png') todo: integrate images
+  app.stage.addChild(nodeContainer)
+  function mkNode (pos, scale) {
+    const circle = new PIXI.Sprite(circleTexture)
+    circle.x = pos[0]
+    circle.y = pos[1]
+    circle.anchor.x = 0.5
+    circle.anchor.y = 0.5
+    circle.scale.set(scale || 1, scale || 1)
+    nodeContainer.addChild(circle)
+    return circle
+  }
+  // const [x0, y0] = [100, 200]
+  const [x0, y0] = [w * 0.2, h * 0.2]
+  const theCircle = mkNode([x0, y0], 1)
+
+  // to draw the sinusoid:
+  const myLine = new PIXI.Graphics()
+  const [x, y] = [w * 0.1, h * 0.5]
+  const [dx, dy] = [w * 0.8, h * 0.4]
+  myLine.lineStyle(1, 0xffffff)
+    .moveTo(x, y)
+  const segments = 100
+  for (let i = 0; i <= segments; i++) {
+    myLine.lineTo(x + dx * i / segments, y + Math.sin(2 * Math.PI * i / segments) * dy)
+  }
+
+  const c = new PIXI.Container()
+  app.stage.addChild(c)
+  c.addChild(myLine)
+  c.addChild(myCircle)
+  c.addChild(myCircle_)
+  c.addChild(myCircle2)
+  c.addChild(myCircle3)
+  c.addChild(myCircle4)
+  myCircle4.x = x + dx * 1.05
+  myCircle.position.set(x, y)
+  myCircle_.position.set(x + dx, y)
+  window.mmm = { myCircle, app }
+
+  function setSounds (s, duration, display) {
+    const synth = maestro.mkOsc(u('l') || 400, -200, -1, 'sine') // fixme: dummy freq
+    const synth2 = maestro.mkOsc(u('r') || 410, -200, 1, 'sine') // fixme: dummy freq
+    // const mod = maestro.mkOsc(u('o') || 0.1, 46.02, 0, 'sine', true)
+    synth.volume.rampTo(-400, 1)
+    synth2.volume.rampTo(-400, 1)
+    const mod_ = maestro.mkOsc(1 / s.mp0, 0, 0, 'sine', true)
+    const oscAmp = s.ma
+    const freqRef = s.fl
+    const mul = new t.Multiply(oscAmp)
+    const mod = mod_.connect(mul)
+    const add400 = new t.Add(s.fl)
+    const add410 = new t.Add(s.fr)
+    mul.connect(add400)
+    mul.connect(add410)
+    // mod.partials = [22]
+    const met = new t.Meter()
+    const met2 = new t.DCMeter()
+    add400.connect(met)
+    add400.connect(met2)
+    add400.connect(synth.frequency)
+    add410.connect(synth2.frequency)
+    const parts = []
+    let prop = 1
+    let propx = 1
+    let propy = 1
+    let rot = Math.random() * 0.1
+    let okGiven
+    const timer = setInterval(() => {
       let minutes = parseInt(duration / 60, 10)
       let seconds = parseInt(duration % 60, 10)
 
       minutes = minutes < 10 ? '0' + minutes : minutes
       seconds = seconds < 10 ? '0' + seconds : seconds
 
-      display.text('status: countdown on ' + minutes + ':' + seconds)
+      // display.text('status: countdown on ' + minutes + ':' + seconds)
+      countdown.text('countdown on ' + minutes + ':' + seconds)
 
       duration -= 0.1
       if (duration < 0) {
+        clearInterval(timer)
         duration = 0
-        display.text('status: started')
+        // display.text('status: started')
+        countdown.text('started')
+        // t.start()
+        t.Master.mute = false
+        synth.volume.rampTo(-40, 1)
+        synth2.volume.rampTo(-40, 1)
+        mod.frequency.rampTo(1 / s.mp1, s.md)
+        setTimeout(() => {
+          grid.css('background', 'blue')
+          countdown.text('finished')
+          synth.volume.rampTo(-400, 10)
+          synth2.volume.rampTo(-400, 10)
+        }, s.d * 1000)
       }
-    }, 100)
+
+      if (!okGiven) {
+        if (conoff.attr('disabled')) {
+          grid.css('background', 'green')
+          okGiven = true
+        } else {
+          return
+        }
+      }
+      // HERE
+      const dc = met2.getValue()
+      m1.text(met.getValue().toFixed(3))
+      m2.text(dc.toFixed(3))
+      const val = (freqRef - dc) / oscAmp
+      window.aval = val
+      const avalr = Math.asin(val)
+      const px = (avalr < 0 ? 2 * Math.PI + avalr : avalr) / (2 * Math.PI) * dx + x
+      myCircle2.x = px
+      myCircle2.y = val * dy + y
+      const px2 = (Math.PI - avalr) / (2 * Math.PI) * dx + x
+      myCircle3.x = px2
+      myCircle3.y = val * dy + y
+
+      myCircle4.y = val * dy + y
+      const sc = 0.3 + (-val + 1) * 3
+      myCircle4.scale.set(sc * propx, sc * propy)
+      myCircle4.rotation += rot
+      if (Math.random() > 0.98) {
+        const circ4 = mkNode([myCircle4.x, myCircle4.y], 0.3)
+        parts.push(circ4)
+        circ4.tint = 0x5555ff
+      }
+      if (s.ellipse && sc - 0.3 < 0.0005) {
+        rot = Math.random() * 0.1
+        prop = Math.random() * 0.6 + 0.4
+        propx = prop
+        propy = 1 / prop
+      }
+
+      theCircle.x += (Math.random() - 0.5)
+      theCircle.y += (Math.random() - 0.5)
+
+      const circ = mkNode([myCircle2.x, myCircle2.y], 0.3)
+      parts.push(circ)
+      circ.tint = 0xffff00
+
+      const circ2 = mkNode([myCircle3.x, myCircle3.y], 0.3)
+      parts.push(circ2)
+      circ2.tint = 0x00ff00
+      for (let ii = 0; ii < parts.length; ii++) {
+        const n = parts[ii]
+        const sx = theCircle.x - n.x
+        const sy = theCircle.y - n.y
+        const mag = (sx ** 2 + sy ** 2) ** 0.5
+        if (mag < 5) {
+          parts.splice(ii, 1)
+          n.destroy()
+          window.nnn = n
+        } else {
+          n.x += sx / mag + (Math.random() - 0.5) * 5
+          n.y += sy / mag + (Math.random() - 0.5) * 5
+          // n.tint = (n.tint + 0xffffff * 0.1 * Math.random()) % 0xffffff
+        }
+      }
+    }, 10)
+    window.sss = { synth, synth2, mod, mod_, met, met2, mul, parts }
+    return { synth, synth2, mod }
   }
+  // sound
+
+  const grid = utils.mkGrid(2)
+  $('<div/>').appendTo(grid).text('status:')
+  const countdown = $('<div/>', { id: 'countdown' }).appendTo(grid)
+  grid.css('background', 'yellow')
+
+  const vonoff = $('<div/>', { id: 'vonoff' }).appendTo(grid).text('Check me!')
+
+  const conoff = $('<input/>', {
+    type: 'checkbox'
+  }).appendTo(grid).change(function () {
+    if (this.checked) {
+      t.start()
+      t.Master.mute = true
+      this.disabled = true
+      // play
+      vonoff.text('All set!')
+    }
+  })
+
+  $('<div/>').text('meter').appendTo(grid)
+  const m1 = $('<div/>', { id: 'meter1' }).appendTo(grid)
+  $('<div/>').text('meter DC').appendTo(grid)
+  const m2 = $('<div/>', { id: 'meter2' }).appendTo(grid)
 }

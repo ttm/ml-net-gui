@@ -10,4 +10,4 @@ const page = wand.router.urlArgument('p')
 if (page !== null) wand.test[wand.router.urlArgument('p')]()
 
 const meditation = wand.router.urlArgument('m') // identificator created in the dedicated page
-if (meditation !== null) wand.test.meditation(meditation)
+if (meditation !== null) wand.test.atry(meditation)

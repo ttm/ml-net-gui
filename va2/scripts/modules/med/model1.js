@@ -15,10 +15,7 @@ e.meditation = mid => {
       conoff.attr('disabled', true)
       vonoff.text('-----')
     }
-    startTimer(s)
-  })
-  function startTimer (s) {
-    let duration = (s.dateTime.getTime() - (new Date()).getTime()) / 1000
+    const duration = (s.dateTime.getTime() - (new Date()).getTime()) / 1000
     if (duration < 0) {
       vonoff.text('Already started, maybe finished, ask team for another session.')
       conoff.attr('checked', true).attr('disabled', true)
@@ -26,36 +23,43 @@ e.meditation = mid => {
       grid.css('background', '#bbaaff')
       return
     }
-    const { synth, synth2, mod } = setSounds(s)
-    const timer = setInterval(function () {
-      let minutes = parseInt(duration / 60, 10)
-      let seconds = parseInt(duration % 60, 10)
-
-      // todo: hour
-      minutes = minutes < 10 ? '0' + minutes : minutes
-      seconds = seconds < 10 ? '0' + seconds : seconds
-
-      countdown.text('countdown on ' + minutes + ':' + seconds)
-
-      duration -= 0.1
-      if (duration < 0) { // todo: start another countdown with s.d
-        duration = 0
-        countdown.text('started')
-        t.Master.mute = false
-        synth.volume.rampTo(-40, 1)
-        synth2.volume.rampTo(-40, 1) // todo: synth2 => synthR
-        mod.frequency.rampTo(1 / s.mp1, s.md)
-        setTimeout(() => {
-          clearInterval(timer)
-          grid.css('background', 'blue')
-          countdown.text('finished')
-          synth.volume.rampTo(-400, 10)
-          synth2.volume.rampTo(-400, 10)
-        }, s.d * 1000)
+    setCountdown(duration, fun1)
+    function fun1 () { // to start the med
+      const { synth, synthR, mod } = setSounds(s)
+      countdown.text('started')
+      t.Master.mute = false
+      synth.volume.rampTo(-40, 1)
+      synthR.volume.rampTo(-40, 1)
+      mod.frequency.rampTo(1 / s.mp1, s.md)
+      grid.css('background', 'lightgreen')
+      setCountdown(s.d, fun2, [synth, synthR])
+    }
+    function fun2 (synth, synthR) { // to finish the med
+      grid.css('background', 'blue')
+      countdown.text('finished')
+      synth.volume.rampTo(-400, 10)
+      synthR.volume.rampTo(-400, 10)
+    }
+  })
+  function setCountdown (duration, fun, args) { // duration in seconds
+    const targetTime = (new Date()).getTime() / 1000 + duration
+    setTimeout(() => {
+      fun(...(args || []))
+      clearInterval(timer)
+    }, duration * 1000, ...(args || []))
+    const reduce = dur => [Math.floor(dur / 60), Math.floor(dur % 60)]
+    const p = num => num < 10 ? '0' + num : num
+    const timer = setInterval(() => {
+      const moment = targetTime - (new Date()).getTime() / 1000
+      let [minutes, seconds] = reduce(moment)
+      let hours = ''
+      if (minutes > 59) {
+        [hours, minutes] = reduce(minutes)
+        hours += ':'
       }
+      countdown.text(`countdown on ${hours}${p(minutes)}:${p(seconds)}`)
     }, 100)
   }
-
   const nodeContainer = new PIXI.ParticleContainer(10000, {
     scale: true,
     position: true
@@ -65,20 +69,6 @@ e.meditation = mid => {
     .beginFill(0xffffff)
     .drawCircle(0, 0, 5)
     .endFill()
-  const myCircle_ = new PIXI.Graphics() // right static circle
-    .beginFill(0xffffff)
-    .drawCircle(0, 0, 5)
-    .endFill()
-
-  const myCircle2 = new PIXI.Graphics() // moving sinusoid circle
-    .beginFill(0xffff00)
-    .drawCircle(0, 0, 5)
-    .endFill()
-  const myCircle3 = new PIXI.Graphics() // moving sinusoid circle
-    .beginFill(0x00ff00)
-    .drawCircle(0, 0, 5)
-    .endFill()
-
   const myCircle4 = new PIXI.Graphics() // vertical for breathing
     .beginFill(0x4444ff)
     .drawCircle(0, 0, 5)
@@ -94,16 +84,20 @@ e.meditation = mid => {
   const circleTexture = app.renderer.generateTexture(myCircle)
   // const circleTexture = PIXI.Texture.from('assets/heart.png') // todo: integrate images
   app.stage.addChild(nodeContainer)
-  function mkNode (pos, scale) {
+  function mkNode (pos, scale = 1, tint = 0xffffff) {
     const circle = new PIXI.Sprite(circleTexture)
     circle.position.set(...pos)
     circle.anchor.set(0.5, 0.5)
-    circle.scale.set(scale || 1, scale || 1)
+    circle.scale.set(scale, scale)
+    circle.tint = tint
     nodeContainer.addChild(circle)
     return circle
   }
   const [x0, y0] = [w * 0.2, h * 0.2]
-  const theCircle = mkNode([x0, y0], 1) // moving white circle to which the flakes go
+  const theCircle = mkNode([x0, y0]) // moving white circle to which the flakes go
+  const myCircle_ = mkNode([x0, y0])
+  const myCircle2 = mkNode([x0, y0], 1, 0xffff00)
+  const myCircle3 = mkNode([x0, y0], 1, 0x00ff00)
 
   // to draw the sinusoid:
   const myLine = new PIXI.Graphics()
@@ -120,9 +114,6 @@ e.meditation = mid => {
   app.stage.addChild(c)
   c.addChild(myLine)
   c.addChild(myCircle)
-  c.addChild(myCircle_)
-  c.addChild(myCircle2)
-  c.addChild(myCircle3)
   c.addChild(myCircle4)
   // myCircle4.x = x + dx * 1.05 // todo: give option to use
   myCircle4.x = x + dx / 2
@@ -131,7 +122,7 @@ e.meditation = mid => {
 
   function setSounds (s) {
     const synth = maestro.mkOsc(0, -400, -1, 'sine')
-    const synth2 = maestro.mkOsc(0, -400, 1, 'sine')
+    const synthR = maestro.mkOsc(0, -400, 1, 'sine')
     const oscAmp = s.ma
     const mod_ = maestro.mkOsc(1 / s.mp0, 0, 0, 'sine', true)
     const mul = new t.Multiply(oscAmp)
@@ -141,19 +132,18 @@ e.meditation = mid => {
     mul.connect(addL)
     mul.connect(addR)
     addL.connect(synth.frequency)
-    addR.connect(synth2.frequency)
+    addR.connect(synthR.frequency)
 
     const met = new t.Meter()
     const met2 = new t.DCMeter()
     addL.connect(met)
     addL.connect(met2)
 
-    const parts = []
-    let prop = 1
     let propx = 1
     let propy = 1
     let rot = Math.random() * 0.1
     const freqRef = s.fl
+    const parts = []
     setInterval(() => {
       const dc = met2.getValue()
       m1.text(met.getValue().toFixed(3))
@@ -173,22 +163,14 @@ e.meditation = mid => {
 
       if (s.ellipse && sc - 0.3 < 0.0005) {
         rot = Math.random() * 0.1
-        prop = Math.random() * 0.6 + 0.4
-        propx = prop
-        propy = 1 / prop
+        propx = Math.random() * 0.6 + 0.4
+        propy = 1 / propx
       }
 
-      const circ = mkNode([myCircle2.x, myCircle2.y], 0.3)
-      parts.push(circ)
-      circ.tint = 0xffff00
-
-      const circ2 = mkNode([myCircle3.x, myCircle3.y], 0.3)
-      parts.push(circ2)
-      circ2.tint = 0x00ff00
+      parts.push(mkNode([myCircle2.x, myCircle2.y], 0.3, 0xffff00))
+      parts.push(mkNode([myCircle3.x, myCircle3.y], 0.3, 0x00ff00))
       if (Math.random() > 0.98) {
-        const circ4 = mkNode([myCircle4.x, myCircle4.y], 0.3)
-        parts.push(circ4)
-        circ4.tint = 0x5555ff
+        parts.push(mkNode([myCircle4.x, myCircle4.y], 0.3, 0x5555ff))
       }
 
       theCircle.x += (Math.random() - 0.5)
@@ -208,9 +190,8 @@ e.meditation = mid => {
         }
       }
     }, 10)
-    return { synth, synth2, mod }
+    return { synth, synthR, mod }
   }
-  // sound
 
   const grid = utils.mkGrid(2)
   $('<div/>').appendTo(grid).text('status:')

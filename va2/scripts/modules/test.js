@@ -578,6 +578,14 @@ e.mkMed = () => {
       mfp.setDate(e.dateTime)
       ellipse.prop('checked', e.ellipse)
       obutton.attr('disabled', false).html(`Open: ${mdiv.val()}`)
+      bPos.bindex = e.bPos || 0
+      bPos.html(posPos[bPos.bindex])
+      rainbowFlakes.prop('checked', e.rainbowFlakes)
+      bgc.fromString(e.bgc)
+      fgc.fromString(e.fgc)
+      bcc.fromString(e.bcc)
+      ccc.fromString(e.ccc)
+      lcc.fromString(e.lcc)
     })
   window.allthem = transfer.findAll({ meditation: { $exists: true } }).then(r => {
     window.allthem2 = r
@@ -588,20 +596,13 @@ e.mkMed = () => {
   window.ass = s
   $('<button/>').html('Delete').appendTo(grid)
     .click(() => {
-      // console.log('delete current settings')
-      // console.log($('.pres option[value="2"]'))
-      // console.log($('option[value="2"]'))
       console.log($(`option[value="${$('#mselect').val()}"].pres`))
-      // $(`option[value="${$('#mselect').val()}"].pres`).remove()
       const moption = $(`option[value="${$('#mselect').val()}"].pres`)
       window.moption = moption
       transfer.remove({ meditation: window.allthem2[moption[0].value].meditation })
       moption.remove()
-      // console.log($('#mselect').val())
     })
     .attr('title', 'Delete the meditation loaded in the dropdown menu.')
-    // .attr('disabled', true)
-  // $('<span/>').html('').appendTo(grid)
   $('<span/>').html('id:').appendTo(grid)
   const mdiv = $('<input/>', {
     placeholder: 'id for the meditation'
@@ -665,6 +666,50 @@ e.mkMed = () => {
   }).appendTo(grid)
     .attr('title', 'Breath-scaled circle is ellipsoid if checked.')
 
+  $('<span/>').html('breathing position:').appendTo(grid)
+  const posPos = ['Center', 'Left', 'Right']
+  const bPos = $('<button/>')
+    .html('Center')
+    .appendTo(grid)
+    .attr('title', 'Breath-scaled circle position.')
+    .click(() => {
+      bPos.bindex = (bPos.bindex + 1) % posPos.length
+      bPos.html(posPos[bPos.bindex])
+    })
+  bPos.bindex = 0
+
+  $('<span/>').html('rainbow flakes:').appendTo(grid)
+  const rainbowFlakes = $('<input/>', {
+    type: 'checkbox'
+  }).appendTo(grid)
+    .attr('title', 'The flakes are in all colors if checked.')
+
+  const J = require('@eastdesire/jscolor')
+  $('<span/>').html('backgroung color:').appendTo(grid)
+  $('<input/>', { id: 'bgc' }).appendTo(grid)
+    .attr('title', 'The color of the background.')
+  const bgc = new J('#bgc', { value: '#000000' })
+
+  $('<span/>').html('foreground color:').appendTo(grid)
+  $('<input/>', { id: 'fgc' }).appendTo(grid)
+    .attr('title', 'The color of main drawing (e.g. sinusoid + shaking attractive circle).')
+  const fgc = new J('#fgc', { value: '#FFFFFF' })
+
+  $('<span/>').html('breathing circ color:').appendTo(grid)
+  $('<input/>', { id: 'bcc' }).appendTo(grid)
+    .attr('title', 'The color of circle that expands when to inhale.')
+  const bcc = new J('#bcc', { value: '#4444FF' })
+
+  $('<span/>').html('center circ color:').appendTo(grid)
+  $('<input/>', { id: 'ccc' }).appendTo(grid)
+    .attr('title', 'The color of moving circle in (or most to) the middle.')
+  const ccc = new J('#ccc', { value: '#00FF00' })
+
+  $('<span/>').html('lateral circ color:').appendTo(grid)
+  $('<input/>', { id: 'lcc' }).appendTo(grid)
+    .attr('title', 'The color of the moving circle in (or most to) the laterals.')
+  const lcc = new J('#lcc', { value: '#FFFF00' })
+
   const f = parseFloat
   $('<button/>')
     .attr('title', 'Create the meditation with the settings defined.')
@@ -704,6 +749,13 @@ e.mkMed = () => {
         }
       }
       mdict.ellipse = ellipse.prop('checked')
+      mdict.bPos = bPos.bindex
+      mdict.rainbowFlakes = rainbowFlakes.prop('checked')
+      mdict.bgc = bgc.toString()
+      mdict.fgc = fgc.toString()
+      mdict.bcc = bcc.toString()
+      mdict.ccc = ccc.toString()
+      mdict.lcc = lcc.toString()
       console.log(fl.val())
       if (f(fr.val()) < 4) return
       transfer.writeAny(mdict).then(resp => console.log(resp))
@@ -976,4 +1028,15 @@ e.meditation = mid => {
 e.atry = mid => {
   console.log(m)
   m.model1(mid)
+}
+
+e.tcolor = () => {
+  console.log(window.jscolor)
+  const J = require('@eastdesire/jscolor')
+  console.log(J)
+  $('<input/>', {
+    id: 'pick'
+  }).appendTo('body')
+  const jj = new J('#pick', { value: '#FF0000' })
+  window.j = { J, jj, PIXI }
 }

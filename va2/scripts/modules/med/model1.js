@@ -6,8 +6,14 @@ const transfer = require('../transfer.js')
 const utils = require('../utils.js')
 
 const e = module.exports
+const tr = PIXI.utils.string2hex
 
 e.meditation = mid => {
+  // todo:
+  // put a field for a message, prayer or so.
+  //   templates:
+  //      Peço a companhia de Jesus, dos mestres iluminados, de meus espíritos aliados e esíritos afins, ...(quaisquer eixos de devoção pessoal)..., para que minha fé seja fortalecida e minhas orações escutadas.
+  // colors
   transfer.findAny({ meditation: mid }).then(s => { // s === settings
     if (s === null) {
       grid.css('background', 'red')
@@ -70,7 +76,7 @@ e.meditation = mid => {
     .drawCircle(0, 0, 5)
     .endFill()
   const myCircle4 = new PIXI.Graphics() // vertical for breathing
-    .beginFill(0x4444ff)
+    .beginFill(0xffffff)
     .drawCircle(0, 0, 5)
     .endFill()
 
@@ -82,7 +88,7 @@ e.meditation = mid => {
   const [w, h] = [app.view.width, app.view.height]
 
   const circleTexture = app.renderer.generateTexture(myCircle)
-  // const circleTexture = PIXI.Texture.from('assets/heart.png') // todo: integrate images
+  // const circleTexture = PIXI.Texture.from('assets/heart.png') // todo: integrate images: chokurei, sei-he-ki, heart, jesus, dove, star of david
   app.stage.addChild(nodeContainer)
   function mkNode (pos, scale = 1, tint = 0xffffff) {
     const circle = new PIXI.Sprite(circleTexture)
@@ -95,9 +101,10 @@ e.meditation = mid => {
   }
   const [x0, y0] = [w * 0.2, h * 0.2]
   const theCircle = mkNode([x0, y0]) // moving white circle to which the flakes go
-  const myCircle_ = mkNode([x0, y0])
-  const myCircle2 = mkNode([x0, y0], 1, 0xffff00)
-  const myCircle3 = mkNode([x0, y0], 1, 0x00ff00)
+  const myCircle_ = mkNode([x0, y0]) // fixed left
+  const myCircle__ = mkNode([x0, y0]) // fixed right
+  const myCircle2 = mkNode([x0, y0], 1, 0xffff00) // lateral
+  const myCircle3 = mkNode([x0, y0], 1, 0x00ff00) // center
 
   // to draw the sinusoid:
   const myLine = new PIXI.Graphics()
@@ -115,12 +122,18 @@ e.meditation = mid => {
   c.addChild(myLine)
   c.addChild(myCircle)
   c.addChild(myCircle4)
-  // myCircle4.x = x + dx * 1.05 // todo: give option to use
-  myCircle4.x = x + dx / 2
-  myCircle.position.set(x, y)
+  myCircle.position.set(-x, -y)
+  myCircle__.position.set(x, y)
   myCircle_.position.set(x + dx, y)
 
   function setSounds (s) {
+    theCircle.tint = myCircle_.tint = myCircle__.tint = myLine.tint = tr(s.fgc)
+    myCircle2.tint = tr(s.lcc)
+    myCircle3.tint = tr(s.ccc)
+    myCircle4.tint = tr(s.bcc)
+    myCircle4.x = s.bPos === 0 ? x + dx / 2 : s.bPos === 1 ? x * 0.5 : x + dx * 1.05
+    console.log(s, 'SET')
+    app.renderer.backgroundColor = tr(s.bgc)
     const synth = maestro.mkOsc(0, -400, -1, 'sine')
     const synthR = maestro.mkOsc(0, -400, 1, 'sine')
     const oscAmp = s.ma
@@ -144,6 +157,17 @@ e.meditation = mid => {
     let rot = Math.random() * 0.1
     const freqRef = s.fl
     const parts = []
+    let f1 = (n, sx, sy, mag) => {
+      n.x += sx / mag + (Math.random() - 0.5) * 5
+      n.y += sy / mag + (Math.random() - 0.5) * 5
+    }
+    if (s.rainbowFlakes) {
+      f1 = (n, sx, sy, mag) => {
+        n.x += sx / mag + (Math.random() - 0.5) * 5
+        n.y += sy / mag + (Math.random() - 0.5) * 5
+        n.tint = (n.tint + 0xffffff * 0.1 * Math.random()) % 0xffffff
+      }
+    }
     setInterval(() => {
       const dc = met2.getValue()
       m1.text(met.getValue().toFixed(3))
@@ -167,10 +191,10 @@ e.meditation = mid => {
         propy = 1 / propx
       }
 
-      parts.push(mkNode([myCircle2.x, myCircle2.y], 0.3, 0xffff00))
-      parts.push(mkNode([myCircle3.x, myCircle3.y], 0.3, 0x00ff00))
+      parts.push(mkNode([myCircle2.x, myCircle2.y], 0.3, myCircle2.tint))
+      parts.push(mkNode([myCircle3.x, myCircle3.y], 0.3, myCircle3.tint))
       if (Math.random() > 0.98) {
-        parts.push(mkNode([myCircle4.x, myCircle4.y], 0.3, 0x5555ff))
+        parts.push(mkNode([myCircle4.x, myCircle4.y], 0.3, myCircle4.tint))
       }
 
       theCircle.x += (Math.random() - 0.5)
@@ -184,9 +208,7 @@ e.meditation = mid => {
           parts.splice(ii, 1)
           n.destroy()
         } else {
-          n.x += sx / mag + (Math.random() - 0.5) * 5
-          n.y += sy / mag + (Math.random() - 0.5) * 5
-          // n.tint = (n.tint + 0xffffff * 0.1 * Math.random()) % 0xffffff // todo: give option
+          f1(n, sx, sy, mag)
         }
       }
     }, 10)

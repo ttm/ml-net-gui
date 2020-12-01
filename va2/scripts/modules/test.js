@@ -1271,56 +1271,11 @@ e.binauralMeta3 = () => {
   // and let add more than one oscillatory voice
 }
 
-e.communion = () => {
-  $('<div/>', {
-    css: {
-      margin: '0 auto',
-      padding: '8px',
-      width: '50%'
-    }
-  }).appendTo('body').html(`
-  <h2>Communions</h2>
-
-  <p>We have daily meetings 0h, 6h, 12h, and 18h (GMT-3).
-  They are dedicated to be a group concentration for humanity's
-  well-being (by extention also for the world and all creation's well-being).</p>
-
-  <p>The outline is not rigid and intended as follows:
-  <ul>
-    <li>10 minutes to gather, talk, and agree on the mentalization subject.</li>
-    <li>15 minutes of meditation, with breathing and brainwaves synchronized through the online gadgets linked below. Thus <b>anyone that arrives late looses the meditation, there is no way around it</b>.</li>
-    <li>5 minutes for final words and considerations and farewells.</li>
-  </ul>
-
-  <p>Join us at <a target="_blank" href="https://meet.google.com/bkr-vzhw-zfc">our video conference</a></a>.</p>
-  `)
-  const l = t => `<a href="?m=${t}" target="_blank">${t}</a>`
-  const grid = utils.mkGrid(2)
-  $('<span/>').html('<b>when</b>').appendTo(grid)
-  $('<span/>').html('<b>subject</b>').appendTo(grid)
-  const els = [
-    ['December 3st, 12h: ', 'trust'],
-    ['December 3st, 6h: ', 'silence'],
-    ['December 2st, 18h: ', 'thoughts depuration'],
-    ['December 2st, 12h: ', 'time application'],
-    ['December 2st, 6h: ', 'motives/motivation'],
-    ['December 1st, 18h: ', 'communion'],
-    ['December 1st, 12h: ', 'fascination']
-    // ['December 1st, 6h: ', '?p=saude', 'health (for one\'s self, loved ones, people in need, all humanity)']
-  ]
-  els.forEach(e => {
-    $('<span/>').text(e[0]).appendTo(grid)
-    $('<span/>').html(l(e[1])).appendTo(grid)
-  })
-  $('<span/>').text('December 1st, 6h:').appendTo(grid)
-  $('<span/>').html('health (for one\'s self, loved ones,<br>people in need, all humanity)').appendTo(grid)
-}
-
 const linkL = path => {
   return `<a href="${path}">${path}</a>`
 }
 
-e.communion2 = () => {
+e.communion = () => {
   $('<div/>', {
     css: {
       margin: '0 auto',

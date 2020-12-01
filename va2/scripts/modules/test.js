@@ -63,7 +63,7 @@ e.ttest = () => {
     m1.text(met.getValue().toFixed(3))
     m2.text(met2.getValue().toFixed(3))
   }, 100)
-  window.sss = { synth, synth2, mod, mod_, met, met2, mul }
+  window.sss = { synth, synth2, mod, mod_, met, met2, mul, add400, add410 }
   // controls:
   //    freq 1 freq 2
   //    mod depth freqmod freqmod2 duration
@@ -586,8 +586,9 @@ e.mkMed = () => {
       bcc.fromString(e.bcc)
       ccc.fromString(e.ccc)
       lcc.fromString(e.lcc)
+      communionSchedule.prop('checked', e.communionSchedule || false)
     })
-  window.allthem = transfer.findAll({ meditation: { $exists: true } }).then(r => {
+  transfer.findAll({ meditation: { $exists: true } }).then(r => {
     window.allthem2 = r
     r.forEach((i, ii) => {
       s.append($('<option/>', { class: 'pres' }).val(ii).html(i.meditation))
@@ -598,9 +599,10 @@ e.mkMed = () => {
     .click(() => {
       console.log($(`option[value="${$('#mselect').val()}"].pres`))
       const moption = $(`option[value="${$('#mselect').val()}"].pres`)
-      window.moption = moption
-      transfer.remove({ meditation: window.allthem2[moption[0].value].meditation })
+      const oind = moption[0].value
+      transfer.remove({ meditation: window.allthem2[oind].meditation })
       moption.remove()
+      window.allthem2.splice(oind, 1)
     })
     .attr('title', 'Delete the meditation loaded in the dropdown menu.')
   $('<span/>').html('id:').appendTo(grid)
@@ -710,6 +712,12 @@ e.mkMed = () => {
     .attr('title', 'The color of the moving circle in (or most to) the laterals.')
   const lcc = new J('#lcc', { value: '#FFFF00' })
 
+  $('<span/>').html('<a target="_blank" href="?p=communion">communion schedule</a>:').appendTo(grid)
+  const communionSchedule = $('<input/>', {
+    type: 'checkbox'
+  }).appendTo(grid)
+    .attr('title', 'Is this meeting to be put on the communion meetings table?')
+
   const f = parseFloat
   $('<button/>')
     .attr('title', 'Create the meditation with the settings defined.')
@@ -735,8 +743,7 @@ e.mkMed = () => {
       console.log(mdict, 'MDICT')
       mdict.dateTime = mfp.selectedDates[0]
       if (mdict.dateTime === undefined || mdict.dateTime < new Date()) {
-        window.alert('define a date which has not passed.')
-        return
+        if (!window.confirm('the date has passed. Are you shure?')) return
       }
       mdict.meditation = mdiv.val()
       if (mdict.meditation === '') {
@@ -756,6 +763,7 @@ e.mkMed = () => {
       mdict.bcc = bcc.toString()
       mdict.ccc = ccc.toString()
       mdict.lcc = lcc.toString()
+      mdict.communionSchedule = communionSchedule.prop('checked')
       console.log(fl.val())
       if (f(fr.val()) < 4) return
       transfer.writeAny(mdict).then(resp => console.log(resp))
@@ -1030,6 +1038,11 @@ e.atry = mid => {
   m.model1(mid)
 }
 
+e.atry2 = mid => {
+  console.log(m)
+  m.model2(mid)
+}
+
 e.tcolor = () => {
   console.log(window.jscolor)
   const J = require('@eastdesire/jscolor')
@@ -1039,4 +1052,313 @@ e.tcolor = () => {
   }).appendTo('body')
   const jj = new J('#pick', { value: '#FF0000' })
   window.j = { J, jj, PIXI }
+}
+
+e.safariOsc = () => {
+  const addL = new t.Add(300)
+  const mul = new t.Multiply(200)
+  mul.connect(addL)
+  const met = new t.Meter()
+  const met2 = new t.DCMeter()
+  addL.connect(met)
+  addL.connect(met2)
+
+  const mod_ = maestro.mkOsc(0.1, 0, 0, 'sine', true)
+  const mod = mod_.connect(mul)
+  window.deb = { addL, mul, met, met2, mod_, mod, t }
+
+  const grid = utils.mkGrid(2)
+  const vonoff = $('<div/>', { id: 'vonoff' }).appendTo(grid).text('Stopped')
+  $('<input/>', {
+    type: 'checkbox'
+  }).appendTo(grid).change(function () {
+    if (this.checked) {
+      t.context.resume()
+      t.start()
+      t.Master.mute = false
+      vonoff.text('Playing')
+    } else {
+      vonoff.text('Stopped')
+    }
+  })
+}
+
+e.safariOsc2 = () => {
+  const o = new t.Oscillator(0.1, 'sine').start()
+  const met = new t.DCMeter({ channelCount: 1 })
+  o.connect(met)
+
+  const l = new t.LFO(0.1, -1, 1).start()
+  const met2 = new t.DCMeter()
+  l.connect(met2)
+
+  const grid = utils.mkGrid(2)
+  const vonoff = $('<div/>', { id: 'vonoff' }).appendTo(grid).text('Stopped')
+  $('<input/>', {
+    type: 'checkbox'
+  }).appendTo(grid).change(function () {
+    if (this.checked) {
+      t.context.resume()
+      t.start()
+      t.Master.mute = false
+      vonoff.text('Playing')
+    } else {
+      vonoff.text('Stopped')
+    }
+  })
+  $('<div/>').text('meter DC o').appendTo(grid)
+  const m = $('<div/>').appendTo(grid)
+  $('<div/>').text('meter DC l').appendTo(grid)
+  const m2 = $('<div/>', { id: 'meter2' }).appendTo(grid)
+  setInterval(() => {
+    m.text(met.getValue().toFixed(5))
+    m2.text(met2.getValue().toFixed(5))
+  }, 10)
+  // const app = new PIXI.Application()
+  // app.ticker.add(() => {
+  //   m.text(met.getValue())
+  //   m2.text(met2.getValue())
+  // })
+  window.lll = { l, o, met, met2 }
+}
+
+e.binauralMeta = () => {
+  // just as previous function
+  // but has a rate for decreasing Martigli oscillation (Hz / min)
+  // and for decreasing right channel freq (Hz / min)
+  // + 2-3 words to be repeated with some density (words / min)
+  $('canvas').hide()
+  const ctx = new (window.AudioContext || window.webkitAudioContext)()
+  const out = ctx.destination
+  window.ios = { ctx, out }
+
+  const E = ctx.createOscillator() // Modulator
+  const F = ctx.createOscillator() // Carrier
+  const F2 = ctx.createOscillator() // Carrier2
+  const audioContext = ctx
+
+  window.oscs = { E, F, F2 }
+
+  // Setting frequencies
+  const a = u
+  E.frequency.value = a('o') || 0.01
+  F.frequency.value = a('l') || 440
+  F2.frequency.value = a('r') || 455
+
+  // Modulation depth
+  const eGain = ctx.createGain()
+  eGain.gain.value = a('a') || 400
+
+  // Wiring everything up
+  E.connect(eGain)
+  eGain.connect(F.frequency)
+  eGain.connect(F2.frequency)
+
+  // pan:
+  let pan, pan2
+  if (ctx.createStereoPanner) { // chrome and firefox:
+    pan = ctx.createStereoPanner()
+    pan2 = ctx.createStereoPanner()
+    pan.pan.value = -1
+    pan2.pan.value = 1
+  } else { // todo: make ok for safari:
+    pan = ctx.createPanner()
+    pan.panningModel = 'equalpower'
+    pan.setPosition(pan, 0, 1 - Math.abs(pan))
+  }
+
+  // master gain:
+  const eGain2 = ctx.createGain()
+  eGain2.gain.value = a('g') || 0.01
+
+  F.connect(pan).connect(eGain2)
+  F2.connect(pan2).connect(eGain2)
+  eGain2.connect(out)
+
+  // Start making sound
+  $('<span/>').html('Play/Payse').appendTo(
+    $('<button/>', {
+      'data-playing': 'false',
+      'aria-checked': 'false',
+      role: 'switch',
+      id: 'mbtn'
+    }).appendTo('body').click(function () {
+      if (audioContext.state === 'suspended') { // autoplay policy
+        audioContext.resume()
+      }
+
+      if (this.dataset.playing === 'false') {
+        E.start()
+        F.start()
+        F2.start()
+        this.dataset.playing = 'true'
+        // const d = (a('d') || 0) / 600 // because it will change freq each 100ms
+        const b = (a('b') || 0) / 600 // because it will change freq each 100ms
+        const d = Math.pow(0.5, 1 / 600)
+        setInterval(() => {
+          E.frequency.value *= d
+          F2.frequency.value -= b
+        }, 100)
+      } else {
+        E.stop()
+        F.stop()
+        F2.stop()
+        this.dataset.playing = 'false'
+      }
+    })
+  )
+  $('<div/>').html(`
+  <h2>Hyper-binaural beats</h2>
+  This page makes available a simple interface for binaural beats + Martigli oscillations.
+
+  <h3>URL arguments description:</h3>
+  <ul>
+  <li>
+  l: left frequency. Default: 440 Hz. Current: ${a('l')} Hz
+  </li>
+  <li>
+  r: right frequency. Default: 455 Hz. Current: ${a('r')} Hz
+  </li>
+  <li>
+  o: Martigli oscillation frequency. Default: 0.01 Hz. Current: ${a('o')} Hz
+  </li>
+  <li>
+  a: Martigli oscillation depth. Default: 400 Hz. Current: ${a('a')} Hz
+  </li>
+  <li>
+  g: master gain. Default: 0.01 RMS. Current: ${a('g')} RMS
+  </li>
+  </ul>
+
+  Examples:
+  <ul>
+  <li>
+  skull screening: ${linkL('?p=binauralMeta&l=400.1&r=400&o=2&a=200&g=0.01')}
+  </li>
+  <li>
+  skull screening 2: ${linkL('?p=binauralMeta&l=400.2&r=400&o=0.5&a=50&g=0.01')}
+  </li>
+  <li>
+  concentration sweep: ${linkL('?p=binauralMeta&l=400&r=415&o=0.01&a=200&g=0.01')}
+  </li>
+  <li>
+  concentration sweep2: ${linkL('?p=binauralMeta&l=400&r=410&o=0.01&a=200&g=0.01')}
+  </li>
+  <li>
+  Alpha (|l - r| in 8-13 Hz).
+  </li>
+  <li>
+  Beta (|l - r| in 13-30 Hz).
+  </li>
+  <li>
+  Theta (|l - r| in 1-5 Hz).
+  </li>
+  <li>
+  Delta (|l - r| in 4-8 Hz).
+  </li>
+  </ul>
+  <br><br>
+  :::
+  `).appendTo('body')
+}
+
+e.binauralMeta2 = () => {
+  // just as binauralMeta but also add oscillation on the pan
+}
+
+e.binauralMeta3 = () => {
+  // just as binauralMeta2 but add encoded time to start on the URL
+  // and let add more than one oscillatory voice
+}
+
+e.communion = () => {
+  $('<div/>', {
+    css: {
+      margin: '0 auto',
+      padding: '8px',
+      width: '50%'
+    }
+  }).appendTo('body').html(`
+  <h2>Communions</h2>
+
+  <p>We have daily meetings 0h, 6h, 12h, and 18h (GMT-3).
+  They are dedicated to be a group concentration for humanity's
+  well-being (by extention also for the world and all creation's well-being).</p>
+
+  <p>The outline is not rigid and intended as follows:
+  <ul>
+    <li>10 minutes to gather, talk, and agree on the mentalization subject.</li>
+    <li>15 minutes of meditation, with breathing and brainwaves synchronized through the online gadgets linked below. Thus <b>anyone that arrives late looses the meditation, there is no way around it</b>.</li>
+    <li>5 minutes for final words and considerations and farewells.</li>
+  </ul>
+
+  <p>Join us at <a target="_blank" href="https://meet.google.com/bkr-vzhw-zfc">our video conference</a></a>.</p>
+  `)
+  const l = t => `<a href="?m=${t}" target="_blank">${t}</a>`
+  const grid = utils.mkGrid(2)
+  $('<span/>').html('<b>when</b>').appendTo(grid)
+  $('<span/>').html('<b>subject</b>').appendTo(grid)
+  const els = [
+    ['December 3st, 12h: ', 'trust'],
+    ['December 3st, 6h: ', 'silence'],
+    ['December 2st, 18h: ', 'thoughts depuration'],
+    ['December 2st, 12h: ', 'time application'],
+    ['December 2st, 6h: ', 'motives/motivation'],
+    ['December 1st, 18h: ', 'communion'],
+    ['December 1st, 12h: ', 'fascination']
+    // ['December 1st, 6h: ', '?p=saude', 'health (for one\'s self, loved ones, people in need, all humanity)']
+  ]
+  els.forEach(e => {
+    $('<span/>').text(e[0]).appendTo(grid)
+    $('<span/>').html(l(e[1])).appendTo(grid)
+  })
+  $('<span/>').text('December 1st, 6h:').appendTo(grid)
+  $('<span/>').html('health (for one\'s self, loved ones,<br>people in need, all humanity)').appendTo(grid)
+}
+
+const linkL = path => {
+  return `<a href="${path}">${path}</a>`
+}
+
+e.communion2 = () => {
+  $('<div/>', {
+    css: {
+      margin: '0 auto',
+      padding: '8px',
+      width: '50%'
+    }
+  }).appendTo('body').html(`
+  <h2>Communions</h2>
+
+  <p>We have daily meetings 0h, 6h, 12h, and 18h (GMT-3).
+  They are dedicated to be a group concentration for humanity's
+  well-being (by extention also for the world and all creation's well-being).</p>
+
+  <p>The outline is not rigid and intended as follows:
+  <ul>
+    <li>10 minutes to gather, talk, and agree on the mentalization subject.</li>
+    <li>15 minutes of meditation, with breathing and brainwaves synchronized through the online gadgets linked below. Thus <b>anyone that arrives late looses the meditation, there is no way around it</b>.</li>
+    <li>5 minutes for final words and considerations and farewells.</li>
+  </ul>
+
+  <p>Join us at <a target="_blank" href="https://meet.google.com/bkr-vzhw-zfc">our video conference</a></a>.</p>
+  `)
+  const l = t => `<a href="?m=${t}" target="_blank">${t}</a>`
+  const grid = utils.mkGrid(2)
+  $('<span/>').html('<b>when</b> (UTC)').appendTo(grid)
+  $('<span/>').html('<b>subject</b>').appendTo(grid)
+  transfer.findAll({ communionSchedule: true }).then(r => {
+    window.myr = r
+    r.sort((a, b) => b.dateTime - a.dateTime)
+    r.forEach(e => {
+      const adate = (new Date(e.dateTime - 60 * 10 * 1000)).toISOString()
+        .replace(/T/, ' ')
+        .replace(/:\d\d\..+/, '')
+      console.log(adate)
+      $('<span/>').text(adate).appendTo(grid)
+      $('<span/>').html(l(e.meditation)).appendTo(grid)
+    })
+    $('<span/>').text('December 1st, 6h:').appendTo(grid)
+    $('<span/>').html('health (for one\'s self, loved ones,<br>people in need, all humanity)').appendTo(grid)
+  })
 }

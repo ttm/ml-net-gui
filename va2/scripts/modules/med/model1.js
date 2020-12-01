@@ -12,8 +12,17 @@ e.meditation = mid => {
   // todo:
   // put a field for a message, prayer or so.
   //   templates:
+  //      Eu <nome> inicio minha mentalizacao.... Frequencias X Y... etc.
   //      Peço a companhia de Jesus, dos mestres iluminados, de meus espíritos aliados e esíritos afins, ...(quaisquer eixos de devoção pessoal)..., para que minha fé seja fortalecida e minhas orações escutadas.
-  // colors
+  // a help icon:
+  //  when hover, show some guidance:
+  //    change volume of headphones
+  //    change screen luminosity
+  //    concentrate
+  //    you can close your eyes if you wish
+  //    breath with the vertical position of the circles and the expansion of the circle to the (right, left, center, check bPos index)
+  //  if clicked, show the inhale / exhale text
+  // waveforms for LR
   transfer.findAny({ meditation: mid }).then(s => { // s === settings
     if (s === null) {
       grid.css('background', 'red')
@@ -85,6 +94,7 @@ e.meditation = mid => {
     height: window.innerHeight * 0.85
   })
   document.body.appendChild(app.view)
+  window.appp = app
   const [w, h] = [app.view.width, app.view.height]
 
   const circleTexture = app.renderer.generateTexture(myCircle)
@@ -157,6 +167,7 @@ e.meditation = mid => {
     let rot = Math.random() * 0.1
     const freqRef = s.fl
     const parts = []
+    window.pparts = parts
     let f1 = (n, sx, sy, mag) => {
       n.x += sx / mag + (Math.random() - 0.5) * 5
       n.y += sy / mag + (Math.random() - 0.5) * 5
@@ -168,7 +179,8 @@ e.meditation = mid => {
         n.tint = (n.tint + 0xffffff * 0.1 * Math.random()) % 0xffffff
       }
     }
-    setInterval(() => {
+    // setInterval(() => {
+    app.ticker.add(() => {
       const dc = met2.getValue()
       m1.text(met.getValue().toFixed(3))
       m2.text(dc.toFixed(3))
@@ -211,7 +223,10 @@ e.meditation = mid => {
           f1(n, sx, sy, mag)
         }
       }
-    }, 10)
+      console.log('iteration', px, px2, val, avalr, dy, dx, y, x, rot, sc, parts.length)
+      console.log('aux:', freqRef, dc, oscAmp)
+    })
+    // }, 10)
     return { synth, synthR, mod }
   }
 

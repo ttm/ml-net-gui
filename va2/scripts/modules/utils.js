@@ -1,7 +1,7 @@
 const e = module.exports
 const $ = require('jquery')
 
-e.mkGrid = (cols) => {
+e.mkGrid = (cols, el, w) => {
   return $('<div/>', {
     css: {
       display: 'grid',
@@ -10,9 +10,9 @@ e.mkGrid = (cols) => {
       padding: '8px',
       margin: '0 auto',
       // height: Math.floor(wand.artist.use.height * 0.065) + 'px',
-      width: '30%'
+      width: w || '30%'
     }
-  }).appendTo('body')
+  }).appendTo(el || 'body')
 }
 
 e.defaultArg = (arg, def) => arg === undefined ? def : arg

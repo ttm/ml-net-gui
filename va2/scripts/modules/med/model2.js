@@ -24,6 +24,7 @@ e.meditation = mid => {
   //    breath with the vertical position of the circles and the expansion of the circle to the (right, left, center, check bPos index)
   //  if clicked, show the inhale / exhale text
   // waveforms for LR
+  // info on the settings
   transfer.findAny({ meditation: mid }).then(s => { // s === settings
     if (s === null) {
       grid.css('background', 'red')
@@ -65,6 +66,7 @@ e.meditation = mid => {
       synth.volume.rampTo(-400, 10)
       synthR.volume.rampTo(-400, 10)
     }
+    grid.css('background', 'yellow')
   })
   function setCountdown (duration, fun, args) { // duration in seconds
     const targetTime = (new Date()).getTime() / 1000 + duration
@@ -253,7 +255,7 @@ e.meditation = mid => {
   const grid = utils.mkGrid(2)
   $('<div/>').appendTo(grid).text('status:')
   const countdown = $('<div/>', { id: 'countdown' }).appendTo(grid)
-  grid.css('background', 'yellow')
+  grid.css('background', 'grey')
 
   const vonoff = $('<div/>', { id: 'vonoff' }).appendTo(grid).text('Check me!')
 

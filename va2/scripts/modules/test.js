@@ -567,6 +567,7 @@ e.mkMed = () => {
         return
       }
       const e = window.allthem2[ii]
+      console.log(e)
       mdiv.val(e.meditation)
       fl.val(e.fl)
       fr.val(e.fr)
@@ -586,6 +587,11 @@ e.mkMed = () => {
       bcc.fromString(e.bcc)
       ccc.fromString(e.ccc)
       lcc.fromString(e.lcc)
+      if (e.panOsc === undefined) e.panOsc = '0'
+      // $(`#panOsc option[value=${e.panOsc}]`).attr('selected', 'selected')
+      $('#panOsc').val(e.panOsc)
+      panOscPeriod.val(e.panOscPeriod ? e.panOscPeriod : '')
+      panOscPeriod.attr('disabled', e.panOsc < 2)
       communionSchedule.prop('checked', e.communionSchedule || false)
     })
   transfer.findAll({ meditation: { $exists: true } }).then(r => {
@@ -661,6 +667,25 @@ e.mkMed = () => {
     placeholder: 'in seconds (0 if forever)'
   }).appendTo(grid)
     .attr('title', 'Duration of the meditation in seconds.')
+
+  $('<span/>').html('pan oscillation:').appendTo(grid)
+  const panOsc = $('<select/>', { id: 'panOsc' }).appendTo(grid)
+    .append($('<option/>').val(0).html('none'))
+    .append($('<option/>').val(1).html('synced with Martigli Oscillation'))
+    .append($('<option/>').val(2).html('sine independent of Martigli Oscillation'))
+    .append($('<option/>').val(3).html('envelope (linear transition, stable sustain)'))
+    .attr('title', 'Type of pan oscillation.')
+    .on('change', aself => {
+      const ii = aself.currentTarget.value
+      panOscPeriod.attr('disabled', ii < 2)
+    })
+
+  $('<span/>').html('pan oscillation period:').appendTo(grid)
+  const panOscPeriod = $('<input/>', {
+    placeholder: 'in seconds'
+  }).appendTo(grid)
+    .attr('title', 'Duration of the pan oscillation in seconds.')
+    .attr('disabled', true)
 
   $('<span/>').html('breathing ellipse:').appendTo(grid)
   const ellipse = $('<input/>', {
@@ -739,6 +764,17 @@ e.mkMed = () => {
           window.alert(`define the value for ${key}.`)
           return
         }
+      }
+      mdict.panOsc = panOsc.val()
+      console.log(mdict.panOsc, 'HERE')
+      if (mdict.panOsc > 1) {
+        const oPeriod = f(panOscPeriod.val())
+        if (isNaN(oPeriod)) {
+          window.alert('define the value for the pan oscillation period.')
+          return
+        }
+        mdict.panOscPeriod = oPeriod
+        console.log(mdict.panOsc, mdict.oPeriod)
       }
       console.log(mdict, 'MDICT')
       mdict.dateTime = mfp.selectedDates[0]
@@ -1291,7 +1327,7 @@ e.communion = () => {
 
   <p>The outline is not rigid and intended as follows:
   <ul>
-    <li>10 minutes to gather, talk, and agree on the mentalization subject.</li>
+    <li>10 minutes to gather, talk, agree on the mentalization subject and preparations in general.</li>
     <li>15 minutes of meditation, with breathing and brainwaves synchronized through the online gadgets linked below. Thus <b>anyone that arrives late looses the meditation, there is no way around it</b>.</li>
     <li>5 minutes for final words and considerations and farewells.</li>
   </ul>
@@ -1300,7 +1336,7 @@ e.communion = () => {
   `)
   const l = t => `<a href="?m=${t}" target="_blank">${t}</a>`
   const grid = utils.mkGrid(2)
-  $('<span/>').html('<b>when</b> (UTC)').appendTo(grid)
+  $('<span/>').html('<b>when</b> (GMT-0)').appendTo(grid)
   $('<span/>').html('<b>subject</b>').appendTo(grid)
   transfer.findAll({ communionSchedule: true }).then(r => {
     window.myr = r
@@ -1316,4 +1352,135 @@ e.communion = () => {
     $('<span/>').text('December 1st, 6h:').appendTo(grid)
     $('<span/>').html('health (for one\'s self, loved ones,<br>people in need, all humanity)').appendTo(grid)
   })
+}
+
+e.panTest2 = () => {
+  const synth = maestro.mkOsc(0, -400, -1, 'sine')
+  const synthR = maestro.mkOsc(0, -400, -1, 'sine')
+  const mul = new t.Multiply(20)
+  const mod_ = maestro.mkOsc(0.1, 0, 0, 'sine', true).connect(mul)
+  const addL = new t.Add(700)
+  const addR = new t.Add(200)
+
+  mul.connect(addL)
+  mul.connect(addR)
+  addL.connect(synth.frequency)
+  addR.connect(synthR.frequency)
+
+  const neg = new t.Negate()
+  const mul1 = new t.Multiply(1)
+  mod_.connect(neg)
+  mod_.connect(mul1)
+  mul1.connect(synth.panner.pan) // dc
+  neg.connect(synthR.panner.pan) // -dc
+
+  const met2 = new t.DCMeter()
+  const me = new t.DCMeter()
+  const meN = new t.DCMeter()
+  mod_.connect(met2)
+  neg.connect(meN)
+  setInterval(() => {
+    console.log([met2, me, meN].map(i => i.getValue()))
+    console.log(synth.panner.pan.value, synthR.panner.pan.value)
+  }, 500)
+  const grid = utils.mkGrid(2)
+  const vonoff = $('<div/>', { id: 'vonoff' }).appendTo(grid).text('Stopped')
+  $('<input/>', {
+    type: 'checkbox'
+  }).appendTo(grid).change(function () {
+    if (this.checked) {
+      // t.context.resume()
+      t.start()
+      synth.volume.rampTo(-20, 1)
+      synthR.volume.rampTo(-20, 1)
+      t.Master.mute = false
+      vonoff.text('Playing')
+    } else {
+      vonoff.text('Stopped')
+    }
+  })
+  window.maux = { mod_, me, meN, neg, synth, synthR }
+}
+
+e.panBug = () => { // todo: post on tonejs' github
+  const synth = maestro.mkOsc(0, -400, -1, 'sine')
+  const synth2 = maestro.mkOsc(0, -400, -1, 'sine')
+  const synth3 = maestro.mkOsc(0, -400, -1, 'sine')
+  const mul = new t.Multiply(20)
+  const mod_ = maestro.mkOsc(0.1, 0, 0, 'sine', true).connect(mul)
+  const addL = new t.Add(700)
+  const addR = new t.Add(200)
+
+  mul.connect(addL)
+  mul.connect(addR)
+  addL.connect(synth.frequency)
+  addR.connect(synth2.frequency)
+
+  const neg = new t.Negate()
+  const mul1 = new t.Multiply(1)
+  mod_.connect(neg)
+  mod_.connect(mul1)
+  mul1.connect(synth.panner.pan)
+  neg.connect(synth2.panner.pan)
+  mod_.connect(synth3.panner.pan) // this should entail the same result as synth + mul1, no?
+
+  setInterval(() => {
+    console.log(synth.panner.pan.value, synth2.panner.pan.value, synth3.panner.pan.value)
+  }, 500)
+  const grid = utils.mkGrid(2)
+  const vonoff = $('<div/>', { id: 'vonoff' }).appendTo(grid).text('Stopped')
+  $('<input/>', {
+    type: 'checkbox'
+  }).appendTo(grid).change(function () {
+    if (this.checked) {
+      t.start()
+      synth.volume.rampTo(-20, 1)
+      synth2.volume.rampTo(-20, 1)
+      synth3.volume.rampTo(-20, 1)
+      vonoff.text('Playing')
+    } else {
+      vonoff.text('Stopped')
+    }
+  })
+  window.maux = { mod_, neg, synth, synth2, synth3 }
+}
+
+e.envPan = () => {
+  const sub1 = new t.Add(-1)
+  const mul = new t.Multiply(2).connect(sub1)
+  const env = new t.Envelope({
+    attack: 3,
+    decay: 0.2,
+    sustain: 1,
+    release: 5
+  }).connect(mul)
+  const synth = maestro.mkOsc(200, -400, -1, 'sine')
+  sub1.connect(synth.panner.pan) // dc
+
+  const sub1_ = new t.Negate()
+  sub1.connect(sub1_)
+
+  const grid = utils.mkGrid(2)
+  const vonoff = $('<div/>', { id: 'vonoff' }).appendTo(grid).text('Stopped')
+  $('<input/>', {
+    type: 'checkbox'
+  }).appendTo(grid).change(function () {
+    if (this.checked) {
+      t.start()
+      synth.volume.rampTo(-20, 1)
+      env.triggerAttackRelease(10)
+      vonoff.text('Playing')
+    } else {
+      vonoff.text('Stopped')
+    }
+  })
+  const met2 = new t.DCMeter()
+  env.connect(met2)
+  const met = new t.DCMeter()
+  sub1.connect(met)
+  const met3 = new t.DCMeter()
+  sub1_.connect(met3)
+  setInterval(() => {
+    console.log('val:', met3.getValue(), met2.getValue(), met.getValue(), synth.panner.pan.value)
+  }, 200)
 }

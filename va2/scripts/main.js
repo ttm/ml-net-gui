@@ -19,3 +19,5 @@ if (page !== null) wand.test[wand.router.urlArgument('p')]()
 
 const meditation2 = wand.router.urlArgument('m')
 if (meditation2 !== null) wand.med.model3(meditation2)
+
+wand.router.mkFooter()

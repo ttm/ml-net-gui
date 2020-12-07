@@ -111,7 +111,6 @@ class Router {
     let finished = 0
     const intervalId2 = setInterval(() => {
       console.log('set lang and remove trans bar loop, finished')
-      // if (wand.$('#infotext0').length) {
       if (wand.$('.goog-te-combo').length) {
         if (lang) {
           const el = wand.$('.goog-te-combo')

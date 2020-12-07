@@ -542,7 +542,6 @@ e.particles2 = () => {
 }
 
 e.mkMed = () => {
-  console.log('YEY')
   // define:
   // id (any string without points), date and time,
   // freq1, freq2, mod freq1-2 and duration transition and depth
@@ -1328,7 +1327,7 @@ e.communion = () => {
   <p>The outline is not rigid and intended as follows:
   <ul>
     <li>10 minutes to gather, talk, agree on the mentalization subject and preparations in general.</li>
-    <li>15 minutes of meditation, with breathing and brainwaves synchronized through the online gadgets linked below. Thus <b>anyone that arrives late looses the meditation, there is no way around it</b>.</li>
+    <li>15 minutes of meditation, with breathing and brainwaves synchronized through the online gadgets linked below. Thus <b>anyone that arrives late misses the meditation, there is no way around it</b>.</li>
     <li>5 minutes for final words and considerations and farewells.</li>
   </ul>
 
@@ -1483,4 +1482,158 @@ e.envPan = () => {
   setInterval(() => {
     console.log('val:', met3.getValue(), met2.getValue(), met.getValue(), synth.panner.pan.value)
   }, 200)
+}
+
+e.lemniscate = () => {
+  const app = new PIXI.Application({
+    width: window.innerWidth,
+    height: window.innerHeight * 0.85
+  })
+  document.body.appendChild(app.view)
+  const c = [300, 200] // center
+  const a = 200 // half width
+  const xy = ii => {
+    const px = a * Math.cos(ii) / (1 + Math.sin(ii) ** 2)
+    const py = Math.sin(ii) * px
+    // return [px + c[0], py + c[1]]
+    return [py + c[1], px + c[0]]
+  }
+  const myLine = new PIXI.Graphics()
+  myLine.lineStyle(1, 0xff0000)
+    .moveTo(...xy(0))
+  const segments = 100
+  for (let i = 1; i <= segments; i++) {
+    myLine.lineTo(...xy(2 * Math.PI * i / 100))
+  }
+  app.stage.addChild(myLine)
+  app.stage.addChild(
+    new PIXI.Graphics()
+      .beginFill(0xffffff)
+      .drawCircle(...xy(0), 5)
+      .endFill()
+  )
+  app.stage.addChild(
+    new PIXI.Graphics()
+      .beginFill(0xffffff)
+      .drawCircle(...xy(Math.PI), 5)
+      .endFill()
+  )
+  app.stage.addChild(
+    new PIXI.Graphics()
+      .beginFill(0xffff00)
+      .drawCircle(...xy(Math.PI / 2), 5)
+      .endFill()
+  )
+  app.stage.addChild(
+    new PIXI.Graphics()
+      .beginFill(0x00ff00)
+      .drawCircle(...xy(Math.PI / 5), 5)
+      .endFill()
+  )
+  app.stage.addChild(
+    new PIXI.Graphics()
+      .beginFill(0x00ff00)
+      .drawCircle(...xy(Math.PI / 5), 5)
+      .endFill()
+  )
+  app.stage.addChild(
+    new PIXI.Graphics()
+      .beginFill(0x00ff00)
+      .drawCircle(...xy(4 * Math.PI / 5), 5)
+      .endFill()
+  )
+  app.stage.addChild(
+    new PIXI.Graphics()
+      .beginFill(0x00ff00)
+      .drawCircle(...xy(6 * Math.PI / 5), 5)
+      .endFill()
+  )
+  app.stage.addChild(
+    new PIXI.Graphics()
+      .beginFill(0x00ff00)
+      .drawCircle(...xy(9 * Math.PI / 5), 5)
+      .endFill()
+  )
+}
+
+e.aeterni = () => {
+  const itemsB = [
+  ].reduce((a, i) => a + `<li><a href="${i[0]}" target="_blank">${i[1]}</a>${i[2]}</li>`, '')
+  const items = [
+    ['https://www.calicolabs.com/', 'Calico', ', a multi billion dollar company dedicated to combating aging and associated diseases.'],
+    ['http://paloaltoprize.com/', 'Palo Alto Longevity Prize']
+  ].reduce((a, i) => a + `<li><a href="${i[0]}" target="_blank">${i[1]}</a>${i[2]}</li>`, '')
+  const itemsW = [
+    ['https://en.wikipedia.org/wiki/Ageing', 'Aging'],
+    ['https://en.wikipedia.org/wiki/Maximum_life_span', 'Maximum life span'],
+    ['https://en.wikipedia.org/wiki/Futures_studies', 'Futurism'],
+    ['https://en.wikipedia.org/wiki/Ray_Kurzweil', 'Ray Kurzweil'],
+    ['https://en.wikipedia.org/wiki/Anti-aging_movement', 'Anti-aging movement'],
+    ['https://en.wikipedia.org/wiki/Extropianism', 'Extropia / Extropianism'],
+    ['https://en.wikipedia.org/wiki/Transhumanism', 'Transhumanism'],
+    ['', '']
+  ]
+  $('<div/>', {
+    css: {
+      margin: '0 auto',
+      padding: '8px',
+      width: '50%'
+    }
+  }).append(`<h2>Hints</h2>
+  <div>
+    on the probably soon-to-come immortality.
+    <p>
+      The approach taken here is that, through successive life extension breakthroughs,
+      our bodies may reach the historical period in which technological immortality is attained.
+    </p>
+    <p>
+      The <b>Œternum</b> initiative is dedicated to providing mechanisms for
+      improving the chances of attaining immortality:
+      the individual may expand s/he's lifespan and the society may be more effective in developing the technologies.
+    </p>
+    <p>Breakthroughs:
+<ul>${itemsB}</ul>
+    </p>
+    <p>Initiatives:
+<ul>${items}</ul>
+    </p>
+    <p>Relevant Wikipedia articles:
+<ul>${itemsW}</ul>
+    </p>
+  </div>
+  `).appendTo('body')
+}
+
+e.accounts = () => {
+  $('body').css('background-color', '#aaaaaa')
+  // $("<style type='text/css'> .rcol { border-left: 1px solid #000000 ; margin-left: 3%; padding-left: 3%; } </style>").appendTo('head')
+  const grid = utils.mkGrid(2, 'body', '70%', '#ffffff')
+    .append($('<span/>').html('<b>github</b>'))
+    .append($('<span/>', { class: 'rcol' }).html('<b>gmail prefix</b>'))
+  const items = [
+    ['aeterni', 'aeterni.anima'],
+    ['s1te', 'wowsitewow'],
+    ['l4bs', 'entrainment.l4bs'],
+    ['f466r1', 'f466r1'],
+    ['extropia', 'extropia.extropia'],
+    ['theopoesis', 'theopoesis.path'],
+    ['divinization', 'divinization.path'],
+    ['worldhealing', 'sync.aquarium'],
+    ['markturian', 'markarcturian'],
+    ['five-and-seven', 'five.and.seven.publishing'],
+    ['litteratura', 'litteratura.publishing']
+  ]
+  items.forEach(i => {
+    grid.append($('<span/>').html(i[0]))
+    grid.append($('<span/>', { class: 'rcol' }).html(i[1]))
+  })
+  $('<div/>', {
+    css: {
+      margin: '0 auto',
+      padding: '8px',
+      width: '50%'
+    }
+  }).append('<h2>Partners</h2>')
+    .append(grid)
+    .appendTo('body')
 }

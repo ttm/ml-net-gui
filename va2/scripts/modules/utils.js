@@ -1,12 +1,12 @@
 const e = module.exports
 const $ = require('jquery')
 
-e.mkGrid = (cols, el, w) => {
+e.mkGrid = (cols, el, w, bgc) => {
   return $('<div/>', {
     css: {
       display: 'grid',
       'grid-template-columns': Array(cols).fill('auto').join(' '),
-      'background-color': '#21F693',
+      'background-color': bgc || '#21F693',
       padding: '8px',
       margin: '0 auto',
       // height: Math.floor(wand.artist.use.height * 0.065) + 'px',

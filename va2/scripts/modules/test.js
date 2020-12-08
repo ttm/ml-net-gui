@@ -1490,13 +1490,15 @@ e.lemniscate = () => {
     height: window.innerHeight * 0.85
   })
   document.body.appendChild(app.view)
-  const c = [300, 200] // center
-  const a = 200 // half width
+  // const c = [300, 200] // center
+  const c = [app.view.width / 2, app.view.height / 2] // center
+  // const a = 200 // half width
+  const a = app.view.width / 4
   const xy = ii => {
     const px = a * Math.cos(ii) / (1 + Math.sin(ii) ** 2)
     const py = Math.sin(ii) * px
-    // return [px + c[0], py + c[1]]
-    return [py + c[1], px + c[0]]
+    return [px + c[0], py + c[1]]
+    // return [py + c[1], px + c[0]]
   }
   const myLine = new PIXI.Graphics()
   myLine.lineStyle(1, 0xff0000)
@@ -1558,21 +1560,35 @@ e.lemniscate = () => {
 
 e.aeterni = () => {
   const itemsB = [
-  ].reduce((a, i) => a + `<li><a href="${i[0]}" target="_blank">${i[1]}</a>${i[2]}</li>`, '')
+    ['https://nypost.com/2020/11/20/scientists-reverse-human-aging-process-in-breakthrough-study/', 'hyperbaric oxygen chambers to target specific cells and DNA linked to shorter lifespans ']
+  ].reduce((a, i) => a + `<li><a href="${i[0]}" target="_blank">${i[1]}</a></li>`, '')
   const items = [
     ['https://www.calicolabs.com/', 'Calico', ', a multi billion dollar company dedicated to combating aging and associated diseases.'],
-    ['http://paloaltoprize.com/', 'Palo Alto Longevity Prize']
+    ['http://paloaltoprize.com/', 'Palo Alto Longevity Prize', ': long term initiative upholding prizes for advances in longevity.'],
+    ['https://www.lifespan.io/', 'Life Extension Advocacy Foundation', ': crowdfunding longevity.'],
+    ['https://www.rlecoalition.com/', 'Coalition for Radical Life Extension', ': a not-for-profit organization to galvanize a popular movement.'],
+    ['https://www.longevity.vc/', 'The Longevity Fund', ': backing entrepreneurs developing therapeutics for age-related disease.']
   ].reduce((a, i) => a + `<li><a href="${i[0]}" target="_blank">${i[1]}</a>${i[2]}</li>`, '')
   const itemsW = [
-    ['https://en.wikipedia.org/wiki/Ageing', 'Aging'],
-    ['https://en.wikipedia.org/wiki/Maximum_life_span', 'Maximum life span'],
-    ['https://en.wikipedia.org/wiki/Futures_studies', 'Futurism'],
-    ['https://en.wikipedia.org/wiki/Ray_Kurzweil', 'Ray Kurzweil'],
+    ['https://en.wikipedia.org/wiki/Life_extension', 'Life extension'],
     ['https://en.wikipedia.org/wiki/Anti-aging_movement', 'Anti-aging movement'],
-    ['https://en.wikipedia.org/wiki/Extropianism', 'Extropia / Extropianism'],
+    ['https://en.wikipedia.org/wiki/Aging_brain', 'Aging brain'],
+    ['https://en.wikipedia.org/wiki/Ageing', 'Aging'],
+    ['https://en.wikipedia.org/wiki/Compression_of_morbidity', 'Compression of morbidity'],
+    ['https://en.wikipedia.org/wiki/Immortality', 'Immortality'],
+    ['https://en.wikipedia.org/wiki/Futures_studies', 'Futurism'],
     ['https://en.wikipedia.org/wiki/Transhumanism', 'Transhumanism'],
-    ['', '']
-  ]
+    ['https://en.wikipedia.org/wiki/Maximum_life_span', 'Maximum life span'],
+    ['https://en.wikipedia.org/wiki/Ray_Kurzweil', 'Ray Kurzweil'],
+    ['https://en.wikipedia.org/wiki/Marios_Kyriazis', 'Marios Kyriazis'],
+    ['https://en.wikipedia.org/wiki/Aubrey_de_Grey', 'Aubrey de Grey'],
+    ['https://en.wikipedia.org/wiki/Extropianism', 'Extropia / Extropianism'],
+    ['https://en.wikipedia.org/wiki/Self-experimentation', 'Self-experimentation'],
+    ['https://en.wikipedia.org/wiki/Psychonautics', 'Psychonautics'],
+    ['https://en.wikipedia.org/wiki/Mind_machine', 'Mind Machine'],
+    ['https://en.wikipedia.org/wiki/Brainwave_entrainment', 'Brainwave entrainment'],
+    ['https://en.wikipedia.org/wiki/Senolytic', 'Senolytics']
+  ].reduce((a, i) => a + `<li><a href="${i[0]}" target="_blank">${i[1]}</a></li>`, '')
   $('<div/>', {
     css: {
       margin: '0 auto',
@@ -1594,12 +1610,14 @@ e.aeterni = () => {
     <p>Breakthroughs:
 <ul>${itemsB}</ul>
     </p>
-    <p>Initiatives:
+    <p>Initiatives (preliminary list):
 <ul>${items}</ul>
     </p>
     <p>Relevant Wikipedia articles:
 <ul>${itemsW}</ul>
     </p>
+    <p>
+    Further keywords: hallmarks of aging, rejuvenation biotechnology, 
   </div>
   `).appendTo('body')
 }

@@ -10,23 +10,7 @@ const e = module.exports
 const tr = PIXI.utils.string2hex
 
 e.meditation = mid => {
-  // todo:
-  // put a field for a message, prayer or so.
-  //   templates:
-  //      Eu <nome> inicio minha mentalizacao.... Frequencias X Y... etc.
-  //      Peço a companhia de Jesus, dos mestres iluminados, de meus espíritos aliados e esíritos afins, ...(quaisquer eixos de devoção pessoal)..., para que minha fé seja fortalecida e minhas orações escutadas.
-  // a help icon:
-  //  when hover, show some guidance:
-  //    change volume of headphones
-  //    change screen luminosity
-  //    concentrate
-  //    you can close your eyes if you wish
-  //    breath with the vertical position of the circles and the expansion of the circle to the (right, left, center, check bPos index)
-  //  if clicked, show the inhale / exhale text
-  // waveforms for LR
-  // info on the settings
-  console.log(mid, 'TMID')
-  transfer.findAny({ meditation: mid }).then(s => { // s === settings
+  transfer.findAny({ meditation: mid }).then(s => {
     if (s === null) {
       grid.css('background', 'red')
       countdown.text("don't exist")
@@ -109,9 +93,10 @@ e.meditation = mid => {
   document.body.appendChild(app.view)
   window.appp = app
   const [w, h] = [app.view.width, app.view.height]
+  const c = [w / 2, h / 2] // center
+  const a = w * 0.35
 
   const circleTexture = app.renderer.generateTexture(myCircle)
-  // const circleTexture = PIXI.Texture.from('assets/heart.png') // todo: integrate images: chokurei, sei-he-ki, heart, jesus, dove, star of david
   app.stage.addChild(nodeContainer)
   function mkNode (pos, scale = 1, tint = 0xffffff) {
     const circle = new PIXI.Sprite(circleTexture)
@@ -122,39 +107,38 @@ e.meditation = mid => {
     nodeContainer.addChild(circle)
     return circle
   }
-  const [x0, y0] = [w * 0.2, h * 0.2]
-  const theCircle = mkNode([x0, y0]) // moving white circle to which the flakes go
-  const myCircle_ = mkNode([x0, y0]) // fixed left
-  const myCircle__ = mkNode([x0, y0]) // fixed right
-  const myCircle2 = mkNode([x0, y0], 1, 0xffff00) // lateral
-  const myCircle3 = mkNode([x0, y0], 1, 0x00ff00) // center
+  const [x, y] = c
+  const theCircle = mkNode([x, y / 2]) // moving white circle to which the flakes go
+  const myCircle2 = mkNode([x, y], 1, 0xffff00) // lateral
+  const myCircle3 = mkNode([x, y], 1, 0x00ff00) // center
 
-  // to draw the sinusoid:
+  // to draw the lemniscate:
+  const xy = (ii, vertical) => {
+    const px = a * Math.cos(ii) / (1 + Math.sin(ii) ** 2)
+    const py = Math.sin(ii) * px
+    return vertical ? [py + c[1], px + c[0]] : [px + c[0], py + c[1]]
+  }
   const myLine = new PIXI.Graphics()
-  const [x, y] = [w * 0.1, h * 0.5]
-  const [dx, dy] = [w * 0.8, h * 0.4]
   myLine.lineStyle(1, 0xffffff)
-    .moveTo(x, y)
+    .moveTo(...xy(0))
   const segments = 100
   for (let i = 0; i <= segments; i++) {
-    myLine.lineTo(x + dx * i / segments, y + Math.sin(2 * Math.PI * i / segments) * dy)
+    myLine.lineTo(...xy(2 * Math.PI * i / 100))
   }
 
-  const c = new PIXI.Container()
-  app.stage.addChild(c)
-  c.addChild(myLine)
-  c.addChild(myCircle)
-  c.addChild(myCircle4)
-  myCircle.position.set(-x, -y)
-  myCircle__.position.set(x, y)
-  myCircle_.position.set(x + dx, y)
+  const co = new PIXI.Container()
+  app.stage.addChild(co)
+  co.addChild(myLine)
+  co.addChild(myCircle)
+  co.addChild(myCircle4)
+  myCircle.position.set(...c)
 
   function setSounds (s) {
-    theCircle.tint = myCircle_.tint = myCircle__.tint = myLine.tint = tr(s.fgc)
+    theCircle.tint = myLine.tint = tr(s.fgc)
     myCircle2.tint = tr(s.lcc)
     myCircle3.tint = tr(s.ccc)
     myCircle4.tint = tr(s.bcc)
-    myCircle4.x = s.bPos === 0 ? x + dx / 2 : s.bPos === 1 ? x * 0.5 : x + dx * 1.05
+    myCircle4.x = s.bPos === 0 ? x : s.bPos === 1 ? (x - a) / 2 : x + a + (x - a) / 2
     console.log(s, 'SET')
     app.renderer.backgroundColor = tr(s.bgc)
     const synth = maestro.mkOsc(0, -400, -1, 'sine')
@@ -246,12 +230,13 @@ e.meditation = mid => {
       const avalr = Math.asin(val)
       // const px = (avalr < 0 ? 2 * Math.PI + avalr : avalr) / (2 * Math.PI) * dx + x
       // const px2 = (Math.PI - avalr) / (2 * Math.PI) * dx + x
-      const px = avalr / (2 * Math.PI) * dx + x
-      const px2 = (Math.PI - avalr) / (2 * Math.PI) * dx + x
+      const p = xy(avalr < 0 ? 2 * Math.PI + avalr : avalr)
+      const p2 = xy(Math.PI - avalr)
 
-      myCircle2.x = px
-      myCircle2.y = myCircle3.y = myCircle4.y = val * dy + y
-      myCircle3.x = px2
+      myCircle2.x = p[0]
+      myCircle2.y = myCircle3.y = p[1]
+      myCircle4.y = val * a * 0.5 + y
+      myCircle3.x = p2[0]
 
       const sc = 0.3 + (-val + 1) * 3
       myCircle4.scale.set(sc * propx, sc * propy)

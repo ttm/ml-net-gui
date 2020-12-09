@@ -22,11 +22,8 @@ e.meditation = mid => {
   //    concentrate
   //    you can close your eyes if you wish
   //    breath with the vertical position of the circles and the expansion of the circle to the (right, left, center, check bPos index)
-  //  if clicked, show the inhale / exhale text
   // waveforms for LR
-  // info on the settings
-  console.log(mid, 'TMID')
-  transfer.findAny({ meditation: mid }).then(s => { // s === settings
+  transfer.findAny({ meditation: mid }).then(s => {
     if (s === null) {
       grid.css('background', 'red')
       countdown.text("don't exist")
@@ -34,9 +31,7 @@ e.meditation = mid => {
       vonoff.text('-----')
     }
     let duration = (s.dateTime.getTime() - (new Date()).getTime()) / 1000
-    if (u('t')) {
-      duration = parseFloat(u('t'))
-    }
+    if (u('t')) duration = parseFloat(u('t'))
     if (duration < 0) {
       vonoff.text('Already started, maybe finished, ask team for another session.')
       conoff.attr('checked', true).attr('disabled', true)
@@ -44,32 +39,30 @@ e.meditation = mid => {
       grid.css('background', '#bbaaff')
       return
     }
-    setCountdown(duration, fun1)
+    setCountdown(duration, fun1, undefined, 'countdown to start: ')
     function fun1 () { // to start the med
       if (!conoff.prop('checked')) {
         grid.css('background', 'blue')
-        countdown.text('finished')
         conoff.prop('disabled', true)
         return
       }
       const { synth, synthR, mod_ } = setSounds(s)
-      countdown.text('started')
       t.Master.mute = false
       synth.volume.rampTo(-40, 1)
       synthR.volume.rampTo(-40, 1)
       mod_.frequency.rampTo(1 / s.mp1, s.md)
       grid.css('background', 'lightgreen')
-      setCountdown(s.d, fun2, [synth, synthR])
+      setCountdown(s.d, fun2, [synth, synthR], 'countdown to conclude: ')
     }
     function fun2 (synth, synthR) { // to finish the med
-      grid.css('background', 'blue')
+      grid.css('background', '#aaaaff')
       countdown.text('finished')
       synth.volume.rampTo(-400, 10)
       synthR.volume.rampTo(-400, 10)
     }
     grid.css('background', 'yellow')
   })
-  function setCountdown (duration, fun, args) { // duration in seconds
+  function setCountdown (duration, fun, args, countdownText) { // duration in seconds
     const targetTime = (new Date()).getTime() / 1000 + duration
     setTimeout(() => {
       fun(...(args || []))
@@ -85,7 +78,7 @@ e.meditation = mid => {
         [hours, minutes] = reduce(minutes)
         hours += ':'
       }
-      countdown.text(`countdown on ${hours}${p(minutes)}:${p(seconds)}`)
+      countdown.text((countdownText || 'countdown on ') + `${hours}${p(minutes)}:${p(seconds)}`)
     }, 100)
   }
   const nodeContainer = new PIXI.ParticleContainer(10000, {
@@ -93,7 +86,7 @@ e.meditation = mid => {
     position: true
   })
 
-  const myCircle = new PIXI.Graphics() // left static circle
+  const myCircle = new PIXI.Graphics()
     .beginFill(0xffffff)
     .drawCircle(0, 0, 5)
     .endFill()
@@ -107,7 +100,6 @@ e.meditation = mid => {
     height: window.innerHeight * 0.85
   })
   document.body.appendChild(app.view)
-  window.appp = app
   const [w, h] = [app.view.width, app.view.height]
   const c = [w / 2, h / 2] // center
   const a = w * 0.35
@@ -117,33 +109,29 @@ e.meditation = mid => {
   app.stage.addChild(nodeContainer)
   function mkNode (pos, scale = 1, tint = 0xffffff) {
     const circle = new PIXI.Sprite(circleTexture)
-    circle.position.set(...pos)
+    circle.position.set(...(pos || [0, 0]))
     circle.anchor.set(0.5, 0.5)
     circle.scale.set(scale, scale)
     circle.tint = tint
     nodeContainer.addChild(circle)
     return circle
   }
+
+  // to draw the sinusoid or lemniscate:
+  const xy = (angle, vertical) => { // lemniscate x, y given angle
+    const px = a * Math.cos(angle) / (1 + Math.sin(angle) ** 2)
+    const py = Math.sin(angle) * px
+    return vertical ? [py + c[1], px + c[0]] : [px + c[0], py + c[1]]
+  }
+  const [x, y] = [w * 0.1, h * 0.5] // for sinusoid
+  const [dx, dy] = [w * 0.8, h * 0.4] // for sinusoid
+
   function setSounds (s) {
     const [x0, y0] = s.lemniscate ? c : [w * 0.2, h * 0.2]
-    const myCircle2 = mkNode([x0, y0], 1, 0xffff00) // lateral
-    const myCircle3 = mkNode([x0, y0], 1, 0x00ff00) // center
-    let myCircle_, myCircle__
-    if (!s.lemniscate) {
-      myCircle_ = mkNode([x0, y0]) // fixed left
-      myCircle__ = mkNode([x0, y0]) // fixed right
-    }
-
-    // to draw the sinusoid or lemniscate:
-    const xy = (ii, vertical) => {
-      const px = a * Math.cos(ii) / (1 + Math.sin(ii) ** 2)
-      const py = Math.sin(ii) * px
-      return vertical ? [py + c[1], px + c[0]] : [px + c[0], py + c[1]]
-    }
     const myLine = new PIXI.Graphics()
     const segments = 100
-    let x, y, dx, dy
     if (s.lemniscate) {
+      myCircle4.x = s.bPos === 0 ? x : s.bPos === 1 ? (x - a) / 2 : x + a + (x - a) / 2
       myLine.lineStyle(1, 0xffffff)
         .moveTo(...xy(0))
       const segments = 100
@@ -151,58 +139,41 @@ e.meditation = mid => {
         myLine.lineTo(...xy(2 * Math.PI * i / 100))
       }
     } else {
-      // [x, y] = [w * 0.1, h * 0.5]
-      // [dx, dy] = [w * 0.8, h * 0.4]
-      x = w * 0.1
-      y = h * 0.5
-      dx = w * 0.8
-      dy = h * 0.4
       myLine.lineStyle(1, 0xffffff)
         .moveTo(x, y)
       for (let i = 0; i <= segments; i++) {
         myLine.lineTo(x + dx * i / segments, y + Math.sin(2 * Math.PI * i / segments) * dy)
       }
+      const myCircle_ = mkNode([x0, y0]) // fixed left
+      const myCircle__ = mkNode([x0, y0]) // fixed right
+      myCircle__.position.set(x, y)
+      myCircle_.position.set(x + dx, y)
+      myCircle_.tint = myCircle__.tint = tr(s.fgc)
+      myCircle4.x = s.bPos === 0 ? x + dx / 2 : s.bPos === 1 ? x * 0.5 : x + dx * 1.05
     }
 
     const theCircle = mkNode([x0, s.lemniscate ? y / 2 : y0]) // moving white circle to which the flakes go
+    const myCircle2 = mkNode(undefined, 1, 0xffff00) // lateral (sinus), right (lemniscate)
+    const myCircle3 = mkNode(undefined, 1, 0x00ff00) // center (sinus), left (lemniscate)
 
     const co = new PIXI.Container()
     app.stage.addChild(co)
     co.addChild(myLine)
-    co.addChild(myCircle)
-    co.addChild(myCircle4)
-    myCircle.position.set(...(s.lemniscate ? c : [-x, -y]))
-    if (!s.lemniscate) {
-      myCircle__.position.set(x, y)
-      myCircle_.position.set(x + dx, y)
-      myCircle_.tint = myCircle__.tint = tr(s.fgc)
-    }
+    co.addChild(myCircle4) // breathing cue
 
     theCircle.tint = myLine.tint = tr(s.fgc)
     myCircle2.tint = tr(s.lcc)
     myCircle3.tint = tr(s.ccc)
     myCircle4.tint = tr(s.bcc)
-    if (s.lemniscate) {
-      myCircle4.x = s.bPos === 0 ? x : s.bPos === 1 ? (x - a) / 2 : x + a + (x - a) / 2
-    } else {
-      myCircle4.x = s.bPos === 0 ? x + dx / 2 : s.bPos === 1 ? x * 0.5 : x + dx * 1.05
-    }
-    console.log(s, 'SET')
     app.renderer.backgroundColor = tr(s.bgc)
+
     const synth = maestro.mkOsc(0, -400, -1, 'sine')
     const synthR = maestro.mkOsc(0, -400, 1, 'sine')
     const mul = new t.Multiply(s.ma)
-    const mod_ = maestro.mkOsc(1 / s.mp0, 0, 0, 'sine', true).connect(mul)
-    const addL = new t.Add(s.fl)
-    const addR = new t.Add(s.fr)
-    mul.connect(addL)
-    mul.connect(addR)
-    addL.connect(synth.frequency)
-    addR.connect(synthR.frequency)
-    window.sss = { synth, synthR }
-
     const met2 = new t.DCMeter()
-    mod_.connect(met2)
+    const mod_ = maestro.mkOsc(1 / s.mp0, 0, 0, 'sine', true).fan(met2, mul)
+    mul.chain(new t.Add(s.fl), synth.frequency)
+    mul.chain(new t.Add(s.fr), synthR.frequency)
 
     const pOsc = parseInt(s.panOsc)
     if (pOsc === 1 || pOsc === 2) { // sinusoid pan oscillation
@@ -220,31 +191,23 @@ e.meditation = mid => {
     } else if (pOsc === 3) { // envelope pan oscillation
       console.log('GOING OK')
       // 1s transition, thus period > 1s
-      const sub1 = new t.Add(-1)
-      const mul = new t.Multiply(2).connect(sub1)
       const env = new t.Envelope({
         attack: 1,
         decay: 0.01,
         sustain: 1,
         release: 1
-      }).connect(mul)
-      const sub1_ = new t.Negate()
-      sub1.connect(sub1_)
-      sub1.connect(synth.panner.pan)
-      sub1_.connect(synthR.panner.pan)
+      }).chain(new t.Multiply(2), (new t.Add(-1)).connect(synth.panner.pan), new t.Negate(), synthR.panner.pan)
       const aPer = parseFloat(s.panOscPeriod)
       new t.Loop(time => {
         env.triggerAttackRelease(aPer, time)
       }, aPer * 2).start()
       t.Transport.start()
-      console.log('TTHING', s)
     }
 
     let propx = 1
     let propy = 1
     let rot = Math.random() * 0.1
     const parts = []
-    window.pparts = parts
     let f1 = (n, sx, sy, mag) => {
       n.x += sx / mag + (Math.random() - 0.5) * 5
       n.y += sy / mag + (Math.random() - 0.5) * 5
@@ -259,38 +222,27 @@ e.meditation = mid => {
     let lastdc = 0
     app.ticker.add(() => {
       const dc = met2.getValue()
-      // const intensity = (1 - Math.abs(dc)) * 255
       if (dc - lastdc > 0) { // inhale
-        // mais proximo de 1, mais azul
-        // m1.css('background', `rgba(${intensity}, ${intensity}, 0, ${1 - Math.abs(dc)})`)
+        // mais proximo de 0, mais colorido
         m1.css('opacity', 1 - Math.abs(dc))
         m2.css('opacity', 0)
       } else { // exhale
-        // mais proximo de -1, mais azul
+        // mais proximo de 0, mais colorido
         m2.css('opacity', 1 - Math.abs(dc))
         m1.css('opacity', 0)
-        // m2.css('background', `rgba(${intensity}, ${intensity}, 0, ${1 - Math.abs(dc)})`)
       }
       lastdc = dc
-      // m1.text(met.getValue().toFixed(3))
-      // m2.text(dc.toFixed(3))
       const val = -dc
-      const avalr = Math.asin(val)
-      // const px = (avalr < 0 ? 2 * Math.PI + avalr : avalr) / (2 * Math.PI) * dx + x
-      // const px2 = (Math.PI - avalr) / (2 * Math.PI) * dx + x
+      const avalr = Math.asin(val) // radians in [-pi/2, pi/2]
       if (s.lemniscate) {
         const p = xy(avalr < 0 ? 2 * Math.PI + avalr : avalr)
-        const p2 = xy(Math.PI - avalr)
-
         myCircle2.x = p[0]
         myCircle2.y = myCircle3.y = p[1]
+        myCircle3.x = 2 * c[0] - p[0]
         myCircle4.y = val * a * 0.5 + y
-        myCircle3.x = p2[0]
       } else {
-        // const px = avalr / (2 * Math.PI) * dx + x
         const px = (avalr < 0 ? 2 * Math.PI + avalr : avalr) / (2 * Math.PI) * dx + x
         const px2 = (Math.PI - avalr) / (2 * Math.PI) * dx + x
-
         myCircle2.x = px
         myCircle2.y = myCircle3.y = myCircle4.y = val * dy + y
         myCircle3.x = px2
@@ -327,38 +279,33 @@ e.meditation = mid => {
         }
       }
     })
-    // }, 10)
     return { synth, synthR, mod_ }
   }
 
   const grid = utils.mkGrid(2)
-  $('<div/>').appendTo(grid).text('status:')
-  const countdown = $('<div/>', { id: 'countdown' }).appendTo(grid)
-  grid.css('background', 'grey')
+    .css('background', 'grey')
+    .append($('<div/>').text('status:'))
+  const countdown = $('<div/>').appendTo(grid).html('loading...')
 
   const vonoff = $('<div/>', { id: 'vonoff' }).appendTo(grid).text('Check me!')
-
-  t.Master.mute = true
-  window.ttt = t
-  const conoff = $('<input/>', {
-    type: 'checkbox'
-  }).appendTo(grid).change(function () {
-    if (this.checked) {
-      this.disabled = true
-      t.start()
-      t.Master.mute = true
-      vonoff.text('All set!')
-      grid.css('background', 'green')
-    }
-  })
+  const conoff = $('<input/>', { type: 'checkbox' })
+    .appendTo(grid).change(function () {
+      if (this.checked) {
+        this.disabled = true
+        t.start()
+        t.Master.mute = true
+        vonoff.text('All set!')
+        grid.css('background', 'green')
+      }
+    })
 
   $('<div/>').text('inhale').appendTo(grid)
-  const m1 = $('<div/>', { id: 'meter1' }).appendTo(grid)
+  const m1 = $('<div/>').appendTo(grid)
     .css('background', 'rgb(255,255,0)')
     .css('opacity', 0)
   $('<div/>').text('exhale').appendTo(grid)
-  const m2 = $('<div/>', { id: 'meter2' }).appendTo(grid)
+  const m2 = $('<div/>').appendTo(grid)
     .css('background', 'rgb(255,255,0)')
     .css('opacity', 0)
-  window.mm = { m1, m2 }
+  t.Master.mute = true
 }

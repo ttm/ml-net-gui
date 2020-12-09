@@ -591,6 +591,7 @@ e.mkMed = () => {
       $('#panOsc').val(e.panOsc)
       panOscPeriod.val(e.panOscPeriod ? e.panOscPeriod : '')
       panOscPeriod.attr('disabled', e.panOsc < 2)
+      lemniscate.prop('checked', e.lemniscate || false)
       communionSchedule.prop('checked', e.communionSchedule || false)
     })
   transfer.findAll({ meditation: { $exists: true } }).then(r => {
@@ -736,6 +737,12 @@ e.mkMed = () => {
     .attr('title', 'The color of the moving circle in (or most to) the laterals.')
   const lcc = new J('#lcc', { value: '#FFFF00' })
 
+  $('<span/>').html('lemniscate:').appendTo(grid)
+  const lemniscate = $('<input/>', {
+    type: 'checkbox'
+  }).appendTo(grid)
+    .attr('title', 'Visualization with lemniscate if checked, sinusoid if not checked.')
+
   $('<span/>').html('<a target="_blank" href="?p=communion">communion schedule</a>:').appendTo(grid)
   const communionSchedule = $('<input/>', {
     type: 'checkbox'
@@ -798,6 +805,7 @@ e.mkMed = () => {
       mdict.bcc = bcc.toString()
       mdict.ccc = ccc.toString()
       mdict.lcc = lcc.toString()
+      mdict.lemniscate = lemniscate.prop('checked')
       mdict.communionSchedule = communionSchedule.prop('checked')
       console.log(fl.val())
       if (f(fr.val()) < 4) return

@@ -727,12 +727,12 @@ e.mkMed = () => {
     .attr('title', 'The color of circle that expands when to inhale.')
   const bcc = new J('#bcc', { value: '#4444FF' })
 
-  $('<span/>').html('center circ color:').appendTo(grid)
+  const centerC = $('<span/>').html('center circ color:').appendTo(grid)
   $('<input/>', { id: 'ccc' }).appendTo(grid)
     .attr('title', 'The color of moving circle in (or most to) the middle.')
   const ccc = new J('#ccc', { value: '#00FF00' })
 
-  $('<span/>').html('lateral circ color:').appendTo(grid)
+  const lateralC = $('<span/>').html('lateral circ color:').appendTo(grid)
   $('<input/>', { id: 'lcc' }).appendTo(grid)
     .attr('title', 'The color of the moving circle in (or most to) the laterals.')
   const lcc = new J('#lcc', { value: '#FFFF00' })
@@ -742,6 +742,17 @@ e.mkMed = () => {
     type: 'checkbox'
   }).appendTo(grid)
     .attr('title', 'Visualization with lemniscate if checked, sinusoid if not checked.')
+    .on('change', function () {
+      if (this.checked) {
+        console.log('checked L')
+        centerC.html('left circ color:')
+        lateralC.html('right circ color:')
+      } else {
+        console.log('unchecked L')
+        centerC.html('center circ color:')
+        lateralC.html('lateral circ color:')
+      }
+    })
 
   $('<span/>').html('<a target="_blank" href="?p=communion">communion schedule</a>:').appendTo(grid)
   const communionSchedule = $('<input/>', {

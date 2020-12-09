@@ -131,7 +131,7 @@ e.meditation = mid => {
     const myLine = new PIXI.Graphics()
     const segments = 100
     if (s.lemniscate) {
-      myCircle4.x = s.bPos === 0 ? x : s.bPos === 1 ? (x - a) / 2 : x + a + (x - a) / 2
+      myCircle4.x = s.bPos === 0 ? c[0] : s.bPos === 1 ? (c[0] - a) / 2 : (3 * c[0] + a) / 2
       myLine.lineStyle(1, 0xffffff)
         .moveTo(...xy(0))
       const segments = 100

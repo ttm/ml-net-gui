@@ -11,14 +11,7 @@ window.wand = {
 const page = wand.router.urlArgument('p')
 if (page !== null) wand.test[wand.router.urlArgument('p')]()
 
-// const meditation = wand.router.urlArgument('m') // identificator created in the dedicated page
-// // if (meditation !== null) wand.test.atry(meditation)
-// if (meditation !== null) {
-//   wand.test.atry2(meditation)
-// }
-
-const meditation2 = wand.router.urlArgument('m')
-if (meditation2 !== null) wand.med.model5(meditation2)
-// if (meditation2 !== null) wand.med.model3(meditation2)
+const meditation = wand.router.urlArgument('m')
+if (meditation !== null) wand.med.model(meditation)
 
 wand.router.mkFooter()

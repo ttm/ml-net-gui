@@ -587,8 +587,9 @@ e.mkMed = () => {
       ccc.fromString(e.ccc)
       lcc.fromString(e.lcc)
       if (e.panOsc === undefined) e.panOsc = '0'
-      // $(`#panOsc option[value=${e.panOsc}]`).attr('selected', 'selected')
       $('#panOsc').val(e.panOsc)
+      $('#waveformL').val(e.waveformL || 'sine')
+      $('#waveformR').val(e.waveformR || 'sine')
       panOscPeriod.val(e.panOscPeriod ? e.panOscPeriod : '')
       panOscPeriod.attr('disabled', e.panOsc < 2)
       lemniscate.prop('checked', e.lemniscate || false)
@@ -632,11 +633,25 @@ e.mkMed = () => {
   }).appendTo(grid)
     .attr('title', 'Frequency on the left channel.')
 
+  $('<span/>').html('waveform left:').appendTo(grid)
+  const waveformL = $('<select/>', { id: 'waveformL' }).appendTo(grid)
+    .append($('<option/>').val('sine').html('sine'))
+    .append($('<option/>').val('square').html('square'))
+    .append($('<option/>').val('sawtooth').html('sawtooth'))
+    .append($('<option/>').val('triangle').html('triangle'))
+
   $('<span/>').html('freq right:').appendTo(grid)
   const fr = $('<input/>', {
     placeholder: 'freq in Herz'
   }).appendTo(grid)
     .attr('title', 'Frequency on the right channel.')
+
+  $('<span/>').html('waveform right:').appendTo(grid)
+  const waveformR = $('<select/>', { id: 'waveformR' }).appendTo(grid)
+    .append($('<option/>').val('sine').html('sine'))
+    .append($('<option/>').val('square').html('square'))
+    .append($('<option/>').val('sawtooth').html('sawtooth'))
+    .append($('<option/>').val('triangle').html('triangle'))
 
   $('<span/>').html('Martigli amplitude:').appendTo(grid)
   const ma = $('<input/>', {
@@ -783,7 +798,8 @@ e.mkMed = () => {
         }
       }
       mdict.panOsc = panOsc.val()
-      console.log(mdict.panOsc, 'HERE')
+      mdict.waveformL = waveformL.val()
+      mdict.waveformR = waveformR.val()
       if (mdict.panOsc > 1) {
         const oPeriod = f(panOscPeriod.val())
         if (isNaN(oPeriod)) {
@@ -791,7 +807,6 @@ e.mkMed = () => {
           return
         }
         mdict.panOscPeriod = oPeriod
-        console.log(mdict.panOsc, mdict.oPeriod)
       }
       console.log(mdict, 'MDICT')
       mdict.dateTime = mfp.selectedDates[0]

@@ -22,8 +22,15 @@ e.meditation = mid => {
   //    concentrate
   //    you can close your eyes if you wish
   //    breath with the vertical position of the circles and the expansion of the circle to the (right, left, center, check bPos index)
-  // waveforms for LR
   transfer.findAny({ meditation: mid }).then(s => {
+    evocation.on('click', () => {
+      $('#myModal').css('display', 'block')
+      $('#mcontent').text(`
+      I, <your name>, will start my mentalization soon (or am mentalizing),
+      and will concentrate for a total of ${s.d} seconds
+      using binaural frequencies ${s.fl} and ${s.fr}, waveforms ${s.waveformL} and ${s.waveformR}, and respiration cycles taking from ${s.mp0} to ${s.mp1} seconds.
+      `)
+    })
     if (s === null) {
       grid.css('background', 'red')
       countdown.text("don't exist")
@@ -42,7 +49,7 @@ e.meditation = mid => {
     setCountdown(duration, fun1, undefined, 'countdown to start: ')
     function fun1 () { // to start the med
       if (!conoff.prop('checked')) {
-        grid.css('background', 'blue')
+        grid.css('background', 'lightblue')
         conoff.prop('disabled', true)
         return
       }
@@ -60,7 +67,7 @@ e.meditation = mid => {
       synth.volume.rampTo(-400, 10)
       synthR.volume.rampTo(-400, 10)
     }
-    grid.css('background', 'yellow')
+    grid.css('background', '#ffffaa')
   })
   function setCountdown (duration, fun, args, countdownText) { // duration in seconds
     const targetTime = (new Date()).getTime() / 1000 + duration
@@ -168,10 +175,10 @@ e.meditation = mid => {
     app.renderer.backgroundColor = tr(s.bgc)
 
     const synth = maestro.mkOsc(0, -400, -1, 'sine')
-    const synthR = maestro.mkOsc(0, -400, 1, 'sine')
+    const synthR = maestro.mkOsc(0, -400, 1, s.waveformR || 'sine')
     const mul = new t.Multiply(s.ma)
     const met2 = new t.DCMeter()
-    const mod_ = maestro.mkOsc(1 / s.mp0, 0, 0, 'sine', true).fan(met2, mul)
+    const mod_ = maestro.mkOsc(1 / s.mp0, 0, 0, s.waveformL || 'sine', true).fan(met2, mul)
     mul.chain(new t.Add(s.fl), synth.frequency)
     mul.chain(new t.Add(s.fr), synthR.frequency)
 
@@ -189,7 +196,6 @@ e.meditation = mid => {
       mul1.connect(synth.panner.pan)
       neg.connect(synthR.panner.pan)
     } else if (pOsc === 3) { // envelope pan oscillation
-      console.log('GOING OK')
       // 1s transition, thus period > 1s
       const env = new t.Envelope({
         attack: 1,
@@ -295,7 +301,7 @@ e.meditation = mid => {
         t.start()
         t.Master.mute = true
         vonoff.text('All set!')
-        grid.css('background', 'green')
+        grid.css('background', 'lightgreen')
       }
     })
 
@@ -308,4 +314,29 @@ e.meditation = mid => {
     .css('background', 'rgb(255,255,0)')
     .css('opacity', 0)
   t.Master.mute = true
+  const evocation = $('<button/>').html('Evocation').appendTo(grid)
+  $('<button/>').html('Guidance').appendTo(grid)
+    .on('click', () => {
+      $('#myModal').css('display', 'block')
+      $('#mcontent').html(`
+      Some considerations for you to have a nice experience:
+  adjust the volume of headphones and the screen luminosity; concentrate; close your eyes whenever you wish; breath with the vertical position of the oval or circular cue that dont change horizontal position and expands and contracts.
+      `)
+    })
+
+  $('<div/>', { id: 'myModal', class: 'modal' }).appendTo('body')
+    .append($('<div/>', { class: 'modal-content' })
+      .append($('<span/>', { class: 'close' }).html('&times;')
+        .on('click', () => {
+          $('#myModal').css('display', 'none')
+        })
+      )
+      .append($('<p/>', { id: 'mcontent' }))
+    )
+  window.mmm = $('#myModal')
+  window.onclick = function (event) {
+    if (event.target === $('#myModal')[0]) {
+      $('#myModal').css('display', 'none')
+    }
+  }
 }

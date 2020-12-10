@@ -1,8 +1,11 @@
 const e = module.exports
 const $ = require('jquery')
 
+let count = 0
 e.mkGrid = (cols, el, w, bgc) => {
   return $('<div/>', {
+    class: 'mgrid',
+    id: `mgrid-${count++}`,
     css: {
       display: 'grid',
       'grid-template-columns': Array(cols).fill('auto').join(' '),

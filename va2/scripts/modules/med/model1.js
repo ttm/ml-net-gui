@@ -26,16 +26,20 @@ e.meditation = mid => {
     evocation.on('click', () => {
       $('#myModal').css('display', 'block')
       $('#mcontent').html(`
-      <h2>Evocation</h2>
+      <h2>Evocation <button onclick="wand.$('#techdiv').toggle()" id="techBtn">tech</button></h2>
       I, [your name], will start my mentalization soon (or am mentalizing),
-      and will concentrate for a total of ${s.d} seconds<br>
-      using binaural frequencies ${s.fl} and ${s.fr} in the waveforms ${s.waveformL} and ${s.waveformR},<br>
-      and respiration cycles taking from ${s.mp0} to ${s.mp1} seconds.<br><br>
+      and will concentrate for a total of ${s.d} seconds on the theme "${s.meditation.replaceAll('_', '')}".<br><br>
+      <span id="techdiv">I'll be using binaural frequencies ${s.fl} and ${s.fr} in the waveforms
+      ${s.waveformL} and ${s.waveformR},<br>
+      and respiration cycles from ${s.mp0} to ${s.mp1} seconds in a transition of ${s.md} seconds.<br>
+      Respiration represented with oscillations of ${s.ma} Herz in the binaural frequencies.
+      <br><br></span>
       I ask [name of one or more entitites you worship or admire],<br>
       and my ally and akin essences,<br>
-      for your company company and conduction.
+      for your company and conduction.
       <br><br><br>:::
       `)
+      $('#techBtn').click()
     })
     if (s === null) {
       grid.css('background', 'red')
@@ -191,11 +195,11 @@ e.meditation = mid => {
     myCircle4.tint = tr(s.bcc)
     app.renderer.backgroundColor = tr(s.bgc)
 
-    const synth = maestro.mkOsc(0, -400, -1, 'sine')
+    const synth = maestro.mkOsc(0, -400, -1, s.waveformL || 'sine')
     const synthR = maestro.mkOsc(0, -400, 1, s.waveformR || 'sine')
     const mul = new t.Multiply(s.ma)
     const met2 = new t.DCMeter()
-    const mod_ = maestro.mkOsc(1 / s.mp0, 0, 0, s.waveformL || 'sine', true).fan(met2, mul)
+    const mod_ = maestro.mkOsc(1 / s.mp0, 0, 0, 'sine', true).fan(met2, mul)
     mul.chain(new t.Add(s.fl), synth.frequency)
     mul.chain(new t.Add(s.fr), synthR.frequency)
 
@@ -328,7 +332,6 @@ e.meditation = mid => {
     .css('opacity', 0)
   $('<div/>').text('exhale').appendTo(grid)
   const m2 = $('<div/>').appendTo(grid)
-    .css('background', 'rgb(255,255,0)')
     .css('opacity', 0)
   t.Master.mute = true
 
@@ -352,6 +355,8 @@ e.meditation = mid => {
     e.style.backgroundColor = `rgba(255,255,255,${Math.floor(i / 2) % 2 === 1 ? 0.3 : 0})`
     e.style.padding = '1%'
   })
+  m1.css('background', 'rgb(255,255,0)')
+  m2.css('background', 'rgb(255,255,0)')
   const evocation = $('<button/>', {
     css: {
       'margin-left': '5%',
@@ -362,7 +367,7 @@ e.meditation = mid => {
   const gitems = [
     'adjust the volume of headphones and the screen luminosity;',
     'concentrate; close your eyes whenever you wish;',
-    'breath with the vertical position of the oval or circular visual cue that don\'t change horizontal position and expands and contracts;',
+    'breath with the vertical position of the oval or circular visual cue that don\'t change horizontal position and that expands and contracts;',
     'such breathing cycles are also represented in the status and help colored section, at the bottom of the page;',
     'repeat the concentration a number of times so you develop the means to better perform;',
     'read the evocation message and adapt it to your repertoire;',

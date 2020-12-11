@@ -593,6 +593,8 @@ e.mkMed = () => {
       panOscPeriod.val(e.panOscPeriod ? e.panOscPeriod : '')
       panOscPeriod.attr('disabled', e.panOsc < 2)
       lemniscate.prop('checked', e.lemniscate || false)
+      centerC.html(e.lemniscate ? 'left circ color:' : 'center circ color:')
+      lateralC.html(e.lemniscate ? 'right circ color:' : 'lateral circ color:')
       communionSchedule.prop('checked', e.communionSchedule || false)
     })
   transfer.findAll({ meditation: { $exists: true } }).then(r => {

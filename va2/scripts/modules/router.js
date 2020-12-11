@@ -45,4 +45,9 @@ e.mkFooter = () => {
       float: 'left'
     }
   }).html('support this initiative').appendTo(ft)
+  wand.$('body', {
+    css: {
+      'background-color': '#dddddd'
+    }
+  })
 }

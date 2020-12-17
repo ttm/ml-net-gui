@@ -1862,49 +1862,35 @@ e.tgui = () => {
 const link = (text, path) => {
   const ua = window.wand.router.urlArgument
   const lflag = ua('lang') ? `&lang=${ua('lang')}` : ''
-  return `<a href="?page=${path + lflag}">${text}</a>`
+  return `<a href="?${path + lflag}">${text}</a>`
 }
 
 e.angel = () => {
-  const paragraphs = [
-    `Please contribute to Our Aquarium (OA). You can find many suggestions for addind to OA in the ${link('contributing page', 'contribute')}.
-    `,
-    `
-    This page is dedicated to monetary donations. Any amount may be transfered. We currently provide the following ways for you to accomplish a donation:
-    `
-  ].reduce((a, t) => a + `<p>${t}</p>`, '')
-
   const items = [
-    `Donate through ${link('Paypal', 'donatePaypal')}.`,
-    `Donate through ${link('Pagseguro', 'donatePagseguro')}.`,
-    `Donate using ${link('Bitcoin', 'donateBitcoin')}.`,
-    'Write us at <a href="mailto:sync.aquarium@gmail.com" target="_blank"> sync <ADOT> aquarium <AT> gmail <ANOTHERDOR> com</a> to transfer into an online account or donate through any other means.'
+    `the ${link('Paypal inlet', 'paypal')}; or`,
+    `the ${link('Pagseguro inlet', 'pagseguro')}; or`,
+    `the ${link('Bitcoin inlet', 'bitcoin')}.`
   ].reduce((a, t) => a + `<li>${t}</li>`, '')
 
-  $('<div/>', {
-    css: {
-      width: '50%',
-      margin: '2% 10%',
-      background: '#6DC2E1',
-      padding: '2%',
-      border: 'solid green 5px'
-    }
-  }).html(`
-  <h2>Donate to Our Aquarium</h2>
-
-  ${paragraphs}
+  utils.stdDiv().html(`
+  <h2>Aid <b>Æeterni Anima</b></h2>
+  <p>
+  Please send us feedback on your experience with <b>Æeterni</b> and ideas for enhancements or derivatives, join the coordination, creation and tech tasks, donate through:
+  </p>
 
   ${items}
-
-<br/>
-    <p>
-    We want to include other e-coins, such as Ethereum, but we have not managed to get into them.
-    If you wish to help us in including them, please write us.
-    </p>
-
-    <p>Please donate so <b>Our Aquarium</b> receives further developments and online instances.</p>
-    <br/>
-:::
+  <br/>
+  <p>
+  Write us for a direct bank transfer,
+  to help us include other e-coins such as Ethereum,
+  and whatnot.
+  </p>
+  <p>
+  Get in touch through <a href="mailto:aeterni.anima@gmail.com" target="_blank">our email</a>.
+  </p>
+  <p>
+  Thank you.
+  </p>
     `
   ).appendTo('body')
   $('canvas').hide()
@@ -1912,12 +1898,39 @@ e.angel = () => {
 }
 
 e.welcome = () => {
-  console.log('welcome')
+  utils.stdDiv().html(`
+  <h2>Welcome</h2>
+
+  <p>
+  We are glad you are taking time to visit this site.
+  </p>
+  <p>
+  Please visit the links below to enjoy and reinforce the
+  <b>Æterni</b> initiatives.
+  </p>
+  <p>
+  They are fostered to be useful to each individual, group and the Cosmos.
+  </p>
+
+  `)
   $('#loading').hide()
 }
 
 e.about = () => {
-  console.log('HEAY')
+  utils.stdDiv().html(`
+  <h2>About</h2>
+
+  <p>
+  <b>Æterni Anima</b> started in December 2020 to boost longevity and advance the dawning of human immortality.
+  </p>
+  <p>
+  Previous efforts are being consolidated herein:
+  <ul>
+  <li>audiovisual artifacts for mentalization / meditation / manifestation;</li>
+  <li>social coordination mechanisms;</li>
+  <li>press (text publisher).</li>
+  </p>
+  `)
   $('#loading').hide()
 }
 
@@ -1945,5 +1958,74 @@ e.monk = () => {
     }
   }).appendTo(adiv)
   const div = $('<div/>').appendTo(adiv)
+  $('#loading').hide()
+}
+
+e.paypal = () => {
+  utils.stdDiv().html(`
+  <h2>Donate using Paypal</h2>
+
+  <p>
+  To transfer any amount, click on the following image:
+  <form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top">
+    <input type="hidden" name="cmd" value="_donations" />
+    <input type="hidden" name="business" value="CWRTXTJF9C3N6" />
+    <input type="hidden" name="currency_code" value="BRL" />
+    <input type="image" src="https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif" border="0" name="submit" title="PayPal - The safer, easier way to pay online!" alt="Donate with PayPal button" />
+    <img alt="" border="0" src="https://www.paypal.com/pt_BR/i/scr/pixel.gif" width="1" height="1" />
+  </form>
+  </p>
+
+  <p>
+  Or use the following QR code:
+  <p>
+  <img src="assets/donation/qrPaypal.png" alt="QR Code for donating through Paypal">
+  </p>
+  </p>
+
+  <br>
+  `)
+  $('#loading').hide()
+}
+
+e.pagseguro = () => {
+  utils.stdDiv().html(`
+  <h2>Donate using Pagseguro</h2>
+
+  <p>
+  Click on the following image to transfer any amount:
+  <!-- INICIO FORMULARIO BOTAO PAGSEGURO -->
+  <form action="https://pagseguro.uol.com.br/checkout/v2/donation.html" method="post">
+  <!-- NÃO EDITE OS COMANDOS DAS LINHAS ABAIXO -->
+  <input type="hidden" name="currency" value="BRL" />
+  <input type="hidden" name="receiverEmail" value="renato.fabbri@gmail.com" />
+  <input type="hidden" name="iot" value="button" />
+  <input type="image" src="https://stc.pagseguro.uol.com.br/public/img/botoes/doacoes/209x48-doar-assina.gif" name="submit" alt="Pague com PagSeguro - é rápido, grátis e seguro!" />
+  </form>
+  <!-- FINAL FORMULARIO BOTAO PAGSEGURO -->
+  </p>
+
+  <br>
+  `)
+  $('#loading').hide()
+}
+
+e.bitcoin = () => {
+  utils.stdDiv().html(`
+  <h2>Donate using Bitcoins</h2>
+
+  <p>Transfer any amount of bitcoins to the wallet in the address:
+  <b>bc1qjw72xa6c8c924j8aj8y737q56let8envx4j0xd</b>
+  </p>
+
+  <p>
+  <p>
+  Or use the QR Code:
+  </p>
+  <img src="assets/donation/qrBitcoin.png" alt="QR Code for donating using the Bitcoin Wallet">
+  </p>
+
+  <br>
+  `)
   $('#loading').hide()
 }

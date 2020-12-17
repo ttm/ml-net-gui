@@ -23,6 +23,20 @@ e.gridDivider = (r, g, b, grid) => {
   $('<div/>', { css: { 'background-color': `rgba(${r},${g},${b},0)`, color: 'rgba(0,0,0,0)', height: '3px' } }).appendTo(grid).text('--')
 }
 
+e.stdDiv = () => e.centerDiv(undefined, undefined, e.chooseUnique(['#eeeeff', '#eeffee', '#ffeeee'], 1)[0], 3, 2)
+
+e.centerDiv = (width, container, color, margin, padding) => {
+  return $('<div/>', {
+    css: {
+      'background-color': color || '#c2F6c3',
+      margin: `${d(margin, 0)}% auto`,
+      padding: `${d(padding, 1)}%`,
+      width: d(width, '50%'),
+      'border-radius': '5%'
+    }
+  }).appendTo(container || 'body')
+}
+
 e.chooseUnique = (marray, nelements) => {
   let i = marray.length
   marray = [...marray]
@@ -51,4 +65,4 @@ e.chunkArray = (array, chunkSize) => {
   return results
 }
 
-e.defaultArg = (arg, def) => arg === undefined ? def : arg
+const d = e.defaultArg = (arg, def) => arg === undefined ? def : arg

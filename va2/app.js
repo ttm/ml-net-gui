@@ -1,9 +1,9 @@
 const http = require('http')
 const path = require('path')
 const fs = require('fs')
-
 http.createServer(function (req, res) {
-  const filePath = req.url.includes('.html') || req.url.includes('?p=') || req.url.includes('?m=') || req.url.includes('?mm=') ? './index.html' : '.' + req.url
+  const url = 'http://localhost:8080' + req.url // this is ok because framework is to work without the server
+  const filePath = new URL(url).pathname === '/' ? './index.html' : '.' + req.url
   const extname = req.url.includes('.html') ? '.html' : String(path.extname(filePath)).toLowerCase()
   const mimeTypes = {
     '.html': 'text/html',
@@ -15,6 +15,7 @@ http.createServer(function (req, res) {
     '.gif': 'image/gif',
     '.svg': 'image/svg+xml',
     '.wav': 'audio/wav',
+    '.mp3': 'audio/mpeg',
     '.mp4': 'video/mp4',
     '.woff': 'application/font-woff',
     '.ttf': 'application/font-ttf',

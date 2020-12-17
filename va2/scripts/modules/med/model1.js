@@ -10,18 +10,6 @@ const e = module.exports
 const tr = PIXI.utils.string2hex
 
 e.meditation = mid => {
-  // todo:
-  // put a field for a message, prayer or so.
-  //   templates:
-  //      Eu <nome> inicio minha mentalizacao.... Frequencias X Y... etc.
-  //      Peço a companhia de Jesus, dos mestres iluminados, de meus espíritos aliados e esíritos afins, ...(quaisquer eixos de devoção pessoal)..., para que minha fé seja fortalecida e minhas orações escutadas.
-  // a help icon:
-  //  when hover, show some guidance:
-  //    change volume of headphones
-  //    change screen luminosity
-  //    concentrate
-  //    you can close your eyes if you wish
-  //    breath with the vertical position of the circles and the expansion of the circle to the (right, left, center, check bPos index)
   transfer.findAny({ meditation: mid }).then(s => {
     evocation.on('click', () => {
       $('#myModal').css('display', 'block')
@@ -29,10 +17,10 @@ e.meditation = mid => {
       <h2>Evocation <button onclick="wand.$('#techdiv').toggle()" id="techBtn">tech</button></h2>
       I, [your name], will start my mentalization soon (or am mentalizing),
       and will concentrate for a total of ${s.d} seconds on the theme "${s.meditation.replaceAll('_', '')}".<br><br>
-      <span id="techdiv">I'll be using binaural frequencies ${s.fl} and ${s.fr} in the waveforms
+      <span id="techdiv">I'll be using binaural frequencies ${s.fl} and ${s.fr} Hertz in the waveforms
       ${s.waveformL} and ${s.waveformR},<br>
       and respiration cycles from ${s.mp0} to ${s.mp1} seconds in a transition of ${s.md} seconds.<br>
-      Respiration represented with oscillations of ${s.ma} Herz in the binaural frequencies.
+      The respiration represented with oscillations of ${s.ma} Herz in the binaural frequencies.
       <br><br></span>
       I ask [name of one or more entitites you worship or admire],<br>
       and my ally and akin essences,<br>
@@ -42,7 +30,7 @@ e.meditation = mid => {
       $('#techBtn').click()
     })
     if (s === null) {
-      grid.css('background', 'red')
+      grid.css('background', '#ffaaaa')
       countdown.text("don't exist")
       conoff.attr('disabled', true)
       vonoff.text('-----')
@@ -57,17 +45,23 @@ e.meditation = mid => {
       conoff.attr('checked', true).attr('disabled', true)
       console.log(duration, s.d)
       if (-duration < s.d) { // ongoing
-        countdown.text('ongoing')
-        vonoff.text('participants have to join the session before it starts.')
+        vonoff.text('join a session before it starts.')
         // start timer for s.d - duration
-        setCountdown(s.d + duration, caseConcluded, undefined, 'countdown to conclude: ')
+        setCountdown(s.d + duration, caseConcluded, undefined, 'ongoing; countdown to conclude: ')
       } else { // finished
         caseConcluded()
       }
-      grid.css('background', '#bbaaff')
+      grid.css('background', '#ddddff')
     }
     if (duration < 0) {
       return caseOnOrConcluded()
+    }
+    console.log(s, 'SETTIGNS')
+    let sampler
+    if (s.soundSample > 0) {
+      sampler = new t.Player(`assets/audio/${maestro.sounds[s.soundSample].name}.mp3`).toDestination()
+      sampler.volume.value = parseFloat(s.soundSampleVolume)
+      sampler.loop = s.soundSamplePeriod === 0
     }
     setCountdown(duration, fun1, undefined, 'countdown to start: ')
     function fun1 () { // to start the med
@@ -76,6 +70,18 @@ e.meditation = mid => {
       }
       const { synth, synthR, mod_ } = setSounds(s)
       t.Master.mute = false
+      if (s.vcontrol) tgui(synth, synthR, sampler)
+      if (s.soundSample > 0) {
+        setTimeout(() => {
+          if (sampler.loop) {
+            sampler.start()
+          } else {
+            new t.Loop(time => {
+              sampler.start()
+            }, s.soundSamplePeriod).start()
+          }
+        }, (s.soundSampleStart || 0) * 1000)
+      }
       synth.volume.rampTo(-40, 1)
       synthR.volume.rampTo(-40, 1)
       mod_.frequency.rampTo(1 / s.mp1, s.md)
@@ -89,6 +95,7 @@ e.meditation = mid => {
       synthR.volume.rampTo(-400, 10)
     }
     grid.css('background', '#ffffaa')
+    $('#loading').hide()
   })
   function setCountdown (duration, fun, args, countdownText) { // duration in seconds
     const targetTime = (new Date()).getTime() / 1000 + duration
@@ -218,11 +225,15 @@ e.meditation = mid => {
       neg.connect(synthR.panner.pan)
     } else if (pOsc === 3) { // envelope pan oscillation
       // 1s transition, thus period > 1s
+      let oTrans = parseFloat(s.panOscTrans)
+      oTrans = oTrans === undefined ? 1 : oTrans
       const env = new t.Envelope({
-        attack: 1,
+        attack: oTrans,
         decay: 0.01,
         sustain: 1,
-        release: 1
+        release: oTrans,
+        attackCurve: 'linear',
+        releaseCurve: 'linear'
       }).chain(new t.Multiply(2), (new t.Add(-1)).connect(synth.panner.pan), new t.Negate(), synthR.panner.pan)
       const aPer = parseFloat(s.panOscPeriod)
       new t.Loop(time => {
@@ -365,9 +376,11 @@ e.meditation = mid => {
     }
   }).html('Evocation').appendTo(grid)
   const gitems = [
-    'adjust the volume of headphones and the screen luminosity;',
-    'concentrate; close your eyes whenever you wish;',
+    'use headphones whenever possible;',
     'breath with the vertical position of the oval or circular visual cue that don\'t change horizontal position and that expands and contracts;',
+    'adjust the sound volume and the screen luminosity;',
+    'concentrate;',
+    'close your eyes whenever you wish;',
     'such breathing cycles are also represented in the status and help colored section, at the bottom of the page;',
     'repeat the concentration a number of times so you develop the means to better perform;',
     'read the evocation message and adapt it to your repertoire;',
@@ -391,4 +404,42 @@ e.meditation = mid => {
       <br><br><br>:::
       `)
     })
+}
+
+function tgui (synth, synthR, sampler) {
+  console.log(synth, synthR, 'HEREEE')
+  const dat = require('dat.gui')
+  const gui = new dat.GUI({ closed: true, closeOnTop: true })
+  const binaural = gui.add({ binaural: 50 }, 'binaural', 0, 100).listen()
+  let masterV = 0
+  const syInitV = -40
+  binaural.onChange(v => {
+    const aval = v - 50 + masterV + syInitV
+    synthR.volume.rampTo(aval, 0.1)
+    synth.volume.rampTo(aval, 0.1)
+  })
+  if (sampler) {
+    const sInitV = sampler.volume.value
+    const sample = gui.add({ sample: 50 }, 'sample', 0, 100).listen()
+    sample.onChange(v => {
+      sampler.volume.value = v - 50 + masterV + sInitV
+    })
+    const master = gui.add({ master: 50 }, 'master', 0, 100).listen()
+    master.onChange(v => {
+      masterV = v - 50
+      sampler.volume.value = v - 50 + masterV + sInitV
+      const aval = v - 50 + masterV + syInitV
+      console.log(aval, 'AVAL')
+      synthR.volume.rampTo(aval, 0.1)
+      synth.volume.rampTo(aval, 0.1)
+    })
+  }
+  window.agui = gui
+  $('.close-top').text('Open Volume Controls')
+  let i = 0
+  $('.close-top').click(function () {
+    console.log(this, 'yeah2')
+    this.textContent = `${i++ % 2 === 0 ? 'Close' : 'Open'} Volume Controls`
+    window.ttt = this
+  })
 }

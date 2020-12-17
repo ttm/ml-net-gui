@@ -11,3 +11,9 @@ e.mkOsc = (freq, vol, pan, type, noConnect) => {
   synth.panner = panner
   return synth
 }
+
+e.sounds = [
+  ['aloop', 38],
+  ['ocean1', 65],
+  ['boom', 1.5]
+].map(i => { return { name: i[0], duration: i[1] } })

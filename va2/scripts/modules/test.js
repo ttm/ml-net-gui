@@ -5,6 +5,7 @@ const t = require('tone')
 const $ = require('jquery')
 
 const m = require('./med')
+const monk = require('./monk')
 const maestro = require('./maestro.js')
 const net = require('./net.js')
 const utils = require('./utils.js')
@@ -12,6 +13,7 @@ const transfer = require('./transfer.js')
 const u = require('./router.js').urlArgument
 
 const e = module.exports
+const a = utils.defaultArg
 
 e.rtest = () => console.log('router working!')
 e.ttest = () => {
@@ -542,11 +544,6 @@ e.particles2 = () => {
 }
 
 e.mkMed = () => {
-  // define:
-  // id (any string without points), date and time,
-  // freq1, freq2, mod freq1-2 and duration transition and depth
-  // and total duration
-  // save to mongo
   $('<link/>', {
     rel: 'stylesheet',
     href: 'https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css'
@@ -554,6 +551,7 @@ e.mkMed = () => {
   const flatpickr = require('flatpickr')
 
   const grid = utils.mkGrid(2)
+  const gd = () => utils.gridDivider(0, 160, 0, grid)
 
   const s = $('<select/>', { id: 'mselect' }).appendTo(grid)
     .append($('<option/>').val(-1).html('~ creating ~'))
@@ -586,21 +584,36 @@ e.mkMed = () => {
       bcc.fromString(e.bcc)
       ccc.fromString(e.ccc)
       lcc.fromString(e.lcc)
-      if (e.panOsc === undefined) e.panOsc = '0'
-      $('#panOsc').val(e.panOsc)
       $('#waveformL').val(e.waveformL || 'sine')
       $('#waveformR').val(e.waveformR || 'sine')
-      panOscPeriod.val(e.panOscPeriod ? e.panOscPeriod : '')
+      if (e.panOsc === undefined) e.panOsc = '0'
+      $('#panOsc').val(e.panOsc)
+      panOscPeriod.val(a(e.panOscPeriod, ''))
       panOscPeriod.attr('disabled', e.panOsc < 2)
+      panOscTrans.val(a(e.panOscTrans, ''))
+      panOscTrans.attr('disabled', e.panOsc < 3)
+
+      e.soundSample = e.soundSample || -1
+      $('#soundSample').val(e.soundSample)
+      soundSampleVolume.val(a(e.soundSampleVolume, ''))
+      soundSampleVolume.attr('disabled', e.soundSample < 0)
+      soundSamplePeriod.val(a(e.soundSamplePeriod, ''))
+      soundSamplePeriod.attr('disabled', e.soundSample < 0)
+      soundSampleStart.val(a(e.soundSampleStart, ''))
+      soundSampleStart.attr('disabled', e.soundSample < 0)
+
       lemniscate.prop('checked', e.lemniscate || false)
+      vcontrol.prop('checked', e.vcontrol || false)
+      communionSchedule.prop('checked', e.communionSchedule || false)
+
       centerC.html(e.lemniscate ? 'left circ color:' : 'center circ color:')
       lateralC.html(e.lemniscate ? 'right circ color:' : 'lateral circ color:')
-      communionSchedule.prop('checked', e.communionSchedule || false)
     })
   transfer.findAll({ meditation: { $exists: true } }).then(r => {
     window.allthem2 = r
     r.forEach((i, ii) => {
       s.append($('<option/>', { class: 'pres' }).val(ii).html(i.meditation))
+      $('#loading').hide()
     })
   })
   window.ass = s
@@ -612,6 +625,11 @@ e.mkMed = () => {
       transfer.remove({ meditation: window.allthem2[oind].meditation })
       moption.remove()
       window.allthem2.splice(oind, 1)
+      obutton.attr('disabled', true).html('Open')
+      $('.pres').remove()
+      window.allthem2.forEach((i, ii) => {
+        s.append($('<option/>', { class: 'pres' }).val(ii).html(i.meditation))
+      })
     })
     .attr('title', 'Delete the meditation loaded in the dropdown menu.')
   $('<span/>').html('id:').appendTo(grid)
@@ -628,6 +646,14 @@ e.mkMed = () => {
   const mfp = flatpickr(adiv, {
     enableTime: true
   })
+
+  $('<span/>').html('total duration:').appendTo(grid)
+  const d = $('<input/>', {
+    placeholder: 'in seconds (0 if forever)'
+  }).appendTo(grid)
+    .attr('title', 'Duration of the meditation in seconds.')
+
+  gd()
 
   $('<span/>').html('freq left:').appendTo(grid)
   const fl = $('<input/>', {
@@ -655,6 +681,8 @@ e.mkMed = () => {
     .append($('<option/>').val('sawtooth').html('sawtooth'))
     .append($('<option/>').val('triangle').html('triangle'))
 
+  gd()
+
   $('<span/>').html('Martigli amplitude:').appendTo(grid)
   const ma = $('<input/>', {
     placeholder: 'in Herz'
@@ -679,11 +707,7 @@ e.mkMed = () => {
   }).appendTo(grid)
     .attr('title', 'Duration of the transition from the initial to the final Martigli period.')
 
-  $('<span/>').html('total duration:').appendTo(grid)
-  const d = $('<input/>', {
-    placeholder: 'in seconds (0 if forever)'
-  }).appendTo(grid)
-    .attr('title', 'Duration of the meditation in seconds.')
+  gd()
 
   $('<span/>').html('pan oscillation:').appendTo(grid)
   const panOsc = $('<select/>', { id: 'panOsc' }).appendTo(grid)
@@ -695,6 +719,7 @@ e.mkMed = () => {
     .on('change', aself => {
       const ii = aself.currentTarget.value
       panOscPeriod.attr('disabled', ii < 2)
+      panOscTrans.attr('disabled', ii < 3)
     })
 
   $('<span/>').html('pan oscillation period:').appendTo(grid)
@@ -703,6 +728,54 @@ e.mkMed = () => {
   }).appendTo(grid)
     .attr('title', 'Duration of the pan oscillation in seconds.')
     .attr('disabled', true)
+
+  $('<span/>').html('pan oscillation crossfade:').appendTo(grid)
+  const panOscTrans = $('<input/>', {
+    placeholder: 'in seconds'
+  }).appendTo(grid)
+    .attr('title', 'Duration of the pan crossfade (half the pan oscillation period or less).')
+    .attr('disabled', true)
+
+  gd()
+
+  $('<span/>').html('sound sample:').appendTo(grid)
+  const soundSample = $('<select/>', { id: 'soundSample' }).appendTo(grid)
+    .append($('<option/>').val(-1).html('none'))
+    .attr('title', 'Sound sample to be played continuously.')
+    .on('change', aself => {
+      const ii = aself.currentTarget.value
+      soundSampleVolume.attr('disabled', ii < 0)
+      soundSamplePeriod.attr('disabled', ii < 0)
+      soundSampleStart.attr('disabled', ii < 0)
+    })
+
+  maestro.sounds.forEach((s, ii) => {
+    soundSample.append($('<option/>').val(ii).html(`${s.name}, ${s.duration}s`))
+  })
+
+  $('<span/>').html('sample volume:').appendTo(grid)
+  const soundSampleVolume = $('<input/>', {
+    placeholder: 'in decibels',
+    value: '-6'
+  }).appendTo(grid)
+    .attr('title', 'relative volume of the sound sample.')
+    .attr('disabled', true)
+
+  $('<span/>').html('sample repetition period:').appendTo(grid)
+  const soundSamplePeriod = $('<input/>', {
+    placeholder: 'in seconds'
+  }).appendTo(grid)
+    .attr('title', 'period between repetitions of the sound.')
+    .attr('disabled', true)
+
+  $('<span/>').html('sample starting time:').appendTo(grid)
+  const soundSampleStart = $('<input/>', {
+    placeholder: 'in seconds'
+  }).appendTo(grid)
+    .attr('title', 'time for the first incidence of the sound.')
+    .attr('disabled', true)
+
+  gd()
 
   $('<span/>').html('breathing ellipse:').appendTo(grid)
   const ellipse = $('<input/>', {
@@ -721,6 +794,8 @@ e.mkMed = () => {
       bPos.html(posPos[bPos.bindex])
     })
   bPos.bindex = 0
+
+  gd()
 
   $('<span/>').html('rainbow flakes:').appendTo(grid)
   const rainbowFlakes = $('<input/>', {
@@ -754,6 +829,8 @@ e.mkMed = () => {
     .attr('title', 'The color of the moving circle in (or most to) the laterals.')
   const lcc = new J('#lcc', { value: '#FFFF00' })
 
+  gd()
+
   $('<span/>').html('lemniscate:').appendTo(grid)
   const lemniscate = $('<input/>', {
     type: 'checkbox'
@@ -771,7 +848,13 @@ e.mkMed = () => {
       }
     })
 
-  $('<span/>').html('<a target="_blank" href="?p=communion">communion schedule</a>:').appendTo(grid)
+  $('<span/>').html('volume control:').appendTo(grid)
+  const vcontrol = $('<input/>', {
+    type: 'checkbox'
+  }).appendTo(grid)
+    .attr('title', 'Enables volume control widget if checked.')
+
+  $('<span/>').html('<a target="_blank" href="?communion">communion schedule</a>:').appendTo(grid)
   const communionSchedule = $('<input/>', {
     type: 'checkbox'
   }).appendTo(grid)
@@ -799,9 +882,15 @@ e.mkMed = () => {
           return
         }
       }
-      mdict.panOsc = panOsc.val()
+
+      if (mdict.ma > Math.min(mdict.fl, mdict.fr)) {
+        if (!window.confirm('Martigli amplitude is greater than binaural frequencies. Are you shure?')) return
+      }
+
       mdict.waveformL = waveformL.val()
       mdict.waveformR = waveformR.val()
+
+      mdict.panOsc = panOsc.val()
       if (mdict.panOsc > 1) {
         const oPeriod = f(panOscPeriod.val())
         if (isNaN(oPeriod)) {
@@ -809,8 +898,42 @@ e.mkMed = () => {
           return
         }
         mdict.panOscPeriod = oPeriod
+        if (mdict.panOsc === '3') {
+          const oTrans = f(panOscTrans.val())
+          if (isNaN(oTrans)) {
+            window.alert('define the value for the pan crossfade.')
+            return
+          }
+          if (oPeriod < 2 * oTrans) {
+            window.alert('duration of the pan oscillation has to be at least twice that of the pan crossfade:')
+            return
+          }
+          mdict.panOscTrans = oTrans
+        }
       }
-      console.log(mdict, 'MDICT')
+      mdict.soundSample = soundSample.val()
+      if (mdict.soundSample >= 0) {
+        const oVolume = f(soundSampleVolume.val())
+        if (isNaN(oVolume)) {
+          window.alert('define the volume for the sound sample.')
+          return
+        }
+        mdict.soundSampleVolume = oVolume
+        const oPeriod = f(soundSamplePeriod.val())
+        if (isNaN(oPeriod)) {
+          window.alert('define the period for the sample repetition.')
+          return
+        }
+        if (oPeriod !== 0 && oPeriod < maestro.sounds[mdict.soundSample].duration) {
+          window.alert('define a repetition period which is greater than the samples\' duration or 0 (for looping).')
+        }
+        mdict.soundSamplePeriod = oPeriod
+        const oStart = f(soundSampleStart.val())
+        if (isNaN(oStart) || oStart < 0) {
+          window.alert('define a zero or positive starting time for the sample')
+        }
+        mdict.soundSampleStart = oStart
+      }
       mdict.dateTime = mfp.selectedDates[0]
       if (mdict.dateTime === undefined || mdict.dateTime < new Date()) {
         if (!window.confirm('the date has passed. Are you shure?')) return
@@ -833,6 +956,7 @@ e.mkMed = () => {
       mdict.bcc = bcc.toString()
       mdict.ccc = ccc.toString()
       mdict.lcc = lcc.toString()
+      mdict.vcontrol = vcontrol.prop('checked')
       mdict.lemniscate = lemniscate.prop('checked')
       mdict.communionSchedule = communionSchedule.prop('checked')
       console.log(fl.val())
@@ -849,7 +973,7 @@ e.mkMed = () => {
     .attr('title', 'Open URL of the meditation.')
     .click(() => {
       // open url with
-      window.open(`?m=${mdiv.val()}`)
+      window.open(`?_${mdiv.val()}`)
     })
     .appendTo(grid)
     .attr('disabled', true)
@@ -1304,16 +1428,16 @@ e.binauralMeta = () => {
   Examples:
   <ul>
   <li>
-  skull screening: ${linkL('?p=binauralMeta&l=400.1&r=400&o=2&a=200&g=0.01')}
+  skull screening: ${linkL('?binauralMeta&l=400.1&r=400&o=2&a=200&g=0.01')}
   </li>
   <li>
-  skull screening 2: ${linkL('?p=binauralMeta&l=400.2&r=400&o=0.5&a=50&g=0.01')}
+  skull screening 2: ${linkL('?binauralMeta&l=400.2&r=400&o=0.5&a=50&g=0.01')}
   </li>
   <li>
-  concentration sweep: ${linkL('?p=binauralMeta&l=400&r=415&o=0.01&a=200&g=0.01')}
+  concentration sweep: ${linkL('?binauralMeta&l=400&r=415&o=0.01&a=200&g=0.01')}
   </li>
   <li>
-  concentration sweep2: ${linkL('?p=binauralMeta&l=400&r=410&o=0.01&a=200&g=0.01')}
+  concentration sweep2: ${linkL('?binauralMeta&l=400&r=410&o=0.01&a=200&g=0.01')}
   </li>
   <li>
   Alpha (|l - r| in 8-13 Hz).
@@ -1369,7 +1493,7 @@ e.communion = () => {
 
   <p>Join us at <a target="_blank" href="https://meet.google.com/bkr-vzhw-zfc">our video conference</a></a>.</p>
   `)
-  const l = t => `<a href="?m=${t}" target="_blank">${t}</a>`
+  const l = t => `<a href="?_${t}" target="_blank">${t}</a>`
   const grid = utils.mkGrid(2)
   $('<span/>').html('<b>when</b> (GMT-0)').appendTo(grid)
   $('<span/>').html('<b>subject</b>').appendTo(grid)
@@ -1386,6 +1510,7 @@ e.communion = () => {
     })
     $('<span/>').text('December 1st, 6h:').appendTo(grid)
     $('<span/>').html('health (for one\'s self, loved ones,<br>people in need, all humanity)').appendTo(grid)
+    $('#loading').hide()
   })
 }
 
@@ -1690,4 +1815,135 @@ e.accounts = () => {
   }).append('<h2>Partners</h2>')
     .append(grid)
     .appendTo('body')
+}
+
+e.sampler = () => {
+  const player = new t.Player('assets/audio/boom.mp3').toDestination()
+  window.ppp = player
+  // play as soon as the buffer is loaded
+  // player.autostart = true
+  const grid = utils.mkGrid(2)
+  const vonoff = $('<div/>', { id: 'vonoff' }).appendTo(grid).text('Stopped')
+  // t.stop()
+  $('<input/>', {
+    type: 'checkbox'
+  }).appendTo(grid).change(function () {
+    if (this.checked) {
+      t.context.resume()
+      t.start()
+      player.start()
+      t.Master.mute = false
+      vonoff.text('Playing')
+    } else {
+      vonoff.text('Stopped')
+    }
+  })
+}
+
+e.tgui = () => {
+  const dat = require('dat.gui')
+  const gui = new dat.GUI({ name: 'My Banana', closed: true, closeOnTop: true })
+  const master = gui.add({ master: 50 }, 'master', 0, 100).listen()
+  const binaural = gui.add({ binaural: 50 }, 'binaural', 0, 100).listen()
+  const sample = gui.add({ sample: 50 }, 'sample', 0, 100).listen()
+  master.onChange(v => console.log(v, 'CHANGED'))
+  binaural.onChange(v => console.log(v, 'CHANGED'))
+  sample.onChange(v => console.log(v, 'CHANGED'))
+  window.agui = gui
+  $('.close-top').text('Open Volume Controls')
+  let i = 0
+  $('.close-top').click(function () {
+    console.log(this, 'yeah2')
+    this.textContent = `${i++ % 2 === 0 ? 'Close' : 'Open'} Volume Controls`
+    window.ttt = this
+  })
+}
+
+const link = (text, path) => {
+  const ua = window.wand.router.urlArgument
+  const lflag = ua('lang') ? `&lang=${ua('lang')}` : ''
+  return `<a href="?page=${path + lflag}">${text}</a>`
+}
+
+e.angel = () => {
+  const paragraphs = [
+    `Please contribute to Our Aquarium (OA). You can find many suggestions for addind to OA in the ${link('contributing page', 'contribute')}.
+    `,
+    `
+    This page is dedicated to monetary donations. Any amount may be transfered. We currently provide the following ways for you to accomplish a donation:
+    `
+  ].reduce((a, t) => a + `<p>${t}</p>`, '')
+
+  const items = [
+    `Donate through ${link('Paypal', 'donatePaypal')}.`,
+    `Donate through ${link('Pagseguro', 'donatePagseguro')}.`,
+    `Donate using ${link('Bitcoin', 'donateBitcoin')}.`,
+    'Write us at <a href="mailto:sync.aquarium@gmail.com" target="_blank"> sync <ADOT> aquarium <AT> gmail <ANOTHERDOR> com</a> to transfer into an online account or donate through any other means.'
+  ].reduce((a, t) => a + `<li>${t}</li>`, '')
+
+  $('<div/>', {
+    css: {
+      width: '50%',
+      margin: '2% 10%',
+      background: '#6DC2E1',
+      padding: '2%',
+      border: 'solid green 5px'
+    }
+  }).html(`
+  <h2>Donate to Our Aquarium</h2>
+
+  ${paragraphs}
+
+  ${items}
+
+<br/>
+    <p>
+    We want to include other e-coins, such as Ethereum, but we have not managed to get into them.
+    If you wish to help us in including them, please write us.
+    </p>
+
+    <p>Please donate so <b>Our Aquarium</b> receives further developments and online instances.</p>
+    <br/>
+:::
+    `
+  ).appendTo('body')
+  $('canvas').hide()
+  $('#loading').hide()
+}
+
+e.welcome = () => {
+  console.log('welcome')
+  $('#loading').hide()
+}
+
+e.about = () => {
+  console.log('HEAY')
+  $('#loading').hide()
+}
+
+e.monk = () => {
+  const adiv = $('<div/>', {
+    css: {
+      'background-color': '#c2F6c3',
+      padding: '20%',
+      margin: '0 auto',
+      width: '30%'
+    }
+  }).appendTo('body')
+  let tossed = false
+  let el
+  const but = $('<button/>').html('toss').click(() => {
+    if (!tossed) {
+      el = utils.chooseUnique(monk.biblePt, 1)[0]
+      div.html(el.ref)
+      but.html('show')
+      tossed = true
+    } else {
+      div.html(el.text)
+      but.html('toss again')
+      tossed = false
+    }
+  }).appendTo(adiv)
+  const div = $('<div/>').appendTo(adiv)
+  $('#loading').hide()
 }

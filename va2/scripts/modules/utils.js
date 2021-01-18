@@ -13,7 +13,8 @@ e.mkGrid = (cols, el, w, bgc) => {
       padding: '8px',
       margin: '0 auto',
       // height: Math.floor(wand.artist.use.height * 0.065) + 'px',
-      width: w || '30%'
+      width: w || '30%',
+      'border-radius': '2%'
     }
   }).appendTo(el || 'body')
 }

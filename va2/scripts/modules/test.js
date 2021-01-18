@@ -16,6 +16,47 @@ const e = module.exports
 const a = utils.defaultArg
 
 e.rtest = () => console.log('router working!')
+e.sytest = () => {
+  const sy = new t.MembraneSynth().toDestination()
+  const dat = require('dat.gui')
+  // const gui = new dat.GUI({ closed: true, closeOnTop: true })
+  const gui = new dat.GUI()
+  const param = gui.add({ freq: 500 }, 'freq', 50, 1000).listen()
+  const vol = gui.add({ vol: 0 }, 'vol', -100, 30).listen()
+  window.sy = sy
+  const st = 2 ** (1 / 12)
+  const tt = 0.1
+  const ttt = tt / 2
+  vol.onFinishChange(v => {
+    sy.volume.value = v
+  })
+  function mkSound () {
+    const now = t.now()
+    sy.triggerAttackRelease(vv, ttt, now)
+    sy.triggerAttackRelease(vv * (st ** 3), ttt, now + tt)
+    sy.triggerAttackRelease(vv * (st ** 7), ttt, now + 2 * tt)
+
+    sy.triggerAttackRelease(vv * (st ** 4), ttt, now + 3 * tt)
+    sy.triggerAttackRelease(vv * (st ** 8), ttt, now + 4 * tt)
+    sy.triggerAttackRelease(vv * (st ** 11), ttt, now + 5 * tt)
+  }
+  let vv = 500
+  param.onFinishChange(v => {
+    vv = v
+    // t.start(0)
+    // t.Master.mute = false
+    mkSound()
+  })
+  $('<input/>', {
+    type: 'checkbox'
+  }).appendTo('body').change(function () {
+    if (this.checked) {
+      t.start()
+      t.Master.mute = false
+    }
+  })
+  $('#loading').hide()
+}
 e.ttest = () => {
   const synth = maestro.mkOsc(u('l') || 400, -200, -1, 'sine')
   const synth2 = maestro.mkOsc(u('r') || 410, -200, 1, 'sine')
@@ -1471,32 +1512,37 @@ const linkL = path => {
 }
 
 e.communion = () => {
-  $('<div/>', {
-    css: {
-      margin: '0 auto',
-      padding: '8px',
-      width: '50%'
-    }
-  }).appendTo('body').html(`
+  // $('<div/>', {
+  //   css: {
+  //     margin: '0 auto',
+  //     padding: '8px',
+  //     width: '50%'
+  //   }
+  // }).appendTo('body').html(`
+  const adiv = utils.stdDiv().html(`
   <h2>Communions</h2>
 
-  <p>We have daily meetings 0h, 6h, 12h, and 18h (GMT-3).
-  They are dedicated to be a group concentration for humanity's
-  well-being (by extention also for the world and all creation's well-being).</p>
+  <p>We have daily meetings around 6h, 12h, and 18h (GMT-3).
+  In them we concentrate for Humanity's
+  well-being, and by extension also for World and Cosmic well-being.
+  </p>
 
-  <p>The outline is not rigid and intended as follows:
+  <p>The intended outline:
   <ul>
     <li>10 minutes to gather, talk, agree on the mentalization subject and preparations in general.</li>
-    <li>15 minutes of meditation, with breathing and brainwaves synchronized through the online gadgets linked below. Thus <b>anyone that arrives late misses the meditation, there is no way around it</b>.</li>
+    <li>15 minutes to concentrate/meditate, with breathing and brainwaves synchronized through the online gadgets linked below. Thus <b>anyone that arrives late misses the meditation</b>.</li>
     <li>5 minutes for final words and considerations and farewells.</li>
   </ul>
+  </p>
 
   <p>Join us at <a target="_blank" href="https://meet.google.com/bkr-vzhw-zfc">our video conference</a></a>.</p>
   `)
-  const l = t => `<a href="?_${t}" target="_blank">${t}</a>`
-  const grid = utils.mkGrid(2)
-  $('<span/>').html('<b>when</b> (GMT-0)').appendTo(grid)
-  $('<span/>').html('<b>subject</b>').appendTo(grid)
+  const l = t => `<a href="?_${t}" target="_blank">${t.replace(/^_+/, '')}</a>`
+  const grid = utils.mkGrid(1, adiv, '60%', utils.chooseUnique(['#eeeeff', '#eeffee', '#ffeeee']))
+  $('<span/>', { css: { 'margin-left': '10%' } }).html('<b>when</b>&nbsp;&nbsp; (GMT-0)&nbsp : <b>subject</b>').appendTo(grid)
+  // $('<span/>').html('<b>subject</b>').appendTo(grid)
+  // $('<span/>').html('').appendTo(grid)
+  utils.gridDivider(160, 160, 160, grid)
   transfer.findAll({ communionSchedule: true }).then(r => {
     window.myr = r
     r.sort((a, b) => b.dateTime - a.dateTime)
@@ -1505,11 +1551,13 @@ e.communion = () => {
         .replace(/T/, ' ')
         .replace(/:\d\d\..+/, '')
       console.log(adate)
-      $('<span/>').text(adate).appendTo(grid)
-      $('<span/>').html(l(e.meditation)).appendTo(grid)
+      // $('<span/>').text(adate).appendTo(grid)
+      // $('<span/>').html(l(e.meditation)).appendTo(grid)
+      $('<span/>', { css: { 'margin-left': '10%' } }).html(`${adate}: ${l(e.meditation)}`).appendTo(grid)
+      // $('<span/>').html(l(e.meditation)).appendTo(grid)
     })
-    $('<span/>').text('December 1st, 6h:').appendTo(grid)
-    $('<span/>').html('health (for one\'s self, loved ones,<br>people in need, all humanity)').appendTo(grid)
+    $('<span/>', { css: { 'margin-left': '10%' } }).html('December 1st, 6h: health (for one\'s self, loved ones, people in need, all humanity)').appendTo(grid)
+    // $('<span/>').html('health (for one\'s self, loved ones,<br>people in need, all humanity)').appendTo(grid)
     $('#loading').hide()
   })
 }
@@ -1929,7 +1977,9 @@ e.about = () => {
   <li>audiovisual artifacts for mentalization / meditation / manifestation;</li>
   <li>social coordination mechanisms;</li>
   <li>press (text publisher).</li>
+  </ul>
   </p>
+
   `)
   $('#loading').hide()
 }
@@ -2027,5 +2077,596 @@ e.bitcoin = () => {
 
   <br>
   `)
+  $('#loading').hide()
+}
+
+e.bitcoin = () => {
+  utils.stdDiv().html(`
+  <h2>Donate using Bitcoins</h2>
+
+  <p>Transfer any amount of bitcoins to the wallet in the address:
+  <b>bc1qjw72xa6c8c924j8aj8y737q56let8envx4j0xd</b>
+  </p>
+
+  <p>
+  <p>
+  Or use the QR Code:
+  </p>
+  <img src="assets/donation/qrBitcoin.png" alt="QR Code for donating using the Bitcoin Wallet">
+  </p>
+
+  <br>
+  `)
+  $('#loading').hide()
+}
+
+e['000-preparation'] = () => {
+  utils.stdDiv().html(`
+  <h2>on the consequences of longevity</h2>
+
+  <p>
+  Among 2020's highlights are some advances in anti-aging.
+  In fact, it is now somewhat more reasonable to expect that at least a fraction of the population
+  that survive the next few decades will live to at least a few hundred years.
+  </p>
+
+  <p>
+  But what does that mean for Humanity?
+  Does that imply that soon we will be a bit alleviated from the harsh ephemerality of life?
+  Or will the near future bring extreme inequality and sectarianism?
+  </p>
+
+  <p>
+  It probably depends on how well we are to prepare for such extended lifespan advent.
+  If we do enhance our ability to collaborate, employ our capacities and time wisely,
+  bring the disabled into better conditions, preserve and restore Nature,
+  we might see the brightest of the possibilities.
+  On the other hand...
+  </p>
+
+  <p>
+Thu Dec 31 11:17:02 -03 2020
+  </p>
+  <br>
+  `)
+  $('#loading').hide()
+}
+
+e['001-first-week'] = () => {
+  utils.stdDiv().html(`
+  <h2>Primeira semana de MMM</h2>
+
+  <p>
+  </p>
+
+  <p>
+  </p>
+
+  <p>
+  </p>
+
+  <p>
+Thu Dec 31 11:17:02 -03 2020
+  </p>
+  <br>
+  `)
+  $('#loading').hide()
+}
+
+e['001-first-week'] = () => {
+  utils.stdDiv().html(`
+  <h2>Primeira semana de MMM</h2>
+
+  <p>
+  Esta foi a primeira semana em que abrimos a participação no MMM para pessoas além das iniciadoras (Renato e Otávio).
+  </p>
+
+  <p>
+  Começamos na segunda-feira com 4 novas pessoas agendadas, para experimentarmos nós e elas a prática e ver o que aconteceria.
+  Uma delas estava de fato em uma situação complicada, já as outras 3 marcaram uma segunda sessão para o dia seguinte, quando tivemos 2 novas pessoas.
+  </p>
+
+  <p>
+  Este ritmo de novas pessoas e adesão se seguiu pela semana toda,
+  o que resultou diariamente em jornadas longas e muitos novos entendimentos
+  que recebemos em cada sessão.
+  </p>
+
+  <p>
+  No geral, as pessoas relataram gostar da prática e proveito quanto ao bem-estar e obtenção de novos entendimentos.
+  Percebemos que cuidar desta linha de ação requeriu e irá requerer dedicação contínua e praticamente exclusiva.
+  Portanto, consideramos importante para manter a linha de ação:
+  <ul>
+  <li>
+    minimizar o tempo das sessões. Tanto para que os iniciados quando os novatos possam manter as sessões com continuidade.
+  </li>
+  <li>
+    formar novos participantes capazes de conduzir as sessões.
+  </li>
+  <li>
+    estabelecer os períodos diários em que estaremos disponíveis para as sessões.
+  </li>
+  </ul>
+  </p>
+
+  <p>
+    Considerações finais de balanço:
+    <ul>
+    <li>
+      Finalizamos a semana com 5 reuniões, mais do que começamos, embora não tivéssemos buscado novas pessoas durante a semana.
+    </li>
+    <li>
+     A última reunião teve 8 pessoas, sobre o tema "verdade", foi fortíssima (no melhor dos sentidos).
+    </li>
+    <li>
+      Uma participante foi considerada já em condições de receber um material mais aprofundado sobre os procedimentos da prática e poderá atuar já como condutora.
+    </li>
+    <li>
+      A condução da sessão ficou já definida e talvez permaneça como está por algum tempo.
+    </li>
+    <li>
+      Recebemos novos entendimentos a cada sessão e tivemos melhoras de bem-estar.
+    </li>
+    <li>
+      Iniciaremos a próxima semana já com participantes embora não tenhamos buscado novas pessoas.
+    </li>
+    </ul>
+  </p>
+  <p>
+Thu Dec 31 11:17:02 -03 2020
+  </p>
+  <br>
+  `)
+  $('#loading').hide()
+}
+
+e['t002-omartigli'] = () => {
+  utils.stdDiv().html(`
+  <h2>Otavio, primeira semana</h2>
+
+  <p>
+  mais energia, mais pé no chão, certo cansaço, perspectivas positivas, inseguranças, organização da vida, solidez na vida, boas responsabilidades, amor, fé, sutileza, malabarismos de tempo, sono confuso, mais contato, menos silêncio, novos desafios, velhas questões,
+  </p>
+
+  <p>
+Otavio Martigli,
+Sun Jan 10 11:09:40 -03 2021
+  </p>
+  <br>
+  `)
+  $('#loading').hide()
+}
+e['t001-rfabbri'] = () => {
+  utils.stdDiv().html(`
+  <h2>Renato, primeira semana</h2>
+
+  <p>
+  Sendo nossa primeira semana, começamos a desbravar a prática do MMM, as sessões:
+  como nos comunicar com os novatos, como conduzir as atividades, quais parametrizações ficam melhor, etc..
+  </p>
+
+  <p>
+  Logo ao final do primeiro dia ficou nítida a necessidade de (ao menos um pouco de) convenções para os procedimentos, portanto fiquei acordado até de madrugada concebendo o que ficou registrado como nossa liturgia.
+  </p>
+
+  <p>
+  As sessões todas renderam novos entendimentos profundos, eu os recebia durante a concentração de 15 minutos com o audiovisual.
+  Portanto estou ainda mais convicto de que o caminho que estamos trilhando e propondo é excelente e será útil para muitos.
+  </p>
+
+  <p>
+  Ao final da semana, na última sessão, sobre o tema "verdade", apareceu-me nitidamente 3 recursos básicos para eu manter em uso constantemente:
+  <ul>
+  <li>
+    Deus/Jesus está à minha direita, como me foi revelado há muitos anos.
+  </li>
+  <li>
+    Eu sou mesmo uma antena, sempre captando de tudo à minha volta e emanando.
+    Cada pessoa também é assim.
+    Ao menos no meu caso, devo estar atento para o que estou captando, de preferência mantendo a coluna ereta e atenção às posições do corpo, contrações musculares, pensamentos e respiração.
+  </li>
+  <li>
+    Arte em todos os aspectos da vida como uma forma de manter esmero e obter resultados trancendentais ("tirar leite de pedra"): em cada coisa que eu fizer, no meu tratamento comigo mesmo, com os outros e com Deus, e na minha vida mental (cada pensamento e o que me propor a absorver/desenvolver).
+  </li>
+  </p>
+  <p>
+
+Renato Fabbri,
+Sat Jan  9 19:25:16 -03 2021
+  </p>
+  <br>
+  `)
+  $('#loading').hide()
+}
+
+function pattern (str, type) {
+  const types = {
+    pub: /^\d\d\d/, // publication
+    tes: /^t\d\d\d/
+  }
+  if (type in types) {
+    return types[type].test(str)
+  } else if (type === 'infra') {
+    for (const t in types) {
+      if (types[t].test(str)) {
+        return false
+      }
+    }
+    return true
+  }
+  return false
+}
+
+window.ppp = pattern
+
+e.publications = () => {
+  const pub = []
+  for (const i in e) {
+    if (pattern(i, 'pub')) {
+      console.log(i)
+      pub.push(i)
+    }
+  }
+  utils.stdDiv().html(`
+  <h2>Publications</h2>
+  <ul>
+  ${pub.map(i => `<li><a href="?${i}">${i}</a></li>`).join('')}
+  </ul>
+  `)
+  $('#loading').hide()
+}
+
+e.testimonials = () => {
+  const pub = []
+  for (const i in e) {
+    if (pattern(i, 'tes')) {
+      console.log(i)
+      pub.push(i)
+    }
+  }
+  utils.stdDiv().html(`
+  <h2>Testimonials</h2>
+  <ul>
+  ${pub.map(i => `<li><a href="?${i}">${i}</a></li>`).join('')}
+  </ul>
+  `)
+  $('#loading').hide()
+}
+
+e.infra = () => {
+  const pub = []
+  for (const i in e) {
+    if (pattern(i, 'infra')) {
+      console.log(i)
+      pub.push(i)
+    }
+  }
+  utils.stdDiv().html(`
+  <h2>Infra pages</h2>
+  <ul>
+  ${pub.map(i => `<li><a href="?${i}">${i}</a></li>`).join('')}
+  </ul>
+  `)
+  $('#loading').hide()
+}
+
+e.liturgy101 = () => {
+  const sentinela = [
+    'mantém-se em silêncio e em oração para abençoar a sessão e para proteger os participantes.',
+    'observa e anota os pontos positivos e negativos da sessão e condução feita pelo procurador.',
+    'complementa a condução quando estritamente necessário e solicita a Deus quando quiser que algo aconteça.'
+  ].reduce((a, i) => a + `<li>${i}</li>`, '')
+
+  const procurador = [
+    'escuta atentamente o que o neófito disser e fala o mínimo possível.',
+    'apresenta a atividade para o neófito e tira dúvidas.',
+    'conduz o neófito na atividade, decidindo o tema, criando a sessão, e ajudando a iniciar o artefato audiovisual.',
+    'colhe comentários posteriores e finaliza a sessão.',
+    'acompanha o tempo para não exceder 30 min de conversa e 30 min de sessão.'
+  ].reduce((a, i) => a + `<li>${i}</li>`, '')
+
+  const deveres = [
+    'manter um ritmo constante de oração. Orar ao menos ao acordar e ao dormir, agradecendo pelo dia, pedindo proteção e louvando a Vida, o Criador, e a Oportunidade (do MMM).',
+    'zelar pela limpeza e organização de seus corpos e ambiente.',
+    'observar cotidianamente a si própri@ para se certificar de que o cerne de seu trabalho é o bem da Humanidade, e não a vaidade e a cobiça ou mesmo a indiferença.'
+  ].reduce((a, i) => a + `<li>${i}</li>`, '')
+
+  const sugestoes = [
+    'observar o dia, o clima, a temperatura, e visitar os significados de cada dia: se é dedicado a algum santo, profissão ou aspecto da existência. Também o dia da semana, o dia do mês (número), estação do ano, etc.',
+    'adorar e orar apenas para Deus. Já a comunicação pode ser feita com todos os seres viventes, humanos ou não.',
+    'realizar cotidianamente a leitura de escrituras sagradas: Bíblia, Alcorão, Mahabharata/Ramáiana, etc.',
+    'sempre convidar novas pessoas para o MMM. Idealmente iniciar 4 pessoas por dia. Caso esteja já responável por muitas pessoas, convidar ao menos 1 nova pessoa por semana.'
+  ].reduce((a, i) => a + `<li>${i}</li>`, '')
+
+  utils.stdDiv().html(`
+  <h1>Liturgia MMM 101</h1>
+
+  Para estarmos lúcidos e cientes da atividade sendo
+  desempenhada.
+  Em especial, para acentuar nossa atenção aos detalhes, nossa concentração/foco, e nossa nitidez sobre o todo.
+
+  Para isso, ficam aqui propostas 2 incumbências básicas e uma optativa, orações para início e fim de sessão, e algumas observações adicionais.
+
+  <h2>1. Incumbências</h2>
+
+  <h4>Sentinela</h4>
+  É o encargo mais importante. A sentinela zela pela proteção do grupo e pela consagração da sessão, além de avaliar os participantes, a condução e proporcionar ajustes finos.
+  
+  Em resumo, a sentinela:
+  <ol>${sentinela}</ol>
+
+  <h4>Interventor, articulador, delegado ou procurador</h4>
+  É quem conduz a sessão, i.e. quem articula os conteúdos e os participantes. É praticamente o único que fala com o neófito e garante a progressão da sessão pelos passos necessários.
+
+  Em resumo, o procurador:
+  <ol>${procurador}</ol>
+
+  Quando não há neófito, o papel do procurador fica bastante descansado, variando entre totalmente diluído entre as sentinelas e a condução constante (principalmente quando há vários participantes).
+
+  <h4>Neófito</h4>
+  O neófito é alguém novo no MMM, sendo iniciado pelas sentinelas e procurador. Em geral deve haver no máximo 1 neófito por sessão. Prefencialmente, ele deve ditar o tema da sessão e deve ser ouvido constantemente. Recomendamos que o neófito passe ao menos 2, e preferencialmente 7, sessões como neófito.
+
+  <h4>Resumo</h4>
+  <h5>2 participantes iniciados:</h5>
+  Ficam um pouco mais livres os papéis de sentinela e procurador. Preferencialmente conduz quem criou a sessão, assumindo assim o papel de procurador, mas tudo neste caso fica a critério dos 2 participantes.
+  É o único caso em que as orações inicial e final são optativas embora ainda assim recomendadas.
+
+  <h5>3 participantes ou mais, todos iniciados:</h5>
+  Cada um faz a oração, após isso 1 pessoa fica como procuradora.
+  As outras concentram-se como sentinelas.
+
+  <h5>3 participantes ou mais, 1 deles é neófito:</h5>
+  Cada iniciado faz a oração, após isso 1 pessoa fica como procuradora.
+  As outras concentram-se como sentinelas e então o neófito é convidado.
+
+  <h5>2 participantes, 1 deles é neófito (<b>contraindicado</b>):</h5>
+  Faltará foco na função mais importante (a de sentinela).
+  Em caso de necessidade, o procurador deverá manter-se atento para realizar também a função de sentinela, fazendo intervalos de silêncio para concentração, limpeza e oração.
+  De qualquer forma, fazer um minuto de silêncio antes de convidar o neófito para especial atenção pelo iniciado que será ambos procurador e sentinela.
+
+  <h5>3 participantes ou mais, mais de 1 deles é neófito (<b>contraindicado</b>):</h5>
+  A sessão tenderá a não atender aos neófitos.
+  Se possível, partir a sessão em mais grupos ou fazer mais sessões.
+  De qualquer forma, manter um único procurador, e fazer um minuto de silêncio antes de convidar os neófitos para especial atenção pelo procurador e sentinelas.
+
+  <h2>2. Orações</h2>
+  As orações devem ser feitas em todas as sessões,
+  se possível em voz alta.
+  Deve-se iniciar com a Oração de Abertura e terminar com a Oração de Fechamento.
+
+  <h4>Oração de Abertura</h4>
+  Deve ser feita antes do começo da sessão e da entrada do neófito e com as mãos juntas em frente ao rosto, ao peito ou ao abdomem, com o propósito de invocar o Senhor, seus Anjos e demais protetores dos envolvidos:
+
+  <i><pre>
+        Pedimos a você Deus Pai, Jesus Cristo, e Espírito Santo,
+        proteção em nosso trabalho para nós e nossas famílias,
+        graça para iluminarmos nossas vidas e a Humanidade.
+        Que as nossas palavras, pensamentos, sentimentos e ações sejam agradáveis a Ti,
+        e que nos concentremos em atuar em Seu Nome e para a Sua Obra.
+        Rogamos que nos livre do engano, orgulho, vaidade e cobiça,
+        e que tenhamos completa confiança em Ti e Sua Providência.
+  </pre></i>
+
+  <h4>Oração de Fechamento</h3>
+  Deve ser feita ao final da sessão e após o neófito sair e com as mãos abertas e voltadas para cima, com o propósito de agradecer, realizar petições finais, e banir essências não desejadas:
+
+  <i><pre>
+        Obrigado Senhor pela oportunidade concedida,
+        pedimos que cuide de nós e de nossas famílias (e em especial de "nome do neófito").
+        Limpe nossos corpos, mentes, almas e espíritos de qualquer má influência
+        para que possamos continuar nosso trabalho de Luz para a Sua Glória.
+        Em Seu Nome, Deus Pai, Jesus Cristo, e Espírito Santo.
+  </pre></i>
+
+  Sopra-se as palmas das mãos ao final da oração.
+
+  <h2>3. Demais observações</h2>
+  Deveres do praticamente:
+  <ul>${deveres}</ul>
+
+  Sugestões:
+  <ul>${sugestoes}</ul>
+
+  Pode haver uso de velas, preferencialmente brancas, principalmente em ocasiões especiais. Também pode haver o uso de túnicas, prefencialmente franciscanas pela simplicidade e fácil acesso.
+
+  <br><br>:::
+  `)
+  $('#loading').hide()
+}
+
+e.aa = () => {
+  // for enabling AA
+  // fields: nick/id/name
+  // shout
+  // (slot dur, n slots) to start a session
+  const adiv = utils.stdDiv().html(`
+  <h2>AA is Algorithmic Autoregulation</h2>
+  `).append(
+  )
+  let grid = utils.mkGrid(2, adiv, '60%', utils.chooseUnique(['#eeeeff', '#eeffee', '#ffeeee']))
+  $('<span/>').html('user id:').appendTo(grid)
+  const uid = $('<input/>', {
+    placeholder: 'id for user'
+  }).appendTo(grid)
+    .attr('title', 'The ID for the user (name, nick, etc).')
+    .val(u('user'))
+
+  $('<span/>').html('shout message:').appendTo(grid)
+  const shout = $('<input/>', {
+    placeholder: utils.chooseUnique(['learning AA', 'developing X', 'doing Y', 'talking to Z', 'writing W', 'some description'], 1)[0]
+  }).appendTo(grid)
+    .attr('title', 'The shout description (what have you done or are you doing).')
+
+  $('<button/>')
+    .html('Submit shout')
+    .appendTo(grid)
+    .attr('title', 'Register the shout message given.')
+    .click(() => {
+      // get current date and time, user, session ID and submit
+      const data = { uid: uid.val(), shout: shout.val(), sessionId: sessionData.sessionId }
+      console.log(data)
+      if (!data.uid) {
+        window.alert('please insert a user identification string.')
+      } else if (!data.shout) {
+        window.alert('please insert shout message.')
+      } else {
+        data.date = new Date()
+        transfer.writeAny(data, true).then(resp => {
+          shoutsExp.html(--shoutsExpected)
+          if (slotsFinished === sessionData.nslots) {
+            if (shoutsExpected === 0) { // finish session routine:
+              ssBtn.attr('disabled', false)
+              sdur.attr('disabled', false)
+              nslots.attr('disabled', false)
+              grid.hide()
+            }
+          }
+          console.log(resp)
+          window.rrr = resp
+        })
+      }
+    })
+
+  grid = utils.mkGrid(2, adiv, '60%', utils.chooseUnique(['#eeeeff', '#eeffee', '#ffeeee']))
+  $('<span/>').html('slot duration:').appendTo(grid)
+  const sdur = $('<input/>', {
+    placeholder: '15'
+  }).appendTo(grid)
+    .attr('title', 'In minutes.')
+
+  $('<span/>').html('number of slots:').appendTo(grid)
+  const nslots = $('<input/>', {
+    placeholder: '8'
+  }).appendTo(grid)
+    .attr('title', 'Slots to be dedicated and reported on.')
+
+  const f = e => parseFloat(e.val())
+  let sessionData
+  const ssBtn = $('<button/>')
+    .html('Start session')
+    .appendTo(grid)
+    .attr('title', 'Start an AA session (sequence of slots with shouts).')
+    .click(() => {
+      // get current date and time, user, create session ID and submit
+      console.log(sdur, nslots)
+      const data = { uid: uid.val(), sdur: f(sdur), nslots: f(nslots) }
+      if (!data.uid) {
+        window.alert('please insert a user identification string.')
+      } else if (isNaN(data.sdur)) {
+        // window.alert('type a numeric slot duration (minutes).')
+        data.sdur = 15
+      } else if (!Number.isInteger(data.nslots)) {
+        // window.alert('type an integer number of slots.')
+        data.nslots = 8
+      } else {
+        data.date = new Date()
+        transfer.writeAny(data, true).then(resp => {
+          data.sessionId = resp.insertedId.toString()
+          sessionData = data
+          startSession()
+        })
+      }
+    })
+
+  let tLeft
+  let slotsFinished
+  let shoutsExpected
+  grid = utils.mkGrid(2, adiv, '60%', utils.chooseUnique(['#eeeeff', '#eeffee', '#ffeeee'])).hide()
+
+  $('<span/>').html('session started at:').appendTo(grid)
+  const sStarted = $('<span/>').appendTo(grid)
+  $('<span/>').html('slots finished:').appendTo(grid)
+  const slotsFin = $('<span/>').appendTo(grid)
+  $('<span/>').html('shouts expected:').appendTo(grid)
+  const shoutsExp = $('<span/>').appendTo(grid)
+  $('<span/>').html('time left in current slot:').appendTo(grid)
+  const tLeft2 = $('<span/>').appendTo(grid)
+
+  function startSession () {
+    ssBtn.attr('disabled', true)
+    sdur.attr('disabled', true)
+    nslots.attr('disabled', true)
+
+    sStarted.html(sessionData.date.toLocaleString())
+    shoutsExpected = 1
+    shoutsExp.html(1)
+    grid.show()
+
+    window.ddd = { slotsFin, shoutsExp, tLeft, tLeft2 }
+
+    slotsFinished = 0
+    slotsFin.html(0)
+    setCountdown(sessionData.sdur, sFun)
+  }
+  function setCountdown (dur, fun) {
+    const duration = dur * 60
+    const targetTime = (new Date()).getTime() / 1000 + duration
+    setTimeout(() => {
+      fun()
+      clearInterval(timer)
+    }, duration * 1000)
+    const reduce = dur => [Math.floor(dur / 60), Math.floor(dur % 60)]
+    const p = num => num < 10 ? '0' + num : num
+    const timer = setInterval(() => {
+      const moment = targetTime - (new Date()).getTime() / 1000
+      let [minutes, seconds] = reduce(moment)
+      let hours = ''
+      if (minutes > 59) {
+        [hours, minutes] = reduce(minutes)
+        hours += ':'
+      }
+      tLeft2.text(`${hours}${p(minutes)}:${p(seconds)}`)
+    }, 100)
+  }
+  function sFun () {
+    mkSound()
+    shoutsExp.html(++shoutsExpected)
+    if (++slotsFinished !== sessionData.nslots) { // spork new slot:
+      setCountdown(sessionData.sdur, sFun)
+    }
+    slotsFin.html(slotsFinished)
+  }
+
+  const sy = new t.MembraneSynth().toDestination()
+  const dat = require('dat.gui')
+  // const gui = new dat.GUI({ closed: true, closeOnTop: true })
+  const gui = new dat.GUI()
+  const param = gui.add({ freq: 500 }, 'freq', 50, 1000).listen()
+  const vol = gui.add({ vol: 0 }, 'vol', -100, 30).listen()
+  window.sy = sy
+  const st = 2 ** (1 / 12)
+  const tt = 0.1
+  const ttt = tt / 2
+  vol.onFinishChange(v => {
+    sy.volume.value = v
+    mkSound()
+  })
+  function mkSound () {
+    const now = t.now()
+    sy.triggerAttackRelease(vv, ttt, now)
+    sy.triggerAttackRelease(vv * (st ** 3), ttt, now + tt)
+    sy.triggerAttackRelease(vv * (st ** 7), ttt, now + 2 * tt)
+
+    sy.triggerAttackRelease(vv * (st ** 4), ttt, now + 3 * tt)
+    sy.triggerAttackRelease(vv * (st ** 8), ttt, now + 4 * tt)
+    sy.triggerAttackRelease(vv * (st ** 11), ttt, now + 5 * tt)
+  }
+  let vv = 500
+  param.onFinishChange(v => {
+    // t.start(0)
+    // t.Master.mute = false
+    vv = v
+    vv = v
+    mkSound()
+  })
+  $('<input/>', {
+    type: 'checkbox'
+  }).appendTo('body').change(function () {
+    if (this.checked) {
+      t.start()
+      t.Master.mute = false
+    }
+  })
+  $('#loading').hide()
   $('#loading').hide()
 }

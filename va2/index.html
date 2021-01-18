@@ -1,13 +1,14 @@
 <html>
   <head>
     <title class="notranslate">&#x00C6;terni Anima</title>
-    <link id="favicon" rel="shortcut icon" type="image/png" href="assets/fish8.png" />
+    <link id="favicon" rel="shortcut icon" type="image/png" href="assets/fav5.png" />
   </head>
-<body style="margin:0">
+<body style="margin:0;font-family:Helvetica, arial">
     <div id="loading"><br/><br/><div style="padding-top:30%">LOADING...</div></div>
 <script type="text/javascript">
 function googleTranslateElementInit() {
-  new google.translate.TranslateElement({ pageLanguage: 'en', includedLanguages: 'en,pt,de,zh-CN,ko,it,ja,ru,fr,es', layout: google.translate.TranslateElement.InlineLayout.HORIZONTAL }, 'google_translate_element');
+  // new google.translate.TranslateElement({ pageLanguage: 'en', includedLanguages: 'en,pt,de,zh-CN,ko,it,ja,ru,fr,es', layout: google.translate.TranslateElement.InlineLayout.HORIZONTAL }, 'google_translate_element');
+  new google.translate.TranslateElement({ pageLanguage: 'en' }, 'google_translate_element');
 }
 </script>
   <script type="module" src="scripts/bundle.js"></script>
@@ -67,6 +68,19 @@ function googleTranslateElementInit() {
   color: #000;
   text-decoration: none;
   cursor: pointer;
+}
+
+/* Translate */
+#google_translate_element{
+  display: none;
+}
+
+.skiptranslate{
+  display: none;
+}
+
+body{
+  top: 0!important;
 }
 </style>
 </html>

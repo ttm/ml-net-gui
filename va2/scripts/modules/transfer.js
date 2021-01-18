@@ -14,7 +14,7 @@ const regName = (name, app, url, db, coll) => {
 
 regName('ttm', 'freene-gui-fzgxa', 'https://ttm.github.io/oa/', 'freenet-all', 'test3') // renato.fabbri@
 // regName('ttm', 'freene-gui-fzgxa', 'https://ttm.github.io/oa/', 'freenet-all', 'nets') // dummy
-regName('tokisona', 'aplicationcreated-mkwpm', 'https://tokisona.github.io/oa/', 'adbcreated', 'acolectioncreated') // sync.aquarium@
+regName('tokisona', 'aplicationcreated-mkwpm', 'https://tokisona.github.io/oa/', 'adbcreated', 'acolectioncreated') // sync.aquarium@ and aeterni
 regName('mark', 'anyapplication-faajz', 'https://markturian.github.io/ouraquarium/', 'anydb', 'anycollection') // markarcturian@
 regName('sync', 'anyapplication-faajz', 'https://worldhealing.github.io/ouraquarium/', 'anydb', 'anycollection') // markarcturian@
 
@@ -28,26 +28,26 @@ const auth = creds.tokisona
 const client = s.Stitch.initializeDefaultAppClient(auth.app)
 const db = client.getServiceClient(s.RemoteMongoClient.factory, auth.cluster).db(auth.db)
 
-e.writeAny = data => {
+e.writeAny = (data, aa) => {
   return client.auth.loginWithCredential(new s.AnonymousCredential()).then(user => {
-    return db.collection(auth.collections.test).insertOne(data)
+    return db.collection(aa ? 'aatest' : auth.collections.test).insertOne(data)
   })
 }
 
-e.findAny = data => {
+e.findAny = (data, aa) => {
   return client.auth.loginWithCredential(new s.AnonymousCredential()).then(user => {
-    return db.collection(auth.collections.test).findOne(data)
+    return db.collection(aa ? 'aatest' : auth.collections.test).findOne(data)
   })
 }
 
-e.findAll = query => {
+e.findAll = (query, aa) => {
   return client.auth.loginWithCredential(new s.AnonymousCredential()).then(user => {
-    return db.collection(auth.collections.test).find(query).asArray()
+    return db.collection(aa ? 'aatest' : auth.collections.test).find(query).asArray()
   })
 }
 
-e.remove = query => {
+e.remove = (query, aa) => {
   return client.auth.loginWithCredential(new s.AnonymousCredential()).then(user => {
-    return db.collection(auth.collections.test).deleteMany(query)
+    return db.collection(aa ? 'aatest' : auth.collections.test).deleteMany(query)
   })
 }

@@ -4,6 +4,7 @@ window.wand = {
   net: require('./modules/net.js'),
   med: require('./modules/med'),
   monk: require('./modules/monk'),
+  utils: require('./modules/utils.js'),
   test: require('./modules/test.js'),
   $: require('jquery')
 }
@@ -21,17 +22,21 @@ if (uargs.values[0] === '') {
     wand.med.model(k.slice(1))
     found = true
   } else if (k in wand.test) { // standard page:
-    wand.test[k]()
+    wand.test[k]() // if k[0] === '-': k is an article
     found = true
   }
-} else {
+} else { // sync:
   const syncId = uargs.keys[0]
-  const userRef = uargs.keys[1]
+  const userRef = uargs.values[0]
   // something as: wand.conductor.gradus(syncId, userRef)
   console.log(`sync is under migration: id: ${syncId}, user: ${userRef}`)
 }
 if (!found) { // includes empty/no URL parameters:
-  wand.test.welcome()
+  if (uargs.keys.length === 0) {
+    wand.test.welcome()
+  } else {
+    window.open(window.location.origin, '_self')
+  }
 }
 
 wand.router.mkFooter()

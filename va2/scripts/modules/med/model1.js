@@ -11,21 +11,23 @@ const tr = PIXI.utils.string2hex
 
 e.meditation = mid => {
   transfer.findAny({ meditation: mid }).then(s => {
+    $('#loading').hide()
     evocation.on('click', () => {
       $('#myModal').css('display', 'block')
       $('#mcontent').html(`
       <h2>Evocation <button onclick="wand.$('#techdiv').toggle()" id="techBtn">tech</button></h2>
+      <p>
       I, [your name], will start my mentalization soon (or am mentalizing),
-      and will concentrate for a total of ${s.d} seconds on the theme "${s.meditation.replaceAll('_', '')}".<br><br>
-      <span id="techdiv">I'll be using binaural frequencies ${s.fl} and ${s.fr} Hertz in the waveforms
+      and will concentrate for a total of ${s.d} seconds on the theme "${s.meditation.replaceAll('_', '')}".</p><br><br>
+      <span id="techdiv"><p>I'll be using binaural frequencies ${s.fl} and ${s.fr} Hertz in the waveforms
       ${s.waveformL} and ${s.waveformR},<br>
       and respiration cycles from ${s.mp0} to ${s.mp1} seconds in a transition of ${s.md} seconds.<br>
       The respiration represented with oscillations of ${s.ma} Herz in the binaural frequencies.
-      <br><br></span>
-      I ask [name of one or more entitites you worship or admire],<br>
+      <br><br></p></span>
+      <p>I ask [name of one or more entitites you worship or admire],<br>
       and my ally and akin essences,<br>
       for your company and conduction.
-      <br><br><br>:::
+      </p><br><br><br>:::
       `)
       $('#techBtn').click()
     })
@@ -95,7 +97,6 @@ e.meditation = mid => {
       synthR.volume.rampTo(-400, 10)
     }
     grid.css('background', '#ffffaa')
-    $('#loading').hide()
   })
   function setCountdown (duration, fun, args, countdownText) { // duration in seconds
     const targetTime = (new Date()).getTime() / 1000 + duration
@@ -384,7 +385,9 @@ e.meditation = mid => {
     'such breathing cycles are also represented in the status and help colored section, at the bottom of the page;',
     'repeat the concentration a number of times so you develop the means to better perform;',
     'read the evocation message and adapt it to your repertoire;',
-    'mentally visualize the changes in your life, in the life of the loved and known ones, and the whole of humanity.'
+    'mentally visualize the changes in your life, in the life of the loved and known ones, the ones that need the most, and the whole of humanity;',
+    'it is usually best to breath using less air when the breathing cycle is fast, and more air as it slows down;',
+    'be flexible in your breathing and use the cues mainly to maintain the breathing rhythm: you may hold air in your lungs or hold your breath without air as you wish.'
   ].reduce((a, i) => a + `<li>${i}</li>`, '')
   $('<button/>', {
     css: {

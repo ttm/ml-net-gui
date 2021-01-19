@@ -607,6 +607,15 @@ e.mkMed = () => {
       const e = window.allthem2[ii]
       console.log(e)
       mdiv.val(e.meditation)
+      $('#baseModel').val(e.model || '0')
+      if (e.model === '1') {
+        mf0.val(e.mf0)
+        mf0.show()
+        mf0_.show()
+      } else {
+        mf0.hide()
+        mf0_.hide()
+      }
       fl.val(e.fl)
       fr.val(e.fr)
       mp0.val(e.mp0)
@@ -694,6 +703,24 @@ e.mkMed = () => {
   }).appendTo(grid)
     .attr('title', 'Duration of the meditation in seconds.')
 
+  $('<span/>').html('model:').appendTo(grid)
+  const model = $('<select/>', { id: 'baseModel' }).appendTo(grid)
+    .append($('<option/>').val(0).html('model 1 - coupled binaural and Martigli'))
+    .append($('<option/>').val(1).html('model 2 - decoupled binaural and Martigli'))
+    .attr('title', 'Base audiovidual model.')
+    .on('change', aself => {
+      const ii = aself.currentTarget.value
+      console.log(ii)
+      if (ii === '0') {
+        mf0.hide()
+        mf0_.hide()
+      } else {
+        mf0.show()
+        mf0_.show()
+      }
+    })
+  window.model = model
+
   gd()
 
   $('<span/>').html('freq left:').appendTo(grid)
@@ -723,6 +750,14 @@ e.mkMed = () => {
     .append($('<option/>').val('triangle').html('triangle'))
 
   gd()
+
+  const mf0_ = $('<span/>').html('Martigli carrier frequency:').appendTo(grid).hide()
+    .css('background', '#D9FF99')
+  const mf0 = $('<input/>', {
+    placeholder: 'in Herz'
+  }).appendTo(grid)
+    .attr('title', 'carrier frequency for the Martigli Oscillation.')
+    .hide()
 
   $('<span/>').html('Martigli amplitude:').appendTo(grid)
   const ma = $('<input/>', {
@@ -901,7 +936,7 @@ e.mkMed = () => {
   }).appendTo(grid)
     .attr('title', 'Is this meeting to be put on the communion meetings table?')
 
-  const f = parseFloat
+  const f = v => parseFloat(v.val())
   $('<button/>')
     .attr('title', 'Create the meditation with the settings defined.')
     .html('Create')
@@ -909,13 +944,16 @@ e.mkMed = () => {
       console.log('the date:', mfp.selectedDates[0])
       console.log('the id:', mdiv.val() === '')
       const mdict = {
-        fl: f(fl.val()),
-        fr: f(fr.val()),
-        mp0: f(mp0.val()),
-        mp1: f(mp1.val()),
-        ma: f(ma.val()),
-        md: f(md.val()),
-        d: f(d.val())
+        fl: f(fl),
+        fr: f(fr),
+        mp0: f(mp0),
+        mp1: f(mp1),
+        ma: f(ma),
+        md: f(md),
+        d: f(d)
+      }
+      if (model.val() === '1') {
+        mdict.mf0 = f(mf0)
       }
       for (const key in mdict) {
         if (isNaN(mdict[key])) {
@@ -924,23 +962,25 @@ e.mkMed = () => {
         }
       }
 
-      if (mdict.ma > Math.min(mdict.fl, mdict.fr)) {
+      if (model.val() === '0' && mdict.ma > Math.min(mdict.fl, mdict.fr)) {
         if (!window.confirm('Martigli amplitude is greater than binaural frequencies. Are you shure?')) return
       }
+
+      mdict.model = model.val()
 
       mdict.waveformL = waveformL.val()
       mdict.waveformR = waveformR.val()
 
       mdict.panOsc = panOsc.val()
       if (mdict.panOsc > 1) {
-        const oPeriod = f(panOscPeriod.val())
+        const oPeriod = f(panOscPeriod)
         if (isNaN(oPeriod)) {
           window.alert('define the value for the pan oscillation period.')
           return
         }
         mdict.panOscPeriod = oPeriod
         if (mdict.panOsc === '3') {
-          const oTrans = f(panOscTrans.val())
+          const oTrans = f(panOscTrans)
           if (isNaN(oTrans)) {
             window.alert('define the value for the pan crossfade.')
             return
@@ -954,13 +994,13 @@ e.mkMed = () => {
       }
       mdict.soundSample = soundSample.val()
       if (mdict.soundSample >= 0) {
-        const oVolume = f(soundSampleVolume.val())
+        const oVolume = f(soundSampleVolume)
         if (isNaN(oVolume)) {
           window.alert('define the volume for the sound sample.')
           return
         }
         mdict.soundSampleVolume = oVolume
-        const oPeriod = f(soundSamplePeriod.val())
+        const oPeriod = f(soundSamplePeriod)
         if (isNaN(oPeriod)) {
           window.alert('define the period for the sample repetition.')
           return
@@ -969,7 +1009,7 @@ e.mkMed = () => {
           window.alert('define a repetition period which is greater than the samples\' duration or 0 (for looping).')
         }
         mdict.soundSamplePeriod = oPeriod
-        const oStart = f(soundSampleStart.val())
+        const oStart = f(soundSampleStart)
         if (isNaN(oStart) || oStart < 0) {
           window.alert('define a zero or positive starting time for the sample')
         }
@@ -1000,8 +1040,6 @@ e.mkMed = () => {
       mdict.vcontrol = vcontrol.prop('checked')
       mdict.lemniscate = lemniscate.prop('checked')
       mdict.communionSchedule = communionSchedule.prop('checked')
-      console.log(fl.val())
-      if (f(fr.val()) < 4) return
       transfer.writeAny(mdict).then(resp => console.log(resp))
       // enable button with the name
       s.append($('<option/>', { class: 'pres' }).val(window.allthem2.length).html(mdict.meditation))
@@ -2475,14 +2513,15 @@ e.liturgy101 = () => {
 }
 
 e.aa = () => {
+  $('#favicon').attr('href', 'assets/aafav2.png')
   // for enabling AA
   // fields: nick/id/name
   // shout
   // (slot dur, n slots) to start a session
   const adiv = utils.stdDiv().html(`
   <h2>AA is Algorithmic Autoregulation</h2>
-  `).append(
-  )
+  Check the <a href="?aalogs" target="_blank">logs</a>.
+  `)
   let grid = utils.mkGrid(2, adiv, '60%', utils.chooseUnique(['#eeeeff', '#eeffee', '#ffeeee']))
   $('<span/>').html('user id:').appendTo(grid)
   const uid = $('<input/>', {
@@ -2496,14 +2535,19 @@ e.aa = () => {
     placeholder: utils.chooseUnique(['learning AA', 'developing X', 'doing Y', 'talking to Z', 'writing W', 'some description'], 1)[0]
   }).appendTo(grid)
     .attr('title', 'The shout description (what have you done or are you doing).')
+    .on('keyup', e => {
+      if (e.key === 'Enter' || e.keyCode === 13) {
+        submitShout.click()
+      }
+    })
 
-  $('<button/>')
+  const submitShout = $('<button/>')
     .html('Submit shout')
     .appendTo(grid)
     .attr('title', 'Register the shout message given.')
     .click(() => {
       // get current date and time, user, session ID and submit
-      const data = { uid: uid.val(), shout: shout.val(), sessionId: sessionData.sessionId }
+      const data = { uid: uid.val(), shout: shout.val(), sessionId: sessionData ? sessionData.sessionId : undefined }
       console.log(data)
       if (!data.uid) {
         window.alert('please insert a user identification string.')
@@ -2512,13 +2556,18 @@ e.aa = () => {
       } else {
         data.date = new Date()
         transfer.writeAny(data, true).then(resp => {
-          shoutsExp.html(--shoutsExpected)
-          if (slotsFinished === sessionData.nslots) {
-            if (shoutsExpected === 0) { // finish session routine:
+          if (shoutsExpected !== undefined && shoutsExpected > 0) {
+            shoutsExp.html(--shoutsExpected)
+          }
+          shout.val('')
+          if (sessionData && (slotsFinished === sessionData.nslots)) {
+            if (shoutsExpected <= 0) { // finish session routine:
               ssBtn.attr('disabled', false)
               sdur.attr('disabled', false)
               nslots.attr('disabled', false)
               grid.hide()
+              sessionData = undefined
+              shoutsExpected = undefined
             }
           }
           console.log(resp)
@@ -2533,14 +2582,16 @@ e.aa = () => {
     placeholder: '15'
   }).appendTo(grid)
     .attr('title', 'In minutes.')
+    .val(15)
 
   $('<span/>').html('number of slots:').appendTo(grid)
   const nslots = $('<input/>', {
     placeholder: '8'
   }).appendTo(grid)
     .attr('title', 'Slots to be dedicated and reported on.')
+    .val(8)
 
-  const f = e => parseFloat(e.val())
+  const f = e => e.val() === '' ? '' : parseFloat(e.val())
   let sessionData
   const ssBtn = $('<button/>')
     .html('Start session')
@@ -2549,6 +2600,7 @@ e.aa = () => {
     .click(() => {
       // get current date and time, user, create session ID and submit
       console.log(sdur, nslots)
+      window.sss = [sdur, nslots]
       const data = { uid: uid.val(), sdur: f(sdur), nslots: f(nslots) }
       if (!data.uid) {
         window.alert('please insert a user identification string.')
@@ -2668,5 +2720,56 @@ e.aa = () => {
     }
   })
   $('#loading').hide()
+}
+
+e.aalogs = () => {
+  const user = u('user')
+  const session = u('session')
+  const adiv = utils.stdDiv().html(`
+  <h2>AA is Algorithmic Autoregulation</h2>
+  This is the logs page${user ? 'for user <b>' + user + '</b>' : ''}${session ? 'for session <b>' + session.slice(-10) + '</b>' : ''}. Check the <a href="?aa" target="_blank">AA interface</a>.
+  `)
+  const grid = utils.mkGrid(4, adiv, '60%', utils.chooseUnique(['#eeeeff', '#eeffee', '#ffeeee']))
+  $('<span/>', { css: { 'margin-left': '10%' } }).html('<b>user</b>').appendTo(grid)
+  $('<span/>', { css: { 'margin-left': '10%' } }).html('<b>shout</b>').appendTo(grid)
+  $('<span/>', { css: { 'margin-left': '10%' } }).html('<b>when</b>').appendTo(grid)
+  $('<span/>', { css: { 'margin-left': '10%' } }).html('<b>session</b>').appendTo(grid)
+  utils.gridDivider(160, 160, 160, grid, 1)
+  utils.gridDivider(160, 160, 160, grid, 1)
+  utils.gridDivider(160, 160, 160, grid, 1)
+  utils.gridDivider(160, 160, 160, grid, 1)
+  const query = { shout: { $exists: true } }
+  if (user) {
+    query.uid = user
+  }
+  if (session) {
+    query.sessionId = session
+  }
+  transfer.findAll(query, true).then(r => {
+    console.log(r)
+    r.sort((a, b) => b.date - a.date)
+    window.rrr = r
+    r.forEach(s => {
+      const user = $('<span/>', { css: { 'margin-left': '10%' } }).html(`<a href="?aalogs&user=${s.uid}", target="_blank">${s.uid}</a>`).appendTo(grid)
+      const shout = $('<span/>', { css: { 'margin-left': '10%' } }).html(s.shout).appendTo(grid)
+      const adate = (new Date(s.date)).toISOString()
+        .replace(/T/, ' ')
+        .replace(/:\d\d\..+/, '')
+      const date = $('<span/>', { css: { 'margin-left': '10%' } }).html(adate).appendTo(grid)
+      const session = $('<span/>', { css: { 'margin-left': '10%' } }).html(s.sessionId ? `<a href="?aalogs&session=${s.sessionId}" target="_blank">${s.sessionId.slice(-10)}</a>` : '').appendTo(grid)
+      if (u('admin')) {
+        shout.click(() => {
+          console.log(s)
+          transfer.remove({ _id: s._id }, true)
+          user.hide()
+          shout.hide()
+          date.hide()
+          session.hide()
+        })
+      }
+      utils.gridDivider(190, 190, 190, grid, 1)
+      utils.gridDivider(190, 190, 190, grid, 1)
+    })
+  })
   $('#loading').hide()
 }

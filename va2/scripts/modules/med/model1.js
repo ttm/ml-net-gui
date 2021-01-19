@@ -11,6 +11,7 @@ const tr = PIXI.utils.string2hex
 
 e.meditation = mid => {
   transfer.findAny({ meditation: mid }).then(s => {
+    window.sss = s
     $('#loading').hide()
     evocation.on('click', () => {
       $('#myModal').css('display', 'block')
@@ -70,7 +71,7 @@ e.meditation = mid => {
       if (!conoff.prop('checked')) {
         return caseOnOrConcluded()
       }
-      const { synth, synthR, mod_ } = setSounds(s)
+      const { synth, synthR, synthM, mod_ } = setSounds(s)
       t.Master.mute = false
       if (s.vcontrol) tgui(synth, synthR, sampler)
       if (s.soundSample > 0) {
@@ -86,15 +87,17 @@ e.meditation = mid => {
       }
       synth.volume.rampTo(-40, 1)
       synthR.volume.rampTo(-40, 1)
+      synthM.volume.rampTo(-40, 1)
       mod_.frequency.rampTo(1 / s.mp1, s.md)
       grid.css('background', 'lightgreen')
-      setCountdown(s.d, fun2, [synth, synthR], 'countdown to conclude: ')
+      setCountdown(s.d, fun2, [synth, synthR, synthM], 'countdown to conclude: ')
     }
-    function fun2 (synth, synthR) { // to finish the med
+    function fun2 (synth, synthR, synthM) { // to finish the med
       grid.css('background', '#aaaaff')
       countdown.text('finished')
       synth.volume.rampTo(-400, 10)
       synthR.volume.rampTo(-400, 10)
+      synthM.volume.rampTo(-400, 10)
     }
     grid.css('background', '#ffffaa')
   })
@@ -203,13 +206,19 @@ e.meditation = mid => {
     myCircle4.tint = tr(s.bcc)
     app.renderer.backgroundColor = tr(s.bgc)
 
-    const synth = maestro.mkOsc(0, -400, -1, s.waveformL || 'sine')
-    const synthR = maestro.mkOsc(0, -400, 1, s.waveformR || 'sine')
+    const synth = maestro.mkOsc(s.fl, -400, -1, s.waveformL || 'sine')
+    const synthR = maestro.mkOsc(s.fr, -400, 1, s.waveformR || 'sine')
     const mul = new t.Multiply(s.ma)
     const met2 = new t.DCMeter()
     const mod_ = maestro.mkOsc(1 / s.mp0, 0, 0, 'sine', true).fan(met2, mul)
-    mul.chain(new t.Add(s.fl), synth.frequency)
-    mul.chain(new t.Add(s.fr), synthR.frequency)
+    let synthM
+    if (s.model === '0') {
+      mul.chain(new t.Add(s.fl), synth.frequency)
+      mul.chain(new t.Add(s.fr), synthR.frequency)
+    } else if (s.model === '1') {
+      synthM = maestro.mkOsc(0, -400, 0, s.waveformM || 'sine') // todo: insert waveform choice
+      mul.chain(new t.Add(s.mf0), synthM.frequency)
+    }
 
     const pOsc = parseInt(s.panOsc)
     if (pOsc === 1 || pOsc === 2) { // sinusoid pan oscillation
@@ -318,7 +327,7 @@ e.meditation = mid => {
         }
       }
     })
-    return { synth, synthR, mod_ }
+    return { synth, synthR, synthM, mod_ }
   }
 
   const grid = utils.mkGrid(2)

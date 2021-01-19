@@ -612,9 +612,13 @@ e.mkMed = () => {
         mf0.val(e.mf0)
         mf0.show()
         mf0_.show()
+        waveformM.show()
+        waveformM_.show()
       } else {
         mf0.hide()
         mf0_.hide()
+        waveformM.hide()
+        waveformM_.hide()
       }
       fl.val(e.fl)
       fr.val(e.fr)
@@ -636,6 +640,7 @@ e.mkMed = () => {
       lcc.fromString(e.lcc)
       $('#waveformL').val(e.waveformL || 'sine')
       $('#waveformR').val(e.waveformR || 'sine')
+      $('#waveformM').val(e.waveformM || 'sine')
       if (e.panOsc === undefined) e.panOsc = '0'
       $('#panOsc').val(e.panOsc)
       panOscPeriod.val(a(e.panOscPeriod, ''))
@@ -714,9 +719,13 @@ e.mkMed = () => {
       if (ii === '0') {
         mf0.hide()
         mf0_.hide()
+        waveformM.hide()
+        waveformM_.hide()
       } else {
         mf0.show()
         mf0_.show()
+        waveformM.show()
+        waveformM_.show()
       }
     })
   window.model = model
@@ -732,9 +741,9 @@ e.mkMed = () => {
   $('<span/>').html('waveform left:').appendTo(grid)
   const waveformL = $('<select/>', { id: 'waveformL' }).appendTo(grid)
     .append($('<option/>').val('sine').html('sine'))
+    .append($('<option/>').val('triangle').html('triangle'))
     .append($('<option/>').val('square').html('square'))
     .append($('<option/>').val('sawtooth').html('sawtooth'))
-    .append($('<option/>').val('triangle').html('triangle'))
 
   $('<span/>').html('freq right:').appendTo(grid)
   const fr = $('<input/>', {
@@ -745,9 +754,9 @@ e.mkMed = () => {
   $('<span/>').html('waveform right:').appendTo(grid)
   const waveformR = $('<select/>', { id: 'waveformR' }).appendTo(grid)
     .append($('<option/>').val('sine').html('sine'))
+    .append($('<option/>').val('triangle').html('triangle'))
     .append($('<option/>').val('square').html('square'))
     .append($('<option/>').val('sawtooth').html('sawtooth'))
-    .append($('<option/>').val('triangle').html('triangle'))
 
   gd()
 
@@ -757,6 +766,14 @@ e.mkMed = () => {
     placeholder: 'in Herz'
   }).appendTo(grid)
     .attr('title', 'carrier frequency for the Martigli Oscillation.')
+    .hide()
+  const waveformM_ = $('<span/>').html('Martigli carrier frequency:').appendTo(grid).hide()
+    .css('background', '#D9FF99')
+  const waveformM = $('<select/>', { id: 'waveformM' }).appendTo(grid)
+    .append($('<option/>').val('sine').html('sine'))
+    .append($('<option/>').val('triangle').html('triangle'))
+    .append($('<option/>').val('square').html('square'))
+    .append($('<option/>').val('sawtooth').html('sawtooth'))
     .hide()
 
   $('<span/>').html('Martigli amplitude:').appendTo(grid)
@@ -970,6 +987,9 @@ e.mkMed = () => {
 
       mdict.waveformL = waveformL.val()
       mdict.waveformR = waveformR.val()
+      if (mdict.model === '1') {
+        mdict.waveformM = waveformM.val()
+      }
 
       mdict.panOsc = panOsc.val()
       if (mdict.panOsc > 1) {

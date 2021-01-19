@@ -73,7 +73,7 @@ e.meditation = mid => {
       }
       const { synth, synthR, synthM, mod_ } = setSounds(s)
       t.Master.mute = false
-      if (s.vcontrol) tgui(synth, synthR, sampler)
+      if (s.vcontrol) tgui(synth, synthR, synthM, sampler)
       if (s.soundSample > 0) {
         setTimeout(() => {
           if (sampler.loop) {
@@ -418,10 +418,11 @@ e.meditation = mid => {
     })
 }
 
-function tgui (synth, synthR, sampler) {
-  console.log(synth, synthR, 'HEREEE')
+function tgui (synth, synthR, synthM, sampler) {
+  console.log(synth, synthR, synthM, 'HEREEE')
   const dat = require('dat.gui')
   const gui = new dat.GUI({ closed: true, closeOnTop: true })
+
   const binaural = gui.add({ binaural: 50 }, 'binaural', 0, 100).listen()
   let masterV = 0
   const syInitV = -40
@@ -430,20 +431,32 @@ function tgui (synth, synthR, sampler) {
     synthR.volume.rampTo(aval, 0.1)
     synth.volume.rampTo(aval, 0.1)
   })
+  const syInitM = -40
+  if (synthM) {
+    const m = gui.add({ Martigli: 50 }, 'Martigli', 0, 100).listen()
+    m.onChange(v => {
+      const aval = v - 50 + masterV + syInitM
+      synthM.volume.rampTo(aval, 0.1)
+    })
+  }
+  let sInitV
   if (sampler) {
-    const sInitV = sampler.volume.value
+    sInitV = sampler.volume.value
     const sample = gui.add({ sample: 50 }, 'sample', 0, 100).listen()
     sample.onChange(v => {
       sampler.volume.value = v - 50 + masterV + sInitV
     })
+  }
+  if (sampler || synthM) {
     const master = gui.add({ master: 50 }, 'master', 0, 100).listen()
     master.onChange(v => {
       masterV = v - 50
-      sampler.volume.value = v - 50 + masterV + sInitV
       const aval = v - 50 + masterV + syInitV
       console.log(aval, 'AVAL')
       synthR.volume.rampTo(aval, 0.1)
       synth.volume.rampTo(aval, 0.1)
+      if (sampler) sampler.volume.rampTo(v - 50 + masterV + sInitV, 0.1)
+      if (synthM) synthM.volume.rampTo(v - 50 + masterV + syInitM, 0.1)
     })
   }
   window.agui = gui

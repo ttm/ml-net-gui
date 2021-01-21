@@ -1,3 +1,4 @@
+// mongo:
 const s = require('mongodb-stitch-browser-sdk')
 const e = module.exports
 
@@ -50,4 +51,79 @@ e.remove = (query, aa) => {
   return client.auth.loginWithCredential(new s.AnonymousCredential()).then(user => {
     return db.collection(aa ? 'aatest' : auth.collections.test).deleteMany(query)
   })
+}
+
+// sparql:
+const losdheaders = require('./losdheaders.js')
+const superagent = require('superagent')
+
+e.getNetMembersLinks = (netid, call = console.log) => {
+  const qmembers = `SELECT DISTINCT ?p ?n WHERE {
+    ?s po:snapshotID '${netid}' .
+    ?p a po:Participant .
+    ?p po:snapshot ?s .
+    ?p po:observation ?o .
+    ?o po:name ?n .
+  }`
+  const qfriendships = `SELECT DISTINCT ?p1 ?p2 WHERE {
+    ?f a po:Friendship .
+    ?f po:snapshot ?s .
+    ?s po:snapshotID '${netid}' .
+    ?f po:member ?p1, ?p2 .
+    FILTER(?p1 != ?p2)
+  }`
+  e.losdCall(qmembers, (members) => {
+    e.losdCall(qfriendships, (friendships) => {
+      call({ members, friendships })
+    })
+  })
+}
+
+const dummyQueries = {
+  0: [
+    'SELECT ?s ?n WHERE {',
+    '?s a po:Snapshot .',
+    '?s po:name ?n .',
+    '}'
+  ].join(' '),
+  1: `PREFIX : <https://rfabbri.linked.data.world/d/linked-open-social-data/>
+      PREFIX po: <http://purl.org/socialparticipation/po/>
+      SELECT (COUNT(DISTINCT ?author) as ?c) WHERE {
+        ?author a po:Participant . 
+    }`
+}
+
+e.losdCall = (query, callback) => {
+  if (typeof query === 'object') {
+    query = query.join(' ')
+  }
+  if (Object.keys(dummyQueries).includes(String(query))) {
+    query = dummyQueries[query]
+  }
+  const query_ = [
+    'PREFIX : <https://rfabbri.linked.data.world/d/linked-open-social-data/>',
+    'PREFIX po: <http://purl.org/socialparticipation/po/>',
+    query
+  ]
+  sparqlCall(
+    'https://api.data.world/v0/sparql/rfabbri/linked-open-social-data',
+    query_.join(' '),
+    callback,
+    losdheaders.losdheaders
+  )
+}
+
+const sparqlCall = (url, query, callback, headers) => {
+  if (typeof query !== 'string') {
+    query = query.join(' ')
+  }
+  superagent
+    .get(url)
+    .query({ query, format: 'json' })
+    .set(headers)
+    .then(result => {
+      const mres__ = JSON.parse(result.text)
+      const sparqlres = mres__.results.bindings
+      callback(sparqlres)
+    })
 }

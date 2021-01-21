@@ -39,6 +39,7 @@
     "react-dom": "^17.0.1",
     "scribbletune": "^3.15.0",
     "stats-js": "^1.0.1",
+    "superagent": "^6.1.0",
     "tinycolor2": "^1.4.1",
     "tone": "^14.7.58"
   },

@@ -2,6 +2,8 @@
 window.wand = {
   router: require('./modules/router.js'),
   net: require('./modules/net.js'),
+  maestro: require('./modules/maestro.js'),
+  transfer: require('./modules/transfer.js'),
   med: require('./modules/med'),
   monk: require('./modules/monk'),
   utils: require('./modules/utils.js'),

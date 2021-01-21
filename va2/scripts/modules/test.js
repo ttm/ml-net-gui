@@ -3,6 +3,7 @@ const forceAtlas2 = require('graphology-layout-forceatlas2')
 
 const t = require('tone')
 const $ = require('jquery')
+const linkify = require('linkifyjs/html')
 
 const m = require('./med')
 const monk = require('./monk')
@@ -767,7 +768,7 @@ e.mkMed = () => {
   }).appendTo(grid)
     .attr('title', 'carrier frequency for the Martigli Oscillation.')
     .hide()
-  const waveformM_ = $('<span/>').html('Martigli carrier frequency:').appendTo(grid).hide()
+  const waveformM_ = $('<span/>').html('Martigli carrier waveform:').appendTo(grid).hide()
     .css('background', '#D9FF99')
   const waveformM = $('<select/>', { id: 'waveformM' }).appendTo(grid)
     .append($('<option/>').val('sine').html('sine'))
@@ -989,6 +990,9 @@ e.mkMed = () => {
       mdict.waveformR = waveformR.val()
       if (mdict.model === '1') {
         mdict.waveformM = waveformM.val()
+        if (mdict.ma > mdict.mf0) {
+          if (!window.confirm('Martigli amplitude is greater than Martigli carrier frequency. Are you shure?')) return
+        }
       }
 
       mdict.panOsc = panOsc.val()
@@ -2770,13 +2774,13 @@ e.aalogs = () => {
     r.sort((a, b) => b.date - a.date)
     window.rrr = r
     r.forEach(s => {
-      const user = $('<span/>', { css: { 'margin-left': '10%' } }).html(`<a href="?aalogs&user=${s.uid}", target="_blank">${s.uid}</a>`).appendTo(grid)
-      const shout = $('<span/>', { css: { 'margin-left': '10%' } }).html(s.shout).appendTo(grid)
+      const user = $('<span/>', { css: { 'margin-left': '10%' }, title: `see shouts by user ${s.uid}` }).html(`<a href="?aalogs&user=${s.uid}", target="_blank">${s.uid}</a>`).appendTo(grid)
+      const shout = $('<span/>', { css: { 'margin-left': '10%' }, title: s.shout }).html(linkify(s.shout)).appendTo(grid)
       const adate = (new Date(s.date)).toISOString()
         .replace(/T/, ' ')
         .replace(/:\d\d\..+/, '')
-      const date = $('<span/>', { css: { 'margin-left': '10%' } }).html(adate).appendTo(grid)
-      const session = $('<span/>', { css: { 'margin-left': '10%' } }).html(s.sessionId ? `<a href="?aalogs&session=${s.sessionId}" target="_blank">${s.sessionId.slice(-10)}</a>` : '').appendTo(grid)
+      const date = $('<span/>', { css: { 'margin-left': '10%' }, title: adate }).html(adate).appendTo(grid)
+      const session = $('<span/>', { css: { 'margin-left': '10%' }, title: `see shouts in session ${s.sessionId}` }).html(s.sessionId ? `<a href="?aalogs&session=${s.sessionId}" target="_blank">${s.sessionId.slice(-10)}</a>` : '').appendTo(grid)
       if (u('admin')) {
         shout.click(() => {
           console.log(s)
@@ -2792,4 +2796,139 @@ e.aalogs = () => {
     })
   })
   $('#loading').hide()
+}
+
+e.paiNosso = () => {
+  const oracao = `
+    Pai Nosso que estais nos Céus, 
+    santificado seja o vosso Nome, 
+    venha a nós o vosso Reino, 
+    seja feita a vossa vontade 
+    assim na terra como no Céu. 
+    O pão nosso de cada dia nos dai hoje, 
+    perdoai-nos as nossas ofensas 
+    assim como nós perdoamos 
+    a quem nos tem ofendido, 
+    e não nos deixeis cair em tentação, 
+    mas livrai-nos do Mal.`
+  const adiv = utils.stdDiv().html(`
+  <h2>Pai Nosso</h2>
+  Artefato <b>Æterni</b> de reza computacional.
+  <pre>${oracao}</pre>
+  `)
+  $('<button/>').html('rezar').click(() => {
+    maestro.speaker.synth.cancel()
+    maestro.speaker.play(oracao, 'pt')
+  }).appendTo(adiv)
+  $('<button/>', { css: { margin: '1%' } }).html('parar').click(() => {
+    if (ut) ut.onend = undefined
+    maestro.speaker.synth.cancel()
+    check.prop('checked', false)
+  }).appendTo(adiv)
+  adiv.append('loop: ')
+  let ut
+  const check = $('<input/>', {
+    type: 'checkbox'
+  }).appendTo(adiv).change(function () {
+    if (this.checked) {
+      maestro.speaker.synth.cancel()
+      ut = maestro.speaker.play(oracao, 'pt', true)
+    } else {
+      ut.onend = undefined
+      maestro.speaker.synth.cancel()
+    }
+  })
+  $('#loading').hide()
+}
+
+e.daPaz = () => {
+  const oracao = `
+    Senhor,
+    Fazei de mim um instrumento de vossa Paz.
+    Onde houver Ódio, que eu leve o Amor,
+    Onde houver Ofensa, que eu leve o Perdão.
+    Onde houver Discórdia, que eu leve a União.
+    Onde houver Dúvida, que eu leve a Fé.
+    Onde houver Erro, que eu leve a Verdade.
+    Onde houver Desespero, que eu leve a Esperança.
+    Onde houver Tristeza, que eu leve a Alegria.
+    Onde houver Trevas, que eu leve a Luz!
+
+    Ó Mestre,
+    fazei que eu procure mais:
+    consolar, que ser consolado;
+    compreender, que ser compreendido;
+    amar, que ser amado.
+    Pois é dando, que se recebe.
+    Perdoando, que se é perdoado e
+    é morrendo, que se vive para a vida eterna!
+
+    Amém`
+  const adiv = utils.stdDiv().html(`
+  <h2>Oração da Paz (Oração de São Francisco)</h2>
+  Artefato <b>Æterni</b> de reza computacional.
+  <pre>${oracao}</pre>
+  `)
+  $('<button/>').html('rezar').click(() => {
+    maestro.speaker.synth.cancel()
+    maestro.speaker.play(oracao, 'pt')
+  }).appendTo(adiv)
+  $('<button/>', { css: { margin: '1%' } }).html('parar').click(() => {
+    if (ut) ut.onend = undefined
+    maestro.speaker.synth.cancel()
+    check.prop('checked', false)
+  }).appendTo(adiv)
+  adiv.append('loop: ')
+  let ut
+  const check = $('<input/>', {
+    type: 'checkbox'
+  }).appendTo(adiv).change(function () {
+    if (this.checked) {
+      maestro.speaker.synth.cancel()
+      ut = maestro.speaker.play(oracao, 'pt', true)
+    } else {
+      ut.onend = undefined
+      maestro.speaker.synth.cancel()
+    }
+  })
+  $('#loading').hide()
+}
+
+e.losd = () => {
+  const adiv = utils.stdDiv().html(`
+  <h2>LOSD is Linked Open Social Data</h2>
+  <b>Æterni Anima</b> artifact for social mobilization.
+  `)
+  const grid = utils.mkGrid(1, adiv, '60%', utils.chooseUnique(['#eeeeff', '#eeffee', '#ffeeee']))
+  $('<span/>', { css: { 'margin-left': '10%' } }).html('<b>source</b>').appendTo(grid)
+  utils.gridDivider(160, 160, 160, grid, 1)
+  utils.gridDivider(160, 160, 160, grid, 1)
+  transfer.losdCall('0', r => {
+    console.log(r)
+    r.forEach(n => {
+      $('<span/>', { css: { 'margin-left': '10%' }, title: `navigate and increment network by ${n.n.value}` }).html(`<a href="?net&s=${n.s.value.split('#')[1]}", target="_blank">${n.n.value}</a>`).appendTo(grid)
+      utils.gridDivider(160, 160, 160, grid, 1)
+    })
+    $('#loading').hide()
+  })
+}
+
+e.net = () => {
+  const app = new PIXI.Application({
+    width: window.innerWidth,
+    height: window.innerHeight,
+    // transparent: true
+    backgroundColor: 0x000000
+  })
+  app.stage.sortableChildren = true
+  document.body.appendChild(app.view)
+  window.wand.app = app
+  transfer.getNetMembersLinks(u('s'), r => {
+    console.log(r)
+    const pfs = net.plotFromSparql(r.members, r.friendships)
+    window.nnn = pfs
+    const dn = new net.ParticleNet2(app, pfs.net, pfs.atlas)
+    window.nnn.dn = dn
+    $('#loading').hide()
+  })
 }

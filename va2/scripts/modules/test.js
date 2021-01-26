@@ -2745,6 +2745,7 @@ e.aalogs = () => {
   This is the logs page${user ? 'for user <b>' + user + '</b>' : ''}${session ? 'for session <b>' + session.slice(-10) + '</b>' : ''}. Check the <a href="?aa" target="_blank">AA interface</a>.
   `)
   // const grid = utils.mkGrid(4, adiv, '60%', utils.chooseUnique(['#eeeeff', '#eeffee', '#ffeeee']))
+  $('<button/>', { id: 'rbutton' }).html('update').appendTo(adiv)
   const grid = utils.mkGrid(4, adiv, '100%', utils.chooseUnique(['#eeeeff', '#eeffee', '#ffeeee']))
   $('<span/>', { css: { 'margin-left': '10%' } }).html('<b>user</b>').appendTo(grid)
   $('<span/>', { css: { 'margin-left': '10%' } }).html('<b>shout</b>').appendTo(grid)
@@ -2753,7 +2754,7 @@ e.aalogs = () => {
   utils.gridDivider(160, 160, 160, grid, 1)
   utils.gridDivider(160, 160, 160, grid, 1)
   utils.gridDivider(160, 160, 160, grid, 1)
-  utils.gridDivider(160, 160, 160, grid, 1)
+  const lastSep = utils.gridDivider(160, 160, 160, grid, 1)
   const query = { shout: { $exists: true } }
   if (user) {
     query.uid = user
@@ -2761,18 +2762,19 @@ e.aalogs = () => {
   if (session) {
     query.sessionId = session
   }
-  transfer.findAll(query, true).then(r => {
-    console.log(r)
+  const ids = []
+  function addShout (r, updated) {
+    const func = 'appendTo'
     r.sort((a, b) => b.date - a.date)
-    window.rrr = r
     r.forEach(s => {
-      const user = $('<span/>', { css: { 'margin-left': '10%' }, title: `see shouts by user ${s.uid}` }).html(`<a href="?aalogs&user=${s.uid}", target="_blank">${s.uid}</a>`).appendTo(grid)
-      const shout = $('<span/>', { css: { 'margin-left': '10%' }, title: s.shout }).html(linkify(s.shout)).appendTo(grid)
+      ids.push(s._id)
+      const user = $('<span/>', { css: { 'margin-left': '10%' }, title: `see shouts by user ${s.uid}` }).html(`<a href="?aalogs&user=${s.uid}", target="_blank">${s.uid}</a>`)[func](grid)
+      const shout = $('<span/>', { css: { 'margin-left': '10%' }, title: s.shout }).html(linkify(s.shout))[func](grid)
       const adate = (new Date(s.date)).toISOString()
         .replace(/T/, ' ')
         .replace(/:\d\d\..+/, '')
-      const date = $('<span/>', { css: { 'margin-left': '10%' }, title: adate }).html(adate).appendTo(grid)
-      const session = $('<span/>', { css: { 'margin-left': '10%' }, title: `see shouts in session ${s.sessionId}` }).html(s.sessionId ? `<a href="?aalogs&session=${s.sessionId}" target="_blank">${s.sessionId.slice(-10)}</a>` : '').appendTo(grid)
+      const date = $('<span/>', { css: { 'margin-left': '10%' }, title: adate }).html(adate)[func](grid)
+      const session = $('<span/>', { css: { 'margin-left': '10%' }, title: `see shouts in session ${s.sessionId}` }).html(s.sessionId ? `<a href="?aalogs&session=${s.sessionId}" target="_blank">${s.sessionId.slice(-10)}</a>` : '')[func](grid)
       if (u('admin')) {
         shout.click(() => {
           console.log(s)
@@ -2785,6 +2787,45 @@ e.aalogs = () => {
       }
       utils.gridDivider(190, 190, 190, grid, 1)
       utils.gridDivider(190, 190, 190, grid, 1)
+    })
+  }
+  function insertShout (r) {
+    r.sort((a, b) => a.date - b.date)
+    r.forEach(s => {
+      ids.push(s._id)
+      const adate = (new Date(s.date)).toISOString()
+        .replace(/T/, ' ')
+        .replace(/:\d\d\..+/, '')
+      utils.gridDivider(190, 190, 190, grid, 1, lastSep)
+      utils.gridDivider(190, 190, 190, grid, 1, lastSep)
+      const session = $('<span/>', { css: { 'margin-left': '10%' }, title: `see shouts in session ${s.sessionId}` }).html(s.sessionId ? `<a href="?aalogs&session=${s.sessionId}" target="_blank">${s.sessionId.slice(-10)}</a>` : '').insertAfter(lastSep)
+      const date = $('<span/>', { css: { 'margin-left': '10%' }, title: adate }).html(adate).insertAfter(lastSep)
+      const shout = $('<span/>', { css: { 'margin-left': '10%' }, title: s.shout }).html(linkify(s.shout)).insertAfter(lastSep)
+      const user = $('<span/>', { css: { 'margin-left': '10%' }, title: `see shouts by user ${s.uid}` }).html(`<a href="?aalogs&user=${s.uid}", target="_blank">${s.uid}</a>`).insertAfter(lastSep)
+      if (u('admin')) {
+        shout.click(() => {
+          console.log(s)
+          transfer.remove({ _id: s._id }, true)
+          user.hide()
+          shout.hide()
+          date.hide()
+          session.hide()
+        })
+      }
+    })
+  }
+  transfer.findAll(query, true).then(r => {
+    console.log(r)
+    window.rrr = r
+    window.ids = ids
+    addShout(r)
+    $('#rbutton').click(() => {
+      console.log('click')
+      query._id = { $nin: ids }
+      transfer.findAll(query, true).then(r_ => {
+        window.R_ = r_
+        insertShout(r_)
+      })
     })
   })
   $('#loading').hide()

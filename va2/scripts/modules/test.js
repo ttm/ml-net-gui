@@ -2739,11 +2739,13 @@ e.aa = () => {
 e.aalogs = () => {
   const user = u('user')
   const session = u('session')
-  const adiv = utils.stdDiv().html(`
+  // const adiv = utils.stdDiv().html(`
+  const adiv = utils.centerDiv('90%', undefined, utils.chooseUnique(['#eeeeff', '#eeffee', '#ffeeee'], 1)[0], 3, 2).html(`
   <h2>AA is Algorithmic Autoregulation</h2>
   This is the logs page${user ? 'for user <b>' + user + '</b>' : ''}${session ? 'for session <b>' + session.slice(-10) + '</b>' : ''}. Check the <a href="?aa" target="_blank">AA interface</a>.
   `)
-  const grid = utils.mkGrid(4, adiv, '60%', utils.chooseUnique(['#eeeeff', '#eeffee', '#ffeeee']))
+  // const grid = utils.mkGrid(4, adiv, '60%', utils.chooseUnique(['#eeeeff', '#eeffee', '#ffeeee']))
+  const grid = utils.mkGrid(4, adiv, '100%', utils.chooseUnique(['#eeeeff', '#eeffee', '#ffeeee']))
   $('<span/>', { css: { 'margin-left': '10%' } }).html('<b>user</b>').appendTo(grid)
   $('<span/>', { css: { 'margin-left': '10%' } }).html('<b>shout</b>').appendTo(grid)
   $('<span/>', { css: { 'margin-left': '10%' } }).html('<b>when</b>').appendTo(grid)

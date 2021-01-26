@@ -66,4 +66,30 @@ e.chunkArray = (array, chunkSize) => {
   return results
 }
 
+e.vocalize = (oracao, adiv) => {
+  const maestro = window.wand.maestro
+  $('<button/>').html('rezar').click(() => {
+    maestro.speaker.synth.cancel()
+    maestro.speaker.play(oracao, 'pt')
+  }).appendTo(adiv)
+  $('<button/>', { css: { margin: '1%' } }).html('parar').click(() => {
+    if (ut) ut.onend = undefined
+    maestro.speaker.synth.cancel()
+    check.prop('checked', false)
+  }).appendTo(adiv)
+  adiv.append('loop: ')
+  let ut
+  const check = $('<input/>', {
+    type: 'checkbox'
+  }).appendTo(adiv).change(function () {
+    if (this.checked) {
+      maestro.speaker.synth.cancel()
+      ut = maestro.speaker.play(oracao, 'pt', true)
+    } else {
+      ut.onend = undefined
+      maestro.speaker.synth.cancel()
+    }
+  })
+}
+
 const d = e.defaultArg = (arg, def) => arg === undefined ? def : arg

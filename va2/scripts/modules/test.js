@@ -2788,102 +2788,6 @@ e.aalogs = () => {
   $('#loading').hide()
 }
 
-e.paiNosso = () => {
-  const oracao = `
-    Pai Nosso que estais nos Céus, 
-    santificado seja o vosso Nome, 
-    venha a nós o vosso Reino, 
-    seja feita a vossa vontade 
-    assim na terra como no Céu. 
-    O pão nosso de cada dia nos dai hoje, 
-    perdoai-nos as nossas ofensas 
-    assim como nós perdoamos 
-    a quem nos tem ofendido, 
-    e não nos deixeis cair em tentação, 
-    mas livrai-nos do Mal.`
-  const adiv = utils.stdDiv().html(`
-  <h2>Pai Nosso</h2>
-  Artefato <b>Æterni</b> de reza computacional.
-  <pre>${oracao}</pre>
-  `)
-  $('<button/>').html('rezar').click(() => {
-    maestro.speaker.synth.cancel()
-    maestro.speaker.play(oracao, 'pt')
-  }).appendTo(adiv)
-  $('<button/>', { css: { margin: '1%' } }).html('parar').click(() => {
-    if (ut) ut.onend = undefined
-    maestro.speaker.synth.cancel()
-    check.prop('checked', false)
-  }).appendTo(adiv)
-  adiv.append('loop: ')
-  let ut
-  const check = $('<input/>', {
-    type: 'checkbox'
-  }).appendTo(adiv).change(function () {
-    if (this.checked) {
-      maestro.speaker.synth.cancel()
-      ut = maestro.speaker.play(oracao, 'pt', true)
-    } else {
-      ut.onend = undefined
-      maestro.speaker.synth.cancel()
-    }
-  })
-  $('#loading').hide()
-}
-
-e.daPaz = () => {
-  const oracao = `
-    Senhor,
-    Fazei de mim um instrumento de vossa Paz.
-    Onde houver Ódio, que eu leve o Amor,
-    Onde houver Ofensa, que eu leve o Perdão.
-    Onde houver Discórdia, que eu leve a União.
-    Onde houver Dúvida, que eu leve a Fé.
-    Onde houver Erro, que eu leve a Verdade.
-    Onde houver Desespero, que eu leve a Esperança.
-    Onde houver Tristeza, que eu leve a Alegria.
-    Onde houver Trevas, que eu leve a Luz!
-
-    Ó Mestre,
-    fazei que eu procure mais:
-    consolar, que ser consolado;
-    compreender, que ser compreendido;
-    amar, que ser amado.
-    Pois é dando, que se recebe.
-    Perdoando, que se é perdoado e
-    é morrendo, que se vive para a vida eterna!
-
-    Amém`
-  const adiv = utils.stdDiv().html(`
-  <h2>Oração da Paz (Oração de São Francisco)</h2>
-  Artefato <b>Æterni</b> de reza computacional.
-  <pre>${oracao}</pre>
-  `)
-  $('<button/>').html('rezar').click(() => {
-    maestro.speaker.synth.cancel()
-    maestro.speaker.play(oracao, 'pt')
-  }).appendTo(adiv)
-  $('<button/>', { css: { margin: '1%' } }).html('parar').click(() => {
-    if (ut) ut.onend = undefined
-    maestro.speaker.synth.cancel()
-    check.prop('checked', false)
-  }).appendTo(adiv)
-  adiv.append('loop: ')
-  let ut
-  const check = $('<input/>', {
-    type: 'checkbox'
-  }).appendTo(adiv).change(function () {
-    if (this.checked) {
-      maestro.speaker.synth.cancel()
-      ut = maestro.speaker.play(oracao, 'pt', true)
-    } else {
-      ut.onend = undefined
-      maestro.speaker.synth.cancel()
-    }
-  })
-  $('#loading').hide()
-}
-
 e.losd = () => {
   const adiv = utils.stdDiv().html(`
   <h2>LOSD is Linked Open Social Data</h2>
@@ -2924,32 +2828,38 @@ e.net = () => {
 }
 
 e.prayer = () => {
-  const d = u('d').split(':')
-  const dd = new Date()
-  dd.setHours(d[0])
-  dd.setMinutes(d[1])
-  dd.setSeconds(d[2])
-  dd.setMilliseconds(0)
-  console.log(d, dd)
-  window.d = { d, dd }
+  const onome = u('p')
+  const oracao = monk.prayers[onome]
 
-  const oracao = monk.prayers[u('p')]
+  const adiv = utils.stdDiv().html(`
+  <h2>Æterni Anima prayer</h2>
+  <p>id da oração: <b title="URL argument p=X where X can be any among: ${Object.keys(monk.prayers).join(', ')}." style="background-color:#ffffaa;cursor:context-menu;padding:1%">${onome}</b></p>
+  <i><pre>
+${oracao}
+  </pre></i>
+  `)
+
+  const dd = new Date()
+  const d_ = u('d')
+  if (d_) {
+    const d = d_.split(':')
+    dd.setHours(d[0])
+    dd.setMinutes(d.length > 1 ? d[1] : 0)
+    dd.setSeconds(d.length > 2 ? d[2] : 0)
+  } else {
+    dd.setMinutes(dd.getMinutes() + 1)
+    dd.setSeconds(0)
+  }
+  dd.setMilliseconds(0)
   setCountdown(dd - new Date(), () => {
     if (check.prop('checked')) {
       maestro.speaker.synth.cancel()
       maestro.speaker.play(oracao, 'pt')
     }
   })
-
-  const adiv = utils.stdDiv().html(`
-  <h2>Æterni Anima prayer</h2>
-  <i><pre>
-${oracao}
-  </pre></i>
-  `)
   const grid = utils.mkGrid(2, adiv, '60%', utils.chooseUnique(['#eeeeff', '#eeffee', '#ffeeee']))
   $('<span/>').html('countdown to start prayer:').appendTo(grid)
-  const tLeft2 = $('<span/>').appendTo(grid)
+  const tLeft2 = $('<span/>', { css: { 'background-color': '#ffffaa', cursor: 'context-menu' }, title: 'URL argument d=HH:MM:SS. MM and SS and HH are optional. If &d= is not given, prayer starts on next minute.' }).appendTo(grid)
   $('<span/>').html('participate:').appendTo(grid)
   const check = $('<input/>', {
     type: 'checkbox'
@@ -2961,6 +2871,7 @@ ${oracao}
     setTimeout(() => {
       fun()
       clearInterval(timer)
+      tLeft2.text('already started')
     }, duration * 1000)
     const reduce = dur => [Math.floor(dur / 60), Math.floor(dur % 60)]
     const p = num => num < 10 ? '0' + num : num
@@ -2975,5 +2886,66 @@ ${oracao}
       tLeft2.text(`${hours}${p(minutes)}:${p(seconds)}`)
     }, 100)
   }
+  utils.vocalize(oracao, adiv)
+
+  $('#loading').hide()
+}
+
+e.tper = () => {
+  const percom = require('percom')
+  const a = ['asd', 2, 'tre']
+  const adiv = utils.stdDiv().html(`
+  <h2>Æterni Anima permutation test</h2>
+  ${percom.per(a)}
+  `)
+  console.log(percom.per(a, 3))
+  // number of notes (int)
+  // f0 (lowest note, float Hz)
+  // number of octaves (float)
+  // duration of iteration (float seconds)
+  const grid = utils.mkGrid(2, adiv, '60%', utils.chooseUnique(['#eeeeff', '#eeffee', '#ffeeee']))
+
+  $('<span/>').html('number of notes.').appendTo(grid)
+  const nnotes = $('<input/>').appendTo(grid)
+    .val(3)
+
+  $('<span/>').html('number of octaves.').appendTo(grid)
+  const noctaves = $('<input/>').appendTo(grid)
+    .val(1)
+
+  $('<span/>').html('lowest frequency.').appendTo(grid)
+  const f0 = $('<input/>').appendTo(grid)
+    .val(200)
+
+  $('<span/>').html('duration of the iteration on all notes.').appendTo(grid)
+  const d = $('<input/>').appendTo(grid)
+    .val(1.5)
+
+  const f = v => parseFloat(v.val())
+  $('<button/>').html('Play').appendTo(grid)
+    .click(() => {
+      console.log(nnotes.val(), noctaves.val(), f0.val(), d.val())
+      const freqSpan = noctaves.val() * 2
+      console.log('freq span:', freqSpan)
+      const freqFact = freqSpan ** (1 / nnotes.val())
+      console.log('freq fact:', freqFact)
+      const notes = [f(f0)]
+      for (let i = 1; i < f(nnotes); i++) {
+        notes.push(f(f0) * (freqFact ** i))
+      }
+      console.log('notes: ', notes)
+      mkSound(notes)
+    })
+  const sy = new t.MembraneSynth().toDestination()
+  function mkSound (notes) {
+    const tt = f(d) / notes.length
+    const ttt = tt / 2
+    const now = t.now()
+    for (const note in notes) {
+      console.log(notes[note])
+      sy.triggerAttackRelease(notes[note], ttt, now + tt * note)
+    }
+  }
+
   $('#loading').hide()
 }

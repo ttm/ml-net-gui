@@ -33,6 +33,7 @@
     "lz-string": "^1.4.4",
     "mongodb-stitch-browser-sdk": "^4.8.0",
     "nodemon": "^2.0.3",
+    "percom": "^1.1.0",
     "pixi-projection": "^0.3.11",
     "pixi.js": "^5.3.3",
     "react": "^17.0.1",

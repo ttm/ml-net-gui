@@ -2882,18 +2882,7 @@ ${oracao}
   </pre></i>
   `)
 
-  const dd = new Date()
-  const d_ = u('d')
-  if (d_) {
-    const d = d_.split(':')
-    dd.setHours(d[0])
-    dd.setMinutes(d.length > 1 ? d[1] : 0)
-    dd.setSeconds(d.length > 2 ? d[2] : 0)
-  } else {
-    dd.setMinutes(dd.getMinutes() + 1)
-    dd.setSeconds(0)
-  }
-  dd.setMilliseconds(0)
+  const dd = utils.timeArgument()
   setCountdown(dd - new Date(), () => {
     if (check.prop('checked')) {
       maestro.speaker.synth.cancel()
@@ -2902,7 +2891,7 @@ ${oracao}
   })
   const grid = utils.mkGrid(2, adiv, '60%', utils.chooseUnique(['#eeeeff', '#eeffee', '#ffeeee']))
   $('<span/>').html('countdown to start prayer:').appendTo(grid)
-  const tLeft2 = $('<span/>', { css: { 'background-color': '#ffffaa', cursor: 'context-menu' }, title: 'URL argument d=HH:MM:SS. MM and SS and HH are optional. If &d= is not given, prayer starts on next minute.' }).appendTo(grid)
+  const tLeft2 = $('<span/>', { css: { 'background-color': '#ffffaa', cursor: 'context-menu' }, title: 'URL argument s=HH:MM:SS. MM and SS and HH are optional. If &s= is not given, prayer starts on next minute.' }).appendTo(grid)
   $('<span/>').html('participate:').appendTo(grid)
   const check = $('<input/>', {
     type: 'checkbox'

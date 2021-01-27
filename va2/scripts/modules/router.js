@@ -189,3 +189,19 @@ function lang (ft2) {
     })
   })
 }
+
+e.timeArgument = () => {
+  const dd = new Date()
+  const d_ = e.urlArgument('s')
+  if (d_) {
+    const d = d_.split(':')
+    dd.setHours(d[0])
+    dd.setMinutes(d.length > 1 ? d[1] : 0)
+    dd.setSeconds(d.length > 2 ? d[2] : 0)
+  } else {
+    dd.setMinutes(dd.getMinutes() + 1)
+    dd.setSeconds(0)
+  }
+  dd.setMilliseconds(0)
+  return dd
+}

@@ -38,7 +38,8 @@ e.meditation = mid => {
       conoff.attr('disabled', true)
       vonoff.text('-----')
     }
-    let duration = (s.dateTime.getTime() - (new Date()).getTime()) / 1000
+    const dt = u('s') ? utils.timeArgument() : s.dateTime
+    let duration = (dt.getTime() - (new Date()).getTime()) / 1000
     if (u('t')) duration = parseFloat(u('t'))
     function caseConcluded () {
       vonoff.text('ask team to open a new session.')
@@ -413,8 +414,8 @@ e.meditation = mid => {
       border: '2px solid #cafbfb',
       color: 'black',
       cursor: 'pointer',
-      'border-radius': '6px',
       'transition-duration': '0.4s',
+      'border-radius': '6px',
       'margin-left': '5%',
       'margin-right': '5%',
       'margin-top': '2px'

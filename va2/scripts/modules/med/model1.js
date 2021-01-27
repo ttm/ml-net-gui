@@ -380,11 +380,20 @@ e.meditation = mid => {
   m2.css('background', 'rgb(255,255,0)')
   const evocation = $('<button/>', {
     css: {
+      'background-color': 'white',
+      // border: '2px solid #a7a7a7',
+      border: '2px solid #cafbfb',
+      color: 'black',
+      cursor: 'pointer',
+      'transition-duration': '0.4s',
+      'border-radius': '6px',
       'margin-left': '5%',
       'margin-right': '5%',
       'margin-top': '2px'
     }
-  }).html('Evocation').appendTo(grid)
+  }).html('Evocation').appendTo(grid).hover(function (e) {
+    $(this).css('background-color', e.type === 'mouseenter' ? '#cafbfb' : 'white')
+  })
   const gitems = [
     'use headphones whenever possible;',
     'breath with the vertical position of the oval or circular visual cue that don\'t change horizontal position and that expands and contracts;',
@@ -400,6 +409,12 @@ e.meditation = mid => {
   ].reduce((a, i) => a + `<li>${i}</li>`, '')
   $('<button/>', {
     css: {
+      'background-color': 'white',
+      border: '2px solid #cafbfb',
+      color: 'black',
+      cursor: 'pointer',
+      'border-radius': '6px',
+      'transition-duration': '0.4s',
       'margin-left': '5%',
       'margin-right': '5%',
       'margin-top': '2px'
@@ -415,6 +430,8 @@ e.meditation = mid => {
       Good luck and thank you!
       <br><br><br>:::
       `)
+    }).hover(function (e) {
+      $(this).css('background-color', e.type === 'mouseenter' ? '#cafbfb' : 'white')
     })
 }
 

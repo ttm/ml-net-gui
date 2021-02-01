@@ -1891,6 +1891,7 @@ e.aeterni = () => {
     Further keywords: hallmarks of aging, rejuvenation biotechnology, 
   </div>
   `).appendTo('body')
+  $('#loading').hide()
 }
 
 e.accounts = () => {
@@ -2882,7 +2883,7 @@ ${oracao}
   </pre></i>
   `)
 
-  const dd = utils.timeArgument()
+  const dd = window.wand.router.timeArgument()
   setCountdown(dd - new Date(), () => {
     if (check.prop('checked')) {
       maestro.speaker.synth.cancel()
@@ -2980,4 +2981,9 @@ e.tper = () => {
   }
 
   $('#loading').hide()
+}
+
+e.mkMed2 = () => {
+  const mk = new m.MkMed2()
+  window.mk = mk
 }

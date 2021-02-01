@@ -330,7 +330,7 @@ e.meditation = mid => {
         }
       }
     })
-    setTimeout(() => ticker.stop(), 200)
+    // setTimeout(() => ticker.stop(), 200)
     return { mod_, synth, synthR, synthM, ticker }
   }
   function setSounds (ticker) {

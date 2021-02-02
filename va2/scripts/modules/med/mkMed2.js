@@ -22,6 +22,18 @@ function addNumField (grid, str, placeholder, title, value) {
   return $('<input/>', { placeholder, title, value }).appendTo(grid)
 }
 
+function addType (grid, type, c) {
+  $('<span/>').html('type:').appendTo(grid)
+  $('<span/>').appendTo(grid)
+    .append($('<span/>').html(`<b>${type}</b>`))
+    .append($('<button/>', { css: { 'margin-left': '4%', background: '#ffbbbb' } }).html('X').click(() => {
+      console.log('remove me: ' + type)
+      grid.hide()
+      grid.voiceRemoved = true
+    }))
+  c.gd(grid)
+}
+
 e.Mk = class {
   constructor () {
     this.div1 = $('<div/>', { css: { display: 'inline-block', width: '50%' } }).appendTo('body')
@@ -175,8 +187,11 @@ e.Mk = class {
         .html(i)
         .appendTo(grid)
         .click(() => {
-          const set = this['add' + i.replace('-', '')]()
+          const grid = utils.mkGrid(2, this.div2, '90%', this.colors[this.counter++ % 3], '50%')
+          addType(grid, i, this)
+          const set = this['add' + i.replace('-', '')](grid)
           set.type = i
+          set.grid = grid
           this.setting.push(set)
         })
     })
@@ -193,6 +208,11 @@ e.Mk = class {
       .html('Create')
       .click(() => {
         this.setting.forEach(i => {
+          if (i.grid.voiceRemoved) {
+            console.log('Removed:', i.type)
+            return
+          }
+          delete i.grid
           for (const ii in i) {
             console.log(ii, ':', p(i[ii]))
           }
@@ -209,8 +229,7 @@ e.Mk = class {
       .attr('disabled', true)
   }
 
-  addMartigli () {
-    const grid = utils.mkGrid(2, this.div2, '90%', this.colors[this.counter++ % 3])
+  addMartigli (grid) {
     const mf0 = addNumField(grid, 'Martigli carrier frequency', 'in Herz', 'carrier frequency for the Martigli Oscillation.', 200)
     const waveformM = addWaveforms(grid, 'Martigli carrier waveform', 'waveformM')
     const { ma, mp0, mp1, md } = this.addMartigliCommon(grid)
@@ -226,18 +245,16 @@ e.Mk = class {
     return { ma, mp0, mp1, md }
   }
 
-  addBinaural () {
-    const grid = utils.mkGrid(2, this.div2, '90%', this.colors[this.counter++ % 3])
+  addBinaural (grid) {
     const fl = addNumField(grid, 'freq left', 'freq in Herz', 'Frequency on the left channel.', 150)
     const waveformL = addWaveforms(grid, 'waveform left', 'waveformL')
     this.gd(grid)
     const fr = addNumField(grid, 'freq right', 'freq in Herz', 'Frequency on the right channel.', 155)
     const waveformR = addWaveforms(grid, 'waveform right', 'waveformR')
-    return { fl, waveformL, fr, waveformR, grid }
+    return { fl, waveformL, fr, waveformR }
   }
 
-  addSymmetry () {
-    const grid = utils.mkGrid(2, this.div2, '90%', this.colors[this.counter++ % 3])
+  addSymmetry (grid) {
     const nnotes = addNumField(grid, 'number of notes', 'any integer', 'number of different notes in the symmetric structure/voice', 3)
     const noctaves = addNumField(grid, 'number of octaves', 'any real number', 'number of octaves to spread the notes evenly (endpoint not included)', 1)
     const f0 = addNumField(grid, 'lowest frequency', 'any real number', 'frequency of the lowest note', 100)
@@ -245,8 +262,7 @@ e.Mk = class {
     return { nnotes, noctaves, f0, d }
   }
 
-  addSample () {
-    const grid = utils.mkGrid(2, this.div2, '90%', this.colors[this.counter++ % 3])
+  addSample (grid) {
     $('<span/>').html('sound sample:').appendTo(grid)
     const soundSample = $('<select/>', { id: 'soundSample' }).appendTo(grid)
       .attr('title', 'Sound sample to be played continuously.')
@@ -261,8 +277,8 @@ e.Mk = class {
     return { soundSample, soundSampleVolume, soundSamplePeriod, soundSampleStart }
   }
 
-  addMartigliBinaural () {
-    const { fl, waveformL, fr, waveformR, grid } = this.addBinaural()
+  addMartigliBinaural (grid) {
+    const { fl, waveformL, fr, waveformR } = this.addBinaural(grid)
     const { ma, mp0, mp1, md } = this.addMartigliCommon(grid)
     return { fl, waveformL, fr, waveformR, grid, ma, mp0, mp1, md }
   }

@@ -26,12 +26,61 @@ function addType (grid, type, c) {
   $('<span/>').html('type:').appendTo(grid)
   $('<span/>').appendTo(grid)
     .append($('<span/>').html(`<b>${type}</b>`))
-    .append($('<span/>', { css: { 'margin-left': '4%', background: '#ffbbbb', height: '50%' } }).html('X').click(() => {
+    .append($('<span/>', { css: { 'margin-left': '4%', background: '#ffbbbb', cursor: 'pointer' } }).html('X').click(() => {
       console.log('remove me: ' + type)
       grid.hide()
       grid.voiceRemoved = true
     }))
   c.gd(grid)
+}
+
+function addPanner (s, c) {
+  if (!['Binaural', 'Martigli-Binaural'].includes(s.type)) {
+    return
+  }
+  const grid = s.grid
+  c.gd(grid)
+  $('<span/>').html('panner:').appendTo(grid)
+  s.panOsc = $('<select/>', { id: 'panOsc' }).appendTo(grid)
+    .append($('<option/>').val(0).html('none'))
+    .append($('<option/>').val(1).html('envelope (linear transition, stable sustain)'))
+    .on('change', aself => {
+      const i = parseInt(aself.currentTarget.value)
+      if (i === 0 || i === 3) {
+        fields.forEach(f => f.hide())
+        delete s.panOscPeriod
+        delete s.panOscTrans
+      } else if (i === 1) {
+        fields.forEach(f => f.show())
+        s.panOscPeriod = panOscPeriod
+        s.panOscTrans = panOscTrans
+      } else if (i === 2) {
+        s.panOscPeriod = panOscPeriod
+        delete s.panOscTrans
+        fields.slice(0, 2).forEach(f => f.show())
+        fields.slice(2).forEach(f => f.hide())
+      }
+    })
+  if (s.type === 'Binaural') {
+    s.panOsc.append($('<option/>').val(2).html('sine'))
+  } else if (s.type === 'Martigli-Binaural') {
+    s.panOsc.append($('<option/>').val(2).html('sine independent of Martigli'))
+    s.panOsc.append($('<option/>').val(3).html('sine in sync with Martigli'))
+  }
+  const panOscPeriod_ = $('<span/>').html('pan oscillation period:').appendTo(grid).hide()
+  const panOscPeriod = $('<input/>', {
+    placeholder: 'in seconds'
+  }).appendTo(grid).hide()
+    .attr('title', 'Duration of the pan oscillation in seconds.')
+    .val(120)
+
+  const panOscTrans_ = $('<span/>').html('pan oscillation crossfade:').appendTo(grid).hide()
+  const panOscTrans = $('<input/>', {
+    placeholder: 'in seconds'
+  }).appendTo(grid).hide()
+    .attr('title', 'Duration of the pan crossfade (half the pan oscillation period or less).')
+    .val(20)
+  const fields = [panOscPeriod_, panOscPeriod, panOscTrans, panOscTrans_]
 }
 
 e.Mk = class {
@@ -208,6 +257,7 @@ e.Mk = class {
           const set = this['add' + i.replace('-', '')](grid)
           set.type = i
           set.grid = grid
+          addPanner(set, this)
           this.setting.push(set)
         })
     })
@@ -277,8 +327,9 @@ e.Mk = class {
         // enable delete setting OK
         // make layout of the voices fine (they are starting below) OK
         // implement restrictions/verifications before saving OK
-        // add pan to binaural and Martigli-Binaural
+        // add pan to binaural and Martigli-Binaural OK
         // add switch for multiple martigli
+        // add button to listen to voice
         // enable preview (after implementing the model)
       }).appendTo(grid)
     this.obutton = $('<button/>')

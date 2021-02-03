@@ -6,6 +6,12 @@ const J = require('@eastdesire/jscolor')
 
 const e = module.exports
 
+// todo:
+// add fadeIn/Out to voices, maybe also start and finish time
+// add bell on minutes before starting and before ending
+// add templates to each voice
+// add advanced synth to each voice, as with Tone examples
+
 function addWaveforms (grid, str, id) {
   $('<span/>').html(str + ':').appendTo(grid)
   const select = $('<select/>', { id }).appendTo(grid)
@@ -22,15 +28,85 @@ function addNumField (grid, str, placeholder, title, value) {
   return $('<input/>', { placeholder, title, value }).appendTo(grid)
 }
 
-function addType (grid, type, c) {
+function addType (grid, type, c, isOn) {
   $('<span/>').html('type:').appendTo(grid)
-  $('<span/>').appendTo(grid)
+  const icon = $('<span/>').append(
+    $('<i/>', {
+      class: 'fa fa-play',
+      css: { cursor: 'pointer', 'margin-right': '1%' }
+    })
+  ).click(() => {
+    icon.css('background', '#000000')
+    setTimeout(() => {
+      icon.css('background', '')
+    }, 500)
+    console.log('clicked')
+  })
+  const field = $('<span/>').appendTo(grid)
+    .append(icon)
     .append($('<span/>').html(`<b>${type}</b>`))
     .append($('<span/>', { css: { 'margin-left': '4%', background: '#ffbbbb', cursor: 'pointer' } }).html('X').click(() => {
       console.log('remove me: ' + type)
       grid.hide()
       grid.voiceRemoved = true
+      if (type.includes('Martigli')) {
+        if (onOff.isOn) { // select first occuring Martigli:
+          for (let i = 0; i < c.martigliList.length; i++) {
+            const onOff_ = c.martigliList[i]
+            if (!onOff_.isOn && !onOff_.grid.voiceRemoved) {
+              onOff_.isOn = true
+              onOff_.css('background', '#ffff00')
+              onOff_.html('(reference)')
+              break
+            }
+          }
+          onOff.isOn = false
+        }
+      }
     }))
+  let onOff
+  if (type.includes('Martigli')) { // add signature as to reference or not
+    const isOn_ = isOn === undefined ? c.martigliList.length === 0 : isOn
+    const str = isOn_ ? 'reference' : 'secundary'
+    onOff = $('<span/>', { css: { 'margin-left': '2%' } }).html(`(${str})`)
+      .click(() => {
+        if (c.martigliList.length < 1) return
+        if (onOff.isOn) { // select first occuring Martigli:
+          for (let i = 0; i < c.martigliList.length; i++) {
+            const onOff_ = c.martigliList[i]
+            if (!onOff_.isOn && !onOff_.grid.voiceRemoved) {
+              onOff_.isOn = true
+              onOff_.css('background', '#ffff00')
+              onOff_.html('(reference)')
+              break
+            }
+          }
+          onOff.isOn = false
+          onOff.css('background', '')
+          onOff.html('(secundary)')
+        } else {
+          // turn off the currently on:
+          for (let i = 0; i < c.martigliList.length; i++) {
+            const onOff_ = c.martigliList[i]
+            if (onOff_.isOn) {
+              onOff_.isOn = false
+              onOff_.css('background', '')
+              onOff_.html('(secundary)')
+              break
+            }
+          }
+          onOff.isOn = true
+          onOff.css('background', '#ffff00')
+          onOff.html('(reference)')
+        }
+      })
+    onOff.isOn = isOn_
+    onOff.grid = grid
+    grid.onOff = onOff
+    onOff.css('background', onOff.isOn ? '#ffff00' : '')
+    field.append(onOff)
+    c.martigliList.push(onOff)
+  }
   c.gd(grid)
 }
 
@@ -242,6 +318,7 @@ e.Mk = class {
 
   addMenu () {
     const grid = utils.mkGrid(2, this.div1, '90%', '#ffeeee', '50%')
+    this.martigliList = []
     this.colors = ['#eeeeff', '#eeffee', '#ffeeee']
     this.counter = 0
     this.setting = []
@@ -252,13 +329,7 @@ e.Mk = class {
         .html(i)
         .appendTo(grid)
         .click(() => {
-          const grid = utils.mkGrid(2, this.div2, '90%', this.colors[this.counter++ % 3], '50%')
-          addType(grid, i, this)
-          const set = this['add' + i.replace('-', '')](grid)
-          set.type = i
-          set.grid = grid
-          addPanner(set, this)
-          this.setting.push(set)
+          this.createVoice(i)
         })
     })
     // todo: implement:
@@ -286,15 +357,17 @@ e.Mk = class {
             }
             voice[ii] = v
           }
+          if (voice.type.includes('Martigli')) {
+            voice.isOn = i.grid.onOff.isOn
+          }
           if (!this.checkVoice(voice)) return
           voices.push(voice)
         })
-        // add header and visual settings:
         const h = this.header
         const header = {
-          med2: h.med2.val(), // check not empty OK
-          datetime: h.datetime.selectedDates[0], // check not past OK
-          d: p(h.d), // check not empty & > 5s OK
+          med2: h.med2.val(),
+          datetime: h.datetime.selectedDates[0],
+          d: p(h.d),
           vcontrol: h.vcontrol.prop('checked'),
           communionSchedule: h.communionSchedule.prop('checked')
         }
@@ -323,21 +396,14 @@ e.Mk = class {
           this.allSettings.push(toSave)
           this.obutton.attr('disabled', false).html(`Open: ${toSave.header.med2}`)
         })
-        // enable load setting OK
-        // enable delete setting OK
-        // make layout of the voices fine (they are starting below) OK
-        // implement restrictions/verifications before saving OK
-        // add pan to binaural and Martigli-Binaural OK
-        // add switch for multiple martigli
-        // add button to listen to voice
-        // enable preview (after implementing the model)
+        // enable preview and volume controler (after implementing the model)
       }).appendTo(grid)
     this.obutton = $('<button/>')
       .html('Open')
       .attr('title', 'Open URL of the meditation.')
       .click(() => {
         // open url with:
-        window.open(`?_${this.header.med2.val()}`)
+        window.open(`?@${this.header.med2.val()}`)
       })
       .appendTo(grid)
       .attr('disabled', true)
@@ -393,6 +459,7 @@ e.Mk = class {
 
   addMartigliBinaural (grid) {
     const { fl, waveformL, fr, waveformR } = this.addBinaural(grid)
+    this.gd(grid)
     const { ma, mp0, mp1, md } = this.addMartigliCommon(grid)
     return { fl, waveformL, fr, waveformR, grid, ma, mp0, mp1, md }
   }
@@ -427,18 +494,16 @@ e.Mk = class {
     // loading voices in the settings:
     const l = s.voices
     l.forEach(i => {
-      const grid = utils.mkGrid(2, this.div2, '90%', this.colors[this.counter++ % 3], '50%')
-      addType(grid, i.type, this)
-      const set = this['add' + i.type.replace('-', '')](grid)
-      set.type = i
-      set.grid = grid
-      this.setting.push(set)
+      const set = this.createVoice(i.type, i.isOn)
+      console.log('iii', i)
       for (const j in i) {
-        if (typeof i[j] !== 'string') {
+        if (typeof i[j] !== 'string' && j !== 'isOn') {
+          console.log(j, i[j])
           set[j].val(i[j])
         }
       }
     })
+    this.obutton.attr('disabled', false).html(`Open: ${h_.med2}`)
   }
 
   checkVoice (v) {
@@ -470,7 +535,7 @@ e.Mk = class {
   }
 
   checkBinaural (v) {
-    if (Math.min(v.fl, v.fr) < 20 || Math.max(v.fl, v.fr) < 20000) {
+    if (Math.min(v.fl, v.fr) < 20 || Math.max(v.fl, v.fr) > 20000) {
       if (!window.confirm('Binaural frequencies are not in audible range ([20, 20000]). Are you shure?')) return
     }
     return true
@@ -494,5 +559,16 @@ e.Mk = class {
       if (!window.confirm('the artifact has less than 30 seconds. Are you shure?')) return
     }
     return true
+  }
+
+  createVoice (type, isOn) {
+    const grid = utils.mkGrid(2, this.div2, '90%', this.colors[this.counter++ % 3], '50%')
+    addType(grid, type, this, isOn)
+    const set = this['add' + type.replace('-', '')](grid)
+    set.type = type
+    set.grid = grid
+    addPanner(set, this)
+    this.setting.push(set)
+    return set
   }
 }

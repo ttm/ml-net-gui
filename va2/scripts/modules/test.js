@@ -15,6 +15,7 @@ const u = require('./router.js').urlArgument
 
 const e = module.exports
 const a = utils.defaultArg
+require('@fortawesome/fontawesome-free/js/all.js')
 
 e.rtest = () => console.log('router working!')
 e.sytest = () => {
@@ -2984,4 +2985,15 @@ e.tper = () => {
 e.mkMed2 = () => {
   const mk = new m.MkMed2()
   window.mk = mk
+}
+
+e.icons = () => {
+  const adiv = utils.stdDiv().html(`
+  <h2>testing icons</h2>
+  `)
+  const iclass = 'fa-play'
+  $('<i/>', { class: 'fa ' + iclass, css: { background: '#ff00ee' } }).appendTo(
+    adiv
+  )
+  $('#loading').hide()
 }

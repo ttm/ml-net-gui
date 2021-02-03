@@ -14,18 +14,22 @@ window.wand = {
 const uargs = wand.router.urlAllArguments()
 
 // page is first arg key without value
-// meditation is the same, but starts with _
+// meditation is the same, but starts with _ or @
 // sync is specified with <sync id>=<participant ref>
 // else just welcome page
 let found = false
 if (uargs.values[0] === '') {
   const k = uargs.keys[0]
-  if (k[0] === '_') { // meditation:
+  found = true
+  if (k[0] === '_') { // meditation model 1:
     wand.med.model(k.slice(1))
-    found = true
+  } else if (k[0] === '@') { // meditation model 2:
+    console.log('AHHHH')
+    wand.currentMed = new wand.med.Model2(k.slice(1))
   } else if (k in wand.test) { // standard page:
     wand.test[k]() // if k[0] === '-': k is an article
-    found = true
+  } else {
+    found = false
   }
 } else { // sync:
   const syncId = uargs.keys[0]

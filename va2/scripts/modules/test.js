@@ -1080,8 +1080,6 @@ e.mkMed = () => {
     })
     .appendTo(grid)
     .attr('disabled', true)
-  window.transfer = transfer
-  window.mdiv = mdiv
 }
 
 e.meditation = mid => {

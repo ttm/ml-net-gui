@@ -218,7 +218,7 @@ e.meditation = mid => {
       mul.chain(new t.Add(s.fl), synth.frequency)
       mul.chain(new t.Add(s.fr), synthR.frequency)
     } else if (s.model === '1') {
-      synthM = maestro.mkOsc(0, -400, 0, s.waveformM || 'sine') // todo: insert waveform choice
+      synthM = maestro.mkOsc(0, -400, 0, s.waveformM || 'sine')
       mul.chain(new t.Add(s.mf0), synthM.frequency)
     }
 
@@ -228,7 +228,7 @@ e.meditation = mid => {
       if (pOsc === 1) { // in sync with Martigli oscillation
         panOsc = mod_
       } else { // independent period
-        panOsc = maestro.mkOsc(1 / s.panOscPeriod, 0, 0, 'sine')
+        panOsc = maestro.mkOsc(1 / s.panOscPeriod, 0, 0, 'sine', true)
       }
       const neg = new t.Negate()
       const mul1 = new t.Multiply(1)

@@ -2997,3 +2997,7 @@ e.icons = () => {
   )
   $('#loading').hide()
 }
+
+e.transportTest = () => {
+  window.wand.tone = t
+}

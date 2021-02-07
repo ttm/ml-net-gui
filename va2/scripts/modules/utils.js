@@ -98,4 +98,33 @@ e.vocalize = (oracao, adiv) => {
   })
 }
 
+e.inplaceShuffle = (array, inplace = true) => {
+  if (!inplace) {
+    array = array.slice()
+  }
+  // Fisher-Yates algorithm
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1))
+    const temp = array[i]
+    array[i] = array[j]
+    array[j] = temp
+  }
+  return array
+}
+
+e.rotateArray = (array, forward = true) => {
+  if (forward) {
+    array.unshift(array.pop())
+  } else {
+    array.push(array.shift())
+  }
+}
+
+e.permutations = {
+  shuffle: e.inplaceShuffle,
+  rotateForward: e.rotateArray,
+  rotateBackward: a => e.rotateArray(a, false),
+  reverse: a => a.reverse()
+}
+
 const d = e.defaultArg = (arg, def) => arg === undefined ? def : arg

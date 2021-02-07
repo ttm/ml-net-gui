@@ -3,6 +3,8 @@ const transfer = require('../transfer.js')
 const utils = require('../utils.js')
 const maestro = require('../maestro.js')
 const J = require('@eastdesire/jscolor')
+const waveforms = require('./common.js').waveforms
+const permfuncs = require('./common.js').permfuncs
 
 const e = module.exports
 
@@ -11,15 +13,15 @@ const e = module.exports
 // add bell on minutes before starting and before ending
 // add templates to each voice
 // add advanced synth to each voice, as with Tone examples
+// add phase to martigli
 
 function addWaveforms (grid, str, id) {
   $('<span/>').html(str + ':').appendTo(grid)
   const select = $('<select/>', { id }).appendTo(grid)
   const aw = (val, str) => select.append($('<option/>').val(val).html(str))
-  aw(0, 'sine')
-  aw(1, 'triangle')
-  aw(2, 'square')
-  aw(3, 'sawtooth')
+  for (const w in waveforms) {
+    aw(w, waveforms[w])
+  }
   return select
 }
 
@@ -439,7 +441,14 @@ e.Mk = class {
     const noctaves = addNumField(grid, 'number of octaves', 'any real number', 'number of octaves to spread the notes evenly (endpoint not included)', 1)
     const f0 = addNumField(grid, 'lowest frequency', 'any real number', 'frequency of the lowest note', 100)
     const d = addNumField(grid, 'cycle duration', 'any real number', 'duration of the iteration on all notes before repetition', 1.5)
-    return { nnotes, noctaves, f0, d }
+    const waveform = addWaveforms(grid, 'waveform', 'waveformS')
+    $('<span/>').html('permutation:').appendTo(grid)
+    const permfunc = $('<select/>').appendTo(grid)
+    const aw = (val, str) => permfunc.append($('<option/>').val(val).html(str))
+    for (const w in permfuncs) {
+      aw(w, permfuncs[w])
+    }
+    return { nnotes, noctaves, f0, d, waveform, permfunc }
   }
 
   addSample (grid) {

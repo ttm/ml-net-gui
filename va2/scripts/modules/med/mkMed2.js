@@ -347,6 +347,7 @@ e.Mk = class {
       .html('Create')
       .click(() => {
         const voices = []
+        let ok = true
         this.setting.forEach(i => {
           if (i.grid.voiceRemoved) return
           const voice = {}
@@ -362,9 +363,13 @@ e.Mk = class {
           if (voice.type.includes('Martigli')) {
             voice.isOn = i.grid.onOff.isOn
           }
-          if (!this.checkVoice(voice)) return
+          if (!this.checkVoice(voice)) {
+            ok = false
+            return
+          }
           voices.push(voice)
         })
+        if (!ok) return
         const h = this.header
         const header = {
           med2: h.med2.val(),
@@ -529,6 +534,8 @@ e.Mk = class {
       if (v.soundSamplePeriod !== 0 && v.soundSamplePeriod < maestro.sounds[v.soundSample].duration) {
         // todo: test if sampler can overlap playback (if so, remove the following line:)
         window.alert('define a repetition period which is greater than the samples\' duration or 0 (for looping).')
+        console.log('yeah, here')
+        return
       }
     } else if (v.type === 'Martigli-Binaural') {
       if (v.ma > Math.min(v.fl, v.fr)) {

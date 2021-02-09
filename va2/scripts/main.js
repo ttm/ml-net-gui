@@ -23,9 +23,11 @@ if (uargs.values[0] === '') {
   found = true
   if (k[0] === '_') { // meditation model 1:
     wand.med.model(k.slice(1))
+    wand.utils.confirmExit()
   } else if (k[0] === '@') { // meditation model 2:
-    console.log('AHHHH')
+    wand.$('<div/>', { id: 'canvasDiv' }).appendTo('body')
     wand.currentMed = new wand.med.Model2(k.slice(1))
+    wand.utils.confirmExit()
   } else if (k in wand.test) { // standard page:
     wand.test[k]() // if k[0] === '-': k is an article
   } else {

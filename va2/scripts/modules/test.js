@@ -2734,6 +2734,7 @@ e.aa = () => {
     }
   })
   $('#loading').hide()
+  utils.confirmExit()
 }
 
 e.aalogs = () => {

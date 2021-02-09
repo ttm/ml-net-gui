@@ -127,4 +127,28 @@ e.permutations = {
   reverse: a => a.reverse()
 }
 
+e.confirmExit = () => {
+  window.onbeforeunload = function (e) {
+    e = e || window.event
+    // For IE and Firefox prior to version 4
+    if (e) {
+      e.returnValue = 'Any string'
+    }
+    // For Safari
+    return 'Any string'
+  }
+}
+
+const reduce = dur => [Math.floor(dur / 60), Math.floor(dur % 60)]
+const p = num => num < 10 ? '0' + num : num
+e.secsToTime = secs => {
+  let [minutes, seconds] = reduce(secs)
+  let hours = ''
+  if (minutes > 59) {
+    [hours, minutes] = reduce(minutes)
+    hours += ':'
+  }
+  return `${hours}${p(minutes)}:${p(seconds)}`
+}
+
 const d = e.defaultArg = (arg, def) => arg === undefined ? def : arg

@@ -194,7 +194,7 @@ e.Med = class {
     const [w, h] = [app.view.width, app.view.height]
     const c = [w / 2, h / 2] // center
     const a = w * 0.35 // for lemniscate
-    const [a_, a__] = [w * 0.1, h * 0.1] // for trifoil
+    const [a_, a__, h_] = [w * 0.13, h * 0.15, h * 0.05] // for trifoil
 
     function mkNode (pos, scale = 1, tint = 0xffffff) {
       const circle = new PIXI.Sprite(circleTexture)
@@ -219,10 +219,10 @@ e.Med = class {
       return vertical ? [py + c[1], px + c[0]] : [px + c[0], py + c[1]]
     }
 
-    function xyT (angle, vertical) { // trifoil x, y given angle. todo: use the vertical
+    function xyT (angle) { // trifoil x, y given angle. todo: add downward
       const px = a_ * (Math.sin(angle) + 2 * Math.sin(2 * angle))
       const py = a__ * (Math.cos(angle) - 2 * Math.cos(2 * angle))
-      return vertical ? [py + c[1], px + c[0]] : [px + c[0], py + c[1]]
+      return [px + c[0], py + c[1] + h_]
     }
     let xy
     if (s.lemniscate) {
@@ -299,11 +299,11 @@ e.Med = class {
         myCircle2.y = myCircle3.y = p[1]
         myCircle3.x = 2 * c[0] - p[0]
         bCircle.y = val * a * 0.5 + y
-      } else if (s.lemniscate === 2) {
+      } else if (s.lemniscate === 2) { // trifoil:
         const pos = xy(avalr + 3 * Math.PI / 2)
         myCircle2.y = myCircle3.y = pos[1]
-        myCircle2.x = pos[0]
-        myCircle3.x = 2 * c[0] - pos[0]
+        myCircle3.x = pos[0]
+        myCircle2.x = 2 * c[0] - pos[0]
         bCircle.y = val * a * 0.5 + y
       } else {
         const px = (avalr < 0 ? 2 * Math.PI + avalr : avalr) / (2 * Math.PI) * dx + x

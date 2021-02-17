@@ -292,6 +292,9 @@ e.Mk = class {
           $('#lb_ccc').html('left circ color:')
           $('#lb_lcc').html('right circ color:')
         } else {
+          $('#lb_ccc').html('left circ color:')
+          $('#lb_lcc').html('right circ color:')
+
           $('#lb_ccc').html('circ 1 color:')
           $('#lb_lcc').html('circ 2 color:')
         }
@@ -520,7 +523,8 @@ e.Mk = class {
 
     const v = this.visSetting
     const v_ = s.visSetting
-    v.lemniscate.prop('checked', v_.lemniscate)
+    // v.lemniscate.prop('checked', v_.lemniscate)
+    v.lemniscate.val(Number(v_.lemniscate))
     v.rainbowFlakes.prop('checked', v_.rainbowFlakes)
     v.ellipse.prop('checked', v_.ellipse)
     v.bPos.bindex = v_.bPos || 0

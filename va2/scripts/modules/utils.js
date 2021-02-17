@@ -142,6 +142,7 @@ e.confirmExit = () => {
 const reduce = dur => [Math.floor(dur / 60), Math.floor(dur % 60)]
 const p = num => num < 10 ? '0' + num : num
 e.secsToTime = secs => {
+  secs = Math.abs(secs)
   let [minutes, seconds] = reduce(secs)
   let hours = ''
   if (minutes > 59) {

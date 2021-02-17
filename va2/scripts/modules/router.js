@@ -71,14 +71,14 @@ e.mkFooter = () => {
       'background-color': '#dddddd'
     }
   })
-  wand.$('<div/>', {
-    id: 'disqus_thread',
-    css: {
-      margin: '0 auto',
-      padding: '1%',
-      width: '50%'
-    }
-  }).appendTo('body')
+  // wand.$('<div/>', {
+  //   id: 'disqus_thread',
+  //   css: {
+  //     margin: '0 auto',
+  //     padding: '1%',
+  //     width: '50%'
+  //   }
+  // }).appendTo('body')
   lang(ft)
   // uncomment to enable disqus
   // todo: debug to load correct discussions in each page

@@ -2,6 +2,7 @@ const PIXI = require('pixi.js')
 const t = require('tone')
 const $ = require('jquery')
 const percom = require('percom')
+const dat = require('dat.gui')
 
 const transfer = require('../transfer.js')
 const maestro = require('../maestro.js')
@@ -15,12 +16,15 @@ const tr = PIXI.utils.string2hex
 
 e.Med = class {
   constructor (med2) {
+    this.finalFade = 5
+    this.initialFade = 5
+    this.initialVolume = -40
     transfer.findAny({ 'header.med2': med2 }).then(r => {
       this.setting = r
       this.voices = []
       for (let i = 0; i < r.voices.length; i++) {
         const v = r.voices[i]
-        this.voices.push(this['add' + v.type.replace('-', '')](v))
+        this.voices.push({ ...this['add' + v.type.replace('-', '')](v), type: v.type, isOn: v.isOn })
       }
       this.visuals = this.setVisual(r.visSetting)
       this.setStage(r.header)
@@ -29,33 +33,31 @@ e.Med = class {
   }
 
   addMartigli (s) {
-    console.log('in martigli voice')
     const synthM = maestro.mkOsc(0, -400, 0, w[s.waveformM], false, true)
     const mul = new t.Multiply(s.ma).chain(new t.Add(s.mf0), synthM.frequency)
     const mod = maestro.mkOsc(1 / s.mp0, 0, 0, 'sine', true, true).connect(mul)
     if (s.isOn) {
       const met = new t.DCMeter()
       mod.connect(met)
-      this.meter = met // in setVisual, check if this var is existent.
+      this.meter = met // this.setVisual() checks if this var is existent.
     }
-    // return the start and the finish function
     return {
       start: tt => {
         synthM.start(tt)
         mod.start(tt)
-        synthM.volume.rampTo(-40, 1, tt)
+        synthM.volume.rampTo(this.initialVolume, this.initialFade, tt)
         mod.frequency.rampTo(1 / s.mp1, s.md, tt)
       },
       stop: tt => {
-        synthM.volume.rampTo(-200, 1, tt)
-        synthM.stop(tt + 1)
-        mod.stop(tt + 1)
-      }
+        synthM.volume.rampTo(-200, this.finalFade, tt)
+        synthM.stop(tt + this.finalFade)
+        mod.stop(tt + this.finalFade)
+      },
+      volume: { synthM }
     }
   }
 
   addBinaural (s) {
-    console.log('in binaural voice')
     const synthL = maestro.mkOsc(s.fl, -400, -1, w[s.waveformL], false, true)
     const synthR = maestro.mkOsc(s.fr, -400, 1, w[s.waveformR], false, true)
     const pan = this.setPanner(s, synthL, synthR)
@@ -63,19 +65,19 @@ e.Med = class {
     return {
       start: tt => {
         all.forEach(i => i.start(tt))
-        synthL.volume.rampTo(-40, 1, tt)
-        synthR.volume.rampTo(-40, 1, tt)
+        synthL.volume.rampTo(this.initialVolume, this.initialFade, tt)
+        synthR.volume.rampTo(this.initialVolume, this.initialFade, tt)
       },
       stop: tt => {
-        synthL.volume.rampTo(-400, 1, tt)
-        synthR.volume.rampTo(-400, 1, tt)
-        all.forEach(i => i.stop(tt + 1))
-      }
+        synthL.volume.rampTo(-400, this.finalFade, tt)
+        synthR.volume.rampTo(-400, this.finalFade, tt)
+        all.forEach(i => i.stop(tt + this.finalFade))
+      },
+      volume: { synthL, synthR }
     }
   }
 
   addMartigliBinaural (s) {
-    console.log('in martigli binaural voice')
     const synthL = maestro.mkOsc(s.fl, -400, -1, w[s.waveformL], false, true)
     const synthR = maestro.mkOsc(s.fr, -400, 1, w[s.waveformR], false, true)
     const mul = new t.Multiply(s.ma).fan(
@@ -86,33 +88,33 @@ e.Med = class {
     if (s.isOn) {
       const met = new t.DCMeter()
       mod.connect(met)
-      this.meter = met // in setVisual, check if this var is existent.
+      this.meter = met // this.setVisual check if this var is existent.
     }
     const pan = this.setPanner(s, synthL, synthR, mod)
     const all = [synthL, synthR, mod, pan]
     return {
       start: tt => {
         all.forEach(i => i.start(tt))
-        synthL.volume.rampTo(-40, 1, tt)
-        synthR.volume.rampTo(-40, 1, tt)
+        synthL.volume.rampTo(this.initialVolume, this.initialFade, tt)
+        synthR.volume.rampTo(this.initialVolume, this.initialFade, tt)
+        mod.frequency.rampTo(1 / s.mp1, s.md, tt)
       },
       stop: tt => {
-        synthL.volume.rampTo(-400, 1, tt)
-        synthR.volume.rampTo(-400, 1, tt)
-        all.forEach(i => i.stop(tt + 1))
-      }
+        synthL.volume.rampTo(-400, this.finalFade, tt)
+        synthR.volume.rampTo(-400, this.finalFade, tt)
+        all.forEach(i => i.stop(tt + this.finalFade))
+      },
+      volume: { synthL, synthR }
     }
   }
 
   addSymmetry (s) {
-    console.log('in symmetry voice')
     const freqSpan = s.noctaves * 2
     const freqFact = freqSpan ** (1 / s.nnotes)
     const notes = [s.f0]
     for (let i = 1; i < s.nnotes; i++) {
       notes.push(s.f0 * (freqFact ** i))
     }
-    // const sy = maestro.mkOsc(s.fl, -400, -1, w[s.waveform], false, true)
     const sy = new t.Synth({ oscillator: { type: w[s.waveform] } }).toDestination()
     sy.volume.value = -400
     window.sy = sy
@@ -120,11 +122,9 @@ e.Med = class {
     const noteDur = noteSep / 2
     const permfunc = utils.permutations[p[s.permfunc]]
     const loop = new t.Loop(time => {
-      // check types of permutations. Implement at least:
-      // symmetric, rotation and mirror/reverse. Maybe also compound
+      // todo: implement compound and peals
       permfunc(notes)
       for (const note in notes) {
-        console.log(note, notes[note], notes, time, time + noteSep * note)
         sy.triggerAttackRelease(notes[note], noteDur, time + noteSep * note)
       }
     }, s.d)
@@ -132,40 +132,41 @@ e.Med = class {
     return {
       start: tt => {
         loop.start(tt)
-        sy.volume.rampTo(-40, 1, tt)
+        sy.volume.rampTo(this.initialVolume, this.initialFade, tt)
       },
       stop: tt => {
-        loop.stop(tt + 1)
-        sy.volume.rampTo(-400, 1, tt)
-      }
+        loop.stop(tt + this.finalFade)
+        sy.volume.rampTo(-400, this.finalFade, tt)
+      },
+      volume: { sy }
     }
   }
 
   addSample (s) {
-    console.log('in sample voice')
     const sampler = new t.Player(`assets/audio/${maestro.sounds[s.soundSample].name}.mp3`).toDestination()
     sampler.volume.value = parseFloat(s.soundSampleVolume)
     sampler.loop = s.soundSamplePeriod === 0
     let theSamp
     if (sampler.loop) {
-      theSamp = sampler // .start(tt + (s.soundSampleStart || 0))
+      theSamp = sampler
     } else {
       theSamp = new t.Loop(time => {
         sampler.start(time)
-      }, s.soundSamplePeriod) // .start(tt + (s.soundSampleStart || 0))
+      }, s.soundSamplePeriod)
     }
     return {
       start: tt => {
         theSamp.start(tt + (s.soundSampleStart || 0))
       },
       stop: tt => {
-        sampler.volume.rampTo(-400, 1, tt)
-        theSamp.stop(tt + 1)
-      }
+        sampler.volume.rampTo(-400, this.finalFade, tt)
+        theSamp.stop(tt + this.finalFade)
+      },
+      volume: { sampler }
     }
   }
 
-  setVisual (s) {
+  setVisual (s) { // todo: enhance code quality
     const nodeContainer = new PIXI.ParticleContainer(10000, {
       scale: true,
       position: true
@@ -192,7 +193,8 @@ e.Med = class {
     app.stage.addChild(nodeContainer)
     const [w, h] = [app.view.width, app.view.height]
     const c = [w / 2, h / 2] // center
-    const a = w * 0.35
+    const a = w * 0.35 // for lemniscate
+    const [a_, a__] = [w * 0.1, h * 0.1] // for trifoil
 
     function mkNode (pos, scale = 1, tint = 0xffffff) {
       const circle = new PIXI.Sprite(circleTexture)
@@ -203,20 +205,28 @@ e.Med = class {
       nodeContainer.addChild(circle)
       return circle
     }
-    function xy (angle, vertical) { // lemniscate x, y given angle
-      const px = a * Math.cos(angle) / (1 + Math.sin(angle) ** 2)
-      const py = Math.sin(angle) * px
-      return vertical ? [py + c[1], px + c[0]] : [px + c[0], py + c[1]]
-    }
 
-    const [x, y] = [w * 0.1, h * 0.5] // for sinusoid
-    const [dx, dy] = [w * 0.8, h * 0.4] // for sinusoid
+    const [x, y] = [w * 0.1, h * 0.5] // for sinusoid, left-most point
+    const [dx, dy] = [w * 0.8, h * 0.4] // for sinusoid, period and amplitude
 
     const [x0, y0] = s.lemniscate ? c : [w * 0.2, h * 0.2]
     const myLine = new PIXI.Graphics()
     const segments = 100
 
+    function xyL (angle, vertical) { // lemniscate x, y given angle. todo: use the vertical
+      const px = a * Math.cos(angle) / (1 + Math.sin(angle) ** 2)
+      const py = Math.sin(angle) * px
+      return vertical ? [py + c[1], px + c[0]] : [px + c[0], py + c[1]]
+    }
+
+    function xyT (angle, vertical) { // trifoil x, y given angle. todo: use the vertical
+      const px = a_ * (Math.sin(angle) + 2 * Math.sin(2 * angle))
+      const py = a__ * (Math.cos(angle) - 2 * Math.cos(2 * angle))
+      return vertical ? [py + c[1], px + c[0]] : [px + c[0], py + c[1]]
+    }
+    let xy
     if (s.lemniscate) {
+      xy = s.lemniscate === 1 ? xyL : xyT
       bCircle.x = s.bPos === 0 ? c[0] : s.bPos === 1 ? (c[0] - a) / 2 : (3 * c[0] + a) / 2
       myLine.lineStyle(1, 0xffffff)
         .moveTo(...xy(0))
@@ -231,10 +241,10 @@ e.Med = class {
         myLine.lineTo(x + dx * i / segments, y + Math.sin(2 * Math.PI * i / segments) * dy)
       }
       mkNode([x0, y0]) // fixed left
-        .position.set(x + dx, y)
+        .position.set(x, y)
         .tint = tr(s.fgc)
       mkNode([x0, y0]) // fixed right
-        .position.set(x, y)
+        .position.set(x + dx, y)
         .tint = tr(s.fgc)
     }
 
@@ -242,10 +252,6 @@ e.Med = class {
     const myCircle2 = mkNode(undefined, 1, 0xffff00) // lateral (sinus), right (lemniscate)
     const myCircle3 = mkNode(undefined, 1, 0x00ff00) // center (sinus), left (lemniscate)
 
-    // const co = new PIXI.Container()
-    // app.stage.addChild(co)
-    // co.addChild(myLine)
-    // co.addChild(myCircle4) // breathing cue
     app.stage.addChild(myLine)
     app.stage.addChild(bCircle) // breathing cue
 
@@ -276,25 +282,28 @@ e.Med = class {
     const ticker = app.ticker.add(() => {
       // todo: solve for unexisting met (make a standard met?)
       const dc = this.meter ? this.meter.getValue() : 0
-      // console.log('DC:', dc)
       const cval = (1 - Math.abs(dc))
       if (dc - lastdc > 0) { // inhale
-        // mais proximo de 0, mais colorido
-        this.guiEls.inhale.css('background', `rgba(255,255,0,${cval})`)
+        this.guiEls.inhale.css('background', `rgba(255,255,0,${cval})`) // mais proximo de 0, mais colorido
         this.guiEls.exhale.css('background', 'rgba(0,0,0,0)')
       } else { // exhale
-        // mais proximo de 0, mais colorido
-        this.guiEls.exhale.css('background', `rgba(255,255,0,${cval})`)
+        this.guiEls.exhale.css('background', `rgba(255,255,0,${cval})`) // mais proximo de 0, mais colorido
         this.guiEls.inhale.css('background', 'rgba(0,0,0,0)')
       }
       lastdc = dc
       const val = -dc
       const avalr = Math.asin(val) // radians in [-pi/2, pi/2]
-      if (s.lemniscate) {
+      if (s.lemniscate === 1) {
         const p = xy(avalr < 0 ? 2 * Math.PI + avalr : avalr)
         myCircle2.x = p[0]
         myCircle2.y = myCircle3.y = p[1]
         myCircle3.x = 2 * c[0] - p[0]
+        bCircle.y = val * a * 0.5 + y
+      } else if (s.lemniscate === 2) {
+        const pos = xy(avalr + 3 * Math.PI / 2)
+        myCircle2.y = myCircle3.y = pos[1]
+        myCircle2.x = pos[0]
+        myCircle3.x = 2 * c[0] - pos[0]
         bCircle.y = val * a * 0.5 + y
       } else {
         const px = (avalr < 0 ? 2 * Math.PI + avalr : avalr) / (2 * Math.PI) * dx + x
@@ -335,7 +344,8 @@ e.Med = class {
         }
       }
     })
-    setTimeout(() => ticker.stop(), 200)
+    // setTimeout(() => ticker.stop(), 200)
+    ticker.stop()
 
     return {
       start: () => {
@@ -348,21 +358,19 @@ e.Med = class {
   }
 
   setStage (s) {
-    const adiv = utils.centerDiv(undefined, $('#canvasDiv'), utils.chooseUnique(['#eeeeff', '#eeffee', '#ffeeee'], 1)[0]).css('text-align', 'center')
-    // const grid = utils.mkGrid(2, $('#canvasDiv'))
-    const countdownMsg = $('<span/>').html('countdown to start:') // .appendTo(grid)
-    const countdownCount = $('<span/>').html('--:--:--') // .appendTo(grid)
-    //  .css('margin-left', '1%')
+    const adiv = utils.centerDiv(undefined, $('#canvasDiv'), utils.chooseUnique(['#eeeeff', '#eeffee', '#ffeeee'], 1)[0])
+      .css('text-align', 'center')
+      .css('padding', '0.5% 1%')
+    const countdownMsg = $('<span/>').html('countdown to start:')
+    const countdownCount = $('<span/>').html('--:--:--')
     $('<p/>').appendTo(adiv)
       .append(countdownMsg)
       .append(countdownCount)
-    // $('<span/>').html('participation:') // .appendTo(grid)
     const lpar = $('<p/>').appendTo(adiv)
     const label = $('<label/>', {
       class: 'switch',
       css: {
         margin: '0 auto'
-        // 'text-align': 'center'
       }
     }).appendTo(lpar)
     const check = $('<input/>', {
@@ -372,10 +380,10 @@ e.Med = class {
         clearTimeout(badTimer)
         clearInterval(badCounter)
         check.prop('disabled', true)
-        this.startGoodTimer(s)
+        this.startGoodTimer(s, badTimer, badCounter)
       }
     })
-    $('<div/>', { class: 'slider round' }).appendTo(label)
+    $('<div/>', { class: 'slideraa round' }).appendTo(label)
 
     const inhale = $('<span/>').html(' inhale ')
     const exhale = $('<span/>').html(' exhale ')
@@ -385,14 +393,15 @@ e.Med = class {
       .append($('<span/>').html('✡'))
       .append(exhale)
       .append($('<span/>').html('✡'))
+    this.updateScheduling(s) // to update s.datetime
     const badTimer = setTimeout(() => {
       check.prop('disabled', true)
-      $('.slider').css('background', '#cacaca')
-      countdownMsg.html('session already started or ended. No new participants allowed.')
+      $('.slideraa').css('background', '#cacaca')
+      countdownMsg.html('No late participants allowed. Time since session started:')
       countdownCount.html('')
-    }, this.getDurationToStart(s) * 1000)
+    }, this.getDurationToStart(s))
     const badCounter = setInterval(() => {
-      countdownCount.html(' ' + utils.secsToTime(this.getDurationToStart(s)))
+      countdownCount.html(' ' + utils.secsToTime(this.getDurationToStart(s) / 1000))
     }, 100)
     this.guiEls = { countdownMsg, countdownCount, label, inhale, exhale }
   }
@@ -437,54 +446,135 @@ e.Med = class {
     }
   }
 
-  getDurationToStart (s) {
-    const dt = u('s') ? utils.timeArgument() : s.datetime
-    let duration = (dt.getTime() - (new Date()).getTime()) / 1000
-    if (u('t')) duration = parseFloat(u('t'))
-    return duration
+  getDurationToStart (s) { // in ms
+    return s.datetime.getTime() - (new Date()).getTime()
   }
 
   startGoodTimer (s) {
+    this.visuals.start()
+    this.volumeControl()
+    const before = window.performance.now()
+    const d = () => this.getDurationToStart(s) / 1000
     t.start(0)
     t.Transport.start(0)
     t.Master.mute = false
-
-    const duration = this.getDurationToStart(s)
     this.voices.forEach(v => {
-      console.log('yeyaa', v)
       if (!v) return
-      console.log('yey', v)
-      v.start(duration)
-      v.stop(duration + s.d)
+      v.start('+' + d())
+      v.stop('+' + (d() + s.d))
     })
 
-    let finished = false
-    const loop = new t.Loop(time => { // update counter before starts and before ends
-      t.Draw.schedule(() => {
-        if (!finished) {
-          // const mm = this.getDurationToStart(s)
-          // const mm = (s.datetime.getTime() - (new Date()).getTime()) / 1000
-          const mm = duration - time
-          this.guiEls.countdownCount.html(' ' + utils.secsToTime(mm > 0 ? mm : mm + s.d))
-        }
-      }, time)
-    }, 0.1).start(0)
-
+    let started = false
     t.Transport.schedule((time) => { // change message to ongoing
+      started = true
       t.Draw.schedule(() => {
         this.guiEls.countdownMsg.html('countdown to finish:')
       }, time)
-    }, duration)
+    }, '+' + d())
 
+    let finished = false
     t.Transport.schedule((time) => { // change message to finished
+      finished = true
       t.Draw.schedule(() => {
-        console.log('finished:', time)
-        finished = true
-        loop.stop()
-        this.guiEls.countdownMsg.html('session finished.')
-        this.guiEls.countdownCount.html('')
+        this.guiEls.countdownMsg.html('session finished. Time elapsed:')
       }, time)
-    }, duration + s.d)
+    }, '+' + (d() + s.d))
+    console.log('time taken between scheduling events:', window.performance.now() - before)
+
+    new t.Loop(time => { // update counter before starts and then before ends.
+      t.Draw.schedule(() => {
+        const mm = d()
+        this.guiEls.countdownCount.html(' ' + utils.secsToTime(mm > 0 ? mm : mm + s.d))
+      }, time)
+    }, 0.1).start(0)
+
+    window.onfocus = () => {
+      if (started && !finished) {
+        this.guiEls.countdownMsg.html('countdown to finish:')
+      } else if (finished) {
+        this.guiEls.countdownMsg.html('session finished. Time elapsed:')
+      }
+    }
+  }
+
+  startGoodTimer2 (s) {
     this.visuals.start()
+    setTimeout(() => { // change message to ongoing
+      this.guiEls.countdownMsg.html('countdown to finish:')
+    }, this.getDurationToStart(s))
+
+    setTimeout(() => { // change message to finished
+      this.guiEls.countdownMsg.html('session finished. Time elapsed:')
+    }, this.getDurationToStart(s) + s.d * 1000)
+
+    setInterval(() => {
+      const mm = this.getDurationToStart(s) / 1000
+      this.guiEls.countdownCount.html(' ' + utils.secsToTime(mm > 0 ? mm : mm + s.d))
+    }, 100)
+
+    t.start(0)
+    t.Transport.start(0)
+    t.Master.mute = false
+    this.voices.forEach(v => {
+      if (!v) return // todo: find when !v or remove conditional
+      v.start(this.getDurationToStart(s) / 1000)
+      v.stop(this.getDurationToStart(s) / 1000 + s.d)
+    })
+  }
+
+  updateScheduling (s) {
+    console.log('previous time:', s.datetime)
+    if (u('s')) {
+      s.datetime = utils.timeArgument()
+    } else if (u('t')) {
+      const dt = new Date()
+      dt.setSeconds(dt.getSeconds() + parseFloat(u('t')))
+      s.datetime = dt
+    }
+    console.log('new time:', s.datetime)
+  }
+
+  volumeControl () {
+    // const gui = new dat.GUI({ closed: true, closeOnTop: true })
+    const gui = new dat.GUI()
+    const counts = this.voices.reduce((a, v) => {
+      a[v.type] = 0
+      return a
+    }, {})
+    const n = type => type === 'Martigli-Binaural' ? 'Mar_Bin' : type
+    let master = 0
+    const instruments = []
+    for (let i = 0; i < this.voices.length; i++) {
+      const v = this.voices[i]
+      let label = `${n(v.type)}-${++counts[v.type]}`
+      if (v.isOn) label += ' REF'
+      console.log('LABEL:', label)
+      const d = {}
+      d[label] = 50
+      const voiceGui = gui.add(d, label, 0, 100).listen()
+      const instr = []
+      for (const instrument in v.volume) {
+        v.volume[instrument].defVolume = this.initialVolume
+        instr.push(v.volume[instrument])
+      }
+      instruments.push({ voiceGui, instr })
+      voiceGui.onChange(val => {
+        for (const instrument in v.volume) {
+          console.log('tvol:', val + v.volume[instrument].defVolume - 50)
+          v.volume[instrument].volume.value = val + v.volume[instrument].defVolume - 50 + master
+        }
+      })
+    }
+    const masterGui = gui.add({ master: 50 }, 'master', 0, 100).listen()
+    masterGui.onChange(val => {
+      master = val - 50
+      instruments.forEach(i => {
+        i.instr.forEach(ii => {
+          ii.volume.value = i.voiceGui.getValue() + ii.defVolume - 50 + master
+        })
+      })
+    })
+    window.mmaster = masterGui
+    window.ggg = gui
   }
 }

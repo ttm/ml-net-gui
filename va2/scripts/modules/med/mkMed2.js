@@ -126,15 +126,15 @@ function addPanner (s, c) {
       const i = parseInt(aself.currentTarget.value)
       if (i === 0 || i === 3) {
         fields.forEach(f => f.hide())
-        delete s.panOscPeriod
-        delete s.panOscTrans
+        // delete s.panOscPeriod
+        // delete s.panOscTrans
       } else if (i === 1) {
         fields.forEach(f => f.show())
-        s.panOscPeriod = panOscPeriod
-        s.panOscTrans = panOscTrans
+        // s.panOscPeriod = panOscPeriod
+        // s.panOscTrans = panOscTrans
       } else if (i === 2) {
-        s.panOscPeriod = panOscPeriod
-        delete s.panOscTrans
+        // s.panOscPeriod = panOscPeriod
+        // delete s.panOscTrans
         fields.slice(0, 2).forEach(f => f.show())
         fields.slice(2).forEach(f => f.hide())
       }
@@ -146,19 +146,20 @@ function addPanner (s, c) {
     s.panOsc.append($('<option/>').val(3).html('sine in sync with Martigli'))
   }
   const panOscPeriod_ = $('<span/>').html('pan oscillation period:').appendTo(grid).hide()
-  const panOscPeriod = $('<input/>', {
+  s.panOscPeriod = $('<input/>', {
     placeholder: 'in seconds'
   }).appendTo(grid).hide()
     .attr('title', 'Duration of the pan oscillation in seconds.')
     .val(120)
 
   const panOscTrans_ = $('<span/>').html('pan oscillation crossfade:').appendTo(grid).hide()
-  const panOscTrans = $('<input/>', {
+  s.panOscTrans = $('<input/>', {
     placeholder: 'in seconds'
   }).appendTo(grid).hide()
     .attr('title', 'Duration of the pan crossfade (half the pan oscillation period or less).')
     .val(20)
-  const fields = [panOscPeriod_, panOscPeriod, panOscTrans, panOscTrans_]
+  const fields = [panOscPeriod_, s.panOscPeriod, s.panOscTrans, panOscTrans_]
+  s.grid.panFields = fields
 }
 
 e.Mk = class {
@@ -228,6 +229,8 @@ e.Mk = class {
       .attr('title', 'Select a date and time for the mentalization to occur.')
     const dt = new Date()
     dt.setMinutes(dt.getMinutes() + 10)
+    dt.setSeconds(0)
+    dt.setMilliseconds(0)
     const datetime = flatpickr(adiv, {
       enableTime: true
     })
@@ -256,18 +259,41 @@ e.Mk = class {
     const grid = utils.mkGrid(2, this.div1, '90%', '#eeffee', '50%')
     const obj = {}
 
-    $('<span/>').html('lemniscate:').appendTo(grid)
-    obj.lemniscate = $('<input/>', {
-      type: 'checkbox'
-    }).appendTo(grid)
-      .attr('title', 'Visualization with lemniscate if checked, sinusoid if not checked.')
-      .on('change', function () {
-        if (this.checked) {
+    // todo: flower of life, hexagram (plain and unicursal), pentagram, triquetra/trifoil
+    // only the gem
+    // todo: blink blackground for entrainment
+
+    // $('<span/>').html('lemniscate:').appendTo(grid)
+    // obj.lemniscate = $('<input/>', {
+    //   type: 'checkbox'
+    // }).appendTo(grid)
+    //   .attr('title', 'Visualization with lemniscate if checked, sinusoid if not checked.')
+    //   .on('change', function () {
+    //     if (this.checked) {
+    //       $('#lb_ccc').html('left circ color:')
+    //       $('#lb_lcc').html('right circ color:')
+    //     } else {
+    //       $('#lb_ccc').html('center circ color:')
+    //       $('#lb_lcc').html('lateral circ color:')
+    //     }
+    //   })
+
+    $('<span/>').html('shape:').appendTo(grid)
+    obj.lemniscate = $('<select/>').appendTo(grid)
+      .append($('<option/>').val(0).html('sinusoid'))
+      .append($('<option/>').val(1).html('lemniscate'))
+      .append($('<option/>').val(2).html('trifoil (triquetra)'))
+      .on('change', aself => {
+        const i = parseInt(aself.currentTarget.value)
+        if (i === 0) {
+          $('#lb_ccc').html('center circ color:')
+          $('#lb_lcc').html('lateral circ color:')
+        } else if (i === 1) {
           $('#lb_ccc').html('left circ color:')
           $('#lb_lcc').html('right circ color:')
         } else {
-          $('#lb_ccc').html('center circ color:')
-          $('#lb_lcc').html('lateral circ color:')
+          $('#lb_ccc').html('circ 1 color:')
+          $('#lb_lcc').html('circ 2 color:')
         }
       })
 
@@ -353,6 +379,8 @@ e.Mk = class {
           const voice = {}
           for (const ii in i) {
             if (ii === 'grid') continue
+            console.log(i, ii)
+            console.log(i[ii])
             const v = p(i[ii])
             if (ii !== 'type' && isNaN(v)) {
               window.alert(`Define the value for <b>${ii}</b> in the voice with type <b>${i.type}</b>.`)
@@ -381,10 +409,10 @@ e.Mk = class {
         if (!this.checkHeader(header)) return
         const v = this.visSetting
         const visSetting = {
-          lemniscate: v.lemniscate.prop('checked'),
+          lemniscate: p(v.lemniscate),
           rainbowFlakes: v.rainbowFlakes.prop('checked'),
           ellipse: v.ellipse.prop('checked'),
-          bPos: v.bPos.index
+          bPos: v.bPos.bindex
         }
         const colors = ['bcc', 'bgc', 'fgc', 'ccc', 'lcc']
         colors.forEach(i => { visSetting[i] = v[i].toString() })
@@ -514,6 +542,17 @@ e.Mk = class {
         if (typeof i[j] !== 'string' && j !== 'isOn') {
           console.log(j, i[j])
           set[j].val(i[j])
+        }
+        if (j === 'panOsc') {
+          const ii = i[j]
+          if (ii === 0 || ii === 3) {
+            set.grid.panFields.forEach(f => f.hide())
+          } else if (ii === 1) {
+            set.grid.panFields.forEach(f => f.show())
+          } else if (ii === 2) {
+            set.grid.panFields.slice(0, 2).forEach(f => f.show())
+            set.grid.panFields.slice(2).forEach(f => f.hide())
+          }
         }
       }
     })

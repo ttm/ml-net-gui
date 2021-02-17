@@ -83,9 +83,9 @@ body{
   top: 0!important;
 }
 
-span {
+/* span {
   width: 50%;
-}
+} */
 
 
 /* On / Off switch */
@@ -98,7 +98,7 @@ span {
 
 .switch input {display:none;}
 
-.slider {
+.slideraa {
   position: absolute;
   cursor: pointer;
   top: 0;
@@ -111,7 +111,7 @@ span {
    border-radius: 34px;
 }
 
-.slider:before {
+.slideraa:before {
   position: absolute;
   content: "";
   height: 26px;
@@ -124,22 +124,22 @@ span {
   border-radius: 50%;
 }
 
-input:checked + .slider {
+input:checked + .slideraa {
   background-color: #2ab934;
 }
 
-input:focus + .slider {
+input:focus + .slideraa {
   box-shadow: 0 0 1px #2196F3;
 }
 
-input:checked + .slider:before {
+input:checked + .slideraa:before {
   -webkit-transform: translateX(26px);
   -ms-transform: translateX(26px);
   transform: translateX(55px);
 }
 
 /*------ ADDED CSS ---------*/
-.slider:after
+.slideraa:after
 {
  content:'OFF';
  color: white;
@@ -152,7 +152,7 @@ input:checked + .slider:before {
  font-family: Verdana, sans-serif;
 }
 
-input:checked + .slider:after
+input:checked + .slideraa:after
 {
   content:'ON';
 }

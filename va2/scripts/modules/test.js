@@ -2646,7 +2646,7 @@ e.aa = () => {
   $('<span/>').html('shouts expected:').appendTo(grid)
   const shoutsExp = $('<span/>').appendTo(grid)
   $('<span/>').html('time left in current slot:').appendTo(grid)
-  const tLeft2 = $('<span/>').appendTo(grid)
+  const tLeft2 = $('<span/>', { class: 'notranslate' }).appendTo(grid)
 
   function startSession () {
     ssBtn.attr('disabled', true)
@@ -2724,14 +2724,6 @@ e.aa = () => {
     vv = v
     vv = v
     mkSound()
-  })
-  $('<input/>', {
-    type: 'checkbox'
-  }).appendTo('body').change(function () {
-    if (this.checked) {
-      t.start()
-      t.Master.mute = false
-    }
   })
   $('#loading').hide()
   utils.confirmExit()
@@ -3001,4 +2993,342 @@ e.icons = () => {
 
 e.transportTest = () => {
   window.wand.tone = t
+}
+
+e.ufrj = () => {
+  $('#favicon').attr('href', 'assets/aafav2.png')
+  // for enabling AA
+  // fields: nick/id/name
+  // shout
+  // (slot dur, n slots) to start a session
+  const adiv = utils.stdDiv().html(`
+  <img alt="" border="0" src="assets/UFRJ-logo.png" width="7%" style="float:right" />
+  <h2>AA is Algorithmic Autoregulation</h2>
+
+  Check the <a href="?ufrj-logs" target="_blank">logs</a>.
+  `)
+  let grid = utils.mkGrid(2, adiv, '60%', utils.chooseUnique(['#eeeeff', '#eeffee', '#ffeeee']))
+  $('<span/>').html('user id:').appendTo(grid)
+  const uid = $('<input/>', {
+    placeholder: 'id for user'
+  }).appendTo(grid)
+    .attr('title', 'The ID for the user (name, nick, etc).')
+    .val(u('user'))
+
+  $('<span/>').html('shout message:').appendTo(grid)
+  const shout = $('<input/>', {
+    placeholder: utils.chooseUnique(['learning AA', 'developing X', 'doing Y', 'talking to Z', 'writing W', 'some description'], 1)[0]
+  }).appendTo(grid)
+    .attr('title', 'The shout description (what have you done or are you doing).')
+    .on('keyup', e => {
+      if (e.key === 'Enter' || e.keyCode === 13) {
+        submitShout.click()
+      }
+    })
+
+  const submitShout = $('<button/>')
+    .html('Submit shout')
+    .appendTo(grid)
+    .attr('title', 'Register the shout message given.')
+    .click(() => {
+      // get current date and time, user, session ID and submit
+      const data = { uid: uid.val(), shoutFran: shout.val(), sessionId: sessionData ? sessionData.sessionId : undefined }
+      console.log(data)
+      if (!data.uid) {
+        window.alert('please insert a user identification string.')
+      } else if (!data.shoutFran) {
+        window.alert('please insert shout message.')
+      } else {
+        data.date = new Date()
+        transfer.writeAny(data, true).then(resp => {
+          if (shoutsExpected !== undefined && shoutsExpected > 0) {
+            shoutsExp.html(--shoutsExpected)
+          }
+          shout.val('')
+          if (sessionData && (slotsFinished === sessionData.nslots)) {
+            if (shoutsExpected <= 0) { // finish session routine:
+              ssBtn.attr('disabled', false)
+              sdur.attr('disabled', false)
+              nslots.attr('disabled', false)
+              grid.hide()
+              sessionData = undefined
+              shoutsExpected = undefined
+            }
+          }
+          console.log(resp)
+          window.rrr = resp
+        })
+      }
+    })
+
+  grid = utils.mkGrid(2, adiv, '60%', utils.chooseUnique(['#eeeeff', '#eeffee', '#ffeeee']))
+  $('<span/>').html('slot duration:').appendTo(grid)
+  const sdur = $('<input/>', {
+    placeholder: '15'
+  }).appendTo(grid)
+    .attr('title', 'In minutes.')
+    .val(15)
+
+  $('<span/>').html('number of slots:').appendTo(grid)
+  const nslots = $('<input/>', {
+    placeholder: '8'
+  }).appendTo(grid)
+    .attr('title', 'Slots to be dedicated and reported on.')
+    .val(8)
+
+  const f = e => e.val() === '' ? '' : parseFloat(e.val())
+  let sessionData
+  const ssBtn = $('<button/>')
+    .html('Start session')
+    .appendTo(grid)
+    .attr('title', 'Start an AA session (sequence of slots with shouts).')
+    .click(() => {
+      // get current date and time, user, create session ID and submit
+      console.log(sdur, nslots)
+      window.sss = [sdur, nslots]
+      const data = { uid: uid.val(), sdur: f(sdur), nslots: f(nslots) }
+      if (!data.uid) {
+        window.alert('please insert a user identification string.')
+      } else if (isNaN(data.sdur)) {
+        // window.alert('type a numeric slot duration (minutes).')
+        data.sdur = 15
+      } else if (!Number.isInteger(data.nslots)) {
+        // window.alert('type an integer number of slots.')
+        data.nslots = 8
+      } else {
+        data.date = new Date()
+        transfer.writeAny(data, true).then(resp => {
+          data.sessionId = resp.insertedId.toString()
+          sessionData = data
+          startSession()
+        })
+      }
+    })
+
+  let tLeft
+  let slotsFinished
+  let shoutsExpected
+  grid = utils.mkGrid(2, adiv, '60%', utils.chooseUnique(['#eeeeff', '#eeffee', '#ffeeee'])).hide()
+
+  $('<span/>').html('session started at:').appendTo(grid)
+  const sStarted = $('<span/>').appendTo(grid)
+  $('<span/>').html('slots finished:').appendTo(grid)
+  const slotsFin = $('<span/>').appendTo(grid)
+  $('<span/>').html('shouts expected:').appendTo(grid)
+  const shoutsExp = $('<span/>').appendTo(grid)
+  $('<span/>').html('time left in current slot:').appendTo(grid)
+  const tLeft2 = $('<span/>', { class: 'notranslate' }).appendTo(grid)
+
+  function startSession () {
+    ssBtn.attr('disabled', true)
+    sdur.attr('disabled', true)
+    nslots.attr('disabled', true)
+
+    sStarted.html(sessionData.date.toLocaleString())
+    shoutsExpected = 1
+    shoutsExp.html(1)
+    grid.show()
+
+    window.ddd = { slotsFin, shoutsExp, tLeft, tLeft2 }
+
+    slotsFinished = 0
+    slotsFin.html(0)
+    setCountdown(sessionData.sdur, sFun)
+  }
+  function setCountdown (dur, fun) {
+    const duration = dur * 60
+    const targetTime = (new Date()).getTime() / 1000 + duration
+    setTimeout(() => {
+      fun()
+      clearInterval(timer)
+    }, duration * 1000)
+    const reduce = dur => [Math.floor(dur / 60), Math.floor(dur % 60)]
+    const p = num => num < 10 ? '0' + num : num
+    const timer = setInterval(() => {
+      const moment = targetTime - (new Date()).getTime() / 1000
+      let [minutes, seconds] = reduce(moment)
+      let hours = ''
+      if (minutes > 59) {
+        [hours, minutes] = reduce(minutes)
+        hours += ':'
+      }
+      tLeft2.text(`${hours}${p(minutes)}:${p(seconds)}`)
+    }, 100)
+  }
+  function sFun () {
+    mkSound()
+    shoutsExp.html(++shoutsExpected)
+    if (++slotsFinished !== sessionData.nslots) { // spork new slot:
+      setCountdown(sessionData.sdur, sFun)
+    }
+    slotsFin.html(slotsFinished)
+  }
+
+  const sy = new t.MembraneSynth().toDestination()
+  const dat = require('dat.gui')
+  // const gui = new dat.GUI({ closed: true, closeOnTop: true })
+  const gui = new dat.GUI()
+  const param = gui.add({ freq: 500 }, 'freq', 50, 1000).listen()
+  const vol = gui.add({ vol: 0 }, 'vol', -100, 30).listen()
+  window.sy = sy
+  const st = 2 ** (1 / 12)
+  const tt = 0.1
+  const ttt = tt / 2
+  vol.onFinishChange(v => {
+    sy.volume.value = v
+    mkSound()
+  })
+  function mkSound () {
+    const now = t.now()
+    sy.triggerAttackRelease(vv, ttt, now)
+    sy.triggerAttackRelease(vv * (st ** 3), ttt, now + tt)
+    sy.triggerAttackRelease(vv * (st ** 7), ttt, now + 2 * tt)
+
+    sy.triggerAttackRelease(vv * (st ** 4), ttt, now + 3 * tt)
+    sy.triggerAttackRelease(vv * (st ** 8), ttt, now + 4 * tt)
+    sy.triggerAttackRelease(vv * (st ** 11), ttt, now + 5 * tt)
+  }
+  let vv = 500
+  param.onFinishChange(v => {
+    // t.start(0)
+    // t.Master.mute = false
+    vv = v
+    vv = v
+    mkSound()
+  })
+  $('#loading').hide()
+  utils.confirmExit()
+}
+
+e['ufrj-logs'] = () => {
+  const user = u('user')
+  const session = u('session')
+  // const adiv = utils.stdDiv().html(`
+  const adiv = utils.centerDiv('90%', undefined, utils.chooseUnique(['#eeeeff', '#eeffee', '#ffeeee'], 1)[0], 3, 2).html(`
+  <h2>AA is Algorithmic Autoregulation</h2>
+  This is the logs page${user ? 'for user <b>' + user + '</b>' : ''}${session ? 'for session <b>' + session.slice(-10) + '</b>' : ''}. Check the <a href="?ufrj" target="_blank">AA interface</a>.
+  `)
+  // const grid = utils.mkGrid(4, adiv, '60%', utils.chooseUnique(['#eeeeff', '#eeffee', '#ffeeee']))
+  $('<button/>', { id: 'rbutton' }).html('update').appendTo(adiv)
+  const grid = utils.mkGrid(4, adiv, '100%', utils.chooseUnique(['#eeeeff', '#eeffee', '#ffeeee']))
+  $('<span/>', { css: { 'margin-left': '10%' } }).html('<b>user</b>').appendTo(grid)
+  $('<span/>', { css: { 'margin-left': '10%' } }).html('<b>shout</b>').appendTo(grid)
+  $('<span/>', { css: { 'margin-left': '10%' } }).html('<b>when</b>').appendTo(grid)
+  $('<span/>', { css: { 'margin-left': '10%' } }).html('<b>session</b>').appendTo(grid)
+  utils.gridDivider(160, 160, 160, grid, 1)
+  utils.gridDivider(160, 160, 160, grid, 1)
+  utils.gridDivider(160, 160, 160, grid, 1)
+  const lastSep = utils.gridDivider(160, 160, 160, grid, 1)
+  const query = { shoutFran: { $exists: true } }
+  if (user) {
+    query.uid = user
+  }
+  if (session) {
+    query.sessionId = session
+  }
+  const ids = []
+  function addShout (r, updated) {
+    const func = 'appendTo'
+    r.sort((a, b) => b.date - a.date)
+    r.forEach(s => {
+      ids.push(s._id)
+      const user = $('<span/>', { css: { 'margin-left': '10%' }, title: `see shouts by user ${s.uid}` }).html(`<a href="?ufrj-logs&user=${s.uid}", target="_blank">${s.uid}</a>`)[func](grid)
+      const shout = $('<span/>', { css: { 'margin-left': '10%' }, title: s.shoutFran }).html(linkify(s.shoutFran))[func](grid)
+      const adate = (new Date(s.date)).toISOString()
+        .replace(/T/, ' ')
+        .replace(/:\d\d\..+/, '')
+      const date = $('<span/>', { css: { 'margin-left': '10%' }, title: adate }).html(adate)[func](grid)
+      const session = $('<span/>', { css: { 'margin-left': '10%' }, title: `see shouts in session ${s.sessionId}` }).html(s.sessionId ? `<a href="?ufrj-logs&session=${s.sessionId}" target="_blank">${s.sessionId.slice(-10)}</a>` : '')[func](grid)
+      if (u('admin')) {
+        shout.click(() => {
+          console.log(s)
+          transfer.remove({ _id: s._id }, true)
+          user.hide()
+          shout.hide()
+          date.hide()
+          session.hide()
+        })
+      }
+      utils.gridDivider(190, 190, 190, grid, 1)
+      utils.gridDivider(190, 190, 190, grid, 1)
+    })
+  }
+  function insertShout (r) {
+    r.sort((a, b) => a.date - b.date)
+    r.forEach(s => {
+      ids.push(s._id)
+      const adate = (new Date(s.date)).toISOString()
+        .replace(/T/, ' ')
+        .replace(/:\d\d\..+/, '')
+      utils.gridDivider(190, 190, 190, grid, 1, lastSep)
+      utils.gridDivider(190, 190, 190, grid, 1, lastSep)
+      const session = $('<span/>', { css: { 'margin-left': '10%' }, title: `see shouts in session ${s.sessionId}` }).html(s.sessionId ? `<a href="?ufrj-logs&session=${s.sessionId}" target="_blank">${s.sessionId.slice(-10)}</a>` : '').insertAfter(lastSep)
+      const date = $('<span/>', { css: { 'margin-left': '10%' }, title: adate }).html(adate).insertAfter(lastSep)
+      const shout = $('<span/>', { css: { 'margin-left': '10%' }, title: s.shoutFran }).html(linkify(s.shoutFran)).insertAfter(lastSep)
+      const user = $('<span/>', { css: { 'margin-left': '10%' }, title: `see shouts by user ${s.uid}` }).html(`<a href="?ufrj-logs&user=${s.uid}", target="_blank">${s.uid}</a>`).insertAfter(lastSep)
+      if (u('admin')) {
+        shout.click(() => {
+          console.log(s)
+          transfer.remove({ _id: s._id }, true)
+          user.hide()
+          shout.hide()
+          date.hide()
+          session.hide()
+        })
+      }
+    })
+  }
+  transfer.findAll(query, true).then(r => {
+    console.log(r)
+    window.rrr = r
+    window.ids = ids
+    addShout(r)
+    $('#rbutton').click(() => {
+      console.log('click')
+      query._id = { $nin: ids }
+      transfer.findAll(query, true).then(r_ => {
+        window.R_ = r_
+        insertShout(r_)
+      })
+    })
+  })
+  $('#loading').hide()
+}
+
+e.trifoil = () => {
+  const app = new PIXI.Application({ // todo: make it resizable
+    width: window.innerWidth,
+    height: window.innerHeight * 0.80
+  })
+  $('body').append(app.view)
+  const [w, h] = [app.view.width, app.view.height]
+  const c = [w / 2, h / 2] // center
+  const a = w * 0.1
+  const a_ = h * 0.1
+
+  function xy (angle, torus, vertical) { // lemniscate x, y given angle
+    // const px = a * Math.cos(angle) / (1 + Math.sin(angle) ** 2)
+    // const py = Math.sin(angle) * px
+    // return vertical ? [py + c[1], px + c[0]] : [px + c[0], py + c[1]]
+    const px = a * (Math.sin(angle) + 2 * Math.sin(2 * angle))
+    const py = a_ * (Math.cos(angle) - 2 * Math.cos(2 * angle))
+    return [px + c[0], py + c[1]]
+  }
+  const myLine = new PIXI.Graphics()
+  myLine.lineStyle(1, 0xffffff)
+    .moveTo(...xy(0, false, u('v')))
+  const segments = 1000
+  for (let i = 0; i <= segments; i++) {
+    myLine.lineTo(...xy(2 * Math.PI * i / 100, false, u('v')))
+  }
+  app.stage.addChild(myLine)
+  if (u('v')) {
+    myLine.pivot.x = c[0]
+    myLine.pivot.y = c[1]
+    myLine.position.set(...c)
+    myLine.rotation = Math.PI
+  }
+  window.lll = myLine
+  window.ccc = c
+  $('#loading').hide()
 }

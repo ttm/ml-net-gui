@@ -11,7 +11,7 @@
     "d3": "^5.8.0",
     "earcut": "^2.1.5",
     "feathers-vuex": "^1.6.2",
-    "jquery": "^3.4.1",
+    "jquery": "^3.5.0",
     "node-fetch": "^2.5.0",
     "nuxt": "^2.6.3",
     "nuxt-dropzone": "^0.2.8",

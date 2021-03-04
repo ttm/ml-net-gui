@@ -2603,7 +2603,7 @@ e.aa = () => {
     placeholder: '8'
   }).appendTo(grid)
     .attr('title', 'Slots to be dedicated and reported on.')
-    .val(8)
+    .val(u('n') || 8)
 
   const f = e => e.val() === '' ? '' : parseFloat(e.val())
   let sessionData
@@ -3013,7 +3013,7 @@ e.ufrj = () => {
     placeholder: 'id for user'
   }).appendTo(grid)
     .attr('title', 'The ID for the user (name, nick, etc).')
-    .val(u('user'))
+    .val(u('user') || u('u'))
 
   $('<span/>').html('shout message:').appendTo(grid)
   const shout = $('<input/>', {
@@ -3067,14 +3067,14 @@ e.ufrj = () => {
     placeholder: '15'
   }).appendTo(grid)
     .attr('title', 'In minutes.')
-    .val(15)
+    .val(u('d') || 15)
 
   $('<span/>').html('number of slots:').appendTo(grid)
   const nslots = $('<input/>', {
     placeholder: '8'
   }).appendTo(grid)
     .attr('title', 'Slots to be dedicated and reported on.')
-    .val(8)
+    .val(u('n') || 8)
 
   const f = e => e.val() === '' ? '' : parseFloat(e.val())
   let sessionData
@@ -3206,14 +3206,16 @@ e['ufrj-logs'] = () => {
   // const adiv = utils.stdDiv().html(`
   const adiv = utils.centerDiv('90%', undefined, utils.chooseUnique(['#eeeeff', '#eeffee', '#ffeeee'], 1)[0], 3, 2).html(`
   <h2>AA is Algorithmic Autoregulation</h2>
-  This is the logs page${user ? 'for user <b>' + user + '</b>' : ''}${session ? 'for session <b>' + session.slice(-10) + '</b>' : ''}. Check the <a href="?ufrj" target="_blank">AA interface</a>.
+  This is the logs page ${user ? 'for user <b>' + user + '</b>' : ''}${session ? 'for session <b>' + session.slice(-10) + '</b><span id="sessionDur"></span>' : ''}. Check the <a href="?ufrj" target="_blank">AA interface</a>.
   `)
   // const grid = utils.mkGrid(4, adiv, '60%', utils.chooseUnique(['#eeeeff', '#eeffee', '#ffeeee']))
   $('<button/>', { id: 'rbutton' }).html('update').appendTo(adiv)
   const grid = utils.mkGrid(4, adiv, '100%', utils.chooseUnique(['#eeeeff', '#eeffee', '#ffeeee']))
   $('<span/>', { css: { 'margin-left': '10%' } }).html('<b>user</b>').appendTo(grid)
   $('<span/>', { css: { 'margin-left': '10%' } }).html('<b>shout</b>').appendTo(grid)
-  $('<span/>', { css: { 'margin-left': '10%' } }).html('<b>when</b>').appendTo(grid)
+  const tz = (new Date()).getTimezoneOffset()
+  const tz_ = (tz > 0 ? '-' : '+') + Math.floor(tz / 60)
+  $('<span/>', { css: { 'margin-left': '10%' } }).html(`<b>when (GMT${tz_})</b>`).appendTo(grid)
   $('<span/>', { css: { 'margin-left': '10%' } }).html('<b>session</b>').appendTo(grid)
   utils.gridDivider(160, 160, 160, grid, 1)
   utils.gridDivider(160, 160, 160, grid, 1)
@@ -3227,6 +3229,7 @@ e['ufrj-logs'] = () => {
     query.sessionId = session
   }
   const ids = []
+  const tzoffset = (new Date()).getTimezoneOffset() * 60000 // offset in milliseconds
   function addShout (r, updated) {
     const func = 'appendTo'
     r.sort((a, b) => b.date - a.date)
@@ -3234,7 +3237,8 @@ e['ufrj-logs'] = () => {
       ids.push(s._id)
       const user = $('<span/>', { css: { 'margin-left': '10%' }, title: `see shouts by user ${s.uid}` }).html(`<a href="?ufrj-logs&user=${s.uid}", target="_blank">${s.uid}</a>`)[func](grid)
       const shout = $('<span/>', { css: { 'margin-left': '10%' }, title: s.shoutFran }).html(linkify(s.shoutFran))[func](grid)
-      const adate = (new Date(s.date)).toISOString()
+      // const adate = (new Date(s.date)).toISOString() // changed by request of Francisco to:
+      const adate = (new Date(s.date - tzoffset)).toISOString()
         .replace(/T/, ' ')
         .replace(/:\d\d\..+/, '')
       const date = $('<span/>', { css: { 'margin-left': '10%' }, title: adate }).html(adate)[func](grid)
@@ -3278,24 +3282,40 @@ e['ufrj-logs'] = () => {
       }
     })
   }
+  function updateDuration () {
+    const r = window.rrr
+    const dur = (r[0].date - r[r.length - 1].date) / (60 * 60 * 1000)
+    const h = Math.floor(dur)
+    const min = dur - h
+    const min_ = Math.round(min * 60)
+    // const dstr = `${h}:${min_}`
+    const dstr = `${h}h${min_}m`
+    $('#sessionDur').html(` (total duration: <b>${dstr}</b>)`)
+  }
   transfer.findAll(query, true).then(r => {
     console.log(r)
     window.rrr = r
     window.ids = ids
     addShout(r)
+    if (session) {
+      updateDuration()
+    }
     $('#rbutton').click(() => {
       console.log('click')
       query._id = { $nin: ids }
       transfer.findAll(query, true).then(r_ => {
         window.R_ = r_
         insertShout(r_)
+        r_.push(...window.rrr)
+        window.rrr = r_
+        updateDuration()
       })
     })
   })
   $('#loading').hide()
 }
 
-e.trifoil = () => {
+e.trefoil = () => {
   const app = new PIXI.Application({ // todo: make it resizable
     width: window.innerWidth,
     height: window.innerHeight * 0.80
@@ -3330,5 +3350,336 @@ e.trifoil = () => {
   }
   window.lll = myLine
   window.ccc = c
+  $('#loading').hide()
+}
+
+e.hexagram = () => {
+  const app = new PIXI.Application({ // todo: make it resizable
+    width: window.innerWidth,
+    height: window.innerHeight * 0.80
+  })
+  $('body').append(app.view)
+  const [w, h] = [app.view.width, app.view.height]
+  const c = [w / 2, h / 2] // center
+  const a = w * 0.7
+  const a_ = h * 0.7
+  const r = (a + a_) / 2
+
+  function xy (angle, torus, vertical) {
+    if (angle < Math.PI / 8) {
+      const dx = Math.sin(angle) * r
+      return [dx + c[0], c[1] + r]
+    } else if (angle < Math.PI) {
+      const an = Math.PI / 8
+      const [vx, vy] = [c[0] + Math.sin(an) * r, c[1] + r]
+      return [vx - 1, vy - 1] // continue here TTM, -1 dummy
+    } else if (angle > 7 * Math.PI / 8) {
+      const dx = Math.sin(angle) * r
+      return [c[0] - dx, c[1] - r]
+    }
+  }
+  const myLine = new PIXI.Graphics()
+  myLine.lineStyle(1, 0xffffff)
+    .moveTo(...xy(0, false, u('v')))
+  const segments = 1000
+  for (let i = 0; i <= segments; i++) {
+    myLine.lineTo(...xy(2 * Math.PI * i / 100, false, u('v')))
+  }
+  app.stage.addChild(myLine)
+  window.lll = myLine
+  window.ccc = c
+  $('#loading').hide()
+}
+
+e.calendar = () => {
+  const l1 = [
+    'respiração diafragmática (pela barriga, peito parado), lenta.',
+    'postura livre mas de preferência com coluna ereta, seja deitada ou sentada ou de pé.',
+    'Garantir que ela tenha entendido como ativar o artefato, porque usá-lo e o que esperar das sessões de MMM.' // todo: descrever
+  ].reduce((a, i) => a + `<li>${i}</li>`, '')
+  const l2 = [
+    'aquietar a mente.',
+    'concentrar somente no tema.',
+    'mesmo durante os dias, quanto menos o pensamento estiver solto, mais energia (e recursos, vitaminas) sobra para o corpo se curar e rejuvenescer.',
+    'quanto menos os pensamentos estiverem desvairados, mais permissões e responsabilidades espirituais são concedidas a nós.'
+  ].reduce((a, i) => a + `<li>${i}</li>`, '')
+  const l3 = [
+    'curar e manifestar melhoras para si, nossas famílias e mundo todo.',
+    'harmonizar a respiração e o sistema nervoso.',
+    'vibrar no corpo de Luz.',
+    'caridade.',
+    'as sessões devem sempre ser feitar em conjuntos, mínimo de 3. A pessoa deve ir agora pensando no objetivo das próximas 3 sessões dela.'
+  ].reduce((a, i) => a + `<li>${i}</li>`, '')
+  const novato = [
+    `Na primeira sessão, tratar de: <ul>${l1}</ul>`,
+    `Na segunda sessão, tratar dos pensamentos: <ul>${l2}</ul>`,
+    `Na terceira sessão, tratar dos propósitos de estar na sessão: <ul>${l3}</ul>`
+  ].reduce((a, i) => a + `<li>${i}</li>`, '')
+  const temas = [
+    'Anjo da Guarda',
+    'Anjos',
+    'Luz',
+    'Consciência da Presença do Criador',
+    'Caminho Crístico',
+    'Contato com E.T.s',
+    'Força',
+    'Concentração',
+    'Pureza',
+    'Regeneração'
+  ].reduce((a, i) => a + `<li>${i}</li>`, '')
+
+  utils.stdDiv().html(`
+  <h1>Calendário</h1>
+
+  No calendário ficam marcadas as sessões:
+  quem e em que nível estão.
+
+  Os níveis atuais estão divididos como a seguir.
+
+  <h2>Nível 0</h2>
+  Com marcações 1, 2, 3, para primeira, segunda e terceira sessão.
+  É o momento de receber a pessoa, escutá-la, avaliar se ela tem condições de estar com
+  outras pessoas nas práticas diárias.
+
+  É de primeira importancia garantir que ela tenha as bases para trabalhar nas sessões:
+  <ol>${novato}</ol>
+
+  <h2>Nível 1</h2>
+  A pessoa fará dois conjuntos de 3 sessões (marcados com A e B no calendário).
+
+  Cada conjunto de 3 sessões é dedicado para algo que ela escolher. A pessoa pode escolher contar ou não o tema para os outros participantes.
+
+  Ao final do primeiro conjunto, contar a ela a distinção entre trabalho maior e menor (horário bem definido para começar ou não).
+
+  Exemplos de temas para sugerir para a pessoa:
+  <ul>${temas}</ul>
+
+  <h2>Nível 2</h2>
+  Podemos introduzir práticas com leituras ou mais longas ou com dinâmicas de pergunta e resposta, etc.
+  A pessoa pode também ficar responsável por algum horário fixo (abrir uma sala, receber as pessoas, repassar o link do artefato, etc).
+
+  <br><br>:::
+  `)
+  $('#loading').hide()
+}
+
+e.fig8 = () => {
+  const app = new PIXI.Application({ // todo: make it resizable
+    width: window.innerWidth,
+    height: window.innerHeight * 0.80
+  })
+  $('body').append(app.view)
+  const [w, h] = [app.view.width, app.view.height]
+  const c = [w / 2, h / 2] // center
+  const a = w * 0.1
+  const a_ = h * 0.1
+
+  function xy (angle, torus, vertical) { // lemniscate x, y given angle
+    const foo = 2 + Math.cos(2 * angle)
+    return [c[0] + a * foo * Math.cos(3 * angle), c[1] + a_ * foo * Math.sin(3 * angle)]
+  }
+  const myLine = new PIXI.Graphics()
+  myLine.lineStyle(1, 0xffffff)
+    .moveTo(...xy(0, false, u('v')))
+  const segments = 1000
+  for (let i = 0; i <= segments; i++) {
+    myLine.lineTo(...xy(2 * Math.PI * i / 100, false, u('v')))
+  }
+  app.stage.addChild(myLine)
+  if (u('v')) {
+    myLine.pivot.x = c[0]
+    myLine.pivot.y = c[1]
+    myLine.position.set(...c)
+    myLine.rotation = Math.PI
+  }
+  window.lll = myLine
+  window.ccc = c
+  $('#loading').hide()
+}
+
+e['002-caminho'] = () => {
+  // não consigo estabelecer relações entre vc, o Otávio e o "arcturianos"
+  //
+  // Gostaria que vc me contasse a "história" de quando surgiu o artefato,
+  // como surgiu a ideia de usá-lo em meditação,
+  // como chegou à conclusão que ajudaria pessoas tristes ou com prolemas
+
+  const parags = [
+  `A história do surgimento do artefato,
+  de como surgiu a ideia de usá-lo para meditação,
+  e como chegamos à conclusão de que é uma panaceia.`,
+  `A Verdadeira Luz da Dedicação pediu para eu lhe contar.
+  `,
+  `Conto aqui nestas linhas.
+  Em oração constante e estudando diariamente a Palavra, procurei com diligência
+  saber a vontade dA Fonte (dO Criador) para meus dias.
+  `,
+  `Ele mostrou minha preparação, meu contexto, e então minha incumbência.
+  De fato, "os ouvidos que ouvem e os olhos que veem foram feitos pelo Senhor" (Provérbios 20:12)
+  e bastava olhar. 
+  `,
+  `Devemos ter uma vida mais funcional, confortável
+  e apta a ajudar outras pessoas, a sociedade e o planeta.
+  `,
+  `
+  Nem sempre é fácil resistir ao dinheiro imediato.
+  Seduz a ideia de alcançar melhores condições materiais, mas sei por experiência que
+  obedecer a Deus é o melhor que a vida tem para nos oferecer, e além disso
+  "Deleite-se no Senhor, e Ele atenderá aos desejos do seu coração" (Salmos 37:4).
+  `,
+  `
+  Assim, apliquei os amadurecimentos que tínhamos, eu e Os Martelos do Recomeço,
+  sobre meditação, mentalização e manifestação, sobre os usos do audiovisual
+  para obtenção de entendimentos, revelações e para harmonizar o corpo e a mente.
+  `,
+  `
+  O processo durou muitos anos se levados em conta nossas explorações,
+  mas este percurso final em que aplicamos conscientemente nossos entendimentos
+  levou poucos meses.
+  `,
+  `
+  Foi um processo permeado de oração e leitura da Palavra alternado com modelagem,
+  contas e escrita de códigos computacionais.
+  Uma constante busca de orientação divina para influenciar na Terra da melhor forma
+  o que nos fosse dada permissão.
+  `,
+  `
+  "Não consigo estabelecer relações entre você, os Martelos do Recomeço, e o 'arcturianos'",
+  a Verdadeira Luz da Dedicação lembrou.
+  Nas dificuldades que enfrentei encontrei grande orientação em mensagens
+  transmitidas em nome destes nossos irmãos.
+  Diz-se que eles tem a missão aqui na Terra de unir espiritualidade e tecnologia.
+  `,
+  `
+  -- Ferreiros Renascidos, 01/Mar/2021
+  `
+  ].reduce((a, i) => a + `<p>${i}</p>`, '')
+  utils.stdDiv().html(`
+  <h1>Caminho</h1>
+
+  ${parags}
+
+:::
+  `)
+  $('#loading').hide()
+}
+
+e['003-pequeno-historico'] = () => {
+  // não consigo estabelecer relações entre vc, o Otávio e o "arcturianos"
+  //
+  // Gostaria que vc me contasse a "história" de quando surgiu o artefato,
+  // como surgiu a ideia de usá-lo em meditação,
+  // como chegou à conclusão que ajudaria pessoas tristes ou com prolemas
+
+  const parags = [
+  `
+  Em oração constante e estudando diariamente a Palavra, procurei com diligência
+  saber a vontade dA Fonte (dO Criador) para meus dias.
+  Ele mostrou o que talvez seja a incumbência de todos. Entendi que ao menos minha ela é. 
+  Devemos ter uma vida mais funcional, confortável
+  e apta a ajudar outras pessoas, a sociedade e o planeta.
+  `,
+  `
+  Mantive-me, então, alternando oração e leitura da Palavra com modelagem,
+  escrita de códigos computacionais e pesquisa científica.
+  Uma constante busca de orientação divina para influenciar na Terra da melhor forma
+  o que nos fosse dada permissão para influenciar.
+  `,
+  `
+  Contei com os Martelos do Recomeço
+  ao aplicar MMM (meditação, mentalização e manifestação), com o suporte do audiovisual,
+  para a obtenção de entendimentos, revelações e para harmonizar corpo e mente, individual e social.
+  `,
+  `
+  As explorações duraram cerca de duas décadas,
+  mas este percurso final em que empregamos conscientemente nossos entendimentos
+  levou poucos meses até o momento.
+  `,
+  `
+  Encontrei grande orientação vinculada à alcunha de "Arcturianos".
+  As vias pelas quais eram disponibilizadas as mensagens não existem mais e tenho esperança de que estabeleçam novamente
+  contato tão luminoso.
+  Diz-se que eles tem a missão aqui na Terra de unir espiritualidade e tecnologia e que são mestres
+  do balanço (no sentido de equilíbrio, harmonia e proporção).
+  Com recorrência associei os Arcturianos ao corpo de Luz que estamos ativando por meio dos
+  Artefatos Audiovisuais (a.k.a. Artefatos Arcturianos).
+  `,
+  `
+  -- Ferreiros Renascidos, 01/Mar/2021
+  `
+  ].reduce((a, i) => a + `<p>${i}</p>`, '')
+  utils.stdDiv().html(`
+  <h1>Caminho</h1>
+
+  ${parags}
+
+:::
+  `)
+  $('#loading').hide()
+}
+e['002-caminho'] = () => {
+  // não consigo estabelecer relações entre vc, o Otávio e o "arcturianos"
+  //
+  // Gostaria que vc me contasse a "história" de quando surgiu o artefato,
+  // como surgiu a ideia de usá-lo em meditação,
+  // como chegou à conclusão que ajudaria pessoas tristes ou com prolemas
+
+  const parags = [
+  `A história do surgimento do artefato,
+  de como surgiu a ideia de usá-lo para meditação,
+  e como chegamos à conclusão de que é uma panaceia.`,
+  `A Verdadeira Luz da Dedicação pediu para eu lhe contar.
+  `,
+  `Conto aqui nestas linhas.
+  Em oração constante e estudando diariamente a Palavra, procurei com diligência
+  saber a vontade dA Fonte (dO Criador) para meus dias.
+  `,
+  `Ele mostrou minha preparação, meu contexto, e então minha incumbência.
+  De fato, "os ouvidos que ouvem e os olhos que veem foram feitos pelo Senhor" (Provérbios 20:12)
+  e bastava olhar. 
+  `,
+  `Devemos ter uma vida mais funcional, confortável
+  e apta a ajudar outras pessoas, a sociedade e o planeta.
+  `,
+  `
+  Nem sempre é fácil resistir ao dinheiro imediato.
+  Seduz a ideia de alcançar melhores condições materiais, mas sei por experiência que
+  obedecer a Deus é o melhor que a vida tem para nos oferecer, e além disso
+  "Deleite-se no Senhor, e Ele atenderá aos desejos do seu coração" (Salmos 37:4).
+  `,
+  `
+  Assim, apliquei os amadurecimentos que tínhamos, eu e Os Martelos do Recomeço,
+  sobre meditação, mentalização e manifestação, sobre os usos do audiovisual
+  para obtenção de entendimentos, revelações e para harmonizar o corpo e a mente.
+  `,
+  `
+  O processo durou muitos anos se levados em conta nossas explorações,
+  mas este percurso final em que aplicamos conscientemente nossos entendimentos
+  levou poucos meses.
+  `,
+  `
+  Foi um processo permeado de oração e leitura da Palavra alternado com modelagem,
+  contas e escrita de códigos computacionais.
+  Uma constante busca de orientação divina para influenciar na Terra da melhor forma
+  o que nos fosse dada permissão.
+  `,
+  `
+  "Não consigo estabelecer relações entre você, os Martelos do Recomeço, e o 'arcturianos'",
+  a Verdadeira Luz da Dedicação lembrou.
+  Nas dificuldades que enfrentei encontrei grande orientação em mensagens
+  transmitidas em nome destes nossos irmãos.
+  Diz-se que eles tem a missão aqui na Terra de unir espiritualidade e tecnologia.
+  `,
+  `
+  -- Ferreiros Renascidos, 01/Mar/2021
+  `
+  ].reduce((a, i) => a + `<p>${i}</p>`, '')
+  utils.stdDiv().html(`
+  <h1>Caminho</h1>
+
+  ${parags}
+
+:::
+  `)
   $('#loading').hide()
 }

@@ -31,6 +31,8 @@ e.urlAllArguments = () => {
 }
 
 e.mkFooter = () => {
+  const isMobile = utils.mobileAndTabletCheck()
+  console.log('isMobile:', isMobile)
   function sWord () {
     const wlist = ['support', 'back', 'encourage', 'strengthen', 'assist', 'angel', 'boost']
     return utils.chooseUnique(wlist, 1)
@@ -43,7 +45,8 @@ e.mkFooter = () => {
       'overflow-x': 'auto',
       margin: '0 auto',
       padding: '8px',
-      width: '30%'
+      'text-align': 'center',
+      width: 'auto'
     }
   }).appendTo('body')
   const lflag = urlArgument('lang') ? `&lang=${urlArgument('lang')}` : ''
@@ -51,18 +54,22 @@ e.mkFooter = () => {
     href: `?about${lflag}`,
     target: '_blank',
     css: {
-      'margin-left': '1%',
+      // 'margin-left': '1%',
+      margin: 'auto',
       display: 'inline-block',
+      'font-size': isMobile ? '3vw' : '1vw',
       float: 'left'
     }
   }).html('<b>About Æterni</b>').appendTo(ft)
-  wand.$('<div/>', { css: { display: 'inline-block', 'margin-left': '1%', float: 'left' } }).appendTo(ft).html(' / ')
+  // wand.$('<div/>', { css: { display: 'inline-block', 'margin-left': '1%', float: 'left' } }).appendTo(ft).html(' | ')
   wand.$('<a/>', {
     href: `?angel${lflag}`,
     target: '_blank',
     css: {
-      'margin-left': '1%',
+      // 'margin-left': '1%',
+      margin: 'auto',
       display: 'inline-block',
+      'font-size': isMobile ? '3vw' : '1vw',
       float: 'left'
     }
   }).html(`<b>${sWord()} this initiative</b>`).appendTo(ft)
@@ -79,7 +86,7 @@ e.mkFooter = () => {
   //     width: '50%'
   //   }
   // }).appendTo('body')
-  lang(ft)
+  // lang(ft)
   // uncomment to enable disqus
   // todo: debug to load correct discussions in each page
   // const uargs = e.urlAllArguments()
@@ -189,6 +196,8 @@ function lang (ft2) {
     })
   })
 }
+
+e.lang = lang
 
 e.timeArgument = () => {
   const dd = new Date()

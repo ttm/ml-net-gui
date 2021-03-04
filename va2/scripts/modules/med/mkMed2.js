@@ -208,6 +208,8 @@ e.Mk = class {
           option.remove()
           this.allSettings.splice(ind, 1)
           this.obutton.attr('disabled', true).html('Open')
+          this.p3button.attr('disabled', true).html('Preview (3s)')
+          this.p5button.attr('disabled', true).html('Preview (5s)')
           $('.pres').remove()
           this.allSettings.forEach((i, ii) => {
             s.append($('<option/>', { class: 'pres' }).val(ii).html(i.header.med2))
@@ -259,30 +261,15 @@ e.Mk = class {
     const grid = utils.mkGrid(2, this.div1, '90%', '#eeffee', '50%')
     const obj = {}
 
-    // todo: flower of life, hexagram (plain and unicursal), pentagram, triquetra/trifoil
+    // todo: flower of life, hexagram (plain and unicursal), pentagram
     // only the gem
     // todo: blink blackground for entrainment
-
-    // $('<span/>').html('lemniscate:').appendTo(grid)
-    // obj.lemniscate = $('<input/>', {
-    //   type: 'checkbox'
-    // }).appendTo(grid)
-    //   .attr('title', 'Visualization with lemniscate if checked, sinusoid if not checked.')
-    //   .on('change', function () {
-    //     if (this.checked) {
-    //       $('#lb_ccc').html('left circ color:')
-    //       $('#lb_lcc').html('right circ color:')
-    //     } else {
-    //       $('#lb_ccc').html('center circ color:')
-    //       $('#lb_lcc').html('lateral circ color:')
-    //     }
-    //   })
-
     $('<span/>').html('shape:').appendTo(grid)
     obj.lemniscate = $('<select/>').appendTo(grid)
       .append($('<option/>').val(0).html('sinusoid'))
       .append($('<option/>').val(1).html('lemniscate'))
-      .append($('<option/>').val(2).html('trifoil (triquetra)'))
+      .append($('<option/>').val(2).html('trefoil (triquetra)'))
+      .append($('<option/>').val(3).html('figure-eight (Listing\'s) knot'))
       .on('change', aself => {
         const i = parseInt(aself.currentTarget.value)
         if (i === 0) {
@@ -426,22 +413,37 @@ e.Mk = class {
         }
         window.toSave = toSave
         console.log(toSave)
-        // save to mongo
         transfer.writeAny(toSave).then(resp => {
-          console.log('saved settins!', resp)
           this.s.append($('<option/>', { class: 'pres' }).val(this.allSettings.length).html(toSave.header.med2))
           this.s.val(this.allSettings.length)
           this.allSettings.push(toSave)
           this.obutton.attr('disabled', false).html(`Open: ${toSave.header.med2}`)
+          this.p3button.attr('disabled', false).html(`Preview (3s): ${toSave.header.med2}`)
+          this.p5button.attr('disabled', false).html(`Preview (5s): ${toSave.header.med2}`)
         })
-        // enable preview and volume controler (after implementing the model)
+        // todo: enable preview and volume controler (after implementing the model)
       }).appendTo(grid)
     this.obutton = $('<button/>')
       .html('Open')
       .attr('title', 'Open URL of the meditation.')
       .click(() => {
-        // open url with:
         window.open(`?@${this.header.med2.val()}`)
+      })
+      .appendTo(grid)
+      .attr('disabled', true)
+    this.p3button = $('<button/>')
+      .html('Preview (3s)')
+      .attr('title', 'Open URL of the meditation.')
+      .click(() => {
+        window.open(`?@${this.header.med2.val()}&t=3`)
+      })
+      .appendTo(grid)
+      .attr('disabled', true)
+    this.p5button = $('<button/>')
+      .html('Preview (5s)')
+      .attr('title', 'Open URL of the meditation.')
+      .click(() => {
+        window.open(`?@${this.header.med2.val()}&t=5`)
       })
       .appendTo(grid)
       .attr('disabled', true)
@@ -561,6 +563,8 @@ e.Mk = class {
       }
     })
     this.obutton.attr('disabled', false).html(`Open: ${h_.med2}`)
+    this.p3button.attr('disabled', false).html(`Preview (3s): ${h_.med2}`)
+    this.p5button.attr('disabled', false).html(`Preview (5s): ${h_.med2}`)
   }
 
   checkVoice (v) {

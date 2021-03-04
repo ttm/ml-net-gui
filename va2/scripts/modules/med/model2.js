@@ -3,6 +3,7 @@ const t = require('tone')
 const $ = require('jquery')
 const percom = require('percom')
 const dat = require('dat.gui')
+const NS = require('nosleep.js')
 
 const transfer = require('../transfer.js')
 const maestro = require('../maestro.js')
@@ -14,10 +15,13 @@ const u = require('../router.js').urlArgument
 const e = module.exports
 const tr = PIXI.utils.string2hex
 
+// todo:
+// linear vs rampto
+
 e.Med = class {
   constructor (med2) {
     this.finalFade = 5
-    this.initialFade = 5
+    this.initialFade = 2
     this.initialVolume = -40
     transfer.findAny({ 'header.med2': med2 }).then(r => {
       this.setting = r
@@ -33,7 +37,7 @@ e.Med = class {
   }
 
   addMartigli (s) {
-    const synthM = maestro.mkOsc(0, -400, 0, w[s.waveformM], false, true)
+    const synthM = maestro.mkOsc(0, -150, 0, w[s.waveformM], false, true)
     const mul = new t.Multiply(s.ma).chain(new t.Add(s.mf0), synthM.frequency)
     const mod = maestro.mkOsc(1 / s.mp0, 0, 0, 'sine', true, true).connect(mul)
     if (s.isOn) {
@@ -58,19 +62,19 @@ e.Med = class {
   }
 
   addBinaural (s) {
-    const synthL = maestro.mkOsc(s.fl, -400, -1, w[s.waveformL], false, true)
-    const synthR = maestro.mkOsc(s.fr, -400, 1, w[s.waveformR], false, true)
+    const synthL = maestro.mkOsc(s.fl, -150, -1, w[s.waveformL], false, true)
+    const synthR = maestro.mkOsc(s.fr, -150, 1, w[s.waveformR], false, true)
     const pan = this.setPanner(s, synthL, synthR)
     const all = [synthL, synthR, pan]
     return {
       start: tt => {
         all.forEach(i => i.start(tt))
-        synthL.volume.rampTo(this.initialVolume, this.initialFade, tt)
-        synthR.volume.rampTo(this.initialVolume, this.initialFade, tt)
+        synthL.volume.linearRampTo(this.initialVolume, this.initialFade, tt)
+        synthR.volume.linearRampTo(this.initialVolume, this.initialFade, tt)
       },
       stop: tt => {
-        synthL.volume.rampTo(-400, this.finalFade, tt)
-        synthR.volume.rampTo(-400, this.finalFade, tt)
+        synthL.volume.linearRampTo(-150, this.finalFade, tt)
+        synthR.volume.linearRampTo(-150, this.finalFade, tt)
         all.forEach(i => i.stop(tt + this.finalFade))
       },
       volume: { synthL, synthR }
@@ -78,8 +82,8 @@ e.Med = class {
   }
 
   addMartigliBinaural (s) {
-    const synthL = maestro.mkOsc(s.fl, -400, -1, w[s.waveformL], false, true)
-    const synthR = maestro.mkOsc(s.fr, -400, 1, w[s.waveformR], false, true)
+    const synthL = maestro.mkOsc(s.fl, -150, -1, w[s.waveformL], false, true)
+    const synthR = maestro.mkOsc(s.fr, -150, 1, w[s.waveformR], false, true)
     const mul = new t.Multiply(s.ma).fan(
       (new t.Add(s.fl)).connect(synthL.frequency),
       (new t.Add(s.fr)).connect(synthR.frequency)
@@ -95,13 +99,13 @@ e.Med = class {
     return {
       start: tt => {
         all.forEach(i => i.start(tt))
-        synthL.volume.rampTo(this.initialVolume, this.initialFade, tt)
-        synthR.volume.rampTo(this.initialVolume, this.initialFade, tt)
+        synthL.volume.linearRampTo(this.initialVolume, this.initialFade, tt)
+        synthR.volume.linearRampTo(this.initialVolume, this.initialFade, tt)
         mod.frequency.rampTo(1 / s.mp1, s.md, tt)
       },
       stop: tt => {
-        synthL.volume.rampTo(-400, this.finalFade, tt)
-        synthR.volume.rampTo(-400, this.finalFade, tt)
+        synthL.volume.linearRampTo(-150, this.finalFade, tt)
+        synthR.volume.linearRampTo(-150, this.finalFade, tt)
         all.forEach(i => i.stop(tt + this.finalFade))
       },
       volume: { synthL, synthR }
@@ -116,7 +120,7 @@ e.Med = class {
       notes.push(s.f0 * (freqFact ** i))
     }
     const sy = new t.Synth({ oscillator: { type: w[s.waveform] } }).toDestination()
-    sy.volume.value = -400
+    sy.volume.value = -150
     window.sy = sy
     const noteSep = s.d / notes.length
     const noteDur = noteSep / 2
@@ -136,7 +140,7 @@ e.Med = class {
       },
       stop: tt => {
         loop.stop(tt + this.finalFade)
-        sy.volume.rampTo(-400, this.finalFade, tt)
+        sy.volume.rampTo(-150, this.finalFade, tt)
       },
       volume: { sy }
     }
@@ -159,7 +163,7 @@ e.Med = class {
         theSamp.start(tt + (s.soundSampleStart || 0))
       },
       stop: tt => {
-        sampler.volume.rampTo(-400, this.finalFade, tt)
+        sampler.volume.rampTo(-150, this.finalFade, tt)
         theSamp.stop(tt + this.finalFade)
       },
       volume: { sampler }
@@ -194,7 +198,7 @@ e.Med = class {
     const [w, h] = [app.view.width, app.view.height]
     const c = [w / 2, h / 2] // center
     const a = w * 0.35 // for lemniscate
-    const [a_, a__, h_] = [w * 0.13, h * 0.15, h * 0.05] // for trifoil
+    const [a_, a__, h_] = [w * 0.13, h * 0.15, h * 0.05] // for trefoil
 
     function mkNode (pos, scale = 1, tint = 0xffffff) {
       const circle = new PIXI.Sprite(circleTexture)
@@ -211,7 +215,7 @@ e.Med = class {
 
     const [x0, y0] = s.lemniscate ? c : [w * 0.2, h * 0.2]
     const myLine = new PIXI.Graphics()
-    const segments = 100
+    const segments = 10000
 
     function xyL (angle, vertical) { // lemniscate x, y given angle. todo: use the vertical
       const px = a * Math.cos(angle) / (1 + Math.sin(angle) ** 2)
@@ -219,26 +223,33 @@ e.Med = class {
       return vertical ? [py + c[1], px + c[0]] : [px + c[0], py + c[1]]
     }
 
-    function xyT (angle) { // trifoil x, y given angle. todo: add downward
+    function xyT (angle) { // trefoil x, y given angle. todo: add downward
       const px = a_ * (Math.sin(angle) + 2 * Math.sin(2 * angle))
       const py = a__ * (Math.cos(angle) - 2 * Math.cos(2 * angle))
       return [px + c[0], py + c[1] + h_]
     }
+
+    function xy8 (angle) {
+      const foo = (2 + Math.cos(2 * angle))
+      return [c[0] + a_ * foo * Math.cos(3 * angle), c[1] + a__ * foo * Math.sin(3 * angle)]
+    }
     let xy
+    const table = []
     if (s.lemniscate) {
-      xy = s.lemniscate === 1 ? xyL : xyT
+      xy = s.lemniscate === 1 ? xyL : s.lemniscate === 2 ? xyT : xy8
       bCircle.x = s.bPos === 0 ? c[0] : s.bPos === 1 ? (c[0] - a) / 2 : (3 * c[0] + a) / 2
       myLine.lineStyle(1, 0xffffff)
-        .moveTo(...xy(0))
+      //  .moveTo(...xy(0))
       for (let i = 0; i <= segments; i++) {
-        myLine.lineTo(...xy(2 * Math.PI * i / 100))
+        // myLine.lineTo(...xy(2 * Math.PI * i / 100))
+        table.push(xy(2 * Math.PI * i / 100))
       }
     } else {
       bCircle.x = s.bPos === 0 ? x + dx / 2 : s.bPos === 1 ? x * 0.5 : x + dx * 1.05
       myLine.lineStyle(1, 0xffffff)
-        .moveTo(x, y)
       for (let i = 0; i <= segments; i++) {
-        myLine.lineTo(x + dx * i / segments, y + Math.sin(2 * Math.PI * i / segments) * dy)
+        // myLine.lineTo(x + dx * i / segments, y + Math.sin(2 * Math.PI * i / segments) * dy)
+        table.push([x + dx * i / segments, y + Math.sin(2 * Math.PI * i / segments) * dy])
       }
       mkNode([x0, y0]) // fixed left
         .position.set(x, y)
@@ -246,6 +257,11 @@ e.Med = class {
       mkNode([x0, y0]) // fixed right
         .position.set(x + dx, y)
         .tint = tr(s.fgc)
+    }
+    myLine.moveTo(...table[0])
+
+    for (let i = 1; i <= segments; i++) {
+      myLine.lineTo(...table[i])
     }
 
     const theCircle = mkNode([x0, s.lemniscate ? y / 2 : y0]) // moving white circle to which the flakes go
@@ -299,8 +315,14 @@ e.Med = class {
         myCircle2.y = myCircle3.y = p[1]
         myCircle3.x = 2 * c[0] - p[0]
         bCircle.y = val * a * 0.5 + y
-      } else if (s.lemniscate === 2) { // trifoil:
+      } else if (s.lemniscate === 2) { // trefoil:
         const pos = xy(avalr + 3 * Math.PI / 2)
+        myCircle2.y = myCircle3.y = pos[1]
+        myCircle3.x = pos[0]
+        myCircle2.x = 2 * c[0] - pos[0]
+        bCircle.y = val * a * 0.5 + y
+      } else if (s.lemniscate === 3) { // fig8:
+        const pos = xy(avalr)
         myCircle2.y = myCircle3.y = pos[1]
         myCircle3.x = pos[0]
         myCircle2.x = 2 * c[0] - pos[0]
@@ -311,6 +333,12 @@ e.Med = class {
         myCircle2.x = px
         myCircle2.y = myCircle3.y = bCircle.y = val * dy + y
         myCircle3.x = px2
+        // myCircle2.y = myCircle3.y = bCircle.y = val * dy + y
+        // const av = avalr < 0 ? 2 * Math.PI + avalr : avalr
+        // const av2 = Math.PI - avalr
+        // // console.log(Math.floor(table.length * av / (2 * Math.PI)), table)
+        // myCircle2.x = table[Math.floor(table.length * av / (2 * Math.PI))][0]
+        // myCircle3.x = table[Math.floor(table.length * av2 / (2 * Math.PI))][0]
       }
 
       const sc = 0.3 + (-val + 1) * 3
@@ -358,11 +386,20 @@ e.Med = class {
   }
 
   setStage (s) {
+    const isMobile = utils.mobileAndTabletCheck()
     const adiv = utils.centerDiv(undefined, $('#canvasDiv'), utils.chooseUnique(['#eeeeff', '#eeffee', '#ffeeee'], 1)[0])
       .css('text-align', 'center')
-      .css('padding', '0.5% 1%')
-    const countdownMsg = $('<span/>').html('countdown to start:')
-    const countdownCount = $('<span/>').html('--:--:--')
+      .css('padding', '0.4% 1%')
+    const countdownMsg = $('<span/>', {
+      css: {
+        'font-size': isMobile ? '3vw' : '1vw'
+      }
+    }).html('countdown to start:')
+    const countdownCount = $('<span/>', {
+      css: {
+        'font-size': isMobile ? '3vw' : '1vw'
+      }
+    }).html('--:--:--')
     $('<p/>').appendTo(adiv)
       .append(countdownMsg)
       .append(countdownCount)
@@ -373,10 +410,12 @@ e.Med = class {
         margin: '0 auto'
       }
     }).appendTo(lpar)
+    const noSleep = new NS()
     const check = $('<input/>', {
       type: 'checkbox'
     }).appendTo(label).change(() => {
       if (check.prop('checked')) {
+        noSleep.enable()
         clearTimeout(badTimer)
         clearInterval(badCounter)
         check.prop('disabled', true)
@@ -387,7 +426,11 @@ e.Med = class {
 
     const inhale = $('<span/>').html(' inhale ')
     const exhale = $('<span/>').html(' exhale ')
-    $('<p/>').appendTo(adiv)
+    $('<p/>', {
+      css: {
+        'font-size': isMobile ? '3vw' : '1vw'
+      }
+    }).appendTo(adiv)
       .append($('<span/>').html('✡'))
       .append(inhale)
       .append($('<span/>').html('✡'))

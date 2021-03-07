@@ -54,8 +54,8 @@ e.Med = class {
       },
       stop: tt => {
         synthM.volume.rampTo(-200, this.finalFade, tt)
-        synthM.stop(tt + this.finalFade)
-        mod.stop(tt + this.finalFade)
+        synthM.stop('+' + (tt + this.finalFade))
+        mod.stop('+' + (tt + this.finalFade))
       },
       volume: { synthM }
     }
@@ -75,7 +75,7 @@ e.Med = class {
       stop: tt => {
         synthL.volume.linearRampTo(-150, this.finalFade, tt)
         synthR.volume.linearRampTo(-150, this.finalFade, tt)
-        all.forEach(i => i.stop(tt + this.finalFade))
+        all.forEach(i => i.stop('+' + (tt + this.finalFade)))
       },
       volume: { synthL, synthR }
     }
@@ -106,7 +106,7 @@ e.Med = class {
       stop: tt => {
         synthL.volume.linearRampTo(-150, this.finalFade, tt)
         synthR.volume.linearRampTo(-150, this.finalFade, tt)
-        all.forEach(i => i.stop(tt + this.finalFade))
+        all.forEach(i => i.stop('+' + (tt + this.finalFade)))
       },
       volume: { synthL, synthR }
     }
@@ -139,7 +139,7 @@ e.Med = class {
         sy.volume.rampTo(this.initialVolume, this.initialFade, tt)
       },
       stop: tt => {
-        loop.stop(tt + this.finalFade)
+        loop.stop('+' + (tt + this.finalFade))
         sy.volume.rampTo(-150, this.finalFade, tt)
       },
       volume: { sy }
@@ -164,7 +164,7 @@ e.Med = class {
       },
       stop: tt => {
         sampler.volume.rampTo(-150, this.finalFade, tt)
-        theSamp.stop(tt + this.finalFade)
+        theSamp.stop('+' + (tt + this.finalFade))
       },
       volume: { sampler }
     }
@@ -504,7 +504,8 @@ e.Med = class {
     this.voices.forEach(v => {
       if (!v) return
       v.start('+' + d())
-      v.stop('+' + (d() + s.d))
+      v.stop(d() + s.d)
+      // v.stop('+' + (d() + s.d))
     })
 
     let started = false
@@ -540,7 +541,7 @@ e.Med = class {
     }
   }
 
-  startGoodTimer2 (s) {
+  startGoodTimer2 (s) { // not being used!
     this.visuals.start()
     setTimeout(() => { // change message to ongoing
       this.guiEls.countdownMsg.html('countdown to finish:')

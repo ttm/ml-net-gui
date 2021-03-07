@@ -3497,73 +3497,6 @@ e.fig8 = () => {
   $('#loading').hide()
 }
 
-e['002-caminho'] = () => {
-  // não consigo estabelecer relações entre vc, o Otávio e o "arcturianos"
-  //
-  // Gostaria que vc me contasse a "história" de quando surgiu o artefato,
-  // como surgiu a ideia de usá-lo em meditação,
-  // como chegou à conclusão que ajudaria pessoas tristes ou com prolemas
-
-  const parags = [
-  `A história do surgimento do artefato,
-  de como surgiu a ideia de usá-lo para meditação,
-  e como chegamos à conclusão de que é uma panaceia.`,
-  `A Verdadeira Luz da Dedicação pediu para eu lhe contar.
-  `,
-  `Conto aqui nestas linhas.
-  Em oração constante e estudando diariamente a Palavra, procurei com diligência
-  saber a vontade dA Fonte (dO Criador) para meus dias.
-  `,
-  `Ele mostrou minha preparação, meu contexto, e então minha incumbência.
-  De fato, "os ouvidos que ouvem e os olhos que veem foram feitos pelo Senhor" (Provérbios 20:12)
-  e bastava olhar. 
-  `,
-  `Devemos ter uma vida mais funcional, confortável
-  e apta a ajudar outras pessoas, a sociedade e o planeta.
-  `,
-  `
-  Nem sempre é fácil resistir ao dinheiro imediato.
-  Seduz a ideia de alcançar melhores condições materiais, mas sei por experiência que
-  obedecer a Deus é o melhor que a vida tem para nos oferecer, e além disso
-  "Deleite-se no Senhor, e Ele atenderá aos desejos do seu coração" (Salmos 37:4).
-  `,
-  `
-  Assim, apliquei os amadurecimentos que tínhamos, eu e Os Martelos do Recomeço,
-  sobre meditação, mentalização e manifestação, sobre os usos do audiovisual
-  para obtenção de entendimentos, revelações e para harmonizar o corpo e a mente.
-  `,
-  `
-  O processo durou muitos anos se levados em conta nossas explorações,
-  mas este percurso final em que aplicamos conscientemente nossos entendimentos
-  levou poucos meses.
-  `,
-  `
-  Foi um processo permeado de oração e leitura da Palavra alternado com modelagem,
-  contas e escrita de códigos computacionais.
-  Uma constante busca de orientação divina para influenciar na Terra da melhor forma
-  o que nos fosse dada permissão.
-  `,
-  `
-  "Não consigo estabelecer relações entre você, os Martelos do Recomeço, e o 'arcturianos'",
-  a Verdadeira Luz da Dedicação lembrou.
-  Nas dificuldades que enfrentei encontrei grande orientação em mensagens
-  transmitidas em nome destes nossos irmãos.
-  Diz-se que eles tem a missão aqui na Terra de unir espiritualidade e tecnologia.
-  `,
-  `
-  -- Ferreiros Renascidos, 01/Mar/2021
-  `
-  ].reduce((a, i) => a + `<p>${i}</p>`, '')
-  utils.stdDiv().html(`
-  <h1>Caminho</h1>
-
-  ${parags}
-
-:::
-  `)
-  $('#loading').hide()
-}
-
 e['003-pequeno-historico'] = () => {
   // não consigo estabelecer relações entre vc, o Otávio e o "arcturianos"
   //
@@ -3681,5 +3614,42 @@ e['002-caminho'] = () => {
 
 :::
   `)
+  $('#loading').hide()
+}
+
+e.cdraw = () => {
+  const app = new PIXI.Application({ // todo: make it resizable
+    width: window.innerWidth,
+    height: window.innerHeight * 0.80
+  })
+  $('body').append(app.view)
+  const [w, h] = [app.view.width, app.view.height]
+  const c = [w / 2, h / 2] // center
+  const a = w * 0.1
+  const a_ = h * 0.1
+
+  function xy (angle, torus, vertical) { // lemniscate x, y given angle
+    const x = 2.5 * (Math.sin(-5 * angle) ** 2) * (2 ** (Math.cos(Math.cos(4.28 * 2.3 * angle))))
+    const y = 2.5 * Math.sin(Math.sin(-5 * angle)) * (Math.cos(4.28 * 2.3 * angle) ** 2)
+    return [c[0] + a * x, c[1] + a_ * y]
+    // const foo = 2 + Math.cos(2 * angle)
+    // return [c[0] + a * foo * Math.cos(3 * angle), c[1] + a_ * foo * Math.sin(3 * angle)]
+  }
+  const myLine = new PIXI.Graphics()
+  myLine.lineStyle(1, 0xffffff)
+    .moveTo(...xy(0, false, u('v')))
+  const segments = 10000
+  for (let i = 0; i <= segments; i++) {
+    myLine.lineTo(...xy(-6 + 12 * i / 10000, false, u('v')))
+  }
+  app.stage.addChild(myLine)
+  if (u('v')) {
+    myLine.pivot.x = c[0]
+    myLine.pivot.y = c[1]
+    myLine.position.set(...c)
+    myLine.rotation = Math.PI
+  }
+  window.lll = myLine
+  window.ccc = c
   $('#loading').hide()
 }

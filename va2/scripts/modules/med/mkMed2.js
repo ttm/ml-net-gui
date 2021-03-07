@@ -5,6 +5,7 @@ const maestro = require('../maestro.js')
 const J = require('@eastdesire/jscolor')
 const waveforms = require('./common.js').waveforms
 const permfuncs = require('./common.js').permfuncs
+const copyToClipboard = require('copy-to-clipboard')
 
 const e = module.exports
 
@@ -208,7 +209,7 @@ e.Mk = class {
           option.remove()
           this.allSettings.splice(ind, 1)
           this.obutton.attr('disabled', true).html('Open')
-          this.p3button.attr('disabled', true).html('Preview (3s)')
+          this.p3button.attr('disabled', true)
           this.p5button.attr('disabled', true).html('Preview (5s)')
           $('.pres').remove()
           this.allSettings.forEach((i, ii) => {
@@ -418,12 +419,12 @@ e.Mk = class {
           this.s.val(this.allSettings.length)
           this.allSettings.push(toSave)
           this.obutton.attr('disabled', false).html(`Open: ${toSave.header.med2}`)
-          this.p3button.attr('disabled', false).html(`Preview (3s): ${toSave.header.med2}`)
+          this.p3button.attr('disabled', false)
           this.p5button.attr('disabled', false).html(`Preview (5s): ${toSave.header.med2}`)
         })
         // todo: enable preview and volume controler (after implementing the model)
       }).appendTo(grid)
-    this.obutton = $('<button/>')
+    this.obutton = $('<button/>', { css: { background: 'lightskyblue' } })
       .html('Open')
       .attr('title', 'Open URL of the meditation.')
       .click(() => {
@@ -431,15 +432,17 @@ e.Mk = class {
       })
       .appendTo(grid)
       .attr('disabled', true)
-    this.p3button = $('<button/>')
-      .html('Preview (3s)')
+    const bcolors = ['palegreen', 'lightblue', 0]
+    this.p3button = $('<button/>', { css: { background: 'palegreen' } })
+      .html('Copy artifact link')
       .attr('title', 'Open URL of the meditation.')
       .click(() => {
-        window.open(`?@${this.header.med2.val()}&t=3`)
+        copyToClipboard(`${window.location.origin}?@${this.header.med2.val()}`)
+        this.p3button.css('background', bcolors[++bcolors[2] % 2])
       })
       .appendTo(grid)
       .attr('disabled', true)
-    this.p5button = $('<button/>')
+    this.p5button = $('<button/>', { css: { background: 'pink' } })
       .html('Preview (5s)')
       .attr('title', 'Open URL of the meditation.')
       .click(() => {
@@ -537,7 +540,7 @@ e.Mk = class {
     // clearing voices:
     this.setting.forEach(s => {
       s.grid.hide()
-      s.voiceRemoved = true
+      s.grid.voiceRemoved = true
     })
     // loading voices in the settings:
     const l = s.voices
@@ -563,7 +566,7 @@ e.Mk = class {
       }
     })
     this.obutton.attr('disabled', false).html(`Open: ${h_.med2}`)
-    this.p3button.attr('disabled', false).html(`Preview (3s): ${h_.med2}`)
+    this.p3button.attr('disabled', false)
     this.p5button.attr('disabled', false).html(`Preview (5s): ${h_.med2}`)
   }
 

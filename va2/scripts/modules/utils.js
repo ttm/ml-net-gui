@@ -124,7 +124,8 @@ e.permutations = {
   shuffle: e.inplaceShuffle,
   rotateForward: e.rotateArray,
   rotateBackward: a => e.rotateArray(a, false),
-  reverse: a => a.reverse()
+  reverse: a => a.reverse(),
+  none: a => a
 }
 
 e.confirmExit = () => {

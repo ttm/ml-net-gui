@@ -481,7 +481,7 @@ e.Mk = class {
     const nnotes = addNumField(grid, 'number of notes', 'any integer', 'number of different notes in the symmetric structure/voice', 3)
     const noctaves = addNumField(grid, 'number of octaves', 'any real number', 'number of octaves to spread the notes evenly (endpoint not included)', 1)
     const f0 = addNumField(grid, 'lowest frequency', 'any real number', 'frequency of the lowest note', 100)
-    const d = addNumField(grid, 'cycle duration', 'any real number', 'duration of the iteration on all notes before repetition', 1.5)
+    const d = addNumField(grid, 'cycle duration', 'any real number', 'duration of the iteration on all notes before repetition', 1)
     const waveform = addWaveforms(grid, 'waveform', 'waveformS')
     $('<span/>').html('permutation:').appendTo(grid)
     const permfunc = $('<select/>').appendTo(grid)

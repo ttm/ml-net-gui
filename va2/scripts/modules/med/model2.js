@@ -23,6 +23,7 @@ e.Med = class {
     this.finalFade = 5
     this.initialFade = 2
     this.initialVolume = -40
+    this.isMobile = utils.mobileAndTabletCheck()
     transfer.findAny({ 'header.med2': med2 }).then(r => {
       this.setting = r
       this.voices = []
@@ -49,11 +50,11 @@ e.Med = class {
       start: tt => {
         synthM.start(tt)
         mod.start(tt)
-        synthM.volume.rampTo(this.initialVolume, this.initialFade, tt)
-        mod.frequency.rampTo(1 / s.mp1, s.md, tt)
+        synthM.volume.linearRampTo(this.initialVolume, this.initialFade, tt)
+        mod.frequency.linearRampTo(1 / s.mp1, s.md, tt) // todo: check if better than rampTo
       },
       stop: tt => {
-        synthM.volume.rampTo(-200, this.finalFade, tt)
+        synthM.volume.linearRampTo(-200, this.finalFade, tt)
         synthM.stop('+' + (tt + this.finalFade))
         mod.stop('+' + (tt + this.finalFade))
       },
@@ -101,7 +102,7 @@ e.Med = class {
         all.forEach(i => i.start(tt))
         synthL.volume.linearRampTo(this.initialVolume, this.initialFade, tt)
         synthR.volume.linearRampTo(this.initialVolume, this.initialFade, tt)
-        mod.frequency.rampTo(1 / s.mp1, s.md, tt)
+        mod.frequency.linearRampTo(1 / s.mp1, s.md, tt) // todo: check if better than rampTo
       },
       stop: tt => {
         synthL.volume.linearRampTo(-150, this.finalFade, tt)
@@ -113,7 +114,9 @@ e.Med = class {
   }
 
   addSymmetry (s) {
-    const freqSpan = s.noctaves * 2
+    // fixme: only works for noctaves >= 1 ?
+    // const freqSpan = s.noctaves * 2
+    const freqSpan = (2 ** (1 / 2)) ** (12 * s.noctaves)
     const freqFact = freqSpan ** (1 / s.nnotes)
     const notes = [s.f0]
     for (let i = 1; i < s.nnotes; i++) {
@@ -125,6 +128,7 @@ e.Med = class {
     const noteSep = s.d / notes.length
     const noteDur = noteSep / 2
     const permfunc = utils.permutations[p[s.permfunc]]
+    console.log('SYM', notes, noteSep, noteDur, s)
     const loop = new t.Loop(time => {
       // todo: implement compound and peals
       permfunc(notes)
@@ -136,11 +140,11 @@ e.Med = class {
     return {
       start: tt => {
         loop.start(tt)
-        sy.volume.rampTo(this.initialVolume, this.initialFade, tt)
+        sy.volume.linearRampTo(this.initialVolume, this.initialFade, tt)
       },
       stop: tt => {
         loop.stop('+' + (tt + this.finalFade))
-        sy.volume.rampTo(-150, this.finalFade, tt)
+        sy.volume.linearRampTo(-150, this.finalFade, tt)
       },
       volume: { sy }
     }
@@ -163,7 +167,7 @@ e.Med = class {
         theSamp.start(tt + (s.soundSampleStart || 0))
       },
       stop: tt => {
-        sampler.volume.rampTo(-150, this.finalFade, tt)
+        sampler.volume.linearRampTo(-150, this.finalFade, tt)
         theSamp.stop('+' + (tt + this.finalFade))
       },
       volume: { sampler }
@@ -386,7 +390,7 @@ e.Med = class {
   }
 
   setStage (s) {
-    const isMobile = utils.mobileAndTabletCheck()
+    const isMobile = this.isMobile
     const adiv = utils.centerDiv(undefined, $('#canvasDiv'), utils.chooseUnique(['#eeeeff', '#eeffee', '#ffeeee'], 1)[0])
       .css('text-align', 'center')
       .css('padding', '0.4% 1%')
@@ -580,7 +584,10 @@ e.Med = class {
 
   volumeControl () {
     // const gui = new dat.GUI({ closed: true, closeOnTop: true })
-    const gui = new dat.GUI()
+    const set = {}
+    set.width = window.innerWidth / 3.5
+    if (this.isMobile) set.width = window.innerWidth / 2
+    const gui = new dat.GUI(set)
     const counts = this.voices.reduce((a, v) => {
       a[v.type] = 0
       return a
@@ -620,5 +627,24 @@ e.Med = class {
     })
     window.mmaster = masterGui
     window.ggg = gui
+    $('.dg').css('font-size', '24px')
+    $('.close-button').css('background-color', '#777777')
+    $('.dg .c input[type=text]').css('width', '15%')
+    $('.dg .c .slider').css('width', '80%')
+    if (this.isMobile) {
+      $('.dg.main .close-button.close-bottom')
+        .css('padding-bottom', '10px').css('padding-top', '10px')
+      $('.dg .cr.number').css('height', '37px')
+      $('.dg .c .slider').css('height', '37px')
+      let open = true
+      $('.dg.main .close-button.close-bottom').click(() => {
+        if (open) {
+          $('.dg .cr.number').css('height', '')
+        } else {
+          $('.dg .cr.number').css('height', '37px')
+        }
+        open = !open
+      })
+    }
   }
 }

@@ -36,6 +36,7 @@
     "mongodb-stitch-browser-sdk": "^4.8.0",
     "nodemon": "^2.0.3",
     "nosleep.js": "^0.12.0",
+    "paginationjs": "^2.1.5",
     "percom": "^1.1.0",
     "pixi-projection": "^0.3.11",
     "pixi.js": "^5.3.3",
@@ -45,7 +46,8 @@
     "stats-js": "^1.0.1",
     "superagent": "^6.1.0",
     "tinycolor2": "^1.4.1",
-    "tone": "^14.7.77"
+    "tone": "^14.7.77",
+    "wavefile": "^11.0.0"
   },
   "standard": {
     "ignore": [

@@ -271,6 +271,9 @@ e.Mk = class {
       .append($('<option/>').val(1).html('lemniscate'))
       .append($('<option/>').val(2).html('trefoil (triquetra)'))
       .append($('<option/>').val(3).html('figure-eight (Listing\'s) knot'))
+      .append($('<option/>').val(4).html('torus knot'))
+      .append($('<option/>').val(5).html('cinquefoil knot'))
+      .append($('<option/>').val(6).html('decorative torus knot'))
       .on('change', aself => {
         const i = parseInt(aself.currentTarget.value)
         if (i === 0) {

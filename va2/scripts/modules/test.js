@@ -3,6 +3,8 @@ const forceAtlas2 = require('graphology-layout-forceatlas2')
 
 const t = require('tone')
 const $ = require('jquery')
+window.jQuery = $
+require('paginationjs')
 const linkify = require('linkifyjs/html')
 
 const m = require('./med')
@@ -2534,7 +2536,7 @@ e.aa = () => {
   // (slot dur, n slots) to start a session
   const adiv = utils.stdDiv().html(`
   <h2>AA is Algorithmic Autoregulation</h2>
-  Check the <a href="?aalogs" target="_blank">logs</a>.
+  Check the <a href="?aalogs3" target="_blank">logs</a>.
   `)
   let grid = utils.mkGrid(2, adiv, '60%', utils.chooseUnique(['#eeeeff', '#eeffee', '#ffeeee']))
   $('<span/>').html('user id:').appendTo(grid)
@@ -2729,20 +2731,189 @@ e.aa = () => {
   utils.confirmExit()
 }
 
+e.aalogs2 = () => {
+  $('<link/>', {
+    rel: 'stylesheet',
+    href: 'https://cdnjs.cloudflare.com/ajax/libs/paginationjs/2.1.5/pagination.css'
+  }).appendTo('head')
+  const adiv = utils.centerDiv('90%', undefined, utils.chooseUnique(['#eeeeff', '#eeffee', '#ffeeee'], 1)[0], 3, 2).html(`
+  <h2>AA is Algorithmic Autoregulation</h2>
+  `)
+  $('<div/>', { id: 'apid' }).appendTo(adiv)
+  $('<div/>', { id: 'data-container' }).appendTo(adiv)
+
+  function simpleTemplating (data) {
+    let html = '<ul>'
+    $.each(data, function (index, item) {
+      html += '<li>' + item + '</li>'
+    })
+    html += '</ul>'
+    return html
+  }
+  const data = []
+  for (let i = 0; i < 1000; i++) {
+    data.push(`${i} YEAH MAN`)
+  }
+  $(document).ready(() => {
+    $('#apid').pagination({
+      dataSource: data,
+      pageSize: 20,
+      autoHidePrevious: true,
+      autoHideNext: true,
+      callback: function (data, pagination) {
+        const html = simpleTemplating(data)
+        $('#data-container').html(html)
+      }
+    })
+  })
+  $('#loading').hide()
+}
+
+e.aalogs3 = ufrj => {
+  const url = ufrj ? 'ufrj-logs2' : 'aalogs3'
+  const url2 = ufrj ? 'ufrj' : 'aa'
+  const field = ufrj ? 'shoutFran' : 'shout'
+
+  $('<link/>', { // todo: download to get from repo
+    rel: 'stylesheet',
+    href: 'https://cdnjs.cloudflare.com/ajax/libs/paginationjs/2.1.5/pagination.css'
+  }).appendTo('head')
+
+  function simpleTemplating2 (data) {
+    const grid = utils.mkGrid(4, adiv, '100%', utils.chooseUnique(['#eeeeff', '#eeffee', '#ffeeee']))
+    $('<span/>', { css: { 'margin-left': '10%' } }).html('<b>user</b>').appendTo(grid)
+    $('<span/>', { css: { 'margin-left': '10%' } }).html('<b>shout</b>').appendTo(grid)
+    const tz = (new Date()).getTimezoneOffset()
+    const tz_ = (tz > 0 ? '-' : '+') + Math.floor(tz / 60)
+    $('<span/>', { css: { 'margin-left': '10%' } }).html(`<b>when (GMT${tz_})</b>`).appendTo(grid)
+    $('<span/>', { css: { 'margin-left': '10%' } }).html('<b>session</b>').appendTo(grid)
+    utils.gridDivider(160, 160, 160, grid, 1)
+    utils.gridDivider(160, 160, 160, grid, 1)
+    utils.gridDivider(160, 160, 160, grid, 1)
+    utils.gridDivider(160, 160, 160, grid, 1)
+
+    const func = 'appendTo'
+    const r = data
+    r.forEach(s => {
+      $('<span/>', { css: { 'margin-left': '10%' }, title: `see shouts by user ${s.uid}` }).html(`<a href="?${url}&user=${s.uid}", target="_blank">${s.uid}</a>`)[func](grid)
+      const shout = $('<span/>', { css: { 'margin-left': '10%' }, title: s[field] }).html(linkify(s[field]))[func](grid)
+      const adate = (new Date(s.date - tzoffset)).toISOString()
+        .replace(/T/, ' ')
+        .replace(/:\d\d\..+/, '')
+      $('<span/>', { css: { 'margin-left': '10%' }, title: adate }).html(adate)[func](grid)
+      $('<span/>', { css: { 'margin-left': '10%' }, title: `see shouts in session ${s.sessionId}` }).html(s.sessionId ? `<a href="?${url}&session=${s.sessionId}" target="_blank">${s.sessionId.slice(-10)}</a>` : '')[func](grid)
+      if (u('admin')) { // todo: remove the shout correctly
+        shout.click(() => {
+          console.log(s)
+          transfer.remove({ _id: s._id }, true)
+          window.rrr.filter(s_ => s_._id !== s._id)
+          window.rrrBack.filter(s_ => s_._id !== s._id)
+          mkPag()
+        })
+      }
+      utils.gridDivider(190, 190, 190, grid, 1)
+      utils.gridDivider(190, 190, 190, grid, 1)
+    })
+    return grid
+  }
+
+  const data = []
+  for (let i = 0; i < 1000; i++) {
+    data.push(`${i} YEAH MAN`)
+  }
+  const user = u('user')
+  const session = u('session')
+  const adiv = utils.centerDiv('90%', undefined, utils.chooseUnique(['#eeeeff', '#eeffee', '#ffeeee'], 1)[0], 3, 2).html(`
+  <h2>AA is Algorithmic Autoregulation</h2>
+  <p>This is the logs page ${user ? 'for user <b>' + user + '</b>' : ''}${session ? 'for session <b>' + session.slice(-10) + '</b><span id="sessionDur"></span>' : ''}. Check the <a href="?${url2}" target="_blank">AA interface</a>.</p>
+  `)
+  $('<button/>', { id: 'rbutton', title: 'retrieve shouts given after last load' }).html('update').appendTo(adiv)
+  const sbut = $('<button/>', { id: 'sbutton', title: 'search string in the shouts' }).html('search').appendTo(adiv)
+    .click(() => {
+      const res = window.prompt('enter search string (empty string to restore all messages):')
+      console.log('search me', res, res === '', res === null)
+      if (res !== '' && res !== null) {
+        const res_ = res.toUpperCase()
+        window.rrr = window.rrrBack.filter(i => i[field].toUpperCase().indexOf(res_) !== -1)
+        mkPag()
+        sbut.html(`search (${res})`)
+      } else if (res === '') { // restore shouts:
+        window.rrr = window.rrrBack.slice()
+        mkPag()
+        sbut.html('search')
+      }
+    })
+  $('<div/>', { id: 'apid' }).appendTo(adiv)
+  $('<div/>', { id: 'data-container' }).appendTo(adiv)
+  const query = {}
+  query[field] = { $exists: true }
+  if (user) {
+    query.uid = user
+  }
+  if (session) {
+    query.sessionId = session
+  }
+  const tzoffset = (new Date()).getTimezoneOffset() * 60000 // offset in milliseconds
+  function updateDuration () {
+    const r = window.rrr
+    const dur = (r[0].date - r[r.length - 1].date) / (60 * 60 * 1000)
+    const h = Math.floor(dur)
+    const min = dur - h
+    const min_ = Math.round(min * 60)
+    // const dstr = `${h}:${min_}`
+    const dstr = `${h}h${min_}m`
+    $('#sessionDur').html(` (total duration: <b>${dstr}</b>)`)
+  }
+  function mkPag (data) {
+    if (window.apag !== undefined) window.apag.pagination('destroy')
+    window.apag = $('#apid').pagination({
+      dataSource: window.rrr,
+      pageSize: u('l') || 25,
+      // autoHidePrevious: true,
+      // autoHideNext: true,
+      callback: function (data, pagination) {
+        const html = simpleTemplating2(data)
+        $('#data-container').html(html)
+      }
+    })
+    if (session) updateDuration()
+  }
+  transfer.findAll(query, true).then(r => {
+    console.log(r)
+    window.rrr = r
+    r.sort((a, b) => b.date - a.date)
+    window.rrrBack = window.rrr.slice()
+    mkPag()
+    $('#rbutton').click(() => {
+      console.log('click')
+      query._id = { $nin: window.rrrBack.map(s => s._id) }
+      transfer.findAll(query, true).then(r_ => {
+        window.rrrBack.unshift(...r_)
+        window.rrr = window.rrrBack.slice()
+        sbut.html('search')
+        mkPag()
+      })
+    })
+  })
+  $('#loading').hide()
+}
+
 e.aalogs = () => {
   const user = u('user')
   const session = u('session')
   // const adiv = utils.stdDiv().html(`
   const adiv = utils.centerDiv('90%', undefined, utils.chooseUnique(['#eeeeff', '#eeffee', '#ffeeee'], 1)[0], 3, 2).html(`
   <h2>AA is Algorithmic Autoregulation</h2>
-  This is the logs page${user ? 'for user <b>' + user + '</b>' : ''}${session ? 'for session <b>' + session.slice(-10) + '</b>' : ''}. Check the <a href="?aa" target="_blank">AA interface</a>.
+  <p>This is the logs page ${user ? 'for user <b>' + user + '</b>' : ''}${session ? 'for session <b>' + session.slice(-10) + '</b><span id="sessionDur"></span>' : ''}. Check the <a href="?ufrj" target="_blank">AA interface</a>.</p>
   `)
   // const grid = utils.mkGrid(4, adiv, '60%', utils.chooseUnique(['#eeeeff', '#eeffee', '#ffeeee']))
   $('<button/>', { id: 'rbutton' }).html('update').appendTo(adiv)
   const grid = utils.mkGrid(4, adiv, '100%', utils.chooseUnique(['#eeeeff', '#eeffee', '#ffeeee']))
   $('<span/>', { css: { 'margin-left': '10%' } }).html('<b>user</b>').appendTo(grid)
   $('<span/>', { css: { 'margin-left': '10%' } }).html('<b>shout</b>').appendTo(grid)
-  $('<span/>', { css: { 'margin-left': '10%' } }).html('<b>when</b>').appendTo(grid)
+  const tz = (new Date()).getTimezoneOffset()
+  const tz_ = (tz > 0 ? '-' : '+') + Math.floor(tz / 60)
+  $('<span/>', { css: { 'margin-left': '10%' } }).html(`<b>when (GMT${tz_})</b>`).appendTo(grid)
   $('<span/>', { css: { 'margin-left': '10%' } }).html('<b>session</b>').appendTo(grid)
   utils.gridDivider(160, 160, 160, grid, 1)
   utils.gridDivider(160, 160, 160, grid, 1)
@@ -2756,18 +2927,19 @@ e.aalogs = () => {
     query.sessionId = session
   }
   const ids = []
+  const tzoffset = (new Date()).getTimezoneOffset() * 60000 // offset in milliseconds
   function addShout (r, updated) {
     const func = 'appendTo'
     r.sort((a, b) => b.date - a.date)
     r.forEach(s => {
       ids.push(s._id)
-      const user = $('<span/>', { css: { 'margin-left': '10%' }, title: `see shouts by user ${s.uid}` }).html(`<a href="?aalogs&user=${s.uid}", target="_blank">${s.uid}</a>`)[func](grid)
+      const user = $('<span/>', { css: { 'margin-left': '10%' }, title: `see shouts by user ${s.uid}` }).html(`<a href="?ufrj-logs&user=${s.uid}", target="_blank">${s.uid}</a>`)[func](grid)
       const shout = $('<span/>', { css: { 'margin-left': '10%' }, title: s.shout }).html(linkify(s.shout))[func](grid)
-      const adate = (new Date(s.date)).toISOString()
+      const adate = (new Date(s.date - tzoffset)).toISOString()
         .replace(/T/, ' ')
         .replace(/:\d\d\..+/, '')
       const date = $('<span/>', { css: { 'margin-left': '10%' }, title: adate }).html(adate)[func](grid)
-      const session = $('<span/>', { css: { 'margin-left': '10%' }, title: `see shouts in session ${s.sessionId}` }).html(s.sessionId ? `<a href="?aalogs&session=${s.sessionId}" target="_blank">${s.sessionId.slice(-10)}</a>` : '')[func](grid)
+      const session = $('<span/>', { css: { 'margin-left': '10%' }, title: `see shouts in session ${s.sessionId}` }).html(s.sessionId ? `<a href="?ufrj-logs&session=${s.sessionId}" target="_blank">${s.sessionId.slice(-10)}</a>` : '')[func](grid)
       if (u('admin')) {
         shout.click(() => {
           console.log(s)
@@ -2791,10 +2963,10 @@ e.aalogs = () => {
         .replace(/:\d\d\..+/, '')
       utils.gridDivider(190, 190, 190, grid, 1, lastSep)
       utils.gridDivider(190, 190, 190, grid, 1, lastSep)
-      const session = $('<span/>', { css: { 'margin-left': '10%' }, title: `see shouts in session ${s.sessionId}` }).html(s.sessionId ? `<a href="?aalogs&session=${s.sessionId}" target="_blank">${s.sessionId.slice(-10)}</a>` : '').insertAfter(lastSep)
+      const session = $('<span/>', { css: { 'margin-left': '10%' }, title: `see shouts in session ${s.sessionId}` }).html(s.sessionId ? `<a href="?ufrj-logs&session=${s.sessionId}" target="_blank">${s.sessionId.slice(-10)}</a>` : '').insertAfter(lastSep)
       const date = $('<span/>', { css: { 'margin-left': '10%' }, title: adate }).html(adate).insertAfter(lastSep)
       const shout = $('<span/>', { css: { 'margin-left': '10%' }, title: s.shout }).html(linkify(s.shout)).insertAfter(lastSep)
-      const user = $('<span/>', { css: { 'margin-left': '10%' }, title: `see shouts by user ${s.uid}` }).html(`<a href="?aalogs&user=${s.uid}", target="_blank">${s.uid}</a>`).insertAfter(lastSep)
+      const user = $('<span/>', { css: { 'margin-left': '10%' }, title: `see shouts by user ${s.uid}` }).html(`<a href="?ufrj-logs&user=${s.uid}", target="_blank">${s.uid}</a>`).insertAfter(lastSep)
       if (u('admin')) {
         shout.click(() => {
           console.log(s)
@@ -2807,17 +2979,33 @@ e.aalogs = () => {
       }
     })
   }
+  function updateDuration () {
+    const r = window.rrr
+    const dur = (r[0].date - r[r.length - 1].date) / (60 * 60 * 1000)
+    const h = Math.floor(dur)
+    const min = dur - h
+    const min_ = Math.round(min * 60)
+    // const dstr = `${h}:${min_}`
+    const dstr = `${h}h${min_}m`
+    $('#sessionDur').html(` (total duration: <b>${dstr}</b>)`)
+  }
   transfer.findAll(query, true).then(r => {
     console.log(r)
     window.rrr = r
     window.ids = ids
     addShout(r)
+    if (session) {
+      updateDuration()
+    }
     $('#rbutton').click(() => {
       console.log('click')
       query._id = { $nin: ids }
       transfer.findAll(query, true).then(r_ => {
         window.R_ = r_
         insertShout(r_)
+        r_.push(...window.rrr)
+        window.rrr = r_
+        updateDuration()
       })
     })
   })
@@ -3005,7 +3193,7 @@ e.ufrj = () => {
   <img alt="" border="0" src="assets/UFRJ-logo.png" width="7%" style="float:right" />
   <h2>AA is Algorithmic Autoregulation</h2>
 
-  Check the <a href="?ufrj-logs" target="_blank">logs</a>.
+  Check the <a href="?ufrj-logs2" target="_blank">logs</a>.
   `)
   let grid = utils.mkGrid(2, adiv, '60%', utils.chooseUnique(['#eeeeff', '#eeffee', '#ffeeee']))
   $('<span/>').html('user id:').appendTo(grid)
@@ -3198,6 +3386,10 @@ e.ufrj = () => {
   })
   $('#loading').hide()
   utils.confirmExit()
+}
+
+e['ufrj-logs2'] = () => {
+  e.aalogs3(true)
 }
 
 e['ufrj-logs'] = () => {
@@ -3652,4 +3844,167 @@ e.cdraw = () => {
   window.lll = myLine
   window.ccc = c
   $('#loading').hide()
+}
+
+e.torus = () => {
+  const app = new PIXI.Application({ // todo: make it resizable
+    width: window.innerWidth,
+    height: window.innerHeight * 0.80
+  })
+  $('body').append(app.view)
+  const [w, h] = [app.view.width, app.view.height]
+  const c = [w / 2, h / 2] // center
+  const a = w * 0.1
+  const a_ = h * 0.1
+
+  function xy (angle, torus, vertical) { // lemniscate x, y given angle
+    const foo = 3 + Math.cos(4 * angle)
+    return [c[0] + a * foo * Math.cos(3 * angle), c[1] + a_ * foo * Math.sin(3 * angle)]
+  }
+  const myLine = new PIXI.Graphics()
+  myLine.lineStyle(1, 0xffffff)
+    .moveTo(...xy(0, false, u('v')))
+  const segments = 1000
+  for (let i = 0; i <= segments; i++) {
+    myLine.lineTo(...xy(2 * Math.PI * i / segments, false, u('v')))
+  }
+  app.stage.addChild(myLine)
+  if (u('v')) {
+    myLine.pivot.x = c[0]
+    myLine.pivot.y = c[1]
+    myLine.position.set(...c)
+    myLine.rotation = Math.PI
+  }
+  window.lll = myLine
+  window.ccc = c
+  $('#loading').hide()
+}
+
+e.cinq = () => {
+  const app = new PIXI.Application({ // todo: make it resizable
+    width: window.innerWidth,
+    height: window.innerHeight * 0.80
+  })
+  $('body').append(app.view)
+  const [w, h] = [app.view.width, app.view.height]
+  const c = [w / 2, h / 2] // center
+  const a = w * 0.1
+  const a_ = h * 0.1
+
+  function xy (angle, torus, vertical) { // lemniscate x, y given angle
+    const foo = 3 + Math.cos(5 * angle)
+    return [c[0] + a * foo * Math.cos(2 * angle), c[1] + a_ * foo * Math.sin(2 * angle)]
+  }
+  const myLine = new PIXI.Graphics()
+  myLine.lineStyle(1, 0xffffff)
+    .moveTo(...xy(0, false, u('v')))
+  const segments = 1000
+  for (let i = 0; i <= segments; i++) {
+    myLine.lineTo(...xy(2 * Math.PI * i / segments, false, u('v')))
+  }
+  app.stage.addChild(myLine)
+  if (u('v')) {
+    myLine.pivot.x = c[0]
+    myLine.pivot.y = c[1]
+    myLine.position.set(...c)
+    myLine.rotation = Math.PI
+  }
+  window.lll = myLine
+  window.ccc = c
+  $('#loading').hide()
+}
+
+e.torusDec = () => {
+  const app = new PIXI.Application({ // todo: make it resizable
+    width: window.innerWidth,
+    height: window.innerHeight * 0.80
+  })
+  $('body').append(app.view)
+  const [w, h] = [app.view.width, app.view.height]
+  const c = [w / 2, h / 2] // center
+  const a = w * 0.1
+  const a_ = h * 0.1
+
+  function xy (angle, torus, vertical) { // lemniscate x, y given angle
+    const foo = 1 + 0.45 * Math.cos(3 * angle) + 0.4 * Math.cos(9 * angle)
+    return [c[0] + a * foo * Math.sin(2 * angle), c[1] + a_ * foo * Math.cos(2 * angle)]
+  }
+  const myLine = new PIXI.Graphics()
+  myLine.lineStyle(1, 0xffffff)
+    .moveTo(...xy(0, false, u('v')))
+  const segments = 1000
+  for (let i = 0; i <= segments; i++) {
+    myLine.lineTo(...xy(2 * Math.PI * i / segments, false, u('v')))
+  }
+  app.stage.addChild(myLine)
+  if (u('v')) {
+    myLine.pivot.x = c[0]
+    myLine.pivot.y = c[1]
+    myLine.position.set(...c)
+    myLine.rotation = Math.PI
+  }
+  window.lll = myLine
+  window.ccc = c
+  $('#loading').hide()
+}
+
+e.testRecord = () => {
+  // const blob = new Blob(chunks, { type: 'audio/wav' })
+  const context = new t.OfflineContext(1, 0.5, 44100)
+  const dest = context.createMediaStreamDestination()
+  const recorder = new window.MediaRecorder(dest.stream, { mimeType: 'audio/wav' })
+  const chunks = []
+  recorder.ondataavailable = evt => chunks.push(evt.data)
+  const osc = new t.Oscillator({ context }).connect(dest)
+  context.render().then(buffer => {
+    console.log(buffer.numberOfChannels, buffer.duration, osc)
+    window.bbb = buffer
+    const blob = new window.Blob(chunks, { type: 'audio/wav' })
+
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    document.body.appendChild(a)
+    a.style = 'display: none'
+    a.href = url
+    a.download = (this.filename || 'test') + '.wav'
+    a.click()
+  })
+}
+
+e.testRecord2 = () => {
+  const wavefile = require('wavefile')
+  t.Offline(() => {
+    const oscillator = new t.Oscillator().toDestination().start(0)
+    window.osc = oscillator
+  }, 2).then((buffer) => {
+    console.log(buffer.numberOfChannels, buffer.duration)
+    window.bbb = buffer
+    const wav = new wavefile.WaveFile()
+    // wav.fromScratch(2, 44100, '32f', buffer.toArray()) // works
+    const bar = buffer.toArray()
+    const bar_ = []
+    bar.forEach(chan => {
+      const [max, min] = chan.reduce((mm, i) => {
+        if (i > mm[0]) mm[0] = i
+        if (i < mm[1]) mm[1] = i
+        return mm
+      }, [-Infinity, Infinity])
+      const chan_ = chan.map(i => Math.floor((2 ** 15 - 1) * (2 * (i - min) / (max - min) - 1)))
+      bar_.push(chan_)
+    })
+    wav.fromScratch(2, 44100, '16', bar_) // works
+
+    // const blob = new window.Blob(buffer.toArray(), { type: 'audio/wav' })
+    // const blob = new window.Blob(buffer.toArray(), { type: 'audio/ogg' })
+    // // const blob = new window.Blob(buffer.toArray())
+
+    // const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    document.body.appendChild(a)
+    a.style = 'display: none'
+    // a.href = url
+    a.href = wav.toDataURI()
+    a.download = (this.filename || 'test') + '.wav'
+    a.click()
+  })
 }

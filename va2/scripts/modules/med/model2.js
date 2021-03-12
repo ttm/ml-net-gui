@@ -24,7 +24,7 @@ e.Med = class {
     this.initialFade = 2
     this.initialVolume = -40
     this.isMobile = utils.mobileAndTabletCheck()
-    transfer.findAny({ 'header.med2': med2 }).then(r => {
+    const doIt = r => {
       this.setting = r
       this.voices = []
       for (let i = 0; i < r.voices.length; i++) {
@@ -34,6 +34,20 @@ e.Med = class {
       this.visuals = this.setVisual(r.visSetting)
       this.setStage(r.header)
       $('#loading').hide()
+    }
+    transfer.findAny({ 'header.med2': med2 }).then(r => {
+      if (u('offline')) {
+        $('#loading').hide()
+        $('<button/>').appendTo('body').html('RECORD YEAH')
+          .click(() => {
+            maestro.recOffline(() => {
+              doIt(r)
+              $('#startChecked').click()
+            }, r.header.d + 10, u('b16') ? '16' : '32f', med2)
+          })
+      } else {
+        doIt(r)
+      }
     })
   }
 
@@ -114,10 +128,7 @@ e.Med = class {
   }
 
   addSymmetry (s) {
-    // fixme: only works for noctaves >= 1 ?
-    // const freqSpan = s.noctaves * 2
-    const freqSpan = (2 ** (1 / 2)) ** (12 * s.noctaves)
-    const freqFact = freqSpan ** (1 / s.nnotes)
+    const freqFact = 2 ** (s.noctaves / s.nnotes)
     const notes = [s.f0]
     for (let i = 1; i < s.nnotes; i++) {
       notes.push(s.f0 * (freqFact ** i))
@@ -128,7 +139,6 @@ e.Med = class {
     const noteSep = s.d / notes.length
     const noteDur = noteSep / 2
     const permfunc = utils.permutations[p[s.permfunc]]
-    console.log('SYM', notes, noteSep, noteDur, s)
     const loop = new t.Loop(time => {
       // todo: implement compound and peals
       permfunc(notes)
@@ -237,16 +247,35 @@ e.Med = class {
       const foo = (2 + Math.cos(2 * angle))
       return [c[0] + a_ * foo * Math.cos(3 * angle), c[1] + a__ * foo * Math.sin(3 * angle)]
     }
+
+    const [aX, aY] = [a_ * 0.8, a__ * 0.8]
+    function xyTorus (angle, torus, vertical) { // torus knot x, y given angle
+      const foo = 3 + Math.cos(4 * angle)
+      return [c[0] + aX * foo * Math.cos(3 * angle), c[1] + aY * foo * Math.sin(3 * angle)]
+    }
+
+    function xyCinque (angle, torus, vertical) { // torus knot x, y given angle
+      const foo = 3 + Math.cos(5 * angle)
+      return [c[0] + aX * foo * Math.cos(2 * angle), c[1] + aY * foo * Math.sin(2 * angle)]
+    }
+
+    const [aXX, aYY] = [a_ * 1.8, a__ * 1.8]
+    const c1 = c[1] * 0.84
+    function xyTorusDec (angle, torus, vertical) { // lemniscate x, y given angle
+      const foo = 1 + 0.45 * Math.cos(3 * angle) + 0.4 * Math.cos(9 * angle)
+      return [c[0] + aXX * foo * Math.sin(2 * angle), c1 + aYY * foo * Math.cos(2 * angle)]
+    }
     let xy
     const table = []
     if (s.lemniscate) {
-      xy = s.lemniscate === 1 ? xyL : s.lemniscate === 2 ? xyT : xy8
+      xy = [0, xyL, xyT, xy8, xyTorus, xyCinque, xyTorusDec][s.lemniscate]
+      // xy = s.lemniscate === 1 ? xyL : s.lemniscate === 2 ? xyT : xy8
       bCircle.x = s.bPos === 0 ? c[0] : s.bPos === 1 ? (c[0] - a) / 2 : (3 * c[0] + a) / 2
       myLine.lineStyle(1, 0xffffff)
       //  .moveTo(...xy(0))
       for (let i = 0; i <= segments; i++) {
         // myLine.lineTo(...xy(2 * Math.PI * i / 100))
-        table.push(xy(2 * Math.PI * i / 100))
+        table.push(xy(2 * Math.PI * i / segments))
       }
     } else {
       bCircle.x = s.bPos === 0 ? x + dx / 2 : s.bPos === 1 ? x * 0.5 : x + dx * 1.05
@@ -327,6 +356,27 @@ e.Med = class {
         bCircle.y = val * a * 0.5 + y
       } else if (s.lemniscate === 3) { // fig8:
         const pos = xy(avalr)
+        myCircle2.y = myCircle3.y = pos[1]
+        myCircle3.x = pos[0]
+        myCircle2.x = 2 * c[0] - pos[0]
+        bCircle.y = val * a * 0.5 + y
+      } else if (s.lemniscate === 4) { // Torus:
+        const pos = xy(-avalr)
+        myCircle2.y = myCircle3.y = pos[1]
+        myCircle3.x = pos[0]
+        myCircle2.x = 2 * c[0] - pos[0]
+        bCircle.y = val * a * 0.5 + y
+      } else if (s.lemniscate === 5) { // Cinque:
+        const avalr_ = avalr + Math.PI / 4
+        const pos = xy(avalr_)
+        const pos2 = xy(avalr_ + Math.PI)
+        myCircle3.y = pos[1]
+        myCircle3.x = pos[0]
+        myCircle2.y = pos2[1]
+        myCircle2.x = pos2[0]
+        bCircle.y = val * a * 0.5 + y
+      } else if (s.lemniscate === 6) { // TorusDec:
+        const pos = xy(avalr - Math.PI / 2)
         myCircle2.y = myCircle3.y = pos[1]
         myCircle3.x = pos[0]
         myCircle2.x = 2 * c[0] - pos[0]
@@ -416,7 +466,8 @@ e.Med = class {
     }).appendTo(lpar)
     const noSleep = new NS()
     const check = $('<input/>', {
-      type: 'checkbox'
+      type: 'checkbox',
+      id: 'startChecked'
     }).appendTo(label).change(() => {
       if (check.prop('checked')) {
         noSleep.enable()
@@ -499,8 +550,7 @@ e.Med = class {
 
   startGoodTimer (s) {
     this.visuals.start()
-    this.volumeControl()
-    const before = window.performance.now()
+    if (s.vcontrol) this.volumeControl()
     const d = () => this.getDurationToStart(s) / 1000
     t.start(0)
     t.Transport.start(0)
@@ -527,7 +577,6 @@ e.Med = class {
         this.guiEls.countdownMsg.html('session finished. Time elapsed:')
       }, time)
     }, '+' + (d() + s.d))
-    console.log('time taken between scheduling events:', window.performance.now() - before)
 
     new t.Loop(time => { // update counter before starts and then before ends.
       t.Draw.schedule(() => {
@@ -571,7 +620,6 @@ e.Med = class {
   }
 
   updateScheduling (s) {
-    console.log('previous time:', s.datetime)
     if (u('s')) {
       s.datetime = utils.timeArgument()
     } else if (u('t')) {
@@ -579,7 +627,6 @@ e.Med = class {
       dt.setSeconds(dt.getSeconds() + parseFloat(u('t')))
       s.datetime = dt
     }
-    console.log('new time:', s.datetime)
   }
 
   volumeControl () {
@@ -599,7 +646,6 @@ e.Med = class {
       const v = this.voices[i]
       let label = `${n(v.type)}-${++counts[v.type]}`
       if (v.isOn) label += ' REF'
-      console.log('LABEL:', label)
       const d = {}
       d[label] = 50
       const voiceGui = gui.add(d, label, 0, 100).listen()
@@ -611,7 +657,6 @@ e.Med = class {
       instruments.push({ voiceGui, instr })
       voiceGui.onChange(val => {
         for (const instrument in v.volume) {
-          console.log('tvol:', val + v.volume[instrument].defVolume - 50)
           v.volume[instrument].volume.value = val + v.volume[instrument].defVolume - 50 + master
         }
       })
@@ -628,7 +673,11 @@ e.Med = class {
     window.mmaster = masterGui
     window.ggg = gui
     $('.dg').css('font-size', '24px')
-    $('.close-button').css('background-color', '#777777')
+    // $('.close-button').css('background-color', '#777777')
+    $('.close-button')
+      .css('background-color', 'rgba(0,0,0,0)')
+      .css('border', 'solid #777777')
+      .click()
     $('.dg .c input[type=text]').css('width', '15%')
     $('.dg .c .slider').css('width', '80%')
     if (this.isMobile) {

@@ -1,5 +1,6 @@
 const e = module.exports
 const $ = require('jquery')
+const monk = require('./monk')
 
 let count = 0
 e.mkGrid = (cols, el, w, bgc, tcol) => {
@@ -165,3 +166,91 @@ e.mobileAndTabletCheck = () => {
 }
 
 const d = e.defaultArg = (arg, def) => arg === undefined ? def : arg
+
+const nomeMeses = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro']
+e.dataFormatada = d => {
+  const data = new Date(d)
+  const dia = data.getDate()
+  const mes = nomeMeses[data.getMonth()]
+  const ano = data.getFullYear()
+
+  const h = data.getHours()
+  const m = data.getMinutes()
+  return `${h}h${m} (GMT-3, ${[dia, mes, ano].join('/')})`
+}
+
+e.formatTheme = s => {
+  s = s.replaceAll('_', '')
+  return s.charAt(0).toUpperCase() + s.slice(1)
+}
+
+e.getPhrase = () => {
+  const l1 = [
+    'Respiração diafragmática (pela barriga, peito parado), lenta.',
+    'Postura livre mas de preferência com coluna ereta, seja deitada ou sentada ou de pé.',
+    'Garanta que tenha entendido como ativar o artefato, porque usá-lo e o que esperar das sessões de MMM.'
+  ]
+  const l2 = [
+    'Aquiete a mente.',
+    'Concentre-se no tema.',
+    'Mesmo durante os dias, quanto menos o pensamento estiver solto, mais energia (e recursos, vitaminas) sobra para o corpo se curar e rejuvenescer.',
+    'Quanto menos os pensamentos estiverem desvairados, mais permissões e responsabilidades espirituais são concedidas a nós.'
+  ]
+  const l3 = [
+    'Cure-se e manifeste melhoras para si, nossas famílias e mundo todo.',
+    'Harmonize a respiração e o sistema nervoso.',
+    'Vibre no corpo de Luz.',
+    'Pratique a caridade constantemente.',
+    'As sessões devem sempre ser feitar em conjuntos, mínimo de 3. A pessoa deve ir pensando no objetivo das próximas (ou atuais) 3 sessões dela.'
+  ]
+  const l = l1.concat(l2).concat(l3)
+  console.log(l)
+  return monk.verses().then(() => {
+    window.bpt = monk.biblePt.map(i => `"${i.text}" (${i.ref})`)
+    window.vall = window.bpt.concat(l)
+    return window.vall
+  })
+}
+
+e.lastWords = () => {
+  // frutos e dons do espírito
+  const frutos = [
+    'Amor',
+    'Alegria',
+    'Paz',
+    'Paciência',
+    'Amabilidade',
+    'Bondade',
+    'Fidelidade',
+    'Mansidão',
+    'Domínio próprio'
+  ]
+  const dons = [
+    'Fortaleza',
+    'Sabedoria',
+    'Entendimento',
+    'Conselho',
+    'Poder',
+    'Conhecimento',
+    'Piedade'
+  ]
+  const extra = [
+    'Discernimento',
+    'Profecia',
+    'Cura',
+    'Milagre',
+    'Fé',
+    'Conhecimento',
+    'Generosidade',
+    'Ânimo',
+    'Dons',
+    'Perdão',
+    'Graça',
+    'Justiça',
+    'Perseverança',
+    'Virtude',
+    'Fraternidade'
+  ]
+  const all = frutos.concat(dons).concat(extra)
+  return () => e.chooseUnique(all, 2).join(' e ')
+}

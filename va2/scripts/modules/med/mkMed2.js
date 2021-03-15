@@ -211,6 +211,7 @@ e.Mk = class {
           this.obutton.attr('disabled', true).html('Open')
           this.p3button.attr('disabled', true)
           this.p5button.attr('disabled', true).html('Preview (5s)')
+          this.sbutton.attr('disabled', true)
           $('.pres').remove()
           this.allSettings.forEach((i, ii) => {
             s.append($('<option/>', { class: 'pres' }).val(ii).html(i.header.med2))
@@ -424,6 +425,7 @@ e.Mk = class {
           this.obutton.attr('disabled', false).html(`Open: ${toSave.header.med2}`)
           this.p3button.attr('disabled', false)
           this.p5button.attr('disabled', false).html(`Preview (5s): ${toSave.header.med2}`)
+          this.sbutton.attr('disabled', false)
         })
         // todo: enable preview and volume controler (after implementing the model)
       }).appendTo(grid)
@@ -438,7 +440,7 @@ e.Mk = class {
     const bcolors = ['palegreen', 'lightblue', 0]
     this.p3button = $('<button/>', { css: { background: 'palegreen' } })
       .html('Copy artifact link')
-      .attr('title', 'Open URL of the meditation.')
+      .attr('title', 'Copy URL of the meditation.')
       .click(() => {
         copyToClipboard(`${window.location.origin}?@${this.header.med2.val()}`)
         this.p3button.css('background', bcolors[++bcolors[2] % 2])
@@ -447,12 +449,38 @@ e.Mk = class {
       .attr('disabled', true)
     this.p5button = $('<button/>', { css: { background: 'pink' } })
       .html('Preview (5s)')
-      .attr('title', 'Open URL of the meditation.')
+      .attr('title', 'Open URL of the meditation for preview.')
       .click(() => {
         window.open(`?@${this.header.med2.val()}&t=5`)
       })
       .appendTo(grid)
       .attr('disabled', true)
+
+    this.sbutton = $('<button/>', { css: { background: 'paleblue' } })
+      .html('Copy session text')
+      .attr('title', 'Copy standard texto for the meditation.')
+      .appendTo(grid)
+      .attr('disabled', true)
+    utils.getPhrase().then(r => {
+      const lw = utils.lastWords()
+      this.sbutton
+        .click(() => {
+          const msg = `
+link para o artefato: https://aeterni.github.io?@${this.header.med2.val()}
+horário de início: ${utils.dataFormatada(this.header.datetime.selectedDates[0])}
+tema: ${utils.formatTheme(this.header.med2.val())}
+
+${utils.chooseUnique(r, 1)[0]}
+
+Orientações gerais: https://www.facebook.com/groups/arcturianart/permalink/880697656114381/
+
+${lw()}.
+
+:::`
+          copyToClipboard(msg)
+          window.alert(msg)
+        })
+    })
   }
 
   addMartigli (grid) {
@@ -571,6 +599,7 @@ e.Mk = class {
     this.obutton.attr('disabled', false).html(`Open: ${h_.med2}`)
     this.p3button.attr('disabled', false)
     this.p5button.attr('disabled', false).html(`Preview (5s): ${h_.med2}`)
+    this.sbutton.attr('disabled', false)
   }
 
   checkVoice (v) {

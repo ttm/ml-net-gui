@@ -100,9 +100,8 @@ e.recOffline = (fun, dur, bitdepth, filename) => {
     now = performance.now()
     console.log('buffer in')
     if (bitdepth === '16') {
-      const bar = buffer.toArray()
       const bar_ = []
-      bar.forEach(chan => {
+      buffer.toArray().forEach(chan => {
         const [max, min] = chan.reduce((mm, i) => {
           if (i > mm[0]) mm[0] = i
           if (i < mm[1]) mm[1] = i
@@ -112,12 +111,11 @@ e.recOffline = (fun, dur, bitdepth, filename) => {
         const chan_ = chan.map(i => Math.floor((2 ** 15 - 1) * (2 * (i - min) / (max - min) - 1)))
         bar_.push(chan_)
       })
-      console.log('BARS', bar, bar_)
       wav.fromScratch(2, 44100, '16', bar_)
+      console.log('16', true)
     } else {
-      const bar = buffer.toArray()
       console.log('32', true)
-      wav.fromScratch(2, 44100, '32f', bar)
+      wav.fromScratch(2, 44100, '32f', buffer.toArray())
       console.log((performance.now() - now) / 1000)
       now = performance.now()
       // wav.fromBuffer(buffer.get())
@@ -126,10 +124,11 @@ e.recOffline = (fun, dur, bitdepth, filename) => {
   })
   function doIt () {
     console.log('wav in')
+    const uri = wav.toDataURI()
     const a = document.createElement('a')
     document.body.appendChild(a)
     a.style = 'display: none'
-    a.href = wav.toDataURI()
+    a.href = uri
     console.log('URI ok', (performance.now() - now) / 1000)
     now = performance.now()
     console.log('url in')

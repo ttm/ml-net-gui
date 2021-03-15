@@ -2059,20 +2059,22 @@ e.monk = () => {
   }).appendTo('body')
   let tossed = false
   let el
-  const but = $('<button/>').html('toss').click(() => {
-    if (!tossed) {
-      el = utils.chooseUnique(monk.biblePt, 1)[0]
-      div.html(el.ref)
-      but.html('show')
-      tossed = true
-    } else {
-      div.html(el.text)
-      but.html('toss again')
-      tossed = false
-    }
-  }).appendTo(adiv)
-  const div = $('<div/>').appendTo(adiv)
-  $('#loading').hide()
+  monk.verses().then(() => {
+    const but = $('<button/>').html('toss').click(() => {
+      if (!tossed) {
+        el = utils.chooseUnique(monk.biblePt, 1)[0]
+        div.html(el.ref)
+        but.html('show')
+        tossed = true
+      } else {
+        div.html(el.text)
+        but.html('toss again')
+        tossed = false
+      }
+    }).appendTo(adiv)
+    const div = $('<div/>').appendTo(adiv)
+    $('#loading').hide()
+  })
 }
 
 e.paypal = () => {
@@ -2806,8 +2808,8 @@ e.aalogs3 = ufrj => {
         shout.click(() => {
           console.log(s)
           transfer.remove({ _id: s._id }, true)
-          window.rrr.filter(s_ => s_._id !== s._id)
-          window.rrrBack.filter(s_ => s_._id !== s._id)
+          window.rrr = window.rrr.filter(s_ => s_._id !== s._id)
+          window.rrrBack = window.rrrBack.filter(s_ => s_._id !== s._id)
           mkPag()
         })
       }
@@ -2888,6 +2890,7 @@ e.aalogs3 = ufrj => {
       console.log('click')
       query._id = { $nin: window.rrrBack.map(s => s._id) }
       transfer.findAll(query, true).then(r_ => {
+        r_.sort((a, b) => b.date - a.date)
         window.rrrBack.unshift(...r_)
         window.rrr = window.rrrBack.slice()
         sbut.html('search')
@@ -3585,22 +3588,22 @@ e.hexagram = () => {
 
 e.calendar = () => {
   const l1 = [
-    'respiração diafragmática (pela barriga, peito parado), lenta.',
-    'postura livre mas de preferência com coluna ereta, seja deitada ou sentada ou de pé.',
+    'Respiração diafragmática (pela barriga, peito parado), lenta.',
+    'Postura livre mas de preferência com coluna ereta, seja deitada ou sentada ou de pé.',
     'Garantir que ela tenha entendido como ativar o artefato, porque usá-lo e o que esperar das sessões de MMM.' // todo: descrever
   ].reduce((a, i) => a + `<li>${i}</li>`, '')
   const l2 = [
-    'aquietar a mente.',
-    'concentrar somente no tema.',
-    'mesmo durante os dias, quanto menos o pensamento estiver solto, mais energia (e recursos, vitaminas) sobra para o corpo se curar e rejuvenescer.',
-    'quanto menos os pensamentos estiverem desvairados, mais permissões e responsabilidades espirituais são concedidas a nós.'
+    'Aquietar a mente.',
+    'Concentrar somente no tema.',
+    'Mesmo durante os dias, quanto menos o pensamento estiver solto, mais energia (e recursos, vitaminas) sobra para o corpo se curar e rejuvenescer.',
+    'Quanto menos os pensamentos estiverem desvairados, mais permissões e responsabilidades espirituais são concedidas a nós.'
   ].reduce((a, i) => a + `<li>${i}</li>`, '')
   const l3 = [
-    'curar e manifestar melhoras para si, nossas famílias e mundo todo.',
-    'harmonizar a respiração e o sistema nervoso.',
-    'vibrar no corpo de Luz.',
-    'caridade.',
-    'as sessões devem sempre ser feitar em conjuntos, mínimo de 3. A pessoa deve ir agora pensando no objetivo das próximas 3 sessões dela.'
+    'Curar e manifestar melhoras para si, nossas famílias e mundo todo.',
+    'Harmonizar a respiração e o sistema nervoso.',
+    'Vibrar no corpo de Luz.',
+    'Caridade.',
+    'As sessões devem sempre ser feitar em conjuntos, mínimo de 3. A pessoa deve ir agora pensando no objetivo das próximas 3 sessões dela.'
   ].reduce((a, i) => a + `<li>${i}</li>`, '')
   const novato = [
     `Na primeira sessão, tratar de: <ul>${l1}</ul>`,
@@ -4007,4 +4010,39 @@ e.testRecord2 = () => {
     a.download = (this.filename || 'test') + '.wav'
     a.click()
   })
+}
+
+e['004-groups-e-paginas'] = () => {
+  const grupos = [ // nossos:
+    'https://www.facebook.com/groups/luz.e.graca',
+    'https://www.facebook.com/groups/arcturianart',
+    'https://www.facebook.com/groups/onchrist',
+    'https://www.facebook.com/groups/avmeditation',
+    'https://www.facebook.com/groups/avatarheal',
+    'https://www.facebook.com/groups/mentaliz',
+    'https://www.facebook.com/groups/imortalidade',
+    'https://www.facebook.com/groups/brainentrainment'
+  ].reduce((a, i) => a + `<li><a href="${i}">${i}</a></li>`, '')
+
+  const grupos2 = [ // de terceiros:
+    'https://www.facebook.com/groups/arcturiuno',
+    'https://www.facebook.com/groups/mentesdespertas'
+  ].reduce((a, i) => a + `<li><a href="${i}">${i}</a></li>`, '')
+  utils.stdDiv().html(`
+  <h1>Grupos</h1>
+  
+  De nossa administração:
+  <ul>${grupos}</ul>
+
+  De administração de terceiros:
+  <ul>${grupos2}</ul>
+
+  :::
+  `
+  )
+  $('#loading').hide()
+}
+
+e.getPhrase = () => {
+  utils.getPhrase().then(r => console.log('HERE MAN', r))
 }

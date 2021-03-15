@@ -670,16 +670,6 @@ e.Med = class {
         })
       })
     })
-    window.mmaster = masterGui
-    window.ggg = gui
-    $('.dg').css('font-size', '24px')
-    // $('.close-button').css('background-color', '#777777')
-    $('.close-button')
-      .css('background-color', 'rgba(0,0,0,0)')
-      .css('border', 'solid #777777')
-      .click()
-    $('.dg .c input[type=text]').css('width', '15%')
-    $('.dg .c .slider').css('width', '80%')
     if (this.isMobile) {
       $('.dg.main .close-button.close-bottom')
         .css('padding-bottom', '10px').css('padding-top', '10px')
@@ -688,12 +678,20 @@ e.Med = class {
       let open = true
       $('.dg.main .close-button.close-bottom').click(() => {
         if (open) {
-          $('.dg .cr.number').css('height', '')
+          $('.dg .cr.number').css('height', '0px')
         } else {
           $('.dg .cr.number').css('height', '37px')
         }
         open = !open
       })
     }
+    $('.dg').css('font-size', '24px')
+    // $('.close-button').css('background-color', '#777777')
+    $('.close-button')
+      .css('background-color', 'rgba(0,0,0,0)')
+      .css('border', 'solid #777777')
+      .click()
+    $('.dg .c input[type=text]').css('width', '15%')
+    $('.dg .c .slider').css('width', '80%')
   }
 }

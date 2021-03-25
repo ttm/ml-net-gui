@@ -198,7 +198,11 @@ e.Mk = class {
       })
     this.s = s
     this.allSettings.forEach((i, ii) => {
-      s.append($('<option/>', { class: 'pres' }).val(ii).html(i.header.med2))
+      let text = i.header.med2
+      if (i.header.creator) { // created by mkLight
+        text += ` (${i.header.creator})`
+      }
+      s.append($('<option/>', { class: 'pres' }).val(ii).html(text))
     })
     $('<button/>').html('Delete').appendTo(grid)
       .click(() => {
@@ -214,7 +218,11 @@ e.Mk = class {
           this.sbutton.attr('disabled', true)
           $('.pres').remove()
           this.allSettings.forEach((i, ii) => {
-            s.append($('<option/>', { class: 'pres' }).val(ii).html(i.header.med2))
+            let text = i.header.med2
+            if (i.header.creator) { // created by mkLight
+              text += ` (${i.header.creator})`
+            }
+            s.append($('<option/>', { class: 'pres' }).val(ii).html(text))
           })
         })
       })
@@ -250,11 +258,11 @@ e.Mk = class {
       .attr('title', 'Enables volume control widget if checked.')
       .prop('checked', true)
 
-    $('<span/>').html('<a target="_blank" href="?communion">communion schedule</a>:').appendTo(grid)
+    $('<span/>').html('template:').appendTo(grid)
     const communionSchedule = $('<input/>', {
       type: 'checkbox'
     }).appendTo(grid)
-      .attr('title', 'Is this meeting to be put on the communion meetings table?')
+      .attr('title', 'Is this artifact a template?')
 
     this.header = { med2, datetime, d, vcontrol, communionSchedule }
   }
@@ -422,6 +430,7 @@ e.Mk = class {
           this.s.append($('<option/>', { class: 'pres' }).val(this.allSettings.length).html(toSave.header.med2))
           this.s.val(this.allSettings.length)
           this.allSettings.push(toSave)
+          this.prefix = '.'
           this.obutton.attr('disabled', false).html(`Open: ${toSave.header.med2}`)
           this.p3button.attr('disabled', false)
           this.p5button.attr('disabled', false).html(`Preview (5s): ${toSave.header.med2}`)
@@ -433,7 +442,7 @@ e.Mk = class {
       .html('Open')
       .attr('title', 'Open URL of the meditation.')
       .click(() => {
-        window.open(`?@${this.header.med2.val()}`)
+        window.open(`?${this.prefix}${this.header.med2.val()}`)
       })
       .appendTo(grid)
       .attr('disabled', true)
@@ -442,7 +451,7 @@ e.Mk = class {
       .html('Copy artifact link')
       .attr('title', 'Copy URL of the meditation.')
       .click(() => {
-        copyToClipboard(`${window.location.origin}?@${this.header.med2.val()}`)
+        copyToClipboard(`${window.location.origin}?${this.prefix}${this.header.med2.val()}`)
         this.p3button.css('background', bcolors[++bcolors[2] % 2])
       })
       .appendTo(grid)
@@ -451,7 +460,7 @@ e.Mk = class {
       .html('Preview (5s)')
       .attr('title', 'Open URL of the meditation for preview.')
       .click(() => {
-        window.open(`?@${this.header.med2.val()}&t=5`)
+        window.open(`?${this.prefix}${this.header.med2.val()}&t=5`)
       })
       .appendTo(grid)
       .attr('disabled', true)
@@ -466,7 +475,7 @@ e.Mk = class {
       this.sbutton
         .click(() => {
           const msg = `
-link para o artefato: https://aeterni.github.io?@${this.header.med2.val()}
+link para o artefato: https://aeterni.github.io?${this.prefix}${this.header.med2.val()}
 horário de início: ${utils.dataFormatada(this.header.datetime.selectedDates[0])}
 tema: ${utils.formatTheme(this.header.med2.val())}
 
@@ -596,6 +605,7 @@ ${lw()}.
         }
       }
     })
+    this.prefix = h_.creator ? '-' : '.'
     this.obutton.attr('disabled', false).html(`Open: ${h_.med2}`)
     this.p3button.attr('disabled', false)
     this.p5button.attr('disabled', false).html(`Preview (5s): ${h_.med2}`)

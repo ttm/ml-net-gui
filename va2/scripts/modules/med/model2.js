@@ -19,7 +19,7 @@ const tr = PIXI.utils.string2hex
 // linear vs rampto
 
 e.Med = class {
-  constructor (med2) {
+  constructor (med2, light = false) {
     this.finalFade = 5
     this.initialFade = 2
     this.initialVolume = -40
@@ -35,8 +35,10 @@ e.Med = class {
       this.setStage(r.header)
       $('#loading').hide()
     }
-    transfer.findAny({ 'header.med2': med2 }).then(r => {
-      if (u('offline')) {
+    const query = { 'header.med2': med2 }
+    if (light) query['header.creator'] = { $exists: true }
+    transfer.findAny(query).then(r => {
+      if (u('offline')) { // for recording
         $('#loading').hide()
         $('<button/>').appendTo('body').html('RECORD YEAH')
           .click(() => {
@@ -46,6 +48,10 @@ e.Med = class {
             }, r.header.d + 10, u('b16') ? '16' : '32f', med2)
           })
       } else {
+        if (r === null) {
+          window.alert(`Failed to retrieve the session artifact. Please reload. Such "${med2}" artifact may not exist.`)
+          return
+        }
         doIt(r)
       }
     })
@@ -229,7 +235,7 @@ e.Med = class {
 
     const [x0, y0] = s.lemniscate ? c : [w * 0.2, h * 0.2]
     const myLine = new PIXI.Graphics()
-    const segments = 10000
+    const segments = 1000
 
     function xyL (angle, vertical) { // lemniscate x, y given angle. todo: use the vertical
       const px = a * Math.cos(angle) / (1 + Math.sin(angle) ** 2)
@@ -291,11 +297,12 @@ e.Med = class {
         .position.set(x + dx, y)
         .tint = tr(s.fgc)
     }
-    myLine.moveTo(...table[0])
 
+    myLine.moveTo(...table[0])
     for (let i = 1; i <= segments; i++) {
       myLine.lineTo(...table[i])
     }
+    window.ttable = table
 
     const theCircle = mkNode([x0, s.lemniscate ? y / 2 : y0]) // moving white circle to which the flakes go
     const myCircle2 = mkNode(undefined, 1, 0xffff00) // lateral (sinus), right (lemniscate)
@@ -342,7 +349,7 @@ e.Med = class {
       lastdc = dc
       const val = -dc
       const avalr = Math.asin(val) // radians in [-pi/2, pi/2]
-      if (s.lemniscate === 1) {
+      if (s.lemniscate === 1) { // lemniscate:
         const p = xy(avalr < 0 ? 2 * Math.PI + avalr : avalr)
         myCircle2.x = p[0]
         myCircle2.y = myCircle3.y = p[1]
@@ -353,6 +360,12 @@ e.Med = class {
         myCircle2.y = myCircle3.y = pos[1]
         myCircle3.x = pos[0]
         myCircle2.x = 2 * c[0] - pos[0]
+        // const where = Math.floor(((avalr + 3 * Math.PI / 2) / (2 * Math.PI)) * segments)
+        // const pos = table[where]
+        // myCircle2.y = myCircle3.y = pos[1]
+        // myCircle3.x = pos[0]
+        // myCircle2.x = 2 * c[0] - pos[0]
+
         bCircle.y = val * a * 0.5 + y
       } else if (s.lemniscate === 3) { // fig8:
         const pos = xy(avalr)
@@ -381,7 +394,7 @@ e.Med = class {
         myCircle3.x = pos[0]
         myCircle2.x = 2 * c[0] - pos[0]
         bCircle.y = val * a * 0.5 + y
-      } else {
+      } else { // sinusoid:
         const px = (avalr < 0 ? 2 * Math.PI + avalr : avalr) / (2 * Math.PI) * dx + x
         const px2 = (Math.PI - avalr) / (2 * Math.PI) * dx + x
         myCircle2.x = px
@@ -428,6 +441,7 @@ e.Med = class {
     })
     // setTimeout(() => ticker.stop(), 200)
     ticker.stop()
+    // utils.basicStats()
 
     return {
       start: () => {

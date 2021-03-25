@@ -11,10 +11,15 @@ window.wand = {
   $: require('jquery')
 }
 
+// cleaning facebook auto added argument (aesthetics, cleaning for users):
+window.history.pushState('', '', window.location.search.split('&fbclid=')[0])
+
 const uargs = wand.router.urlAllArguments()
 
 // page is first arg key without value
-// meditation is the same, but starts with _ or @
+// meditation is the same, but starts with _ (version 1)
+// or @ or . (version 2),
+// ~ or - (version 2 through mkLight)
 // sync is specified with <sync id>=<participant ref>
 // else just welcome page
 let found = false
@@ -22,9 +27,13 @@ if (uargs.values[0] === '') {
   const k = uargs.keys[0]
   found = true
   if (k[0] === '_') { // meditation model 1:
-    wand.med.model(k.slice(1))
+    wand.currentMed = wand.med.model(k.slice(1))
     wand.utils.confirmExit()
-  } else if (k[0] === '@') { // meditation model 2:
+  } else if (k[0] === '~' || k[0] === '-') { // meditation model 2 (created by mkLight):
+    wand.$('<div/>', { id: 'canvasDiv' }).appendTo('body')
+    wand.currentMed = new wand.med.Model2(k.slice(1), true)
+    wand.utils.confirmExit()
+  } else if (k[0] === '@' || k[0] === '.') { // meditation model 2:
     wand.$('<div/>', { id: 'canvasDiv' }).appendTo('body')
     wand.currentMed = new wand.med.Model2(k.slice(1))
     wand.utils.confirmExit()

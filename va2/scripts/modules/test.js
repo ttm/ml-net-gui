@@ -66,7 +66,7 @@ e.ttest = () => {
   const synth2 = maestro.mkOsc(u('r') || 410, -200, 1, 'sine')
   // const mod = maestro.mkOsc(u('o') || 0.1, 46.02, 0, 'sine', true)
   const mod_ = maestro.mkOsc(u('o') || 0.1, 0, 0, 'sine', true)
-  const mul = new t.Multiply(190)
+  const mul = new t.Multiply(0)
   const mod = mod_.connect(mul)
   const add400 = new t.Add(400)
   const add410 = new t.Add(410)
@@ -118,6 +118,7 @@ e.ttest = () => {
   // display:
   //    cur freq1 freq2 freqmod
   //    countdown to start or to end
+  $('#loading').hide()
 }
 
 e.ptest = () => {
@@ -2063,16 +2064,18 @@ e.monk = () => {
     const but = $('<button/>').html('toss').click(() => {
       if (!tossed) {
         el = utils.chooseUnique(monk.biblePt, 1)[0]
-        div.html(el.ref)
+        div.html(`<b>${el.ref}</b>`)
+        div2.html('')
         but.html('show')
         tossed = true
       } else {
-        div.html(el.text)
+        div2.html(el.text)
         but.html('toss again')
         tossed = false
       }
     }).appendTo(adiv)
     const div = $('<div/>').appendTo(adiv)
+    const div2 = $('<div/>').appendTo(adiv)
     $('#loading').hide()
   })
 }
@@ -2283,6 +2286,41 @@ Thu Dec 31 11:17:02 -03 2020
   </p>
   <br>
   `)
+  $('#loading').hide()
+}
+
+e['t004-Ivone'] = () => {
+  utils.stdDiv().html(`
+  <h2>Ivonne, após ~1 mês</h2>
+... eu estou em tremenda gratidao por vcs tem mellhorado muito meu irmao minha respiracao muito mesmo a gratidao eh imensa.
+<b>Ivone Nunes, Março/2021</b>
+  `.replaceAll('\n', '<br>')
+  )
+  $('#loading').hide()
+}
+
+e['t003-melisabeth'] = () => {
+  utils.stdDiv().html(`
+  <h2>Mariel, após 2-3 semanas</h2>
+Nesta vida tenho muito a agradecer, como sou afortunada. Acredito nos milagres!
+
+Há apenas alguns dias, estava de noite observando as estrelas e clamei por ajuda,
+minha vida havia se complicado com problemas e eu não via saída.
+Além disso minha saúde física e mental estava deteriorada, estive três vezes no hospital em uma semana.
+Recebi uma mensagem de uma pessoa perguntando: "como eu estava?".
+Essa pessoa me convidou para participar de um projeto: “formar um corpo de luz” para nos ajudarmos e ajudar a mundo todo.
+
+Eu aceitei, nesses dias minha vida mudou. Minha saúde melhorou notavelmente.
+Minha mente não está mais confusa. Meus problemas estão solucionando-se.
+Hoje agradeço a Deus pelos seres de luz que chegaram em minha vida, Renato e Otavio, pelo projeto,
+pelos tempos e dedicações dos participantes.
+Agradeço por todo o bem recebido e a possibilidade de participar ajudando a levar luz e energia positiva a minha família, amigos e a toda a criação.
+Agradeço pelo grupo seres maravilhosos que conheci.
+Eternamente grata Renato por enxergar minha dor no meio da multidão do Facebook.
+
+<b>Mariel Elisabeth, 07/Março/2021</b>
+  `.replaceAll('\n', '<br>')
+  )
   $('#loading').hide()
 }
 
@@ -4045,4 +4083,38 @@ e['004-groups-e-paginas'] = () => {
 
 e.getPhrase = () => {
   utils.getPhrase().then(r => console.log('HERE MAN', r))
+}
+
+e.gstat = () => {
+  // const St = window.FooBar // fixme
+  const St = require('stats.js')
+  const stats = new St()
+  stats.showPanel(0) // 0: fps, 1: ms, 2: mb, 3+: custom
+  document.body.appendChild(stats.dom)
+  this.tasks = [] // list of routines to execute
+  this.executing = true
+  this.animate = () => {
+    stats.begin()
+    // monitored code goes here
+    for (let i = 0; i < this.tasks.length; i++) {
+      this.tasks[i]()
+    }
+    stats.end()
+    if (this.executing) {
+      window.requestAnimationFrame(this.animate)
+    }
+  }
+  this.animate()
+}
+
+e.mkLight = () => {
+  const mk = new m.MkLight()
+  window.mk = mk
+}
+
+e.fp = () => {
+  const fp = 'banana' // require('get-browser-fingerprint')
+  window.fffppp = fp
+  const fp_ = fp()
+  console.log(fp_)
 }

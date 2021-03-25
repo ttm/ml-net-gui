@@ -254,3 +254,25 @@ e.lastWords = () => {
   const all = frutos.concat(dons).concat(extra)
   return () => e.chooseUnique(all, 2).join(' e ')
 }
+
+e.basicStats = function () {
+  const St = require('stats.js')
+  const stats = new St()
+  stats.showPanel(0) // 0: fps, 1: ms, 2: mb, 3+: custom
+  document.body.appendChild(stats.dom)
+  this.tasks = [] // list of routines to execute
+  this.executing = true
+  this.animate = () => {
+    stats.begin()
+    // monitored code goes here
+    for (let i = 0; i < this.tasks.length; i++) {
+      this.tasks[i]()
+    }
+    stats.end()
+    if (this.executing) {
+      window.requestAnimationFrame(this.animate)
+    }
+  }
+  this.animate()
+  return this
+}

@@ -218,6 +218,7 @@ e.Med = class {
     const [w, h] = [app.view.width, app.view.height]
     const c = [w / 2, h / 2] // center
     const a = w * 0.35 // for lemniscate
+    const [aLx, aLy] = [w * 0.4, h * 0.4]
     const [a_, a__, h_] = [w * 0.13, h * 0.15, h * 0.05] // for trefoil
 
     function mkNode (pos, scale = 1, tint = 0xffffff) {
@@ -271,10 +272,23 @@ e.Med = class {
       const foo = 1 + 0.45 * Math.cos(3 * angle) + 0.4 * Math.cos(9 * angle)
       return [c[0] + aXX * foo * Math.sin(2 * angle), c1 + aYY * foo * Math.cos(2 * angle)]
     }
+
+    function xyLis (angle, kx, ky) { // torus knot x, y given angle
+      const x = aLx * Math.cos(kx * angle)
+      const y = aLy * Math.sin(ky * angle)
+      return [c[0] + x, c[1] + y]
+    }
+    const xyLis35 = angle => xyLis(angle, 3, 4)
+    // 3, 2
+    // 3, 8
+    // 3,4
+    // 3,9, avalr / 2
+    // 3,12, avalr / 2
+
     let xy
     const table = []
     if (s.lemniscate) {
-      xy = [0, xyL, xyT, xy8, xyTorus, xyCinque, xyTorusDec][s.lemniscate]
+      xy = [0, xyL, xyT, xy8, xyTorus, xyCinque, xyTorusDec, xyLis35][s.lemniscate]
       // xy = s.lemniscate === 1 ? xyL : s.lemniscate === 2 ? xyT : xy8
       bCircle.x = s.bPos === 0 ? c[0] : s.bPos === 1 ? (c[0] - a) / 2 : (3 * c[0] + a) / 2
       myLine.lineStyle(1, 0xffffff)
@@ -390,6 +404,12 @@ e.Med = class {
         bCircle.y = val * a * 0.5 + y
       } else if (s.lemniscate === 6) { // TorusDec:
         const pos = xy(avalr - Math.PI / 2)
+        myCircle2.y = myCircle3.y = pos[1]
+        myCircle3.x = pos[0]
+        myCircle2.x = 2 * c[0] - pos[0]
+        bCircle.y = val * a * 0.5 + y
+      } else if (s.lemniscate === 7) { // Lis34
+        const pos = xy(-avalr)
         myCircle2.y = myCircle3.y = pos[1]
         myCircle3.x = pos[0]
         myCircle2.x = 2 * c[0] - pos[0]

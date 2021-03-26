@@ -2058,25 +2058,34 @@ e.monk = () => {
       width: '30%'
     }
   }).appendTo('body')
+  const grid = utils.mkGrid(2, adiv, '60%', utils.chooseUnique(['#eeeeff', '#eeffee', '#ffeeee']))
+
   let tossed = false
   let el
+  const but = $('<button/>').html('toss').click(() => {
+    if (!tossed) {
+      el = utils.chooseUnique(monk.biblePt, 1)[0]
+      div.html(`<b>${el.ref}</b>`)
+      div2.html('')
+      but.html('show')
+      tossed = true
+    } else {
+      div2.html(el.text)
+      but.html('toss again')
+      tossed = false
+    }
+  }).appendTo(grid).attr('disabled', true)
+  $('<button/>').html('remember').click(() => {
+    div.html('')
+    div2.html(`
+    Quinta-feira é o dia em que lembramos dos que não estão conosco. Convidem-os para estar com vocês ou este grupo. Paz.
+    `)
+  }).appendTo(grid)
+  const div = $('<div/>').appendTo(adiv)
+  const div2 = $('<div/>').appendTo(adiv)
+  $('#loading').hide()
   monk.verses().then(() => {
-    const but = $('<button/>').html('toss').click(() => {
-      if (!tossed) {
-        el = utils.chooseUnique(monk.biblePt, 1)[0]
-        div.html(`<b>${el.ref}</b>`)
-        div2.html('')
-        but.html('show')
-        tossed = true
-      } else {
-        div2.html(el.text)
-        but.html('toss again')
-        tossed = false
-      }
-    }).appendTo(adiv)
-    const div = $('<div/>').appendTo(adiv)
-    const div2 = $('<div/>').appendTo(adiv)
-    $('#loading').hide()
+    but.attr('disabled', false)
   })
 }
 
@@ -4117,4 +4126,41 @@ e.fp = () => {
   window.fffppp = fp
   const fp_ = fp()
   console.log(fp_)
+}
+
+e.lis = () => {
+  const app = new PIXI.Application({ // todo: make it resizable
+    width: window.innerWidth,
+    height: window.innerHeight * 0.80
+  })
+  $('body').append(app.view)
+  const [w, h] = [app.view.width, app.view.height]
+  const c = [w / 2, h / 2] // center
+  const a = w * 0.4
+  const a_ = h * 0.4
+
+  const kx = u('kx')
+  const ky = u('ky')
+  function xy (angle) { // lemniscate x, y given angle
+    const x = a * Math.cos(kx * angle)
+    const y = a_ * Math.sin(ky * angle)
+    return [c[0] + x, c[1] + y]
+  }
+  const myLine = new PIXI.Graphics()
+  myLine.lineStyle(1, 0xffffff)
+    .moveTo(...xy(0))
+  const segments = 1000
+  for (let i = 0; i <= segments; i++) {
+    myLine.lineTo(...xy(2 * Math.PI * i / segments))
+  }
+  app.stage.addChild(myLine)
+  if (u('v')) {
+    myLine.pivot.x = c[0]
+    myLine.pivot.y = c[1]
+    myLine.position.set(...c)
+    myLine.rotation = Math.PI
+  }
+  window.lll = myLine
+  window.ccc = c
+  $('#loading').hide()
 }

@@ -5,6 +5,7 @@ const maestro = require('../maestro.js')
 const J = require('@eastdesire/jscolor')
 const waveforms = require('./common.js').waveforms
 const permfuncs = require('./common.js').permfuncs
+const forms = require('./common.js').forms
 const copyToClipboard = require('copy-to-clipboard')
 
 const e = module.exports
@@ -275,31 +276,7 @@ e.Mk = class {
     // only the gem
     // todo: blink blackground for entrainment
     $('<span/>').html('shape:').appendTo(grid)
-    obj.lemniscate = $('<select/>').appendTo(grid)
-      .append($('<option/>').val(0).html('sinusoid'))
-      .append($('<option/>').val(1).html('lemniscate'))
-      .append($('<option/>').val(2).html('trefoil (triquetra)'))
-      .append($('<option/>').val(3).html('figure-eight (Listing\'s) knot'))
-      .append($('<option/>').val(4).html('torus knot'))
-      .append($('<option/>').val(5).html('cinquefoil knot'))
-      .append($('<option/>').val(6).html('decorative torus knot'))
-      .on('change', aself => {
-        const i = parseInt(aself.currentTarget.value)
-        if (i === 0) {
-          $('#lb_ccc').html('center circ color:')
-          $('#lb_lcc').html('lateral circ color:')
-        } else if (i === 1) {
-          $('#lb_ccc').html('left circ color:')
-          $('#lb_lcc').html('right circ color:')
-        } else {
-          $('#lb_ccc').html('left circ color:')
-          $('#lb_lcc').html('right circ color:')
-
-          $('#lb_ccc').html('circ 1 color:')
-          $('#lb_lcc').html('circ 2 color:')
-        }
-      })
-
+    obj.lemniscate = forms().appendTo(grid)
     $('<span/>').html('rainbow flakes:').appendTo(grid)
     obj.rainbowFlakes = $('<input/>', {
       type: 'checkbox'
@@ -375,6 +352,7 @@ e.Mk = class {
       .attr('title', 'Create the meditation with the settings defined.')
       .html('Create')
       .click(() => {
+        if (this.setting.length === 0 && !window.confirm('Do you really want to create an artifact without any sound?')) return
         const voices = []
         let ok = true
         this.setting.forEach(i => {

@@ -276,3 +276,22 @@ e.basicStats = function () {
   this.animate()
   return this
 }
+
+e.mobileError = () => {
+  window.onerror = function (msg, url, lineNo, columnNo, error) {
+    const string = msg.toLowerCase()
+    const substring = 'script error'
+    if (string.indexOf(substring) > -1) {
+      window.alert('Script Error: See Browser Console for Detail')
+    } else {
+      const message = [
+        'Message: ' + msg,
+        'URL: ' + url,
+        'Line: ' + lineNo,
+        'Column: ' + columnNo,
+        'Error object: ' + JSON.stringify(error)
+      ].join(' - ')
+      window.alert(message)
+    }
+  }
+}

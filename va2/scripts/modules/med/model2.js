@@ -678,8 +678,12 @@ e.Med = class {
     const instruments = []
     for (let i = 0; i < this.voices.length; i++) {
       const v = this.voices[i]
-      let label = `${n(v.type)}-${++counts[v.type]}`
-      if (v.isOn) label += ' REF'
+      let label
+      if (v.isOn) {
+        label = `REF ${n(v.type)}`
+      } else {
+        label = `${n(v.type)}-${++counts[v.type]}`
+      }
       const d = {}
       d[label] = 50
       const voiceGui = gui.add(d, label, 0, 100).listen()

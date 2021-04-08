@@ -2075,11 +2075,57 @@ e.monk = () => {
       tossed = false
     }
   }).appendTo(grid).attr('disabled', true)
-  $('<button/>').html('remember').click(() => {
+  $('<button/>').html('portal').click(() => {
+    div.html('')
+    div2.html(`
+    O que tenho, isto lhe dou:
+    Corpo de Luz, em nome de Jesus, o Nazareno, brilhe!
+    Em nome de Jesus, o Nazareno, desperte!
+    Em  nome de Jesus, o Nazareno, ame!
+    Em  nome de Jesus, o Nazareno, ande!
+    Em  nome de Jesus, o Nazareno, cresça!
+    Em  nome de Jesus, o Nazareno, abençoe e salve todo o planeta!
+    
+    :::`.replace(/\n/g, '<br>')
+    )
+  }).appendTo(grid)
+  $('<button/>').html('temas').click(() => {
+    div.html('')
+    div2.html(`
+    Temas principais: cura, saúde, silêncio, Espírito Santo, Luz.
+    `)
+  }).appendTo(grid)
+  $('<button/>').html('segunda').click(() => {
+    div.html('')
+    div2.html(`
+    Segunda-feira é dia de experimentação: fazer sessão com leitura ou escrita, com copo de água, com vela, sem ritmo de respiração, sessão mais longa ou extra, etc.
+    `)
+  }).appendTo(grid)
+  $('<button/>').html('terça').click(() => {
+    div.html('')
+    div2.html(`
+    Terça-feira é o dia em que assumimos as lutas e caminhamos para as conquistas. O principal é orarmos para termos nitidez de nossas batalhas e para termos auxílio nelas. Também o momento de manifestarmos atitudes: escrevermos para amigos, buscarmos novas pessoas/expandir o corpo de Luz, mudarmos nossas atitudes. Por exemplo, podemos reassumir o compromisso de exortarmos as pessoas no nosso entorno, ou visitarmos amigos em nossas redes sociais para reagirmos a algumas fotos e mandarmos um oi.
+    `)
+  }).appendTo(grid)
+  $('<button/>').html('quarta').click(() => {
+    div.html('')
+    div2.html(`
+    Quarta-feira é o dia em que nos avaliamos e relatoriamos. Como tem sido sua experiência com as sessões? O que você planeja conseguir com as sessões? Escreva um depoimento se estiver já usufruindo. Peça o suporte dos colegas se ainda não estiver vibrando no Corpo de Luz. Paz. Direções para mentoria, tutoriais, canais (do whats, por exemplo) para suporte.
+    `)
+  }).appendTo(grid)
+  $('<button/>').html('quinta').click(() => {
     div.html('')
     div2.html(`
     Quinta-feira é o dia em que lembramos dos que não estão conosco. Convidem-os para estar com vocês ou este grupo. Paz.
     `)
+  }).appendTo(grid)
+  $('<button/>').html('sexta').click(() => {
+    div.html('')
+    div2.html(`
+    Sexta é dia de confraternização. Alguma mensagem mais descontraída, agradecendo pela companhia durante a semana, e avisando que paramos durante o final de semana mas voltamos com as 4 sessões na segunda-feira.
+    Tentar também fazer algum encontro online ou ficar em uma sala aberta ou fazer uma ocasião de alguma forma.
+    `.replace(/\n/g, '<br>')
+    )
   }).appendTo(grid)
   const div = $('<div/>').appendTo(adiv)
   const div2 = $('<div/>').appendTo(adiv)
@@ -2298,12 +2344,158 @@ Thu Dec 31 11:17:02 -03 2020
   $('#loading').hide()
 }
 
+e['t011-Mariel'] = () => {
+  utils.stdDiv().html(`
+  <h2>Mariel, após quase 1 mês e meio</h2>
+  Cumpro quarenta dias fazendo as sessões  com o Artefato,
+  o tempo todo Renato e Otavio me acolheram e seguiram minha evolução
+  (melhora na saúde física, estabilidade psicológica e participação  no grupo AAA e Corpo de Luz).
+  Para minha completa cura e crescimento espiritual, estou tentando participar ativamente,  ajudar nas sessões,
+  conversar com as pessoas de maneira tímida ainda pela limitação do idioma.
+  Meu atuar na elaboração das sessões me esta ajudando com a pratica da ortografia da língua portuguesa,
+  além de sentir que estou seguindo no rumo de minha vocação existencial.
+  Reitero minha gratitude Renato e Otavio pela paciência e dedicação comigo.
+  Não tenho duvida que pela Graça  Divina me guio até vosso Projeto de Luz.
+
+<b>Mariel Elizabeth, 05/Abril/2021</b>
+  `.replace(/\n/g, '<br>')
+  )
+  $('#loading').hide()
+}
+
+e['t010-Otavio'] = () => {
+  utils.stdDiv().html(`
+  <h2>Otávio, após 4 meses</h2>
+Antes de começar a meditar, sentia uma necessidade muito grande de cobrar da vida:
+cobrar atenção de namorados amigos e familiares, cobrar da comida que fosse gostosa,
+cobrar das diversões que fossem divertidas, cobrar dos meus superiores que não fossem chatos,
+e cobrar de mim certas conquistas.
+Mas nem sempre obtinha sucesso, e às vezes a angústia era forte, e eu ficava sem recursos para me ajudar.
+Depois, com a meditação, passei a cobrar menos de vida, e a enxergá-la com mais abertura.
+Passei a encarar meus objetivos com mais alegria e menos gravidade.
+Quando necessário, ficou mais fácil transformar meus planos.
+E ganhei mais objetividade para encará-los.
+
+<b>Otávio Martigli, 05/Abril/2021</b>
+  `.replace(/\n/g, '<br>')
+  )
+  $('#loading').hide()
+}
+
+e['t009-rfabbri'] = () => {
+  const desafios = [
+    'escrever as mensagens antes sobre o tema e depois relatando',
+    'Manutenção: colher depoimentos, convidar pessoas para os grupos, responder às mensagens nos grupos',
+    'formar pessoas para cuidarem dos grupos (criar sessões, dar suporte)'
+  ].reduce((a, i) => a + `<li>${i}</li>`, '')
+  const dep = [
+    ['Lola', 't007-Lola'],
+    ['Renato S\'Huss', 't008-Renato-Huss'],
+    ['Edu', 't006-Edu'],
+    ['Lisiane', 't005-Lisiane']
+  ].map(i => `<a href="?${i[1]}">${i[0]}</a>`).join(', ')
+  const feitos = [
+    'criamos perguntas e regras para entrarem no grupo',
+    'tivemos criação consistente das sessões utilizando templates sonoros e uma interface que comporta usuários criados (mkLight)',
+    'tivemos a participação substancial de uma nova pessoa (a Mariel) na manutenção das sessões',
+    'foi feito <a href="https://www.youtube.com/watch?v=LxpS1aVcofI">vídeo explicativo para participação das sessões</a> (pelo Otávio)',
+    'criamos e populamos o <a href="https://chat.whatsapp.com/BztLyvWDEgW3C1mjXZTTrP">grupo para suporte no Whatsapp</a>',
+    `colhemos diversos depoimentos novos (${dep})`
+  ].reduce((a, i) => a + `<li>${i}</li>`, '')
+  utils.stdDiv().html(`
+  <h2>Renato, 3 meses depois</h2>
+Tenho tido bastante revelação nas sessões e estabilidade na motivação e dedicação.
+Tenho também recebido relatos generalizados de melhoras de quadros de saúde física e mental: ansiedade, depressão, dores musculares, dor de cabeça e enxaqueca, respiração melhorada. Também vários relatos de experiências místicas: extracorpóreas, sonhos com parentes falescidos, visões, etc.
+
+Tivemos uma semana bem boa. Além de crescimento de mais de 25% do grupo AAA,  finalmente:
+<ul>${feitos}</ul>
+Estive toda semana ficando doente na quarta ou quinta-feira.
+Esta semana não fiquei doente (acho que graças ao reforço da Mariel na criação das sessões), mas dormi muito na quinta e sexta.
+Entendi que estou passando dos limites do meu corpo, portanto ficarei atento e tentarei coisas novas para garantir que eu não esteja me desgastando
+e para que eu consiga me dedicar a semana toda de forma mais apropriada.
+Desafios atuais:
+<ul>${desafios}</ul>
+Consegui desenvolver e estabilizar a interface para criação dos artefatos e dos templates, e fiz uma pesquisa sobre potenciais parceiros do ponto de vista acadêmico.
+
+Por fim, acho que seria importante fazermos os relatos semanais de como estamos indo, como estamos entendendo nossas práticas; e tenho concebido fazer vídeos curtos para comunicação com algumas pessoas, em especial com os que estão fazendo acontecer.
+
+<b>Renato Fabbri, 03/Abril/2021</b>
+  `.replace(/\n/g, '<br>')
+  )
+  $('#loading').hide()
+}
+
+e['t008-Renato-Huss'] = () => {
+  utils.stdDiv().html(`
+  <h2>Renato, após poucos dias</h2>
+Fantástico, em poucos dias, alcancei uma harmonia e uma paz, que não imaginava conseguir.
+Anos de estudo esotérico, não trouxe este resultado.
+Grato aos idealizadores e participantes.
+
+<b>Renato S'Huss, 03/Abril/2021</b>
+  `.replace(/\n/g, '<br>')
+  )
+  $('#loading').hide()
+}
+
+e['t007-Lola'] = () => {
+  utils.stdDiv().html(`
+  <h2>Lola, após pouco mais de 1 mês</h2>
+
+  Vou aproveitar p falar do qto sou cética...ver p crer sempre,  fazer o que?
+
+Não busco perfeição,  sou humana, totalmente passiva de erros...quero melhorar, crescer em têrmos de ser.
+Bom, tenho feito sessões com os artefatos e com temas variados e, de repente estou conseguindo respirar melhor,
+não esse oxigênio que se conhece, mas aquele oxigênio que revigora e renova a alma.
+Tenho um temperamento muito forte e ultimamente me pego meio surpresa com a minha "calmaria" ao viver certas situações, sou grata.
+
+Como disse, não busco perfeição e sim aprimoramento e de verdade me sinto confortável aqui.
+Desculpa o textão, não consigo ser diferente.
+Gratidão Renato,  Adalberto e Otávio por estarem aqui.
+
+<b>Lola Quinto, 02/Abril/2021</b>
+  `.replace(/\n/g, '<br>')
+  )
+  $('#loading').hide()
+}
+
+e['t006-Edu'] = () => {
+  utils.stdDiv().html(`
+  <h2>Edu, após 2-3 sessões</h2>
+As sessões tem me deixado mais calmo, sem a menor dúvida. Espero continuar e melhorar mais.
+
+<b>Edu Viellas, Abril/2021</b>
+  `.replace(/\n/g, '<br>')
+  )
+  $('#loading').hide()
+}
+
+e['t005-Lisiane'] = () => {
+  utils.stdDiv().html(`
+  <h2>Lisiane, após ~ 3 meses</h2>
+Venho aqui fazer um relato sobre a minha experiência com esse lindo trabalho do Renato e Otávio. Comecei a participar desse projeto no mês de janeiro, fazendo diariamente a atividade. Sempre sofri de enxaqueca, mas desde então, curiosamente, não tive mais nenhuma crise 😍.
+
+Esse trabalho está sendo maravilhoso na minha vida, apesar de as vezes eu ter dificuldade de parar para meditar porque tenho um filha de 2 anos e trabalho também em um hospital de Pronto Socorro, devido esse momento de caos na saúde, não está sendo fácil me organizar na vida, além de todo sofrimento emocional por tudo que estou vendo dentro do hospital... mas enfim, procuro tirar ao menos 1x ao dia para realizar a tarefa é quando posso, faço as 4 meditações 💞
+
+Tive mudanças na minha saúde física conforme relatei no início,  além de ter também experiências extra corpórea, contato com antepassados, e também contato com seres que ainda não sei dizer o que são.
+
+Acredite... tenha fé em você, na sua capacidade de se entregar ao trabalho proposto, ppis uma certeza eu tenho: é real, é possível!
+
+Como um pequeno mimo, compartilho com vocês <a href="https://www.facebook.com/lisianefortescanabarro/videos/10216072030674065" target="_blank">essa linda canção das fadas 🦋💐🧚‍♀️🧚‍♂️</a> para que possa tocar o coração e a alma de cada um que aqui se dispõe a fazer a Grande Obra, a verdadeira Arte Real , a mudança interior 💜💙❤.
+
+
+<b>Lisiane Canabarro, 31/Março/2021</b>
+  `.replace(/\n/g, '<br>')
+  )
+  $('#loading').hide()
+}
+
 e['t004-Ivone'] = () => {
   utils.stdDiv().html(`
   <h2>Ivonne, após ~1 mês</h2>
 ... eu estou em tremenda gratidao por vcs tem mellhorado muito meu irmao minha respiracao muito mesmo a gratidao eh imensa.
 <b>Ivone Nunes, Março/2021</b>
-  `.replaceAll('\n', '<br>')
+  `.replace(/\n/g, '<br>')
   )
   $('#loading').hide()
 }
@@ -2328,7 +2520,7 @@ Agradeço pelo grupo seres maravilhosos que conheci.
 Eternamente grata Renato por enxergar minha dor no meio da multidão do Facebook.
 
 <b>Mariel Elisabeth, 07/Março/2021</b>
-  `.replaceAll('\n', '<br>')
+  `.replace(/\n/g, '<br>')
   )
   $('#loading').hide()
 }
@@ -2430,6 +2622,23 @@ e.publications = () => {
 }
 
 e.testimonials = () => {
+  const pub = []
+  for (const i in e) {
+    if (pattern(i, 'tes')) {
+      console.log(i)
+      pub.push(i)
+    }
+  }
+  utils.stdDiv().html(`
+  <h2>Testimonials</h2>
+  <ul>
+  ${pub.map(i => `<li><a href="?${i}">${i}</a></li>`).join('')}
+  </ul>
+  `)
+  $('#loading').hide()
+}
+
+e.testimonials_ = () => {
   const pub = []
   for (const i in e) {
     if (pattern(i, 'tes')) {
@@ -4150,7 +4359,8 @@ e.lis = () => {
   myLine.lineStyle(1, 0xffffff)
     .moveTo(...xy(0))
   const segments = 1000
-  for (let i = 0; i <= segments; i++) {
+  const fact = parseFloat(u('f')) || 1
+  for (let i = 0; i <= segments * fact; i++) {
     myLine.lineTo(...xy(2 * Math.PI * i / segments))
   }
   app.stage.addChild(myLine)
@@ -4162,5 +4372,113 @@ e.lis = () => {
   }
   window.lll = myLine
   window.ccc = c
+  $('#loading').hide()
+}
+
+e.jantunes = () => {
+  const url = 'https://jorge-de-freitas-antunes.github.io/assets/leva1/'
+  const bio = [
+    'Bio em PORTUGUÊS.doc',
+    'Bio em FRANCÊS.doc',
+    'Bio em INGLÊS.doc'
+  ]
+  const listagens = [
+    'Música de Câmara de Jorge Antunes.doc',
+    'CDs e DVDs de Jorge Antunes.doc',
+    'OBRAS SINFÔNICAS de Jorge Antunes.doc'
+  ]
+  const docs = [
+    'GEMUNB.doc',
+    'Texto de Gerson Valle.doc'
+  ]
+  const fotos = [
+    '1961-O precursor em seu estúdio caseiro,Rua-Orestes, Rio de Janeiro.png',
+    'Theremin construído por Jorge Antunes em 1962 (1º).JPG',
+    '1967-No Instituto Villa-Lobos.jpg',
+    'Em 1971 Antunes ganhou concurso de composição empatado com seu mestre Guerra Peixe.jpg',
+    'UTRECHT 1972.jpg',
+    '1974-GEMUNB (Grupo de Experimentação Musical da Universidade de Brasília).jpg',
+    '1984-Jorge Antunes ensaiando  Sinfonia das Buzinas.jpg',
+    '1995 - Xenakis e Antunes.jpg',
+    '2006-Cena da ópera OLGA- Prisão da Rua Frei Caneca.jpg'
+  ]
+
+  const url2 = 'https://jorge-de-freitas-antunes.github.io/assets/leva2/'
+  const notas = [ // imprensa
+    'Ambiente I.jpg',
+    'D.N.1971 (filho e prêmio).jpg',
+    'Premio Angelicum 1971.jpg',
+    'O Globo 1972.jpg',
+    'JB 1972.jpg',
+    'SINFONIA DAS DIRETAS-jornal 6.jpg',
+    'SINFONIA DAS DIRETAS-jornal 1.jpg',
+    'SINFONIA DAS DIRETAS-jornal 2.jpg',
+    'SINFONIA DAS DIRETAS-jornal 3.jpg',
+    'SINFONIA DAS DIRETAS-jornal 4.jpg',
+    'SINFONIA DAS DIRETAS-jornal 5.jpg',
+    'SINFONIA DAS DIRETAS-jornal 7.jpg',
+    'SINFONIA DAS DIRETAS-jornal 8.jpg',
+    'Sinfonia dosDireitos (C.Braz).jpg',
+    'Coli-CONCERTO).nov.2020 2.jpg'
+  ]
+
+  const links = [
+    ['2009: esnsaio de Carlos Eduardo Amaral, "Ativismo sinfônico – O protesto político nas obras orquestrais de Jorge Antunes"', 'https://ativismosinfonico.wordpress.com/'],
+    ['2010: MSc de J.M da Rocha, "Os sons e as cores: propostas de correlação em experiências composicionais"', 'https://repositorio.ufba.br/ri/handle/ri/9170'],
+    ['2016: review do álbum "Música Electrónica” [MENT007]"', 'https://avantmusicnews.com/2016/10/05/jorge-antunes-musica-electronica-ment007/'],
+    ['2017: sobre a ópera O Espelho (com Coli)', 'https://glosas.mpmp.pt/opera-o-espelho'],
+    ['2017: IVL 50 Anos tem texto "IVL 1967-1968: um depoimento" do J. Antunes', 'http://www2.unirio.br/unirio/cla/ivl/publicacoes/ivl_50_anos_edicao_comemorativa_unirio.pdf'], // IVL 1967-1968: um depoimento
+    ['2017: entrevista', 'https://www.vice.com/pt/article/d7b54x/jorge-antunes-entrevista'],
+    ['2020: sobre a ópera Olga', 'https://operawire.com/baltic-opera-2020-21-review-olga'],
+    ['2021: homepage', 'http://jorgeantunes.com.br']
+  ].reduce((a, i) => `${a} <li><a href="${i[1]}" target="_blank">${i[0]}</a></li>`, '')
+
+  const dicio = [ // notas de dicionário
+    'Aurélio-dicionário.jpg',
+    'dicionário.jpg' // como que chama esse dicionário?
+  ]
+
+  const texta = [ // textos acadêmicos
+    'BORGES_GilbertoAndre_jorgeantunes 2.pdf',
+    'Cor_Musica_Andre_Rangel.pdf',
+    'Musica_Teatro_Musica-Teatro_e_Percussao.pdf',
+    'Performance no teatro instrumental - Daniel Serale 2.pdf',
+    'Volpe.pdf',
+    'Sinestesia2015_Paper-Basbaum _1_ 3.pdf'
+  ]
+
+  const a = l => '<ul>' + l.reduce((a, i) => `${a}<li><a href="${url}${i}" target="_blank">${i}</a></li>`, '') + '</ul>'
+  const b = l => '<ul>' + l.reduce((a, i) => `${a}<li><a href="${url2}${i}" target="_blank">${i}</a></li>`, '') + '</ul>'
+  const h = t => `<h3>${t}</h3>`
+
+  utils.stdDiv().html(`
+  <h1>Jorge Antunes</h1>
+  ${h('Biografias')}
+  ${a(bio)}
+
+  ${h('Listagens de gravações e obras')}
+  ${a(listagens)}
+
+  ${h('Demais textos')}
+  Sobre o GEMUNB (Grupo de Experimentação Musical da Universidade de Brasília) e sobre o percurso do compositor (escrito por volta de 2012):
+  ${a(docs)}
+
+  ${h('Fotos')}
+  ${a(fotos)}
+
+  ${h('Notas na imprensa')}
+  ${b(notas)}
+
+  ${h('Entradas em dicionários')}
+  ${b(dicio)}
+
+  ${h('Textos acadêmicos')}
+  ${b(texta)}
+
+  ${h('Links')}
+  <ul>${links}</ul>
+
+  :::
+  `)
   $('#loading').hide()
 }

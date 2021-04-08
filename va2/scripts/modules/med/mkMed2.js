@@ -16,6 +16,12 @@ const e = module.exports
 // add templates to each voice
 // add advanced synth to each voice, as with Tone examples
 // add phase to martigli
+function removeOptions () {
+  const selectElement = document.getElementById('mselect')
+  for (let i = selectElement.options.length - 1; i >= 0; i--) {
+    selectElement.remove(i)
+  }
+}
 
 function addWaveforms (grid, str, id) {
   $('<span/>').html(str + ':').appendTo(grid)
@@ -172,11 +178,10 @@ e.Mk = class {
     this.gd = grid => utils.gridDivider(0, 160, 0, grid)
 
     transfer.findAll({ 'header.med2': { $exists: true } }).then(r => {
+      r.sort((a, b) => b.header.datetime - a.header.datetime)
       this.allSettings = r
       this.addHeader()
-      // this.gd()
       this.setVisual()
-      // this.gd()
       this.addMenu()
       this.addFinalButtons()
       $('#loading').hide()
@@ -198,13 +203,7 @@ e.Mk = class {
         this.loadSetting(aself.currentTarget.value)
       })
     this.s = s
-    this.allSettings.forEach((i, ii) => {
-      let text = i.header.med2
-      if (i.header.creator) { // created by mkLight
-        text += ` (${i.header.creator})`
-      }
-      s.append($('<option/>', { class: 'pres' }).val(ii).html(text))
-    })
+    this.resetArtifactOptions()
     $('<button/>').html('Delete').appendTo(grid)
       .click(() => {
         const option = $(`option[value="${$('#mselect').val()}"].pres`)
@@ -352,7 +351,8 @@ e.Mk = class {
       .attr('title', 'Create the meditation with the settings defined.')
       .html('Create')
       .click(() => {
-        if (this.setting.length === 0 && !window.confirm('Do you really want to create an artifact without any sound?')) return
+        const removed = this.setting.reduce((a, i) => a + i.grid.voiceRemoved, 0)
+        if (this.setting.length === removed && !window.confirm('Do you really want to create an artifact without any sound?')) return
         const voices = []
         let ok = true
         this.setting.forEach(i => {
@@ -380,6 +380,7 @@ e.Mk = class {
         })
         if (!ok) return
         const h = this.header
+        if (h.communionSchedule.prop('checked') && !window.confirm('You are creating a Template to be used in mkLight, confirm?')) return
         const header = {
           med2: h.med2.val(),
           datetime: h.datetime.selectedDates[0],
@@ -405,9 +406,12 @@ e.Mk = class {
         window.toSave = toSave
         console.log(toSave)
         transfer.writeAny(toSave).then(resp => {
-          this.s.append($('<option/>', { class: 'pres' }).val(this.allSettings.length).html(toSave.header.med2))
-          this.s.val(this.allSettings.length)
+          // this.s.append($('<option/>', { class: 'pres' }).val(this.allSettings.length).html(toSave.header.med2))
+          // this.s.val(this.allSettings.length)
           this.allSettings.push(toSave)
+          this.allSettings.sort((a, b) => b.header.datetime - a.header.datetime)
+          removeOptions()
+          this.resetArtifactOptions(toSave)
           this.prefix = '.'
           this.obutton.attr('disabled', false).html(`Open: ${toSave.header.med2}`)
           this.p3button.attr('disabled', false)
@@ -420,7 +424,7 @@ e.Mk = class {
       .html('Open')
       .attr('title', 'Open URL of the meditation.')
       .click(() => {
-        window.open(`?${this.prefix}${this.header.med2.val()}`)
+        window.open(`/?${this.prefix}${this.header.med2.val()}`)
       })
       .appendTo(grid)
       .attr('disabled', true)
@@ -429,7 +433,7 @@ e.Mk = class {
       .html('Copy artifact link')
       .attr('title', 'Copy URL of the meditation.')
       .click(() => {
-        copyToClipboard(`${window.location.origin}?${this.prefix}${this.header.med2.val()}`)
+        copyToClipboard(`${window.location.origin}/?${this.prefix}${this.header.med2.val()}`)
         this.p3button.css('background', bcolors[++bcolors[2] % 2])
       })
       .appendTo(grid)
@@ -438,7 +442,7 @@ e.Mk = class {
       .html('Preview (5s)')
       .attr('title', 'Open URL of the meditation for preview.')
       .click(() => {
-        window.open(`?${this.prefix}${this.header.med2.val()}&t=5`)
+        window.open(`/?${this.prefix}${this.header.med2.val()}&t=5`)
       })
       .appendTo(grid)
       .attr('disabled', true)
@@ -453,7 +457,7 @@ e.Mk = class {
       this.sbutton
         .click(() => {
           const msg = `
-link para o artefato: https://aeterni.github.io?${this.prefix}${this.header.med2.val()}
+link para o artefato: https://aeterni.github.io/?${this.prefix}${this.header.med2.val()}
 horário de início: ${utils.dataFormatada(this.header.datetime.selectedDates[0])}
 tema: ${utils.formatTheme(this.header.med2.val())}
 
@@ -656,5 +660,24 @@ ${lw()}.
     addPanner(set, this)
     this.setting.push(set)
     return set
+  }
+
+  resetArtifactOptions (toSave) {
+    this.allSettings.forEach((i, ii) => {
+      let text = i.header.med2
+      if (i.header.creator) { // created by mkLight
+        text += ` (${i.header.creator})`
+      } else if (i.header.communionSchedule) {
+        text = `(template) ${text}`
+      }
+      this.s.append($('<option/>', { class: 'pres' }).val(ii).html(text))
+    })
+    if (toSave) {
+      this.allSettings.forEach((i, ii) => {
+        if (i.header.med2 === toSave.header.med2) {
+          this.s.val(ii)
+        }
+      })
+    }
   }
 }

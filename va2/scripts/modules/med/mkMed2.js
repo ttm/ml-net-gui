@@ -76,8 +76,10 @@ function addType (grid, type, c, isOn) {
     }))
   let onOff
   if (type.includes('Martigli')) { // add signature as to reference or not
-    const isOn_ = isOn === undefined ? c.martigliList.length === 0 : isOn
-    const str = isOn_ ? 'reference' : 'secundary'
+    const hasMartigli = c.martigliList.length === c.martigliList.reduce((a, i) => a + i.grid.voiceRemoved, 0)
+    const isOn_ = isOn === undefined ? hasMartigli : isOn
+    // const isOn_ = isOn === undefined ? c.martigliList.length === 0 : isOn
+    const str = isOn_ ? 'reference' : 'secondary'
     onOff = $('<span/>', { css: { 'margin-left': '2%' } }).html(`(${str})`)
       .click(() => {
         if (c.martigliList.length < 1) return
@@ -93,7 +95,7 @@ function addType (grid, type, c, isOn) {
           }
           onOff.isOn = false
           onOff.css('background', '')
-          onOff.html('(secundary)')
+          onOff.html('(secondary)')
         } else {
           // turn off the currently on:
           for (let i = 0; i < c.martigliList.length; i++) {
@@ -101,7 +103,7 @@ function addType (grid, type, c, isOn) {
             if (onOff_.isOn) {
               onOff_.isOn = false
               onOff_.css('background', '')
-              onOff_.html('(secundary)')
+              onOff_.html('(secondary)')
               break
             }
           }

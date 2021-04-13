@@ -279,6 +279,14 @@ e.Med = class {
       return [c[0] + x, c[1] + y]
     }
     const xyLis35 = angle => xyLis(angle, 3, 4)
+
+    const xyLisDyn = angle => xyLis(angle, 3, 4.02)
+    // let [lastX, lastY] = xyLisDyn(0)
+    function xyDyn (angle) { // Lis with dynamic
+      const [x, y] = xyLisDyn(angle)
+      return [c[0] + x, c[1] + y]
+    }
+    window.xyDyn = xyDyn
     // 3, 2
     // 3, 8
     // 3,4
@@ -414,6 +422,7 @@ e.Med = class {
         myCircle3.x = pos[0]
         myCircle2.x = 2 * c[0] - pos[0]
         bCircle.y = val * a * 0.5 + y
+      } else if (s.lemniscate === 8) { // dynamic drawing
       } else { // sinusoid:
         const px = (avalr < 0 ? 2 * Math.PI + avalr : avalr) / (2 * Math.PI) * dx + x
         const px2 = (Math.PI - avalr) / (2 * Math.PI) * dx + x

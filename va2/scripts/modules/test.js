@@ -2344,6 +2344,16 @@ Thu Dec 31 11:17:02 -03 2020
   $('#loading').hide()
 }
 
+e['t012-Marcos'] = () => {
+  utils.stdDiv().html(`
+  <h2>Marcos, após aprox. 3 semanas</h2>
+Estou vivendo uma experiência nova fazendo meditações através e um artefato visual e sons relaxante, está me fazendo muito bem, tenho controlado mais minhas ansiedades e respiração mantendo meu corpo saudável, tenho feito todos os dias, a diferença que eu senti foi significante para minha saúde, e poder a cada dia me sentir melhor para prosseguir com as tarefas cotidianas, a cada dia que passa me sinto capaz de realizar conquistas em minha vida graças a meditação
+<b>Marcos Pino Arroyo, 12/Abril/2021</b>
+  `.replace(/\n/g, '<br>')
+  )
+  $('#loading').hide()
+}
+
 e['t011-Mariel'] = () => {
   utils.stdDiv().html(`
   <h2>Mariel, após quase 1 mês e meio</h2>
@@ -4481,4 +4491,19 @@ e.jantunes = () => {
   :::
   `)
   $('#loading').hide()
+}
+
+e.colors = () => {
+  // tinycolor2:
+  //  convert to representations
+  //  color transformation
+  //  readability
+  //
+  // color-scheme:
+  //  create colorschemes
+  //  triad, tetrad, mono, contrast, analogic
+  //  pastel, soft, light, hard, pale
+  //
+  // distinct-colors:
+  //  coloschemes customizáveis, não entendi ainda
 }

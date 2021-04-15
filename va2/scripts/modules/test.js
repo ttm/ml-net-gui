@@ -2092,7 +2092,7 @@ e.monk = () => {
   $('<button/>').html('temas').click(() => {
     div.html('')
     div2.html(`
-    Temas principais: cura, saúde, silêncio, Espírito Santo, Luz.
+    Temas principais: cura, saúde, silêncio, Espírito Santo, Paz, Luz.
     `)
   }).appendTo(grid)
   $('<button/>').html('segunda').click(() => {
@@ -4487,6 +4487,81 @@ e.jantunes = () => {
 
   ${h('Links')}
   <ul>${links}</ul>
+
+  :::
+  `)
+  $('#loading').hide()
+}
+
+e.wiki = () => {
+  const itens = [
+    `sugira compositores, obras, técnicas, eventos, grupos, etc.
+    para serem representados na wikipédia.
+    `,
+    `
+    Escreva novos artigos na Wikipédia ou melhore os existentes.
+    Mesmo que não seja sobre compositores ou sobre música, estas contribuições serão consideradas.
+    `,
+    `
+    Ajude na tradução de artidos para outras línguas além do português em inglês.
+    `,
+    `
+    Repasse este link para potenciais parceiros e entidades potencialmente interessadas na iniciativa.
+    `,
+    `
+    Entre em contato para quaisquer outros assuntos, inclusive se precisar de outra forma, que <b>não a chave pix</b>, para fazer uma transferência financeira.
+    `
+  ].reduce((a, i) => a + `<li>${i}</li>`, '')
+  const comp = [
+    'Jorge Antunes',
+    'Victor Lazarini',
+    'Edson Zampronha',
+    'Ricardo Tacuchian'
+  ].reduce((a, i) => a + `<li>${i}</li>`, '')
+  const cont = [
+    `O Brasil tem uma produção musical mais que reconhecida.
+    Na música erudita, inclusive, temos excelêntes <b>compositores</b>,
+    expressivos tanto para a apreciação quanto pela importância na história da música.
+    `,
+    `A <b>Wikipédia</b>
+    é talvez a principal referência sobre o que é o quão importante é um assunto, em especial
+    os artigos em inglês.
+    Muitos compositores brasileiros estão na Wikipédia.
+    Muitos não estão, e dentre os que estão, todos os que visitei mereciam artigos mais completos e melhor escritos.
+    Além disso, muitos possuem páginas apenas em português ou apenas em inglês, ou em uma das línguas o artigo é apenas um pequeno rascunho.
+    `,
+    `
+    Assim, criei esta página para registrar este andamento.
+    Quero fazer esta contribuição há anos, e fiz de forma muito modesta.
+    Em especial, as instabilidades da vida e a dedicação aos trabalhos impossibilitaram até agora que eu criasse novos artigos e melhorasse os existentes.
+    `,
+    `
+    De fato, contribuir para a wikipédia é gratificante, mas nem sempre fácil. É necessário escrever com esmero e referenciar fontes estratégicamente.
+    Além disso, é comum os supervisores não confiarem em autores que não fizeram já várias contribuições, principalmente quando o artigo trata de alguém, algum grupo ou instituição, pois várias vezes a edição é não idônea.
+    `
+  ].reduce((a, i) => a + `<p>${i}</p>`, '')
+  const pars = [
+    `
+    Caso você queira incentivar financeiramente esta dedicação, transfira uma quantia pela chave pix <b>compowiki</b>. Há também outras formas de contribuir:
+    <ul>${itens}</ul>
+    `,
+    `Você pode entrar em contato pelo email <b>renato [Ponto] fabbri (arroba) gmail PONTO com</b>
+    `,
+    `
+    Alguns dos compositores já em consideração:
+    <ul>${comp}</ul>
+    `,
+    `
+    Se você é um compositor e quer que seu artigo seja melhorado ou mesmo criado, sugiro enviar esta página para dois ou mais compositores.
+    Embora a contribuição financeira é bem vinda, é mais importante acionar os outros compositores até para mantermos este trabalho ético.
+    `
+  ].reduce((a, i) => a + `<p>${i}</p>`, '')
+  utils.stdDiv().html(`
+  <h1>Compositores brasileiros na Wikipédia</h1>
+  <h2>Contexto</h2>
+  ${cont}
+  <h2>Andamento</h2>
+  ${pars}
 
   :::
   `)

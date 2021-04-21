@@ -20,6 +20,8 @@ const e = module.exports
 // add phase to martigli
 // check 'todo' strings
 // add option for AAA or MMM groups
+// remove voice by destroying the voice instead of using a flag
+// better management of reference/secundary Martigli voices
 
 function addWaveforms (grid, str, id) {
   $('<span/>').html(str + ':').appendTo(grid)

@@ -3043,7 +3043,12 @@ e.aalogs3 = ufrj => {
         .replace(/T/, ' ')
         .replace(/:\d\d\..+/, '')
       $('<span/>', { css: { 'margin-left': '10%' }, title: adate }).html(adate)[func](grid)
-      $('<span/>', { css: { 'margin-left': '10%' }, title: `see shouts in session ${s.sessionId}` }).html(s.sessionId ? `<a href="?${url}&session=${s.sessionId}" target="_blank">${s.sessionId.slice(-10)}</a>` : '')[func](grid)
+      const css = { 'margin-left': '10%' }
+      if (s.sessionId) {
+        const c = utils.mongoIdToRGB(s.sessionId)
+        css.background = `rgba(${c[0]}, ${c[1]}, ${c[2]}, 0.5)`
+      }
+      $('<span/>', { css, title: `see shouts in session ${s.sessionId}` }).html(s.sessionId ? `<a href="?${url}&session=${s.sessionId}" target="_blank">${s.sessionId.slice(-10)}</a>` : '')[func](grid)
       if (u('admin')) { // todo: remove the shout correctly
         shout.click(() => {
           console.log(s)

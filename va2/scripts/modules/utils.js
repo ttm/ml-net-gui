@@ -302,3 +302,19 @@ e.users = {
   om33: 'Otávio',
   renus: 'S\'Huss'
 }
+
+e.mongoIdToRGB = mid => {
+  if (typeof mid === 'object') {
+    const max = 255 * 3
+    const sum = (x, y) => 255 * mid.id.slice(x, y).reduce((a, i) => a + i, 0) / max
+    const r = sum(0, 4)
+    const g = sum(4, 8)
+    const b = sum(8, 12)
+    return [r, g, b]
+  }
+  const c = (x, y) => parseInt(mid.slice(x, y), 16)
+  const r = c(4, 6)
+  const g = c(6, 8)
+  const b = c(8, 10)
+  return [r, g, b]
+}

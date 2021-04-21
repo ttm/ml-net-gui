@@ -312,9 +312,16 @@ e.mongoIdToRGB = mid => {
     const b = sum(8, 12)
     return [r, g, b]
   }
-  const c = (x, y) => parseInt(mid.slice(x, y), 16)
-  const r = c(4, 6)
-  const g = c(6, 8)
-  const b = c(8, 10)
+  const c = (x, y) => { // deterministic chaos:
+    const slice = mid.slice(x, y)
+    let num = 0
+    for (let i = 0; i <= slice.length - 2; i++) {
+      num += parseInt(slice.slice(i, i + 2), 16)
+    }
+    return (1 + Math.sin(100000 * num)) * 255 * 0.5
+  }
+  const r = c(0, 8)
+  const g = c(8, 16)
+  const b = c(16, 24)
   return [r, g, b]
 }

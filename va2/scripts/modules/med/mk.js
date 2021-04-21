@@ -9,6 +9,7 @@ const waveforms = require('./common.js').waveforms
 const permfuncs = require('./common.js').permfuncs
 const forms = require('./common.js').forms
 
+const u = require('../router.js').urlArgument
 const e = module.exports
 
 // todo:
@@ -17,12 +18,8 @@ const e = module.exports
 // add templates to each voice
 // add advanced synth to each voice, as with Tone examples
 // add phase to martigli
-function removeOptions () {
-  const selectElement = document.getElementById('mselect')
-  for (let i = selectElement.options.length - 1; i >= 0; i--) {
-    selectElement.remove(i)
-  }
-}
+// check 'todo' strings
+// add option for AAA or MMM groups
 
 function addWaveforms (grid, str, id) {
   $('<span/>').html(str + ':').appendTo(grid)
@@ -51,30 +48,34 @@ function addType (grid, type, c, isOn) {
     setTimeout(() => {
       icon.css('background', '')
     }, 500)
+    // todo: make play play sounds!
     console.log('clicked')
   })
   const field = $('<span/>').appendTo(grid)
     .append(icon)
     .append($('<span/>').html(`<b>${type}</b>`))
-    .append($('<span/>', { css: { 'margin-left': '4%', background: '#ffbbbb', cursor: 'pointer' } }).html('X').click(() => {
-      console.log('remove me: ' + type)
-      grid.hide()
-      grid.voiceRemoved = true
-      if (type.includes('Martigli')) {
-        if (onOff.isOn) { // select first occuring Martigli:
-          for (let i = 0; i < c.martigliList.length; i++) {
-            const onOff_ = c.martigliList[i]
-            if (!onOff_.isOn && !onOff_.grid.voiceRemoved) {
-              onOff_.isOn = true
-              onOff_.css('background', '#ffff00')
-              onOff_.html('(reference)')
-              break
+  if (!c.light) {
+    field
+      .append($('<span/>', { css: { 'margin-left': '4%', background: '#ffbbbb', cursor: 'pointer' } }).html('X').click(() => {
+        console.log('remove me: ' + type)
+        grid.hide()
+        grid.voiceRemoved = true
+        if (type.includes('Martigli')) {
+          if (onOff.isOn) { // select first occuring Martigli:
+            for (let i = 0; i < c.martigliList.length; i++) {
+              const onOff_ = c.martigliList[i]
+              if (!onOff_.isOn && !onOff_.grid.voiceRemoved) {
+                onOff_.isOn = true
+                onOff_.css('background', '#ffff00')
+                onOff_.html('(reference)')
+                break
+              }
             }
+            onOff.isOn = false
           }
-          onOff.isOn = false
         }
-      }
-    }))
+      }))
+  }
   let onOff
   if (type.includes('Martigli')) { // add signature as to reference or not
     const hasMartigli = c.martigliList.length === c.martigliList.reduce((a, i) => a + i.grid.voiceRemoved, 0)
@@ -172,14 +173,65 @@ function addPanner (s, c) {
   s.grid.panFields = fields
 }
 
+function adminUsers () {
+  function chUser (u_, create, remove) {
+    const query = { luser: u_ }
+    if (remove) {
+      transfer.remove(query).then(r => {
+        window.alert(`User ::: ${u_} ::: REMOVED!`)
+      })
+      return
+    }
+    transfer.writeAny(query).then(resp => {
+      console.log('PASS MAN WRITTEN', resp)
+      window.alert(`User ::: ${u_} ::: CREATED!`)
+    })
+  }
+
+  const u_ = u('u')
+  const create = u('create')
+  const remove = u('remove')
+  if (!u_) {
+    window.alert('!!! anonymous user NOT ALLOWED (usuário não permitido) !!!')
+  } else if (create || remove) {
+    chUser(u_, create, remove)
+  } else if (u_ === 'all') {
+    transfer.findAll({ luser: { $exists: true } }).then(r => {
+      console.log('all users:', r)
+      window.alert('all users:', r)
+    })
+  } else {
+    return false
+  }
+  return true
+}
+
 e.Mk = class {
-  constructor () {
+  constructor (light) {
+    this.light = light
     $('body').css('margin-top', '1%')
     this.div1 = $('<div/>', { css: { display: 'inline-block', width: '50%' } }).appendTo('body')
-    this.div2 = $('<div/>', { css: { display: 'inline-block', float: 'right', width: '50%' } }).appendTo('body')
+    this.div2 = $('<div/>', { id: 'div2', css: { display: 'inline-block', float: 'right', width: '50%' } }).appendTo('body')
     this.gd = grid => utils.gridDivider(0, 160, 0, grid)
 
-    transfer.findAll({ 'header.med2': { $exists: true } }).then(r => {
+    if (light) {
+      if (adminUsers()) return
+      const u_ = u('u')
+      transfer.findAll({ luser: u_ }).then(r => {
+        if (r.length === 0) {
+          window.alert(`user ::: ${u_} ::: not allowed (usuário não permitido)`)
+          return
+        }
+        this.user = u_
+        this.start()
+      })
+    } else {
+      this.start()
+    }
+  }
+
+  start () {
+    transfer.findAll({ 'header.med2': { $exists: true }, 'header.communionSchedule': true }).then(r => {
       r.sort((a, b) => b.header.datetime - a.header.datetime)
       this.allSettings = r
       this.addHeader()
@@ -188,6 +240,13 @@ e.Mk = class {
       this.addFinalButtons()
       $('#loading').hide()
     })
+  }
+
+  removeOptions () {
+    const selectElement = document.getElementById('mselect' + (this.light ? '2' : ''))
+    for (let i = selectElement.options.length - 1; i >= 0; i--) {
+      selectElement.remove(i)
+    }
   }
 
   addHeader () {
@@ -199,35 +258,64 @@ e.Mk = class {
     const flatpickr = require('flatpickr')
 
     const s = $('<select/>', { id: 'mselect' }).appendTo(grid)
-      .append($('<option/>').val(-1).html('~ creating ~'))
+      .append($('<option/>').val(-1).html(`~ ${this.light ? 'templates' : 'creating'} ~`))
       .attr('title', 'Select template to load, edit, or delete.')
       .on('change', aself => {
-        this.loadSetting(aself.currentTarget.value)
+        if (aself.currentTarget.value === '-1') return
+        this.loadSetting(aself.currentTarget.value, 0)
+        s.css('background', 'darkseagreen')
+        s2.css('background', '')
       })
     this.s = s
-    this.resetArtifactOptions()
-    $('<button/>').html('Delete').appendTo(grid)
-      .click(() => {
-        const option = $(`option[value="${$('#mselect').val()}"].pres`)
-        const ind = option[0].value
-        transfer.remove({ 'header.med2': this.allSettings[ind].header.med2 }).then(r => {
-          console.log('REMOVED! reply', r)
-          option.remove()
-          this.allSettings.splice(ind, 1)
-          this.obutton.attr('disabled', true).html('Open')
-          this.p3button.attr('disabled', true)
-          this.p5button.attr('disabled', true).html('Preview (5s)')
-          this.sbutton.attr('disabled', true)
-          $('.pres').remove()
-          this.allSettings.forEach((i, ii) => {
-            let text = i.header.med2
-            if (i.header.creator) { // created by mkLight
-              text += ` (${i.header.creator})`
-            }
-            s.append($('<option/>', { class: 'pres' }).val(ii).html(text))
+    let s2
+    if (this.light) {
+      s2 = $('<select/>', { id: 'mselect2' }).appendTo(grid) // previous sessions
+        .append($('<option/>').val(-1).html('~ previous ~'))
+        .attr('title', 'Select previous sessions to load, edit, or delete.')
+        .on('change', aself => {
+          if (aself.currentTarget.value === '-1') return
+          this.loadSetting(aself.currentTarget.value, 1)
+          s2.css('background', 'darkseagreen')
+          // s.css('background', '')
+        })
+      this.s2 = s2
+      this.allSettings1 = [] // templates
+      this.allSettings2 = [] // previous derived simple sessions
+      this.allSettings.forEach(i => {
+        if (i.header.creator) { // only derived has this value
+          this.allSettings2.push(i)
+        } else {
+          this.allSettings1.push(i)
+        }
+      })
+      this.allSettings1.forEach((i, ii) => {
+        s.append($('<option/>', { class: 'pres' }).val(ii).html(i.header.med2))
+      })
+    } else {
+      $('<button/>').html('Delete').appendTo(grid)
+        .click(() => {
+          const option = $(`option[value="${$('#mselect').val()}"].pres`)
+          const ind = option[0].value
+          transfer.remove({ 'header.med2': this.allSettings[ind].header.med2 }).then(r => {
+            console.log('REMOVED! reply', r)
+            option.remove()
+            this.allSettings.splice(ind, 1)
+            this.obutton.attr('disabled', true).html('Open')
+            this.p3button.attr('disabled', true)
+            this.p5button.attr('disabled', true).html('Preview (5s)')
+            this.sbutton.attr('disabled', true)
+            $('.pres').remove()
+            this.allSettings.forEach((i, ii) => {
+              let text = i.header.med2
+              if (i.header.creator) { // created by mkLight
+                text += ` (${i.header.creator})`
+              }
+              s.append($('<option/>', { class: 'pres' }).val(ii).html(text))
+            })
           })
         })
-      })
+    }
+    this.resetArtifactOptions()
 
     $('<span/>').html('id:').appendTo(grid)
     const med2 = $('<input/>', {
@@ -263,8 +351,9 @@ e.Mk = class {
     $('<span/>').html('template:').appendTo(grid)
     const communionSchedule = $('<input/>', {
       type: 'checkbox'
-    }).appendTo(grid)
+    })
       .attr('title', 'Is this artifact a template?')
+    if (!this.light) communionSchedule.appendTo(grid)
 
     this.header = { med2, datetime, d, vcontrol, communionSchedule }
   }
@@ -335,12 +424,13 @@ e.Mk = class {
     $('<span/>').html('add:').appendTo(grid)
     const voiceTypes = ['Martigli', 'Binaural', 'Symmetry', 'Sample', 'Martigli-Binaural', 'Prayer', 'Recording']
     voiceTypes.forEach(i => {
-      $('<button/>', { id: i + 'Btn' })
+      const foobtn = $('<button/>', { id: i + 'Btn' })
         .html(i)
         .appendTo(grid)
         .click(() => {
           this.createVoice(i)
         })
+      if (this.light) foobtn.attr('disabled', true)
     })
     // todo: implement:
     $('#PrayerBtn').attr('disabled', true)
@@ -383,13 +473,17 @@ e.Mk = class {
         })
         if (!ok) return
         const h = this.header
-        if (h.communionSchedule.prop('checked') && !window.confirm('You are creating a Template to be used in mkLight, confirm?')) return
+        if (!this.light && h.communionSchedule.prop('checked') && !window.confirm('You are creating a Template to be used in mkLight, confirm?')) return
         const header = {
           med2: h.med2.val(),
           datetime: h.datetime.selectedDates[0],
           d: p(h.d),
           vcontrol: h.vcontrol.prop('checked'),
-          communionSchedule: h.communionSchedule.prop('checked')
+          communionSchedule: this.light || h.communionSchedule.prop('checked')
+        }
+        if (this.light) {
+          header.creator = this.user
+          header.ancestral = this.ancestral
         }
         if (!this.checkHeader(header)) return
         const v = this.visSetting
@@ -409,19 +503,30 @@ e.Mk = class {
         window.toSave = toSave
         console.log(toSave)
         transfer.writeAny(toSave).then(resp => {
-          // this.s.append($('<option/>', { class: 'pres' }).val(this.allSettings.length).html(toSave.header.med2))
-          // this.s.val(this.allSettings.length)
-          this.allSettings.push(toSave)
-          this.allSettings.sort((a, b) => b.header.datetime - a.header.datetime)
-          removeOptions()
+          const aS = this.light ? this.allSettings2 : this.allSettings
+          aS.push(toSave)
+          aS.sort((a, b) => b.header.datetime - a.header.datetime)
+          this.removeOptions()
           this.resetArtifactOptions(toSave)
-          this.prefix = '.'
+          this.prefix = this.light ? '-' : '.'
           this.obutton.attr('disabled', false).html(`Open: ${toSave.header.med2}`)
           this.p3button.attr('disabled', false)
           this.p5button.attr('disabled', false).html(`Preview (5s): ${toSave.header.med2}`)
           this.sbutton.attr('disabled', false)
+          if (this.light) {
+            this.s2.css('background', 'darkseagreen')
+            if (this.ancestral) { // todo: ensure working fine:
+              let ii
+              this.allSettings1.forEach((e, i) => {
+                if (e.header.med2 === this.ancestral) ii = i
+              })
+              this.s.val(ii).css('background', 'yellow')
+            } else {
+              this.s.css('background', '')
+            }
+          }
         })
-        // todo: enable preview and volume controler (after implementing the model)
+        // todo: enable preview and volume controler
       }).appendTo(grid)
     this.obutton = $('<button/>', { css: { background: 'lightskyblue' } })
       .html('Open')
@@ -539,9 +644,9 @@ ${lw()}.
     return { fl, waveformL, fr, waveformR, grid, ma, mp0, mp1, md }
   }
 
-  loadSetting (index) {
+  loadSetting (index, what) {
     console.log('Load setting', index)
-    const s = this.allSettings[index]
+    const s = this.light ? this[['allSettings1', 'allSettings2'][what]] : this.allSettings[index]
 
     const h = this.header
     const h_ = s.header
@@ -549,11 +654,10 @@ ${lw()}.
     h.datetime.setDate(h_.datetime)
     h.d.val(h_.d)
     h.vcontrol.prop('checked', h_.vcontrol)
-    h.communionSchedule.prop('checked', h_.communionSchedule)
+    if (!this.light) h.communionSchedule.prop('checked', h_.communionSchedule)
 
     const v = this.visSetting
     const v_ = s.visSetting
-    // v.lemniscate.prop('checked', v_.lemniscate)
     v.lemniscate.val(Number(v_.lemniscate))
     v.rainbowFlakes.prop('checked', v_.rainbowFlakes)
     v.ellipse.prop('checked', v_.ellipse)
@@ -595,6 +699,23 @@ ${lw()}.
     this.p3button.attr('disabled', false)
     this.p5button.attr('disabled', false).html(`Preview (5s): ${h_.med2}`)
     this.sbutton.attr('disabled', false)
+    if (this.light) {
+      this.ancestral = what ? (h_.ancestral ? h_.ancestral : undefined) : h_.med2
+      if (what) {
+        // set s select to the ancestor, if any
+        // if set to ancestor, background yellow, if not, gray
+        if (this.ancestral) {
+          let ii
+          this.allSettings1.forEach((e, i) => {
+            if (e.header.med2 === this.ancestral) ii = i
+          })
+          this.s.val(ii)
+          this.s.css('background', 'yellow')
+        } else {
+          this.s.css('background', '')
+        }
+      }
+    }
   }
 
   checkVoice (v) {
@@ -639,7 +760,7 @@ ${lw()}.
       window.alert('define the meditation id.')
       return
     }
-    for (let i = 0; i < this.allSettings.length; i++) {
+    for (let i = 0; i < this['allSettings' + (this.light ? '2' : '')].length; i++) {
       if (h.med2 === this.allSettings[i].header.med2) {
         window.alert('change the meditation id to be unique.')
         return
@@ -662,23 +783,26 @@ ${lw()}.
     set.grid = grid
     addPanner(set, this)
     this.setting.push(set)
+    if (this.light) $('#div2 :input').attr('disabled', true)
     return set
   }
 
   resetArtifactOptions (toSave) {
-    this.allSettings.forEach((i, ii) => {
+    const aS = this.light ? this.allSettings2 : this.allSettings
+    const s = this.light ? this.s2 : this.s
+    aS.forEach((i, ii) => {
       let text = i.header.med2
       if (i.header.creator) { // created by mkLight
         text += ` (${utils.users[i.header.creator]})`
-      } else if (i.header.communionSchedule) {
+      } else if (!this.light && i.header.communionSchedule) {
         text = `(template) ${text}`
       }
-      this.s.append($('<option/>', { class: 'pres' }).val(ii).html(text))
+      s.append($('<option/>', { class: 'pres' }).val(ii).html(text))
     })
     if (toSave) {
-      this.allSettings.forEach((i, ii) => {
+      aS.forEach((i, ii) => {
         if (i.header.med2 === toSave.header.med2) {
-          this.s.val(ii)
+          s.val(ii)
         }
       })
     }

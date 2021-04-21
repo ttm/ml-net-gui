@@ -2092,7 +2092,7 @@ e.monk = () => {
   $('<button/>').html('temas').click(() => {
     div.html('')
     div2.html(`
-    Temas principais: cura, saúde, silêncio, Espírito Santo, Paz, Luz, rejuvenescimento, imortalidade.
+    Temas principais: cura, saúde, silêncio, Espírito Santo, Paz, Luz, rejuvenescimento, imortalidade, ressureição.
     `)
   }).appendTo(grid)
   $('<button/>').html('segunda').click(() => {

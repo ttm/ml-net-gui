@@ -2092,7 +2092,7 @@ e.monk = () => {
   $('<button/>').html('temas').click(() => {
     div.html('')
     div2.html(`
-    Temas principais: cura, saúde, silêncio, Espírito Santo, Paz, Luz.
+    Temas principais: cura, saúde, silêncio, Espírito Santo, Paz, Luz, rejuvenescimento, imortalidade.
     `)
   }).appendTo(grid)
   $('<button/>').html('segunda').click(() => {
@@ -2344,11 +2344,27 @@ Thu Dec 31 11:17:02 -03 2020
   $('#loading').hide()
 }
 
-e['t012-Marcos'] = () => {
+e['t013-Renato-Huss'] = () => {
   utils.stdDiv().html(`
-  <h2>Marcos, após aprox. 3 semanas</h2>
-Estou vivendo uma experiência nova fazendo meditações através e um artefato visual e sons relaxante, está me fazendo muito bem, tenho controlado mais minhas ansiedades e respiração mantendo meu corpo saudável, tenho feito todos os dias, a diferença que eu senti foi significante para minha saúde, e poder a cada dia me sentir melhor para prosseguir com as tarefas cotidianas, a cada dia que passa me sinto capaz de realizar conquistas em minha vida graças a meditação
-<b>Marcos Pino Arroyo, 12/Abril/2021</b>
+  <h2>Renato, após primeira ou primeiras semanas</h2>
+  Tenho sentido uma melhora no meu estado psicólogo, no sentido da atenção, do foco e principalmente no aspecto emocional.
+  Simplesmente minha ansiedade desapareceu.
+  Não tive mais vontade de beber.
+
+  Ainda não sei do que se trata, mas tenho gostado de verdade.
+
+  Sinto que estou as conectado, como se conduzido por uma energia positiva.
+  <b>Renato S'Huss, 15/abril/2021</b>
+  `.replace(/\n/g, '<br>')
+  )
+  $('#loading').hide()
+}
+
+e['t012-marcos'] = () => {
+  utils.stdDiv().html(`
+  <h2>marcos, após aprox. 3 semanas</h2>
+estou vivendo uma experiência nova fazendo meditações através e um artefato visual e sons relaxante, está me fazendo muito bem, tenho controlado mais minhas ansiedades e respiração mantendo meu corpo saudável, tenho feito todos os dias, a diferença que eu senti foi significante para minha saúde, e poder a cada dia me sentir melhor para prosseguir com as tarefas cotidianas, a cada dia que passa me sinto capaz de realizar conquistas em minha vida graças a meditação
+<b>marcos pino arroyo, 12/abril/2021</b>
   `.replace(/\n/g, '<br>')
   )
   $('#loading').hide()
@@ -2796,15 +2812,12 @@ e.liturgy101 = () => {
   $('#loading').hide()
 }
 
-e.aa = () => {
+e.aa = ufrj => {
   $('#favicon').attr('href', 'assets/aafav2.png')
-  // for enabling AA
-  // fields: nick/id/name
-  // shout
-  // (slot dur, n slots) to start a session
   const adiv = utils.stdDiv().html(`
+  ${ufrj ? '<img alt="" border="0" src="assets/UFRJ-logo.png" width="7%" style="float:right" />' : ''}
   <h2>AA is Algorithmic Autoregulation</h2>
-  Check the <a href="?aalogs3" target="_blank">logs</a>.
+  Check the <a href="?${ufrj ? 'ufrj-logs2' : 'aalogs3'}" target="_blank">logs</a>.
   `)
   let grid = utils.mkGrid(2, adiv, '60%', utils.chooseUnique(['#eeeeff', '#eeffee', '#ffeeee']))
   $('<span/>').html('user id:').appendTo(grid)
@@ -2812,7 +2825,7 @@ e.aa = () => {
     placeholder: 'id for user'
   }).appendTo(grid)
     .attr('title', 'The ID for the user (name, nick, etc).')
-    .val(u('user'))
+    .val(u('user') || u('u'))
 
   $('<span/>').html('shout message:').appendTo(grid)
   const shout = $('<input/>', {
@@ -2825,17 +2838,19 @@ e.aa = () => {
       }
     })
 
+  const shoutStr = ufrj ? 'shoutFran' : 'shout'
   const submitShout = $('<button/>')
     .html('Submit shout')
     .appendTo(grid)
     .attr('title', 'Register the shout message given.')
     .click(() => {
       // get current date and time, user, session ID and submit
-      const data = { uid: uid.val(), shout: shout.val(), sessionId: sessionData ? sessionData.sessionId : undefined }
+      const data = { uid: uid.val(), sessionId: sessionData ? sessionData.sessionId : undefined }
+      data[shoutStr] = shout.val()
       console.log(data)
       if (!data.uid) {
         window.alert('please insert a user identification string.')
-      } else if (!data.shout) {
+      } else if (!data[shoutStr]) {
         window.alert('please insert shout message.')
       } else {
         data.date = new Date()
@@ -2866,7 +2881,7 @@ e.aa = () => {
     placeholder: '15'
   }).appendTo(grid)
     .attr('title', 'In minutes.')
-    .val(15)
+    .val(u('d') || 15)
 
   $('<span/>').html('number of slots:').appendTo(grid)
   const nslots = $('<input/>', {
@@ -2963,20 +2978,25 @@ e.aa = () => {
     slotsFin.html(slotsFinished)
   }
 
-  const sy = new t.MembraneSynth().toDestination()
   const dat = require('dat.gui')
-  // const gui = new dat.GUI({ closed: true, closeOnTop: true })
   const gui = new dat.GUI()
-  const param = gui.add({ freq: 500 }, 'freq', 50, 1000).listen()
-  const vol = gui.add({ vol: 0 }, 'vol', -100, 30).listen()
-  window.sy = sy
+  let vv = 120
+  gui.add({ freq: vv }, 'freq', 50, 1000).onFinishChange(v => {
+    vv = v
+    vv = v
+    mkSound()
+  }).listen()
+
+  const sy = new t.MembraneSynth().toDestination()
+  sy.volume.value = -25
+  gui.add({ vol: sy.volume.value }, 'vol', -100, 30).onFinishChange(v => {
+    sy.volume.value = v
+    mkSound()
+  }).listen()
+
   const st = 2 ** (1 / 12)
   const tt = 0.1
   const ttt = tt / 2
-  vol.onFinishChange(v => {
-    sy.volume.value = v
-    mkSound()
-  })
   function mkSound () {
     const now = t.now()
     sy.triggerAttackRelease(vv, ttt, now)
@@ -2987,53 +3007,7 @@ e.aa = () => {
     sy.triggerAttackRelease(vv * (st ** 8), ttt, now + 4 * tt)
     sy.triggerAttackRelease(vv * (st ** 11), ttt, now + 5 * tt)
   }
-  let vv = 500
-  param.onFinishChange(v => {
-    // t.start(0)
-    // t.Master.mute = false
-    vv = v
-    vv = v
-    mkSound()
-  })
-  $('#loading').hide()
   utils.confirmExit()
-}
-
-e.aalogs2 = () => {
-  $('<link/>', {
-    rel: 'stylesheet',
-    href: 'https://cdnjs.cloudflare.com/ajax/libs/paginationjs/2.1.5/pagination.css'
-  }).appendTo('head')
-  const adiv = utils.centerDiv('90%', undefined, utils.chooseUnique(['#eeeeff', '#eeffee', '#ffeeee'], 1)[0], 3, 2).html(`
-  <h2>AA is Algorithmic Autoregulation</h2>
-  `)
-  $('<div/>', { id: 'apid' }).appendTo(adiv)
-  $('<div/>', { id: 'data-container' }).appendTo(adiv)
-
-  function simpleTemplating (data) {
-    let html = '<ul>'
-    $.each(data, function (index, item) {
-      html += '<li>' + item + '</li>'
-    })
-    html += '</ul>'
-    return html
-  }
-  const data = []
-  for (let i = 0; i < 1000; i++) {
-    data.push(`${i} YEAH MAN`)
-  }
-  $(document).ready(() => {
-    $('#apid').pagination({
-      dataSource: data,
-      pageSize: 20,
-      autoHidePrevious: true,
-      autoHideNext: true,
-      callback: function (data, pagination) {
-        const html = simpleTemplating(data)
-        $('#data-container').html(html)
-      }
-    })
-  })
   $('#loading').hide()
 }
 
@@ -3452,328 +3426,10 @@ e.transportTest = () => {
   window.wand.tone = t
 }
 
-e.ufrj = () => {
-  $('#favicon').attr('href', 'assets/aafav2.png')
-  // for enabling AA
-  // fields: nick/id/name
-  // shout
-  // (slot dur, n slots) to start a session
-  const adiv = utils.stdDiv().html(`
-  <img alt="" border="0" src="assets/UFRJ-logo.png" width="7%" style="float:right" />
-  <h2>AA is Algorithmic Autoregulation</h2>
-
-  Check the <a href="?ufrj-logs2" target="_blank">logs</a>.
-  `)
-  let grid = utils.mkGrid(2, adiv, '60%', utils.chooseUnique(['#eeeeff', '#eeffee', '#ffeeee']))
-  $('<span/>').html('user id:').appendTo(grid)
-  const uid = $('<input/>', {
-    placeholder: 'id for user'
-  }).appendTo(grid)
-    .attr('title', 'The ID for the user (name, nick, etc).')
-    .val(u('user') || u('u'))
-
-  $('<span/>').html('shout message:').appendTo(grid)
-  const shout = $('<input/>', {
-    placeholder: utils.chooseUnique(['learning AA', 'developing X', 'doing Y', 'talking to Z', 'writing W', 'some description'], 1)[0]
-  }).appendTo(grid)
-    .attr('title', 'The shout description (what have you done or are you doing).')
-    .on('keyup', e => {
-      if (e.key === 'Enter' || e.keyCode === 13) {
-        submitShout.click()
-      }
-    })
-
-  const submitShout = $('<button/>')
-    .html('Submit shout')
-    .appendTo(grid)
-    .attr('title', 'Register the shout message given.')
-    .click(() => {
-      // get current date and time, user, session ID and submit
-      const data = { uid: uid.val(), shoutFran: shout.val(), sessionId: sessionData ? sessionData.sessionId : undefined }
-      console.log(data)
-      if (!data.uid) {
-        window.alert('please insert a user identification string.')
-      } else if (!data.shoutFran) {
-        window.alert('please insert shout message.')
-      } else {
-        data.date = new Date()
-        transfer.writeAny(data, true).then(resp => {
-          if (shoutsExpected !== undefined && shoutsExpected > 0) {
-            shoutsExp.html(--shoutsExpected)
-          }
-          shout.val('')
-          if (sessionData && (slotsFinished === sessionData.nslots)) {
-            if (shoutsExpected <= 0) { // finish session routine:
-              ssBtn.attr('disabled', false)
-              sdur.attr('disabled', false)
-              nslots.attr('disabled', false)
-              grid.hide()
-              sessionData = undefined
-              shoutsExpected = undefined
-            }
-          }
-          console.log(resp)
-          window.rrr = resp
-        })
-      }
-    })
-
-  grid = utils.mkGrid(2, adiv, '60%', utils.chooseUnique(['#eeeeff', '#eeffee', '#ffeeee']))
-  $('<span/>').html('slot duration:').appendTo(grid)
-  const sdur = $('<input/>', {
-    placeholder: '15'
-  }).appendTo(grid)
-    .attr('title', 'In minutes.')
-    .val(u('d') || 15)
-
-  $('<span/>').html('number of slots:').appendTo(grid)
-  const nslots = $('<input/>', {
-    placeholder: '8'
-  }).appendTo(grid)
-    .attr('title', 'Slots to be dedicated and reported on.')
-    .val(u('n') || 8)
-
-  const f = e => e.val() === '' ? '' : parseFloat(e.val())
-  let sessionData
-  const ssBtn = $('<button/>')
-    .html('Start session')
-    .appendTo(grid)
-    .attr('title', 'Start an AA session (sequence of slots with shouts).')
-    .click(() => {
-      // get current date and time, user, create session ID and submit
-      console.log(sdur, nslots)
-      window.sss = [sdur, nslots]
-      const data = { uid: uid.val(), sdur: f(sdur), nslots: f(nslots) }
-      if (!data.uid) {
-        window.alert('please insert a user identification string.')
-      } else if (isNaN(data.sdur)) {
-        // window.alert('type a numeric slot duration (minutes).')
-        data.sdur = 15
-      } else if (!Number.isInteger(data.nslots)) {
-        // window.alert('type an integer number of slots.')
-        data.nslots = 8
-      } else {
-        data.date = new Date()
-        transfer.writeAny(data, true).then(resp => {
-          data.sessionId = resp.insertedId.toString()
-          sessionData = data
-          startSession()
-        })
-      }
-    })
-
-  let tLeft
-  let slotsFinished
-  let shoutsExpected
-  grid = utils.mkGrid(2, adiv, '60%', utils.chooseUnique(['#eeeeff', '#eeffee', '#ffeeee'])).hide()
-
-  $('<span/>').html('session started at:').appendTo(grid)
-  const sStarted = $('<span/>').appendTo(grid)
-  $('<span/>').html('slots finished:').appendTo(grid)
-  const slotsFin = $('<span/>').appendTo(grid)
-  $('<span/>').html('shouts expected:').appendTo(grid)
-  const shoutsExp = $('<span/>').appendTo(grid)
-  $('<span/>').html('time left in current slot:').appendTo(grid)
-  const tLeft2 = $('<span/>', { class: 'notranslate' }).appendTo(grid)
-
-  function startSession () {
-    ssBtn.attr('disabled', true)
-    sdur.attr('disabled', true)
-    nslots.attr('disabled', true)
-
-    sStarted.html(sessionData.date.toLocaleString())
-    shoutsExpected = 1
-    shoutsExp.html(1)
-    grid.show()
-
-    window.ddd = { slotsFin, shoutsExp, tLeft, tLeft2 }
-
-    slotsFinished = 0
-    slotsFin.html(0)
-    setCountdown(sessionData.sdur, sFun)
-  }
-  function setCountdown (dur, fun) {
-    const duration = dur * 60
-    const targetTime = (new Date()).getTime() / 1000 + duration
-    setTimeout(() => {
-      fun()
-      clearInterval(timer)
-    }, duration * 1000)
-    const reduce = dur => [Math.floor(dur / 60), Math.floor(dur % 60)]
-    const p = num => num < 10 ? '0' + num : num
-    const timer = setInterval(() => {
-      const moment = targetTime - (new Date()).getTime() / 1000
-      let [minutes, seconds] = reduce(moment)
-      let hours = ''
-      if (minutes > 59) {
-        [hours, minutes] = reduce(minutes)
-        hours += ':'
-      }
-      tLeft2.text(`${hours}${p(minutes)}:${p(seconds)}`)
-    }, 100)
-  }
-  function sFun () {
-    mkSound()
-    shoutsExp.html(++shoutsExpected)
-    if (++slotsFinished !== sessionData.nslots) { // spork new slot:
-      setCountdown(sessionData.sdur, sFun)
-    }
-    slotsFin.html(slotsFinished)
-  }
-
-  const sy = new t.MembraneSynth().toDestination()
-  const dat = require('dat.gui')
-  // const gui = new dat.GUI({ closed: true, closeOnTop: true })
-  const gui = new dat.GUI()
-  const param = gui.add({ freq: 500 }, 'freq', 50, 1000).listen()
-  const vol = gui.add({ vol: 0 }, 'vol', -100, 30).listen()
-  window.sy = sy
-  const st = 2 ** (1 / 12)
-  const tt = 0.1
-  const ttt = tt / 2
-  vol.onFinishChange(v => {
-    sy.volume.value = v
-    mkSound()
-  })
-  function mkSound () {
-    const now = t.now()
-    sy.triggerAttackRelease(vv, ttt, now)
-    sy.triggerAttackRelease(vv * (st ** 3), ttt, now + tt)
-    sy.triggerAttackRelease(vv * (st ** 7), ttt, now + 2 * tt)
-
-    sy.triggerAttackRelease(vv * (st ** 4), ttt, now + 3 * tt)
-    sy.triggerAttackRelease(vv * (st ** 8), ttt, now + 4 * tt)
-    sy.triggerAttackRelease(vv * (st ** 11), ttt, now + 5 * tt)
-  }
-  let vv = 500
-  param.onFinishChange(v => {
-    // t.start(0)
-    // t.Master.mute = false
-    vv = v
-    vv = v
-    mkSound()
-  })
-  $('#loading').hide()
-  utils.confirmExit()
-}
+e.ufrj = () => e.aa(true)
 
 e['ufrj-logs2'] = () => {
   e.aalogs3(true)
-}
-
-e['ufrj-logs'] = () => {
-  const user = u('user')
-  const session = u('session')
-  // const adiv = utils.stdDiv().html(`
-  const adiv = utils.centerDiv('90%', undefined, utils.chooseUnique(['#eeeeff', '#eeffee', '#ffeeee'], 1)[0], 3, 2).html(`
-  <h2>AA is Algorithmic Autoregulation</h2>
-  This is the logs page ${user ? 'for user <b>' + user + '</b>' : ''}${session ? 'for session <b>' + session.slice(-10) + '</b><span id="sessionDur"></span>' : ''}. Check the <a href="?ufrj" target="_blank">AA interface</a>.
-  `)
-  // const grid = utils.mkGrid(4, adiv, '60%', utils.chooseUnique(['#eeeeff', '#eeffee', '#ffeeee']))
-  $('<button/>', { id: 'rbutton' }).html('update').appendTo(adiv)
-  const grid = utils.mkGrid(4, adiv, '100%', utils.chooseUnique(['#eeeeff', '#eeffee', '#ffeeee']))
-  $('<span/>', { css: { 'margin-left': '10%' } }).html('<b>user</b>').appendTo(grid)
-  $('<span/>', { css: { 'margin-left': '10%' } }).html('<b>shout</b>').appendTo(grid)
-  const tz = (new Date()).getTimezoneOffset()
-  const tz_ = (tz > 0 ? '-' : '+') + Math.floor(tz / 60)
-  $('<span/>', { css: { 'margin-left': '10%' } }).html(`<b>when (GMT${tz_})</b>`).appendTo(grid)
-  $('<span/>', { css: { 'margin-left': '10%' } }).html('<b>session</b>').appendTo(grid)
-  utils.gridDivider(160, 160, 160, grid, 1)
-  utils.gridDivider(160, 160, 160, grid, 1)
-  utils.gridDivider(160, 160, 160, grid, 1)
-  const lastSep = utils.gridDivider(160, 160, 160, grid, 1)
-  const query = { shoutFran: { $exists: true } }
-  if (user) {
-    query.uid = user
-  }
-  if (session) {
-    query.sessionId = session
-  }
-  const ids = []
-  const tzoffset = (new Date()).getTimezoneOffset() * 60000 // offset in milliseconds
-  function addShout (r, updated) {
-    const func = 'appendTo'
-    r.sort((a, b) => b.date - a.date)
-    r.forEach(s => {
-      ids.push(s._id)
-      const user = $('<span/>', { css: { 'margin-left': '10%' }, title: `see shouts by user ${s.uid}` }).html(`<a href="?ufrj-logs&user=${s.uid}", target="_blank">${s.uid}</a>`)[func](grid)
-      const shout = $('<span/>', { css: { 'margin-left': '10%' }, title: s.shoutFran }).html(linkify(s.shoutFran))[func](grid)
-      // const adate = (new Date(s.date)).toISOString() // changed by request of Francisco to:
-      const adate = (new Date(s.date - tzoffset)).toISOString()
-        .replace(/T/, ' ')
-        .replace(/:\d\d\..+/, '')
-      const date = $('<span/>', { css: { 'margin-left': '10%' }, title: adate }).html(adate)[func](grid)
-      const session = $('<span/>', { css: { 'margin-left': '10%' }, title: `see shouts in session ${s.sessionId}` }).html(s.sessionId ? `<a href="?ufrj-logs&session=${s.sessionId}" target="_blank">${s.sessionId.slice(-10)}</a>` : '')[func](grid)
-      if (u('admin')) {
-        shout.click(() => {
-          console.log(s)
-          transfer.remove({ _id: s._id }, true)
-          user.hide()
-          shout.hide()
-          date.hide()
-          session.hide()
-        })
-      }
-      utils.gridDivider(190, 190, 190, grid, 1)
-      utils.gridDivider(190, 190, 190, grid, 1)
-    })
-  }
-  function insertShout (r) {
-    r.sort((a, b) => a.date - b.date)
-    r.forEach(s => {
-      ids.push(s._id)
-      const adate = (new Date(s.date)).toISOString()
-        .replace(/T/, ' ')
-        .replace(/:\d\d\..+/, '')
-      utils.gridDivider(190, 190, 190, grid, 1, lastSep)
-      utils.gridDivider(190, 190, 190, grid, 1, lastSep)
-      const session = $('<span/>', { css: { 'margin-left': '10%' }, title: `see shouts in session ${s.sessionId}` }).html(s.sessionId ? `<a href="?ufrj-logs&session=${s.sessionId}" target="_blank">${s.sessionId.slice(-10)}</a>` : '').insertAfter(lastSep)
-      const date = $('<span/>', { css: { 'margin-left': '10%' }, title: adate }).html(adate).insertAfter(lastSep)
-      const shout = $('<span/>', { css: { 'margin-left': '10%' }, title: s.shoutFran }).html(linkify(s.shoutFran)).insertAfter(lastSep)
-      const user = $('<span/>', { css: { 'margin-left': '10%' }, title: `see shouts by user ${s.uid}` }).html(`<a href="?ufrj-logs&user=${s.uid}", target="_blank">${s.uid}</a>`).insertAfter(lastSep)
-      if (u('admin')) {
-        shout.click(() => {
-          console.log(s)
-          transfer.remove({ _id: s._id }, true)
-          user.hide()
-          shout.hide()
-          date.hide()
-          session.hide()
-        })
-      }
-    })
-  }
-  function updateDuration () {
-    const r = window.rrr
-    const dur = (r[0].date - r[r.length - 1].date) / (60 * 60 * 1000)
-    const h = Math.floor(dur)
-    const min = dur - h
-    const min_ = Math.round(min * 60)
-    // const dstr = `${h}:${min_}`
-    const dstr = `${h}h${min_}m`
-    $('#sessionDur').html(` (total duration: <b>${dstr}</b>)`)
-  }
-  transfer.findAll(query, true).then(r => {
-    console.log(r)
-    window.rrr = r
-    window.ids = ids
-    addShout(r)
-    if (session) {
-      updateDuration()
-    }
-    $('#rbutton').click(() => {
-      console.log('click')
-      query._id = { $nin: ids }
-      transfer.findAll(query, true).then(r_ => {
-        window.R_ = r_
-        insertShout(r_)
-        r_.push(...window.rrr)
-        window.rrr = r_
-        updateDuration()
-      })
-    })
-  })
-  $('#loading').hide()
 }
 
 e.trefoil = () => {
@@ -4496,20 +4152,20 @@ e.jantunes = () => {
 e.wiki = () => {
   const itens = [
     `sugira compositores, obras, técnicas, eventos, grupos, etc.
-    para serem representados na wikipédia.
+    para serem representados na Wikipédia.
     `,
     `
     Escreva novos artigos na Wikipédia ou melhore os existentes.
     Mesmo que não seja sobre compositores ou sobre música, estas contribuições serão consideradas.
     `,
     `
-    Ajude na tradução de artidos para outras línguas além do português em inglês.
+    Ajude na tradução dos artigos para outras línguas além de português e inglês.
     `,
     `
-    Repasse este link para potenciais parceiros e entidades potencialmente interessadas na iniciativa.
+    Repasse este link para pessoas e entidades potencialmente interessadas na iniciativa.
     `,
     `
-    Entre em contato para quaisquer outros assuntos, inclusive se precisar de outra forma, que <b>não a chave pix</b>, para fazer uma transferência financeira.
+    Entre em contato para quaisquer outros assuntos, inclusive se precisar de outra forma, que <b>não a chave Pix</b>, para fazer uma transferência financeira.
     `
   ].reduce((a, i) => a + `<li>${i}</li>`, '')
   const comp = [
@@ -4519,48 +4175,46 @@ e.wiki = () => {
     'Ricardo Tacuchian'
   ].reduce((a, i) => a + `<li>${i}</li>`, '')
   const cont = [
-    `O Brasil tem uma produção musical mais que reconhecida.
-    Na música erudita, inclusive, temos excelêntes <b>compositores</b>,
+    `O Brasil é agraciado com diversos <b>compositores</b>,
     expressivos tanto para a apreciação quanto pela importância na história da música.
     `,
     `A <b>Wikipédia</b>
-    é talvez a principal referência sobre o que é o quão importante é um assunto, em especial
-    os artigos em inglês.
+    talvez seja a principal referência sobre um determinado assunto e sua importância, em especial os artigos em inglês.
     Muitos compositores brasileiros estão na Wikipédia.
-    Muitos não estão, e dentre os que estão, todos os que visitei mereciam artigos mais completos e melhor escritos.
-    Além disso, muitos possuem páginas apenas em português ou apenas em inglês, ou em uma das línguas o artigo é apenas um pequeno rascunho.
+    Muitos não estão, e dentre os que estão, todos os que visitei merecem artigos mais completos e melhor escritos.
+    Além disso, muitos possuem páginas apenas em português ou apenas em inglês, ou receberam apenas pequenos rascunhos.
     `,
     `
-    Assim, criei esta página para registrar este andamento.
-    Quero fazer esta contribuição há anos, e fiz de forma muito modesta.
-    Em especial, as instabilidades da vida e a dedicação aos trabalhos impossibilitaram até agora que eu criasse novos artigos e melhorasse os existentes.
+    As instabilidades da vida e a dedicação aos trabalhos impossibilitaram, nos anos anteriores, que eu criasse mais novos artigos e melhorasse mais os existentes.
+    De fato, contribuir para a Wikipédia é gratificante, mas nem sempre fácil. É necessário escrever com esmero e referenciar fontes estrategicamente.
+    Além disso, é comum os supervisores não confiarem em autores que não fizeram já várias contribuições, principalmente quando o artigo trata de alguém, algum grupo ou instituição, pois várias vezes a edição não é idônea.
     `,
     `
-    De fato, contribuir para a wikipédia é gratificante, mas nem sempre fácil. É necessário escrever com esmero e referenciar fontes estratégicamente.
-    Além disso, é comum os supervisores não confiarem em autores que não fizeram já várias contribuições, principalmente quando o artigo trata de alguém, algum grupo ou instituição, pois várias vezes a edição é não idônea.
+    Assim, criei esta página para registrar este andamento, conseguir incentivos, colaboradores, e firmar o passo.
     `
   ].reduce((a, i) => a + `<p>${i}</p>`, '')
   const pars = [
     `
-    Caso você queira incentivar financeiramente esta dedicação, transfira uma quantia pela chave pix <b>compowiki</b>. Há também outras formas de contribuir:
+    Caso você queira incentivar financeiramente esta dedicação, transfira uma quantia pela chave Pix <b>compowiki</b>. Há outras formas de contribuir:
     <ul>${itens}</ul>
     `,
     `Você pode entrar em contato pelo email <b>renato [Ponto] fabbri (arroba) gmail PONTO com</b>
-    `,
-    `
-    Alguns dos compositores já em consideração:
-    <ul>${comp}</ul>
-    `,
-    `
-    Se você é um compositor e quer que seu artigo seja melhorado ou mesmo criado, sugiro enviar esta página para dois ou mais compositores.
-    Embora a contribuição financeira é bem vinda, é mais importante acionar os outros compositores até para mantermos este trabalho ético.
     `
   ].reduce((a, i) => a + `<p>${i}</p>`, '')
   utils.stdDiv().html(`
   <h1>Compositores brasileiros na Wikipédia</h1>
+  <h2>Andamento</h2>
+    <p>
+    Alguns dos compositores já em consideração:
+    <ul>${comp}</ul>
+    </p>
+    <p>
+    Se você é um compositor e quer que seus artigos (em português e inglês) sejam melhorados ou mesmo criados, sugiro enviar esta página para dois ou mais compositores.
+    A contribuição financeira é bem-vinda e é também importante acionar os outros compositores até para mantermos este trabalho ético.
+    </p>
   <h2>Contexto</h2>
   ${cont}
-  <h2>Andamento</h2>
+  <h2>Incentivo</h2>
   ${pars}
 
   :::

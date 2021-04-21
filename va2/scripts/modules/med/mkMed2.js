@@ -1,12 +1,13 @@
 const $ = require('jquery')
-const transfer = require('../transfer.js')
-const utils = require('../utils.js')
-const maestro = require('../maestro.js')
 const J = require('@eastdesire/jscolor')
+const copyToClipboard = require('copy-to-clipboard')
+
+const maestro = require('../maestro.js')
+const utils = require('../utils.js')
+const transfer = require('../transfer.js')
 const waveforms = require('./common.js').waveforms
 const permfuncs = require('./common.js').permfuncs
 const forms = require('./common.js').forms
-const copyToClipboard = require('copy-to-clipboard')
 
 const e = module.exports
 
@@ -78,7 +79,6 @@ function addType (grid, type, c, isOn) {
   if (type.includes('Martigli')) { // add signature as to reference or not
     const hasMartigli = c.martigliList.length === c.martigliList.reduce((a, i) => a + i.grid.voiceRemoved, 0)
     const isOn_ = isOn === undefined ? hasMartigli : isOn
-    // const isOn_ = isOn === undefined ? c.martigliList.length === 0 : isOn
     const str = isOn_ ? 'reference' : 'secondary'
     onOff = $('<span/>', { css: { 'margin-left': '2%' } }).html(`(${str})`)
       .click(() => {
@@ -668,7 +668,7 @@ ${lw()}.
     this.allSettings.forEach((i, ii) => {
       let text = i.header.med2
       if (i.header.creator) { // created by mkLight
-        text += ` (${i.header.creator})`
+        text += ` (${utils.users[i.header.creator]})`
       } else if (i.header.communionSchedule) {
         text = `(template) ${text}`
       }

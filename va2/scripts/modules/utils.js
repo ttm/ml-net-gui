@@ -295,3 +295,10 @@ e.mobileError = () => {
     }
   }
 }
+
+e.users = {
+  bana: 'Fabbri',
+  mariel22: 'Mariel',
+  om33: 'Otávio',
+  renus: 'S\'Huss'
+}

@@ -231,7 +231,9 @@ e.Mk = class {
   }
 
   start () {
-    transfer.findAll({ 'header.med2': { $exists: true }, 'header.communionSchedule': true }).then(r => {
+    const query = { 'header.med2': { $exists: true } }
+    if (this.light) query['header.communionSchedule'] = true
+    transfer.findAll(query).then(r => {
       r.sort((a, b) => b.header.datetime - a.header.datetime)
       this.allSettings = r
       this.addHeader()
@@ -264,7 +266,7 @@ e.Mk = class {
         if (aself.currentTarget.value === '-1') return
         this.loadSetting(aself.currentTarget.value, 0)
         s.css('background', 'darkseagreen')
-        s2.css('background', '')
+        if (this.light) s2.css('background', '')
       })
     this.s = s
     let s2
@@ -348,12 +350,14 @@ e.Mk = class {
       .attr('title', 'Enables volume control widget if checked.')
       .prop('checked', true)
 
-    $('<span/>').html('template:').appendTo(grid)
     const communionSchedule = $('<input/>', {
       type: 'checkbox'
     })
       .attr('title', 'Is this artifact a template?')
-    if (!this.light) communionSchedule.appendTo(grid)
+    if (!this.light) {
+      $('<span/>').html('template:').appendTo(grid)
+      communionSchedule.appendTo(grid)
+    }
 
     this.header = { med2, datetime, d, vcontrol, communionSchedule }
   }
@@ -645,8 +649,8 @@ ${lw()}.
   }
 
   loadSetting (index, what) {
-    console.log('Load setting', index)
-    const s = this.light ? this[['allSettings1', 'allSettings2'][what]] : this.allSettings[index]
+    const s = (this.light ? this[['allSettings1', 'allSettings2'][what]] : this.allSettings)[index]
+    console.log('Load setting', index, what, s)
 
     const h = this.header
     const h_ = s.header
@@ -794,7 +798,7 @@ ${lw()}.
       let text = i.header.med2
       if (i.header.creator) { // created by mkLight
         text += ` (${utils.users[i.header.creator]})`
-      } else if (!this.light && i.header.communionSchedule) {
+      } else if ((!this.light) && i.header.communionSchedule) {
         text = `(template) ${text}`
       }
       s.append($('<option/>', { class: 'pres' }).val(ii).html(text))

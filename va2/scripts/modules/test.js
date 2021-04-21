@@ -3406,8 +3406,13 @@ e.tper = () => {
   $('#loading').hide()
 }
 
-e.mkMed2 = () => {
+e.mkMed2Back = () => {
   const mk = new m.MkMed2()
+  window.mk = mk
+}
+
+e.mkMed2 = () => {
+  const mk = new m.Mk()
   window.mk = mk
 }
 
@@ -3991,8 +3996,13 @@ e.gstat = () => {
   this.animate()
 }
 
-e.mkLight = () => {
+e.mkLightBack = () => {
   const mk = new m.MkLight()
+  window.mk = mk
+}
+
+e.mkLight = () => {
+  const mk = new m.Mk(true)
   window.mk = mk
 }
 

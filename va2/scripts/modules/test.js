@@ -2127,6 +2127,16 @@ e.monk = () => {
     `.replace(/\n/g, '<br>')
     )
   }).appendTo(grid)
+  $('<button/>').html('relato').click(() => {
+    div.html('')
+    div2.html(`
+É um bom momento p ter um relato, mesmo q pequeno, sobre como tem sido as sessões para você:
+se tem ajudado e de que forma.
+Se vc quiser/puder escrever, pode mandar no grupo (tanto do facebook quanto do whatsapp) ou aqui no chat.
+Lógico, não se preocupe com isso, é apenas se vc quiser e é uma super boa contribuição que dá à iniciativa.
+    `.replace(/\n/g, '<br>')
+    )
+  }).appendTo(grid)
   const div = $('<div/>').appendTo(adiv)
   const div2 = $('<div/>').appendTo(adiv)
   $('#loading').hide()
@@ -2344,6 +2354,55 @@ Thu Dec 31 11:17:02 -03 2020
   $('#loading').hide()
 }
 
+e['t016-Brianna-Mauricio'] = () => {
+  utils.stdDiv().html(`
+  <h2>Brianna, após as primeiras semanas</h2>
+Antes das sessões eu estava muito ansiosa.
+Hoje em dia, eu acredito mais em mim.
+É como se eu tivesse uma força interior que eu não sabia que tinha.
+Agora não estava conseguindo dormi bem.
+Estava tendo sono partido, acordava de hora em hora, já fazendo as sessões.
+Agora está melhorando mais.
+  
+  <b>Brianna Mauricio, 22/Abril/2021</b>
+  `.replace(/\n/g, '<br>')
+  )
+  $('#loading').hide()
+}
+
+e['t015-Marcus-Vinicius'] = () => {
+  utils.stdDiv().html(`
+  <h2>Marcus, após os primeiros dias</h2>
+
+  Desde que iniciei as sessões,
+  estou conseguindo aos poucos largar o tabagismo
+  e também não estou mais tomando remédios para conseguir dormir.
+
+  Namastê
+  
+  <b>Marcus Vinicius Ferraz, 22/Abril/2021</b>
+  `.replace(/\n/g, '<br>')
+  )
+  $('#loading').hide()
+}
+
+e['t014-Janira-Karoline'] = () => {
+  utils.stdDiv().html(`
+  <h2>Janira, após as primeiras sessões</h2>
+  A sessão de ontem Espírito Santo eu senti muita felicidade.
+  1 hora depois da sessão minha família me ligou, meu sobrinho,
+  minha mãe, pai, irmã e tivemos conversas super edificante.
+  Parecia que todos estavam envoltos  pela Luz do Espírito Santo.
+
+  Parecia que a minha mente estava em busca de coisas belas.
+  Por conseguinte, eu encontrei uma melodia linda e compartilhei com meu pai.
+  
+  <b>Janira Karoline, 21/Abril/2021</b>
+  `.replace(/\n/g, '<br>')
+  )
+  $('#loading').hide()
+}
+
 e['t013-Renato-Huss'] = () => {
   utils.stdDiv().html(`
   <h2>Renato, após primeira ou primeiras semanas</h2>
@@ -2354,17 +2413,23 @@ e['t013-Renato-Huss'] = () => {
   Ainda não sei do que se trata, mas tenho gostado de verdade.
 
   Sinto que estou as conectado, como se conduzido por uma energia positiva.
+
   <b>Renato S'Huss, 15/abril/2021</b>
   `.replace(/\n/g, '<br>')
   )
   $('#loading').hide()
 }
 
-e['t012-marcos'] = () => {
+e['t012-Marcos'] = () => {
   utils.stdDiv().html(`
-  <h2>marcos, após aprox. 3 semanas</h2>
-estou vivendo uma experiência nova fazendo meditações através e um artefato visual e sons relaxante, está me fazendo muito bem, tenho controlado mais minhas ansiedades e respiração mantendo meu corpo saudável, tenho feito todos os dias, a diferença que eu senti foi significante para minha saúde, e poder a cada dia me sentir melhor para prosseguir com as tarefas cotidianas, a cada dia que passa me sinto capaz de realizar conquistas em minha vida graças a meditação
-<b>marcos pino arroyo, 12/abril/2021</b>
+  <h2>Marcos, após aprox. 3 semanas</h2>
+Estou vivendo uma experiência nova fazendo meditações através e um artefato visual e sons relaxante,
+está me fazendo muito bem, tenho controlado mais minhas ansiedades e respiração mantendo meu corpo saudável,
+tenho feito todos os dias, a diferença que eu senti foi significante para minha saúde,
+e poder a cada dia me sentir melhor para prosseguir com as tarefas cotidianas,
+a cada dia que passa me sinto capaz de realizar conquistas em minha vida graças a meditação.
+
+<b>Marcos Pino Arroyo, 12/abril/2021</b>
   `.replace(/\n/g, '<br>')
   )
   $('#loading').hide()
@@ -3411,11 +3476,6 @@ e.tper = () => {
   $('#loading').hide()
 }
 
-e.mkMed2Back = () => {
-  const mk = new m.MkMed2()
-  window.mk = mk
-}
-
 e.mkMed2 = () => {
   const mk = new m.Mk()
   window.mk = mk
@@ -3975,6 +4035,104 @@ e['004-groups-e-paginas'] = () => {
   $('#loading').hide()
 }
 
+e['005-sprint-2021-04-21'] = () => {
+  utils.stdDiv().html(`
+  <h1>Sprint 21/Abril/2021</h1>
+  
+  <pre>
+Renato
+  refatorei e consolidei o código do mkMed2 e mkLight
+  melhorei o AA (inicialização do som e cores das sessões)
+  requisitei depoimentos p Luis Henrique, Janira, Marcus Vinícius
+  Publicação de contribuição
+  Encaminhadas pessoas dos grupos para auxílio no whats, com vídeo do Otávio ou pessoalmente 
+  Vídeo inicial de criação sonora nos artefatos (13 minutos).
+
+Otávio
+  Reunião com Janira explicando os fundamentos. Possibilidade de diálogo com linha do Grabovoi.
+  Participando das sessões e postando sobre os temas e sessões.
+  Meditação com 10 min resp ritmada e caminhando x 5 min respiração livre e parado.
+  Template novo!
+
+
+Mariel
+  Aprendendo/aprimorando sobre criação sonora nos artefatos.
+  Criando artefatos do zero (som e visual e temas/eixos).
+  Ensinando o Renato S'Huss.
+  Criando as sessões todas.
+</pre>
+
+  :::
+  `
+  )
+  $('#loading').hide()
+}
+
+e['006-reiki'] = () => {
+  const en = [
+    'segue a intuição',
+    'foca no presente',
+    'foca em cada chácra, um por vez',
+    'tenta achar onde talvez tenha problema',
+    'foca nele, se não tiver retorno/eco, fica nele até ter eco',
+    'conversa (antes e depois e durante)'
+  ]
+  const perm = [
+    'os Mestres iluminados do Reiki',
+    'e Jesus Cristo e Deus Pai',
+    'e para iniciar a pessoa'
+  ]
+  const ini2 = [
+    'Cho Ku Rei',
+    'Sei He Ki',
+    '-> Corpo de Luz, dilui, quebra <-',
+    'mantras (Kodoish Kodoish Kodoish, Adonai Tsebaiosh. Refuá Christus, Refuá Elohim)'
+  ]
+  const ini = [
+    'inicia uma sessão com artefato',
+    `iniciamos uma sessão de reiki pedindo assistência e permissão para ${a(perm)}`,
+    'iniciamos falando o nome de quem está sendo iniciado e do iniciador',
+    `e falando qual iniciação está sendo feita ${a(ini2)}`,
+    'e mantalizamos durante a sessão que estamos abrindo um canal no iniciado para aquela energia específica e para comunicação espiritual específica',
+    'fechar a sessão soprando as mãos e dizendo "eu entrego em suas mãos" (direcionado aos mestres iluminados do Reiki e a Jesus e a Deus pai)'
+  ]
+  const ap2 = [
+    'os Mestres iluminados do Reiki',
+    'e Jesus Cristo e Deus Pai',
+    'e para iniciar a pessoa'
+  ]
+  const ap3 = [
+    'pode concentrar chácra por chácra',
+    'pode concentrar no ambiente da pessoa',
+    'pode usar a sonda'
+  ]
+  const ap = [
+    'Hon Sha Ze Sho Nem ao início da sessão',
+    `iniciamos uma sessão de reiki pedindo assistência e permissão para ${a(ap2)}`,
+    'iniciamos falando o nome de quem está aplicando e do paciênte',
+    `faz símbolos, concentra na energia saindo da mão ${a(ap3)}`,
+    'fechar a sessão soprando as mãos e dizendo "eu entrego em suas mãos" (direcionado aos mestres iluminados do Reiki e a Jesus e a Deus pai)'
+  ]
+  function a (l) {
+    const ll = l.reduce((a, i) => a + `<li>${i}</li>`, '')
+    return `<ul>${ll}</ul>`
+  }
+  utils.stdDiv().html(`
+  <h1>Iniciando o Reiki no MMM/AAA</h1>
+  
+<h2>Energização indígena (com as mãos, vinda do Fernando)</h2>
+${a(en)}
+
+<h2>Iniciações</h2>
+${a(ini)}
+
+<h2>Aplicações</h2>
+${a(ap)}
+  :::
+  `
+  )
+  $('#loading').hide()
+}
 e.getPhrase = () => {
   utils.getPhrase().then(r => console.log('HERE MAN', r))
 }
@@ -3999,11 +4157,6 @@ e.gstat = () => {
     }
   }
   this.animate()
-}
-
-e.mkLightBack = () => {
-  const mk = new m.MkLight()
-  window.mk = mk
 }
 
 e.mkLight = () => {

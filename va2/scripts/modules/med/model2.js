@@ -17,6 +17,9 @@ const tr = PIXI.utils.string2hex
 
 // todo:
 // linear vs rampto
+// line thickness
+// 3d drawing
+// draw as trajectory happens
 
 e.Med = class {
   constructor (med2, light = false) {

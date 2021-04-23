@@ -127,3 +127,9 @@ const sparqlCall = (url, query, callback, headers) => {
       callback(sparqlres)
     })
 }
+
+// ////////////// generic:
+
+e.fAll = (data, au) => { // au in (tokisona, mark, ttm, sync)
+  // const auth = creds[au]
+}

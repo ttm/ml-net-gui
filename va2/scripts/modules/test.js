@@ -4054,7 +4054,6 @@ Otávio
   Meditação com 10 min resp ritmada e caminhando x 5 min respiração livre e parado.
   Template novo!
 
-
 Mariel
   Aprendendo/aprimorando sobre criação sonora nos artefatos.
   Criando artefatos do zero (som e visual e temas/eixos).

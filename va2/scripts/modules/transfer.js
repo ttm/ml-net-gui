@@ -1,6 +1,7 @@
 // mongo:
 const s = require('mongodb-stitch-browser-sdk')
 const e = module.exports
+e.ss = s
 
 const creds = {}
 const regName = (name, app, url, db, coll) => {
@@ -17,7 +18,7 @@ regName('ttm', 'freene-gui-fzgxa', 'https://ttm.github.io/oa/', 'freenet-all', '
 // regName('ttm', 'freene-gui-fzgxa', 'https://ttm.github.io/oa/', 'freenet-all', 'nets') // dummy
 regName('tokisona', 'aplicationcreated-mkwpm', 'https://tokisona.github.io/oa/', 'adbcreated', 'acolectioncreated') // sync.aquarium@ and aeterni
 regName('mark', 'anyapplication-faajz', 'https://markturian.github.io/ouraquarium/', 'anydb', 'anycollection') // markarcturian@
-regName('sync', 'anyapplication-faajz', 'https://worldhealing.github.io/ouraquarium/', 'anydb', 'anycollection') // markarcturian@
+// regName('sync', 'anyapplication-faajz', 'https://worldhealing.github.io/ouraquarium/', 'anydb', 'anycollection') // markarcturian@
 
 const auth = creds.tokisona
 // const auth = creds.mark
@@ -41,9 +42,9 @@ e.findAny = (data, aa) => {
   })
 }
 
-e.findAll = (query, aa) => {
+e.findAll = (query, aa, projection, col) => {
   return client.auth.loginWithCredential(new s.AnonymousCredential()).then(user => {
-    return db.collection(aa ? 'aatest' : auth.collections.test).find(query).asArray()
+    return db.collection(aa ? 'aatest' : (col || auth.collections.test)).find(query, { projection }).asArray()
   })
 }
 
@@ -129,7 +130,41 @@ const sparqlCall = (url, query, callback, headers) => {
 }
 
 // ////////////// generic:
+class FindAll {
+  constructor () {
+    // ttm test
+    // mark
+    this.dbs = {}
+    this.clients = {}
+    for (const au in creds) {
+      if (au === 'tokisona') continue
+      console.log(au)
+      this.mkOne(au)
+    }
+    this.tokisona = (query, projection, col) => e.findAll(query, false, projection, col)
+  }
 
-e.fAll = (data, au) => { // au in (tokisona, mark, ttm, sync)
-  // const auth = creds[au]
+  mkOne (au) {
+    const auth = creds[au]
+    const client = s.Stitch.initializeAppClient(auth.app)
+    const db = client.getServiceClient(s.RemoteMongoClient.factory, auth.cluster).db(auth.db)
+    const find = (query, projection, col) => client.auth.loginWithCredential(new s.AnonymousCredential()).then(user => {
+      return db.collection(col || auth.collections.test).find(query, { projection }).asArray()
+    })
+    // this[au] = { client, db, find }
+    this[au] = find
+    this.dbs[au] = db
+    this.clients[au] = client
+  }
 }
+
+e.fAll = new FindAll()
+
+// e.fAll = (query, au) => { // au in (tokisona, mark, ttm, sync)
+//   const auth = creds[au]
+//   const client = s.Stitch.initializeAppClient(auth.app)
+//   const db = client.getServiceClient(s.RemoteMongoClient.factory, auth.cluster).db(auth.db)
+//   return client.auth.loginWithCredential(new s.AnonymousCredential()).then(user => {
+//     return db.collection(auth.collections.test).find(query).asArray()
+//   })
+// }

@@ -5,6 +5,10 @@ const PIXI = require('pixi.js')
 const { random } = require('graphology-layout')
 const forceAtlas2 = require('graphology-layout-forceatlas2')
 const netdegree = require('graphology-metrics/degree')
+const subGraph = require('graphology-utils/subgraph')
+const netmetrics = require('graphology-metrics')
+
+const { chooseUnique } = require('./utils')
 
 const e = module.exports
 
@@ -78,6 +82,24 @@ e.ParticleNet = class {
   }
 }
 
+e.buildFromMongo = (members, friendships) => {
+  // minimal network from members and friendships as returned by OA
+  const net = new Graph()
+  for (let i = 0; i < members.length; i++) {
+    const member = members[i]
+    net.addNode(member.key, { name: member.attributes.name })
+  }
+  for (let i = 0; i < friendships.length; i++) {
+    const friendship = friendships[i]
+    const p1 = friendship.source
+    const p2 = friendship.target
+    if (!net.hasEdge(p1, p2)) {
+      net.addUndirectedEdge(p1, p2)
+    }
+  }
+  return net
+}
+
 e.buildFromSparql = (members, friendships) => {
   // specialized to build network from members and friendships as returned by sparql queries in losd
   const net = new Graph()
@@ -94,6 +116,25 @@ e.buildFromSparql = (members, friendships) => {
     }
   }
   return net
+}
+
+e.plotFromMongo = (anet, app) => {
+  const net = e.buildFromMongo(anet.nodes, anet.edges)
+  netdegree.assign(net)
+  const removedNodes = []
+  net.forEachNode((n, a) => {
+    if (a.degree === 0) {
+      removedNodes.push({ n, a })
+    }
+  })
+  removedNodes.forEach(v => {
+    net.dropNode(v.n)
+  })
+  random.assign(net)
+  const saneSettings = forceAtlas2.inferSettings(net)
+  const atlas = forceAtlas2(net, { iterations: 150, settings: saneSettings })
+  scale(atlas, app)
+  return { net, saneSettings, atlas }
 }
 
 e.plotFromSparql = (members, friendships) => {
@@ -115,7 +156,8 @@ e.plotFromSparql = (members, friendships) => {
   return { net, saneSettings, atlas }
 }
 
-function scale (positions) {
+function scale (positions, app) {
+  app = app || wand.app
   const k = Object.values(positions)
   const kx = k.map(kk => kk.x)
   const ky = k.map(kk => kk.y)
@@ -124,7 +166,7 @@ function scale (positions) {
   const maxy = Math.max(...ky)
   const miny = Math.min(...ky)
 
-  const [w_, h_] = [wand.app.renderer.width, wand.app.renderer.height]
+  const [w_, h_] = [app.renderer.width, app.renderer.height]
   const w = w_ * 0.8
   const h = h_ * 0.8
   const w0 = w_ * 0.1
@@ -214,7 +256,7 @@ e.ParticleNet2 = class { // using graphology net and positions as given by force
       }
     })
     net.forEachEdge((e, a, s, t) => {
-      this.mkEdge(atlas[s], atlas[t])
+      a.pixiElement = this.mkEdge(atlas[s], atlas[t])
     })
   }
 
@@ -229,5 +271,64 @@ e.ParticleNet2 = class { // using graphology net and positions as given by force
     line.x = pos1.x
     line.y = pos1.y
     this.edgeContainer.addChild(line)
+    return line
   }
+
+  hide () {
+    this.input.net.forEachNode((k, a) => {
+      a.pixiElement.alpha = 0
+    })
+    this.input.net.forEachEdge((k, a) => {
+      a.pixiElement.alpha = 0
+    })
+  }
+}
+
+e.getComponent = (net, seed, size) => {
+  const nodes = [seed]
+  let possibleNodes = net.neighbors(seed)
+  while (nodes.length < size && possibleNodes.length > 0) {
+    const newNode = chooseUnique(possibleNodes, 1)[0]
+    nodes.push(newNode)
+    possibleNodes.push(...net.neighbors(newNode))
+    possibleNodes = possibleNodes.filter(n => !nodes.includes(n))
+  }
+  const sg = subGraph(net, nodes).copy()
+  e.assignDistances(sg, seed)
+  return sg
+}
+
+e.assignDistances = (g, seed) => {
+  // has to be connected
+  g.setNodeAttribute(seed, 'ndist', 0)
+  const nodes = [seed]
+  let border = [seed]
+  let border_
+  let distance = 1
+  while (nodes.length !== g.order) {
+    border_ = []
+    border.forEach(bn => {
+      g.forEachNeighbor(bn, (n, a) => {
+        if (!nodes.includes(n)) {
+          a.ndist = distance
+          nodes.push(n)
+          border_.push(n)
+        }
+      })
+    })
+    distance++
+    border = border_.slice()
+  }
+  g.ndist = netmetrics.extent(g, 'ndist')
+  const vals = []
+  g.forEachNode((n, a) => {
+    if (!vals.includes(a.ndist)) vals.push(a.ndist)
+    a.ndist_ = a.ndist / g.ndist[1]
+    a.ndist_ = a.ndist_ * 0.9
+  })
+  g.ndist_ = netmetrics.extent(g, 'ndist_')
+  g.vals_ = vals.sort().map(i => 0.9 * i / g.ndist[1])
+  g.forEachNode((n, a) => {
+    a.index = g.vals_.findIndex(i => i > a.ndist_)
+  })
 }

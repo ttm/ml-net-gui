@@ -11,8 +11,8 @@ const m = require('./med')
 const monk = require('./monk')
 const maestro = require('./maestro.js')
 const net = require('./net.js')
-const utils = require('./utils.js')
 const transfer = require('./transfer.js')
+const utils = require('./utils.js')
 const u = require('./router.js').urlArgument
 
 const e = module.exports
@@ -3362,6 +3362,34 @@ e.net = () => {
     window.nnn.dn = dn
     $('#loading').hide()
   })
+}
+
+e.netMongo = () => {
+  const app = new PIXI.Application({
+    width: window.innerWidth,
+    height: window.innerHeight,
+    // transparent: true
+    backgroundColor: 0x000000
+  })
+  app.stage.sortableChildren = true
+  document.body.appendChild(app.view)
+  window.wand.app = app
+  transfer.fAll.ttm({ sid: 'renato.fabbri.125' }, {}, 'test').then(r => {
+    const anet = JSON.parse(r[0].text)
+    const pfm = net.plotFromMongo(anet)
+    window.nnn = pfm
+    const dn = new net.ParticleNet2(app, pfm.net, pfm.atlas)
+    pfm.dn = dn
+    $('#loading').hide()
+  })
+  // transfer.getNetMembersLinks(u('s'), r => {
+  //   console.log(r)
+  //   const pfs = net.plotFromSparql(r.members, r.friendships)
+  //   window.nnn = pfs
+  //   const dn = new net.ParticleNet2(app, pfs.net, pfs.atlas)
+  //   window.nnn.dn = dn
+  //   $('#loading').hide()
+  // })
 }
 
 e.prayer = () => {

@@ -6,6 +6,8 @@ const dat = require('dat.gui')
 const NS = require('nosleep.js')
 
 const maestro = require('../maestro.js')
+const net = require('../net.js')
+const transfer = require('../transfer.js')
 const utils = require('../utils.js')
 const w = require('./common.js').waveforms
 const p = require('./common.js').permfuncs
@@ -206,6 +208,15 @@ e.Med = class {
       width: window.innerWidth,
       height: window.innerHeight * 0.80
     })
+
+    if (s.lemniscate === 32) {
+      transfer.fAll.ttm({ sid: 'renato.fabbri.125' }, {}, 'test').then(r => {
+        this.anet = net.plotFromMongo(JSON.parse(r[0].text), app)
+        this.anet.dn = new net.ParticleNet2(app, this.anet.net, this.anet.atlas)
+        this.anet.dn.hide()
+      })
+    }
+
     const circleTexture = app.renderer.generateTexture( // for flakes and any other circle
       new PIXI.Graphics()
         .beginFill(0xffffff)
@@ -265,6 +276,8 @@ e.Med = class {
     myCircle2.position.set(...c)
     myCircle3.position.set(...c)
     const y = h * 0.5
+    let seed
+    let component
     const ticker = app.ticker.add(() => {
       const dc = this.meter ? this.meter.getValue() : 0
       const cval = (1 - Math.abs(dc))
@@ -285,9 +298,30 @@ e.Med = class {
       bCircle.rotation += rot
 
       if (s.ellipse && sc - 0.3 < 0.0005) {
+        if (seed) {
+          component.forEachNode((n, a) => { a.pixiElement.alpha = 0 })
+          component.forEachEdge((e, a) => { a.pixiElement.alpha = 0 })
+        }
         rot = Math.random() * 0.1
         propx = Math.random() * 0.6 + 0.4
         propy = 1 / propx
+        seed = component = undefined
+      } else {
+        console.log(dc)
+        if (!seed && this.anet && this.anet.net) { // choose random seed using rot:
+          seed = this.anet.net.nodes()[Math.floor(this.anet.net.order * rot * 10)] // todo: use nodes ordered by degree
+          component = net.getComponent(this.anet.net, seed, 10) // choose 10 members connected to the seed
+          // component.forEachNode((n, a) => { a.pixiElement.alpha = 1 })
+          // component.forEachEdge((e, a) => { a.pixiElement.alpha = 1 })
+          console.log(component, 'COMPONENT', component.order, component.ndist, component.ndist_)
+        }
+        // show them in proportion to (1 + val) / 2
+        component.forEachNode((n, a) => {
+          a.pixiElement.alpha = (0.02 + (1 + dc) / 2 >= a.ndist_)
+        })
+        component.forEachEdge((e, a, n1, n2, a1, a2) => {
+          a.pixiElement.alpha = (a1.pixiElement.alpha + a2.pixiElement.alpha) / 2
+        })
       }
 
       parts.push(mkNode([myCircle2.x, myCircle2.y], 0.3, myCircle2.tint))

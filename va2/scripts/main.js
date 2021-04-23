@@ -46,14 +46,23 @@ if (uargs.values[0] === '') {
   if (k[0] === '_') { // meditation model 1:
     wand.currentMed = wand.med.model(k.slice(1))
     wand.utils.confirmExit()
-  } else if (k[0] === '~' || k[0] === '-') { // meditation model 2 (created by mkLight):
+  } else if ('~-@.'.includes(k[0])) { // meditation model 2
     wand.$('<div/>', { id: 'canvasDiv' }).appendTo('body')
-    wand.currentMed = new wand.med.Model2(k.slice(1), true)
-    wand.utils.confirmExit()
-  } else if (k[0] === '@' || k[0] === '.') { // meditation model 2:
-    wand.$('<div/>', { id: 'canvasDiv' }).appendTo('body')
-    wand.currentMed = new wand.med.Model2(k.slice(1))
-    wand.utils.confirmExit()
+    const query = { 'header.med2': k.slice(1) }
+    if ('~-'.includes(k[0])) query['header.creator'] = { $exists: true } // created by mkLight
+    wand.transfer.findAny(query).then(r => {
+      // use r.lemniscate to decide model2 or 3
+      if (r.visSetting.lemniscate > 30) wand.currentMed = new wand.med.Model3(r, Boolean(r.header.creator))
+      else wand.currentMed = new wand.med.Model2(r, Boolean(r.header.creator))
+    })
+  // } else if (k[0] === '~' || k[0] === '-') { // meditation model 2 (created by mkLight):
+  //   wand.$('<div/>', { id: 'canvasDiv' }).appendTo('body')
+  //   wand.currentMed = new wand.med.Model3(k.slice(1), true)
+  //   wand.utils.confirmExit()
+  // } else if (k[0] === '@' || k[0] === '.') { // meditation model 2:
+  //   wand.$('<div/>', { id: 'canvasDiv' }).appendTo('body')
+  //   wand.currentMed = new wand.med.Model3(k.slice(1))
+  //   wand.utils.confirmExit()
   } else if (k in wand.test) { // standard page:
     wand.test[k]() // if k[0] === '-': k is an article
   } else {

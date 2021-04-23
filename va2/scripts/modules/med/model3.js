@@ -307,7 +307,6 @@ e.Med = class {
         propy = 1 / propx
         seed = component = undefined
       } else {
-        console.log(dc)
         if (!seed && this.anet && this.anet.net) { // choose random seed using rot:
           seed = this.anet.net.nodes()[Math.floor(this.anet.net.order * rot * 10)] // todo: use nodes ordered by degree
           component = net.getComponent(this.anet.net, seed, 10) // choose 10 members connected to the seed
@@ -316,8 +315,10 @@ e.Med = class {
           console.log(component, 'COMPONENT', component.order, component.ndist, component.ndist_)
         }
         // show them in proportion to (1 + val) / 2
+        const where = (1 + dc) / 2
+        const index = g.vals_.findIndex(i => i > where)
         component.forEachNode((n, a) => {
-          a.pixiElement.alpha = (0.02 + (1 + dc) / 2 >= a.ndist_)
+          a.pixiElement.alpha = ((1 + dc) / 2 >= a.ndist__)
         })
         component.forEachEdge((e, a, n1, n2, a1, a2) => {
           a.pixiElement.alpha = (a1.pixiElement.alpha + a2.pixiElement.alpha) / 2

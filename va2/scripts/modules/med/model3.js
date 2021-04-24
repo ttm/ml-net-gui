@@ -269,6 +269,14 @@ e.Med = class {
         n.tint = (n.tint + 0xffffff * 0.1 * Math.random()) % 0xffffff
       }
     }
+    const f1_ = (n, c) => {
+      const sx = c.x - n.x
+      const sy = c.y - n.y
+      const mag = (sx ** 2 + sy ** 2) ** 0.5
+      n.x += sx / mag + (Math.random() - 0.5) * 5
+      n.y += sy / mag + (Math.random() - 0.5) * 5
+    }
+
     let lastdc = 0
 
     const a = w * 0.35 // for lemniscate
@@ -278,6 +286,7 @@ e.Med = class {
     const y = h * 0.5
     let seed
     let component
+    let seed_
     const ticker = app.ticker.add(() => {
       const dc = this.meter ? this.meter.getValue() : 0
       const cval = (1 - Math.abs(dc))
@@ -301,27 +310,40 @@ e.Med = class {
         if (seed) {
           component.forEachNode((n, a) => { a.pixiElement.alpha = 0 })
           component.forEachEdge((e, a) => { a.pixiElement.alpha = 0 })
+          seed_.tint = component.target.tint = 0xffffff
         }
         rot = Math.random() * 0.1
         propx = Math.random() * 0.6 + 0.4
         propy = 1 / propx
         seed = component = undefined
-      } else {
+      } else if (s.lemniscate === 32) {
         if (!seed && this.anet && this.anet.net) { // choose random seed using rot:
           seed = this.anet.net.nodes()[Math.floor(this.anet.net.order * rot * 10)] // todo: use nodes ordered by degree
           component = net.getComponent(this.anet.net, seed, 10) // choose 10 members connected to the seed
           // component.forEachNode((n, a) => { a.pixiElement.alpha = 1 })
           // component.forEachEdge((e, a) => { a.pixiElement.alpha = 1 })
-          console.log(component, 'COMPONENT', component.order, component.ndist, component.ndist_)
+          console.log(component, 'COMPONENT', component.order, component.ndist, component.ndist_, component.ndist__)
+          window.gg = component
+          seed_ = component.getNodeAttribute(seed, 'pixiElement')
+          seed_.tint = myCircle2.tint
+          component.target.tint = myCircle3.tint
         }
         // show them in proportion to (1 + val) / 2
-        const where = (1 + dc) / 2
-        const index = g.vals_.findIndex(i => i > where)
+        const w = (1 + dc) / 2
+        // const index = component.vals_.findIndex(i => i > where)
         component.forEachNode((n, a) => {
-          a.pixiElement.alpha = ((1 + dc) / 2 >= a.ndist__)
+          const h = a.ndist__
+          let v
+          if (w < h) v = 0
+          else if (w > h + component.h_) v = 1
+          else {
+            v = (w - h) / component.h_
+          }
+          a.pixiElement.alpha = v
+          // a.pixiElement.alpha = index > a.index ? 2 : ((1 + dc) / 2 >= a.ndist__)
         })
         component.forEachEdge((e, a, n1, n2, a1, a2) => {
-          a.pixiElement.alpha = (a1.pixiElement.alpha + a2.pixiElement.alpha) / 2
+          a.pixiElement.alpha = Math.min(a1.pixiElement.alpha, a2.pixiElement.alpha)
         })
       }
 
@@ -333,8 +355,13 @@ e.Med = class {
 
       theCircle.x += (Math.random() - 0.5)
       theCircle.y += (Math.random() - 0.5)
-      myCircle2.x += (Math.random() - 0.5)
-      myCircle2.y += (Math.random() - 0.5)
+      if (s.lemniscate === 32 && component && component.target) {
+        f1_(myCircle2, seed_)
+        f1_(myCircle3, component.target)
+      } else {
+        myCircle2.x += (Math.random() - 0.5)
+        myCircle2.y += (Math.random() - 0.5)
+      }
       myCircle3.x += (Math.random() - 0.5)
       myCircle3.y += (Math.random() - 0.5)
       for (let ii = 0; ii < parts.length; ii++) {

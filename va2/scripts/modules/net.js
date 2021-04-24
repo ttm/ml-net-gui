@@ -320,15 +320,16 @@ e.assignDistances = (g, seed) => {
     border = border_.slice()
   }
   g.ndist = netmetrics.extent(g, 'ndist')
-  const vals = []
+  g.h_ = 0.8 / --distance
   g.forEachNode((n, a) => {
-    if (!vals.includes(a.ndist)) vals.push(a.ndist)
+    if (a.ndist === distance) g.target = a.pixiElement
     a.ndist_ = a.ndist / g.ndist[1]
-    a.ndist_ = a.ndist_ * 0.9
+    a.ndist__ = a.ndist_ * (0.8 - g.h_) + 0.1
   })
   g.ndist_ = netmetrics.extent(g, 'ndist_')
-  g.vals_ = vals.sort().map(i => 0.9 * i / g.ndist[1])
-  g.forEachNode((n, a) => {
-    a.index = g.vals_.findIndex(i => i > a.ndist_)
-  })
+  g.ndist__ = netmetrics.extent(g, 'ndist__')
+  // g.vals_ = vals.sort().map(i => 0.9 * i / g.ndist[1])
+  // g.forEachNode((n, a) => {
+  //   a.index = g.vals_.findIndex(i => i > a.ndist_)
+  // })
 }

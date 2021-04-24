@@ -24,7 +24,7 @@ const tr = PIXI.utils.string2hex
 
 e.Med = class {
   constructor (r, light = false) {
-    console.log('in model 3')
+    console.log('in model 3', r)
     this.finalFade = 5
     this.initialFade = 2
     this.initialVolume = -40
@@ -40,6 +40,11 @@ e.Med = class {
       this.setStage(r.header)
       $('#loading').hide()
     }
+    this.app = new PIXI.Application({ // todo: make it resizable
+      width: window.innerWidth,
+      height: window.innerHeight * 0.80
+    })
+    $('#canvasDiv').append(this.app.view)
     const query = { 'header.med2': r.header.med2 }
     if (light) query['header.creator'] = { $exists: true }
     if (u('offline')) { // for recording
@@ -56,7 +61,19 @@ e.Med = class {
         window.alert(`Failed to retrieve the session artifact. Please reload. Such "${r.header.med2}" artifact may not exist.`)
         return
       }
-      doIt(r)
+      if (r.visSetting.lemniscate === 32) {
+        transfer.fAll.ttm({ sid: { $exists: true } }, { name: 1, sid: 1 }, 'test').then(r0 => {
+          r0.sort((a, b) => a.name > b.name ? 1 : -1)
+          transfer.fAll.ttm({ sid: r0[r.visSetting.network].sid }, {}, 'test').then(rr => {
+            this.anet = net.plotFromMongo(JSON.parse(rr[0].text), this.app)
+            this.anet.dn = new net.ParticleNet2(this.app, this.anet.net, this.anet.atlas, false)
+            this.anet.dn.hide()
+            doIt(r)
+          })
+        })
+      } else {
+        doIt(r)
+      }
     }
   }
 
@@ -204,18 +221,20 @@ e.Med = class {
       .drawCircle(0, 0, 5)
       .endFill()
 
-    const app = new PIXI.Application({ // todo: make it resizable
-      width: window.innerWidth,
-      height: window.innerHeight * 0.80
-    })
+    // const app = new PIXI.Application({ // todo: make it resizable
+    //   width: window.innerWidth,
+    //   height: window.innerHeight * 0.80
+    // })
+    const app = this.app
 
-    if (s.lemniscate === 32) {
-      transfer.fAll.ttm({ sid: 'renato.fabbri.125' }, {}, 'test').then(r => {
-        this.anet = net.plotFromMongo(JSON.parse(r[0].text), app)
-        this.anet.dn = new net.ParticleNet2(app, this.anet.net, this.anet.atlas)
-        this.anet.dn.hide()
-      })
-    }
+    // if (s.lemniscate === 32) {
+    //   transfer.fAll.ttm({ sid: 'renato.fabbri' }, {}, 'test').then(r => {
+    //     this.anet = net.plotFromMongo(JSON.parse(r[0].text), app)
+    //     this.anet.dn = new net.ParticleNet2(app, this.anet.net, this.anet.atlas)
+    //     this.anet.dn.hide()
+    //     $('#loading').hide()
+    //   })
+    // }
 
     const circleTexture = app.renderer.generateTexture( // for flakes and any other circle
       new PIXI.Graphics()
@@ -225,7 +244,6 @@ e.Med = class {
     )
 
     // document.body.appendChild(app.view)
-    $('#canvasDiv').append(app.view)
     app.stage.addChild(nodeContainer)
     const [w, h] = [app.view.width, app.view.height]
     const c = [w / 2, h / 2] // center
@@ -308,7 +326,7 @@ e.Med = class {
 
       if (s.ellipse && sc - 0.3 < 0.0005) {
         if (seed) {
-          component.forEachNode((n, a) => { a.pixiElement.alpha = 0 })
+          component.forEachNode((n, a) => { a.textElement.alpha = a.pixiElement.alpha = 0 })
           component.forEachEdge((e, a) => { a.pixiElement.alpha = 0 })
           seed_.tint = component.target.tint = 0xffffff
         }
@@ -319,32 +337,44 @@ e.Med = class {
       } else if (s.lemniscate === 32) {
         if (!seed && this.anet && this.anet.net) { // choose random seed using rot:
           seed = this.anet.net.nodes()[Math.floor(this.anet.net.order * rot * 10)] // todo: use nodes ordered by degree
-          component = net.getComponent(this.anet.net, seed, 10) // choose 10 members connected to the seed
-          // component.forEachNode((n, a) => { a.pixiElement.alpha = 1 })
-          // component.forEachEdge((e, a) => { a.pixiElement.alpha = 1 })
+          component = net.getComponent(this.anet.net, seed, s.componentSize) // choose 10 members connected to the seed
           console.log(component, 'COMPONENT', component.order, component.ndist, component.ndist_, component.ndist__)
           window.gg = component
-          seed_ = component.getNodeAttribute(seed, 'pixiElement')
-          seed_.tint = myCircle2.tint
-          component.target.tint = myCircle3.tint
+          seed_ = component.getNodeAttributes(seed)
+          component.forEachNode((n, a) => {
+            a.pixiElement.tint = a.textElement.tint = 0xffffff * Math.random()
+            // a.textElement.tint = 0xffffff * Math.random()
+          })
+          component.forEachEdge((e, a) => {
+            a.pixiElement.tint = 0xffffff * Math.random()
+          })
+          seed_.pixiElement.tint = seed_.textElement.tint = myCircle2.tint
+          component.target.pixiElement.tint = component.target.textElement.tint = myCircle3.tint
         }
         // show them in proportion to (1 + val) / 2
         const w = (1 + dc) / 2
         // const index = component.vals_.findIndex(i => i > where)
-        component.forEachNode((n, a) => {
-          const h = a.ndist__
-          let v
-          if (w < h) v = 0
-          else if (w > h + component.h_) v = 1
-          else {
-            v = (w - h) / component.h_
-          }
-          a.pixiElement.alpha = v
-          // a.pixiElement.alpha = index > a.index ? 2 : ((1 + dc) / 2 >= a.ndist__)
-        })
-        component.forEachEdge((e, a, n1, n2, a1, a2) => {
-          a.pixiElement.alpha = Math.min(a1.pixiElement.alpha, a2.pixiElement.alpha)
-        })
+        if (component) {
+          component.forEachNode((n, a) => {
+            const h = a.ndist__
+            let v
+            if (w < h) {
+              v = 0
+              a.textElement.alpha = 0
+            } else if (w > h + component.h_) {
+              v = 1
+              a.textElement.alpha = 0
+            } else {
+              v = (w - h) / component.h_
+              a.textElement.alpha = v ** 0.2
+            }
+            a.pixiElement.alpha = v
+            // a.pixiElement.alpha = index > a.index ? 2 : ((1 + dc) / 2 >= a.ndist__)
+          })
+          component.forEachEdge((e, a, n1, n2, a1, a2) => {
+            a.pixiElement.alpha = Math.min(a1.pixiElement.alpha, a2.pixiElement.alpha)
+          })
+        }
       }
 
       parts.push(mkNode([myCircle2.x, myCircle2.y], 0.3, myCircle2.tint))
@@ -356,8 +386,8 @@ e.Med = class {
       theCircle.x += (Math.random() - 0.5)
       theCircle.y += (Math.random() - 0.5)
       if (s.lemniscate === 32 && component && component.target) {
-        f1_(myCircle2, seed_)
-        f1_(myCircle3, component.target)
+        f1_(myCircle2, seed_.pixiElement)
+        f1_(myCircle3, component.target.pixiElement)
       } else {
         myCircle2.x += (Math.random() - 0.5)
         myCircle2.y += (Math.random() - 0.5)

@@ -179,7 +179,8 @@ function scale (positions, app) {
 }
 
 e.ParticleNet2 = class { // using graphology net and positions as given by forceatlas2
-  constructor (app, net, atlas) {
+  constructor (app, net, atlas, interactive = true) {
+    this.interactive = interactive
     this.mkContainers(app)
     this.mkTextures(app)
     this.plot(net, atlas, app)
@@ -193,9 +194,8 @@ e.ParticleNet2 = class { // using graphology net and positions as given by force
       rotation: true,
       alpha: true
     })
-    console.log('INTERACTIVE:', this.nodeContainer.interactiveChildren)
-    this.nodeContainer.interactiveChildren = true
-    this.nodeContainer.interactive = true
+    this.nodeContainer.interactiveChildren = this.interactive
+    this.nodeContainer.interactive = this.interactive
     this.edgeContainer = new PIXI.ParticleContainer(10000000, {
       scale: true,
       position: true,
@@ -227,7 +227,7 @@ e.ParticleNet2 = class { // using graphology net and positions as given by force
       circle.y = p.y
       circle.anchor.x = 0.5
       circle.anchor.y = 0.5
-      circle.interactive = true
+      circle.interactive = this.interactive
       this.nodeContainer.addChild(circle)
       a.pixiElement = circle
       if (a.name) { // todo: implement rendering of the names on the fly
@@ -241,7 +241,7 @@ e.ParticleNet2 = class { // using graphology net and positions as given by force
         texto.y = p.y
         texto.zIndex = 1000
         texto.alpha = 0
-        texto.interactive = true
+        texto.interactive = this.interactive
         texto.hitArea = new PIXI.Rectangle(-5, -5, 10, 10)
         app.stage.addChild(texto)
 
@@ -322,7 +322,7 @@ e.assignDistances = (g, seed) => {
   g.ndist = netmetrics.extent(g, 'ndist')
   g.h_ = 0.8 / --distance
   g.forEachNode((n, a) => {
-    if (a.ndist === distance) g.target = a.pixiElement
+    if (a.ndist === distance) g.target = a
     a.ndist_ = a.ndist / g.ndist[1]
     a.ndist__ = a.ndist_ * (0.8 - g.h_) + 0.1
   })

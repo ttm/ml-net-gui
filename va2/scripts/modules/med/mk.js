@@ -7,7 +7,6 @@ const utils = require('../utils.js')
 const transfer = require('../transfer.js')
 const waveforms = require('./common.js').waveforms
 const permfuncs = require('./common.js').permfuncs
-const forms = require('./common.js').forms
 
 const u = require('../router.js').urlArgument
 const e = module.exports
@@ -23,6 +22,63 @@ const e = module.exports
 // remove voice by destroying the voice instead of using a flag
 // better management of reference/secundary Martigli voices
 
+function forms (grid) {
+  const sel0 = $('<select/>').appendTo(grid)
+  const selt = $('<span/>', { css: { background: '#ccddcc' } }).html('network:').appendTo(grid).hide()
+  sel0.asel = $('<select/>').appendTo(grid).hide()
+  const selnt = $('<span/>', { css: { background: '#ccddcc' } }).html('component size:').appendTo(grid).hide()
+  sel0.aseln = $('<input/>', { placeholder: 10, title: 'number of nodes per component', value: 5 }).appendTo(grid).hide()
+  sel0
+    .append($('<option/>').val(0).html('sinusoid'))
+    .append($('<option/>').val(1).html('lemniscate'))
+    .append($('<option/>').val(2).html('trefoil (triquetra)'))
+    .append($('<option/>').val(3).html('figure-eight (Listing\'s) knot'))
+    .append($('<option/>').val(4).html('torus knot'))
+    .append($('<option/>').val(5).html('cinquefoil knot'))
+    .append($('<option/>').val(6).html('decorative torus knot'))
+    .append($('<option/>').val(7).html('Lissajous 3-4'))
+    .append($('<option/>').val(31).html('void'))
+    .append($('<option/>').val(32).html('net'))
+    // .append($('<option/>').val(32).html('net'))
+    .on('change', aself => {
+      const i = parseInt(aself.currentTarget.value)
+      if (i === 0) {
+        $('#lb_ccc').html('center circ color:')
+        $('#lb_lcc').html('lateral circ color:')
+      } else if (i === 1) {
+        $('#lb_ccc').html('left circ color:')
+        $('#lb_lcc').html('right circ color:')
+      } else if (i === 32) {
+        selt.show()
+        selnt.show()
+        sel0.aseln.show()
+        if (sel0.asel.initialized) {
+          sel0.asel.show()
+        } else {
+          $('#loading').show()
+          transfer.fAll.ttm({ sid: { $exists: true } }, { name: 1 }, 'test').then(r => {
+            r.sort((a, b) => a.name > b.name ? 1 : -1)
+            r.forEach((n, i) => sel0.asel.append($('<option/>').val(i).html(n.name)))
+            sel0.asel.show()
+            sel0.asel.initialized = true
+            $('#loading').hide()
+          })
+        }
+      } else {
+        $('#lb_ccc').html('circ 1 color:')
+        $('#lb_lcc').html('circ 2 color:')
+      }
+      if (i !== 32 && sel0.asel) {
+        sel0.asel.hide()
+        selt.hide()
+        selnt.hide()
+        sel0.aseln.hide()
+      }
+    })
+  sel0.selt = selt
+  sel0.selnt = selnt
+  return sel0
+}
 function addWaveforms (grid, str, id) {
   $('<span/>').html(str + ':').appendTo(grid)
   const select = $('<select/>', { id }).appendTo(grid)
@@ -372,7 +428,11 @@ e.Mk = class {
     // only the gem
     // todo: blink blackground for entrainment
     $('<span/>').html('shape:').appendTo(grid)
-    obj.lemniscate = forms().appendTo(grid)
+    obj.lemniscate = forms(grid)
+    // in case of net:
+    //   select for the available nets
+    //   number of nodes per component
+    //   colors for nodes, edges and names
 
     $('<span/>').html('rainbow flakes:').appendTo(grid)
     obj.rainbowFlakes = $('<input/>', {
@@ -498,6 +558,10 @@ e.Mk = class {
           rainbowFlakes: v.rainbowFlakes.prop('checked'),
           ellipse: v.ellipse.prop('checked'),
           bPos: v.bPos.bindex
+        }
+        if (visSetting.lemniscate === 32) {
+          visSetting.network = p(v.lemniscate.asel)
+          visSetting.componentSize = p(v.lemniscate.aseln)
         }
         const colors = ['bcc', 'bgc', 'fgc', 'ccc', 'lcc']
         colors.forEach(i => { visSetting[i] = v[i].toString() })
@@ -665,6 +729,31 @@ ${lw()}.
     const v = this.visSetting
     const v_ = s.visSetting
     v.lemniscate.val(Number(v_.lemniscate))
+    const isNet = v_.lemniscate === 32
+    const func = isNet ? 'show' : 'hide'
+    function dealNet () {
+      v.lemniscate.asel.val(isNet ? v_.network : 0)[func]()
+      v.lemniscate.aseln.val(isNet ? v_.componentSize : 5)[func]()
+      v.lemniscate.selt[func]()
+      v.lemniscate.selnt[func]()
+    }
+    if (isNet) {
+      if (!v.lemniscate.asel.initialized) {
+        $('#loading').show()
+        transfer.fAll.ttm({ sid: { $exists: true } }, { name: 1 }, 'test').then(r => {
+          r.sort((a, b) => a.name > b.name ? 1 : -1)
+          r.forEach((n, i) => v.lemniscate.asel.append($('<option/>').val(i).html(n.name)))
+          v.lemniscate.asel.show()
+          v.lemniscate.asel.initialized = true
+          dealNet()
+          $('#loading').hide()
+        })
+      } else {
+        dealNet()
+      }
+    } else {
+      dealNet()
+    }
     v.rainbowFlakes.prop('checked', v_.rainbowFlakes)
     v.ellipse.prop('checked', v_.ellipse)
     v.bPos.bindex = v_.bPos || 0

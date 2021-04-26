@@ -55,14 +55,7 @@ if (uargs.values[0] === '') {
       if (r.visSetting.lemniscate > 30) wand.currentMed = new wand.med.Model3(r, Boolean(r.header.creator))
       else wand.currentMed = new wand.med.Model2(r, Boolean(r.header.creator))
     })
-  // } else if (k[0] === '~' || k[0] === '-') { // meditation model 2 (created by mkLight):
-  //   wand.$('<div/>', { id: 'canvasDiv' }).appendTo('body')
-  //   wand.currentMed = new wand.med.Model3(k.slice(1), true)
-  //   wand.utils.confirmExit()
-  // } else if (k[0] === '@' || k[0] === '.') { // meditation model 2:
-  //   wand.$('<div/>', { id: 'canvasDiv' }).appendTo('body')
-  //   wand.currentMed = new wand.med.Model3(k.slice(1))
-  //   wand.utils.confirmExit()
+    wand.utils.confirmExit()
   } else if (k in wand.test) { // standard page:
     wand.test[k]() // if k[0] === '-': k is an article
   } else {

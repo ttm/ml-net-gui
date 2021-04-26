@@ -2354,6 +2354,17 @@ Thu Dec 31 11:17:02 -03 2020
   $('#loading').hide()
 }
 
+e['t017-Helnice'] = () => {
+  utils.stdDiv().html(`
+  <h2>Helnice, após as primeiras semanas</h2>
+ Eu consegui mesmo o dia do corpo de luz emando paz, sim foi fantástico! Realmente o exercício de respiração, nos induzindo a iluminar expandir a consciência, iluminar a Anima, logo ela iluminada reverberá em seu redor e sucessivamente o planeta!!! Genial... Ferramenta evoluída de ponta... Só agradecimentos e agora e compartilhar certo, todos poderão de alguma forma contribuir. Gratidão a vcs o grupo ao universo ao planeta e a quem iluminou a sua sabedoria para aqui na Terra fazer a materialização desse feito maior, de seu propósito que eu creio e tenho fé que é de ajudar pessoas, o máximo que puder claro!
+
+  <b>Helnice P Vitor, 24/Abril/2021</b>
+  `.replace(/\n/g, '<br>')
+  )
+  $('#loading').hide()
+}
+
 e['t016-Brianna-Mauricio'] = () => {
   utils.stdDiv().html(`
   <h2>Brianna, após as primeiras semanas</h2>

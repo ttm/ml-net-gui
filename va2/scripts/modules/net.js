@@ -43,7 +43,7 @@ e.ParticleNet = class {
 
   mkTextures (app) {
     const myLine = new PIXI.Graphics()
-      .lineStyle(1, 0xff0000)
+      .lineStyle(1, 0xffffff)
       .moveTo(0, 0)
       .lineTo(1000, 0)
     const myCircle = new PIXI.Graphics()
@@ -196,19 +196,20 @@ e.ParticleNet2 = class { // using graphology net and positions as given by force
     })
     this.nodeContainer.interactiveChildren = this.interactive
     this.nodeContainer.interactive = this.interactive
-    this.edgeContainer = new PIXI.ParticleContainer(10000000, {
-      scale: true,
-      position: true,
-      rotation: true,
-      alpha: true
-    })
+    // this.edgeContainer = new PIXI.ParticleContainer(10000, {
+    //   scale: true,
+    //   position: true,
+    //   rotation: true,
+    //   alpha: true
+    // })
+    this.edgeContainer = new PIXI.Container()
     app.stage.addChild(this.edgeContainer)
     app.stage.addChild(this.nodeContainer)
   }
 
   mkTextures (app) {
     const myLine = new PIXI.Graphics()
-      .lineStyle(1, 0xff0000)
+      .lineStyle(1, 0xffffff)
       .moveTo(0, 0)
       .lineTo(1000, 0)
     const myCircle = new PIXI.Graphics()
@@ -247,7 +248,6 @@ e.ParticleNet2 = class { // using graphology net and positions as given by force
 
         a.textElement = texto
         texto.on('pointerover', () => {
-          console.log(a.name)
           texto.alpha = 1
         })
         texto.on('pointerout', () => {
@@ -256,8 +256,28 @@ e.ParticleNet2 = class { // using graphology net and positions as given by force
       }
     })
     net.forEachEdge((e, a, s, t) => {
-      a.pixiElement = this.mkEdge(atlas[s], atlas[t])
+      a.pixiElement = this.mkEdge(atlas[s], atlas[t]) // , 1, 0, 0xff0000, app)
     })
+  }
+
+  mkLink (p1, p2, weight = 1, level = 0, tint = 0xff0000, app = undefined) {
+    const line = new PIXI.Graphics()
+    // fixme: how to map [1, 10] linewidth to resolution and screensize?
+    // this was performed in a previous implementation with this ad-hoc-found relation:
+    // line.lineStyle(1 + (9 * weight / this.max_weights[level_]) / (this.networks.length - level_) , 0xFFFFFF);
+    line.lineStyle(1, 0xffffff) // always 1 pixel width white.
+    // fixme: make/migrate colors/palletes to be used.  e.g. line.tint = this.colors[level_];
+    line.tint = tint
+    line.mtint = tint
+    line.mlevel = level
+    line.moveTo(p1.x, p1.y)
+    line.lineTo(p2.x, p2.y)
+    line.alpha = 0.2
+    line.p1 = p1
+    line.zIndex = 1
+    line.p2 = p2
+    app.stage.addChild(line)
+    return line
   }
 
   mkEdge (pos1, pos2) {
@@ -320,7 +340,7 @@ e.assignDistances = (g, seed) => {
     border = border_.slice()
   }
   g.ndist = netmetrics.extent(g, 'ndist')
-  g.h_ = 0.8 / --distance
+  g.h_ = 0.8 / distance--
   g.forEachNode((n, a) => {
     if (a.ndist === distance) g.target = a
     a.ndist_ = a.ndist / g.ndist[1]

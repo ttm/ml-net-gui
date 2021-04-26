@@ -332,7 +332,7 @@ e.net3 = () => {
   const h = app.renderer.height
 
   console.log('start!')
-  const order = 20000
+  const order = 200
   const performance = window.performance
   const now1 = performance.now()
   const nodes = mkNodes(order)
@@ -344,6 +344,7 @@ e.net3 = () => {
   window.___ = new net.ParticleNet(app, nodes, edges)
   const now4 = performance.now()
   console.log('plot finished:', now4 - now3)
+  $('#loading').hide()
 }
 
 e.particles1 = () => {

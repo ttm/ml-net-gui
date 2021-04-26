@@ -13,6 +13,7 @@ const w = require('./common.js').waveforms
 const p = require('./common.js').permfuncs
 const u = require('../router.js').urlArgument
 
+const tr = PIXI.utils.string2hex
 const e = module.exports
 
 // todo:
@@ -66,7 +67,8 @@ e.Med = class {
       const v = r.voices[i]
       this.voices.push({ ...this['add' + v.type.replace('-', '')](v), type: v.type, isOn: v.isOn })
     }
-    this.visuals = this.setVisual(r.visSetting)
+    this.visualsCommon = this.setVisualCommon(r.visSetting)
+    this.visuals = this.setVisual(r.visSetting) // this changes between model2-3
     this.setStage(r.header)
     $('#loading').hide()
   }
@@ -318,6 +320,7 @@ e.Med = class {
 
   startGoodTimer (s) {
     this.visuals.start()
+    this.visualsCommon.start()
     if (s.vcontrol) this.volumeControl()
     const d = () => this.getDurationToStart(s) / 1000
     t.start(0)
@@ -465,5 +468,145 @@ e.Med = class {
       .click()
     $('.dg .c input[type=text]').css('width', '15%')
     $('.dg .c .slider').css('width', '80%')
+  }
+
+  setVisualCommon (s) {
+    const app = this.app
+    const nodeContainer = new PIXI.ParticleContainer(10000, {
+      scale: true,
+      position: true
+    })
+    app.stage.addChild(nodeContainer)
+
+    const circleTexture = app.renderer.generateTexture( // for flakes and any other circle
+      new PIXI.Graphics()
+        .beginFill(0xffffff)
+        .drawCircle(0, 0, 5)
+        .endFill()
+    )
+
+    function mkNode (pos, scale = 1, tint = 0xffffff) {
+      const circle = new PIXI.Sprite(circleTexture)
+      circle.position.set(...(pos || [0, 0]))
+      circle.anchor.set(0.5, 0.5)
+      circle.scale.set(scale, scale)
+      circle.tint = tint
+      nodeContainer.addChild(circle)
+      return circle
+    }
+
+    const [w, h] = [app.view.width, app.view.height]
+    const c = [w / 2, h / 2] // center
+    const a = w * 0.35 // for non-sinusoid?
+    const [dx, dy] = [w * 0.8, h * 0.4] // for sinusoid, period and amplitude
+
+    const theCircle = mkNode([s.lemniscate ? c[0] : w * 0.3, h * 0.2]) // moving white circle to which the flakes go
+    const myCircle2 = mkNode(c, 1, 0xffff00) // lateral (sinus), right (lemniscate)
+    const myCircle3 = mkNode(c, 1, 0x00ff00) // center (sinus), left (lemniscate)
+    const bCircle = new PIXI.Graphics() // vertical for breathing
+      .beginFill(0xffffff)
+      .drawCircle(0, 0, 5)
+      .endFill()
+    bCircle.x = s.bPos === 0 ? c[0] : s.bPos === 1 ? (c[0] - a) / 2 : (3 * c[0] + a) / 2
+    app.stage.addChild(bCircle) // breathing cue
+
+    theCircle.tint = tr(s.fgc)
+    myCircle2.tint = tr(s.lcc)
+    myCircle3.tint = tr(s.ccc)
+    bCircle.tint = tr(s.bcc)
+    app.renderer.backgroundColor = tr(s.bgc)
+
+    this.visCom = { app, mkNode, bCircle, theCircle, myCircle2, myCircle3, w, h, c, a, dx, dy }
+
+    // ticker stuff:
+    let propx = 1
+    let propy = 1
+    let rot = Math.random() * 0.1
+    const parts = []
+    let f1 = (n, sx, sy, mag) => {
+      n.x += sx / mag + (Math.random() - 0.5) * 5
+      n.y += sy / mag + (Math.random() - 0.5) * 5
+    }
+    if (s.rainbowFlakes) {
+      f1 = (n, sx, sy, mag) => {
+        n.x += sx / mag + (Math.random() - 0.5) * 5
+        n.y += sy / mag + (Math.random() - 0.5) * 5
+        n.tint = (n.tint + 0xffffff * 0.1 * Math.random()) % 0xffffff
+      }
+    }
+    let lastdc = 0
+    this.bounceFuncs = []
+    this.notBouncingFuncs = []
+    if (s.ellipse) {
+      this.bounceFuncs.push(() => {
+        rot = Math.random() * 0.1
+        propx = Math.random() * 0.6 + 0.4
+        propy = 1 / propx
+      })
+    }
+    const y = h / 2
+    const ticker = app.ticker.add(() => {
+      const dc = this.meter ? this.meter.getValue() : 0
+      const cval = (1 - Math.abs(dc))
+      this.dc = dc
+      this.cval = cval
+
+      if (dc + 1 < 0.0005) {
+        this.bounceFuncs.forEach(f => f())
+      } else {
+        this.notBouncingFuncs.forEach(f => f())
+      }
+
+      if (dc - lastdc > 0) { // inhale
+        this.guiEls.inhale.css('background', `rgba(255,255,0,${cval})`) // mais proximo de 0, mais colorido
+        this.guiEls.exhale.css('background', 'rgba(0,0,0,0)')
+      } else { // exhale
+        this.guiEls.exhale.css('background', `rgba(255,255,0,${cval})`) // mais proximo de 0, mais colorido
+        this.guiEls.inhale.css('background', 'rgba(0,0,0,0)')
+      }
+      lastdc = dc
+      const val = -dc
+      // if (this.lemniscate) { // todo: conditional really necessary?
+      //   bCircle.y = val * a * 0.5 + y
+      // } else {
+      //   bCircle.y = val * dy + y
+      // }
+      bCircle.y = val * dy + y // todo: test
+      const sc = 0.3 + (-val + 1) * 3
+      bCircle.scale.set(sc * propx, sc * propy)
+      bCircle.rotation += rot
+
+      parts.push(mkNode([myCircle2.x, myCircle2.y], 0.2, myCircle2.tint))
+      parts.push(mkNode([myCircle3.x, myCircle3.y], 0.2, myCircle3.tint))
+      if (Math.random() > 0.98) {
+        parts.push(mkNode([bCircle.x, bCircle.y], 0.3, bCircle.tint))
+      }
+
+      theCircle.x += (Math.random() - 0.5)
+      theCircle.y += (Math.random() - 0.5)
+      for (let ii = 0; ii < parts.length; ii++) {
+        const n = parts[ii]
+        const sx = theCircle.x - n.x
+        const sy = theCircle.y - n.y
+        const mag = (sx ** 2 + sy ** 2) ** 0.5
+        if (mag < 5) {
+          parts.splice(ii, 1)
+          n.destroy()
+        } else {
+          f1(n, sx, sy, mag)
+        }
+      }
+    })
+    ticker.stop()
+    // utils.basicStats() // for probing computational cost
+
+    return {
+      start: () => {
+        ticker.start()
+      },
+      stop: () => {
+        ticker.stop()
+      }
+    }
   }
 }

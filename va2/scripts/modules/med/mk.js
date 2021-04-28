@@ -231,7 +231,7 @@ function addPanner (s, c) {
   s.grid.panFields = fields
 }
 
-function adminUsers () {
+function adminUsers () { // &create=1&u=luz&name=Ferraz
   function chUser (u_, create, remove) {
     const query = { luser: u_ }
     if (remove) {
@@ -240,6 +240,8 @@ function adminUsers () {
       })
       return
     }
+    const name = u('name')
+    if (name) query.name = name
     transfer.writeAny(query).then(resp => {
       console.log('PASS MAN WRITTEN', resp)
       window.alert(`User ::: ${u_} ::: CREATED!`)
@@ -272,20 +274,20 @@ e.Mk = class {
     this.div2 = $('<div/>', { id: 'div2', css: { display: 'inline-block', float: 'right', width: '50%' } }).appendTo('body')
     this.gd = grid => utils.gridDivider(0, 160, 0, grid)
 
-    if (light) {
+    transfer.findAll({ luser: { $exists: true } }).then(r => {
+      this.allUsers = r
       if (adminUsers()) return
       const u_ = u('u')
-      transfer.findAll({ luser: u_ }).then(r => {
-        if (r.length === 0) {
-          window.alert(`user ::: ${u_} ::: not allowed (usuário não permitido)`)
-          return
-        }
-        this.user = u_
-        this.start()
-      })
-    } else {
+      this.allUsers = r
+      const r_ = r.filter(i => i.luser === u_)[0]
+      if (!r_) {
+        window.alert(`user ::: ${u_} ::: not allowed (usuário não permitido)`)
+        return
+      }
+      this.user = u_
+      this.user_ = r_.name || utils.users[u_]
       this.start()
-    }
+    })
   }
 
   start () {
@@ -342,7 +344,7 @@ e.Mk = class {
       this.allSettings1 = [] // templates
       this.allSettings2 = [] // previous derived simple sessions
       this.allSettings.forEach(i => {
-        if (i.header.creator) { // only derived has this value
+        if (i.header.ancestral) { // only derived has this value
           this.allSettings2.push(i)
         } else {
           this.allSettings1.push(i)
@@ -545,10 +547,10 @@ e.Mk = class {
           datetime: h.datetime.selectedDates[0],
           d: p(h.d),
           vcontrol: h.vcontrol.prop('checked'),
+          creator: this.user,
           communionSchedule: this.light || h.communionSchedule.prop('checked')
         }
         if (this.light) {
-          header.creator = this.user
           header.ancestral = this.ancestral
         }
         if (!this.checkHeader(header)) return
@@ -715,8 +717,8 @@ ${lw()}.
   }
 
   loadSetting (index, what) {
-    const s = (this.light ? this[['allSettings1', 'allSettings2'][what]] : this.allSettings)[index]
-    console.log('Load setting', index, what, s)
+    // const s = (this.light ? this[['allSettings1', 'allSettings2'][what]] : this.allSettings)[index]
+    const s = this[['allSettings', 'allSettings1', 'allSettings2'][this.light + what]][index]
 
     const h = this.header
     const h_ = s.header
@@ -797,8 +799,6 @@ ${lw()}.
     if (this.light) {
       this.ancestral = what ? (h_.ancestral ? h_.ancestral : undefined) : h_.med2
       if (what) {
-        // set s select to the ancestor, if any
-        // if set to ancestor, background yellow, if not, gray
         if (this.ancestral) {
           let ii
           this.allSettings1.forEach((e, i) => {
@@ -887,8 +887,10 @@ ${lw()}.
     const s = this.light ? this.s2 : this.s
     aS.forEach((i, ii) => {
       let text = i.header.med2
-      if (i.header.creator) { // created by mkLight
-        text += ` (${utils.users[i.header.creator]})`
+      if (i.header.creator) {
+        const c = i.header.creator
+        const name = this.allUsers.filter(ii => ii.luser === c)[0].name || utils.users[c]
+        text += ` (${name})`
       } else if ((!this.light) && i.header.communionSchedule) {
         text = `(template) ${text}`
       }

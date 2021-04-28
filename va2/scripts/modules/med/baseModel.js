@@ -507,8 +507,10 @@ e.Med = class {
       .beginFill(0xffffff)
       .drawCircle(0, 0, 5)
       .endFill()
+    bCircle.zIndex = 1000
     bCircle.x = s.bPos === 0 ? c[0] : s.bPos === 1 ? (c[0] - a) / 2 : (3 * c[0] + a) / 2
     app.stage.addChild(bCircle) // breathing cue
+    // app.stage.sortableChildren = true
 
     theCircle.tint = tr(s.fgc)
     myCircle2.tint = tr(s.lcc)

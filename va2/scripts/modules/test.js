@@ -3517,7 +3517,7 @@ e.tper = () => {
 }
 
 e.mkMed2 = () => {
-  const mk = new m.Mk()
+  const mk = new m.Mk(false)
   window.mk = mk
 }
 

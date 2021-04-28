@@ -791,7 +791,7 @@ ${lw()}.
         }
       }
     })
-    this.prefix = h_.creator ? '-' : '.'
+    this.prefix = h_.ancestral ? '-' : '.'
     this.obutton.attr('disabled', false).html(`Open: ${h_.med2}`)
     this.p3button.attr('disabled', false)
     this.p5button.attr('disabled', false).html(`Preview (5s): ${h_.med2}`)

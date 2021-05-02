@@ -3015,7 +3015,9 @@ e.aa = ufrj => {
     sdur.attr('disabled', true)
     nslots.attr('disabled', true)
 
-    sStarted.html(sessionData.date.toLocaleString())
+    sStarted.html(sessionData.date.toLocaleString('en-GB', {
+      day: 'numeric', month: 'short', year: 'numeric', hour: 'numeric', minute: 'numeric', second: 'numeric'
+    }).replace(/ /, '/').replace(/ /, '/'))
     shoutsExpected = 1
     shoutsExp.html(1)
     grid.show()

@@ -9,6 +9,7 @@ const waveforms = require('./common.js').waveforms
 const permfuncs = require('./common.js').permfuncs
 
 const u = require('../router.js').urlArgument
+const p = v => typeof v === 'string' ? v : parseFloat(v.val())
 const e = module.exports
 
 // todo:
@@ -79,6 +80,7 @@ function forms (grid) {
   sel0.selnt = selnt
   return sel0
 }
+
 function addWaveforms (grid, str, id) {
   $('<span/>').html(str + ':').appendTo(grid)
   const select = $('<select/>', { id }).appendTo(grid)
@@ -96,18 +98,31 @@ function addNumField (grid, str, placeholder, title, value) {
 
 function addType (grid, type, c, isOn) {
   $('<span/>').html('type:').appendTo(grid)
-  const icon = $('<span/>').append(
-    $('<i/>', {
-      class: 'fa fa-play',
-      css: { cursor: 'pointer', 'margin-right': '1%' }
-    })
-  ).click(() => {
-    icon.css('background', '#000000')
-    setTimeout(() => {
-      icon.css('background', '')
-    }, 500)
-    // todo: make play play sounds!
-    console.log('clicked')
+  c.playing = false
+  const picon = $('<i/>', {
+    class: 'fa fa-play',
+    css: { cursor: 'pointer', 'margin-right': '1%' }
+  })
+  const sicon = $('<i/>', {
+    class: 'fa fa-stop',
+    css: { cursor: 'pointer', 'margin-right': '1%' }
+  }).hide()
+  function toggle (play = true) {
+    const [f1, f2, bg] = play ? ['show', 'hide', '#ffaaaa'] : ['hide', 'show', '']
+    $('.fa-play')[f2]()
+    $('.fa-stop')[f1]()
+    $('.ticon').css('background', bg)
+  }
+  const icon = $('<span/>', { class: 'ticon' }).append(picon).append(sicon).click(() => {
+    if (!u('adv')) return
+    if (!c.playing) {
+      toggle(true)
+      c.prev()
+    } else {
+      toggle(false)
+      c.stopAll()
+    }
+    c.playing = !c.playing
   })
   const field = $('<span/>').appendTo(grid)
     .append(icon)
@@ -243,7 +258,6 @@ function adminUsers () { // &create=1&u=luz&name=Ferraz
     const name = u('name')
     if (name) query.name = name
     transfer.writeAny(query).then(resp => {
-      console.log('PASS MAN WRITTEN', resp)
       window.alert(`User ::: ${u_} ::: CREATED!`)
     })
   }
@@ -268,7 +282,8 @@ function adminUsers () { // &create=1&u=luz&name=Ferraz
 
 e.Mk = class {
   constructor (light) {
-    this.light = light
+    $('<div/>', { id: 'canvasDiv' }).appendTo('body').hide()
+    this.light = Boolean(light)
     $('body').css('margin-top', '1%')
     this.div1 = $('<div/>', { css: { display: 'inline-block', width: '50%' } }).appendTo('body')
     this.div2 = $('<div/>', { id: 'div2', css: { display: 'inline-block', float: 'right', width: '50%' } }).appendTo('body')
@@ -291,7 +306,8 @@ e.Mk = class {
   }
 
   start () {
-    const query = { 'header.med2': { $exists: true } }
+    const query = { 'header.med2': { $exists: true }, 'header.datetime': { $gte: new Date('2021-04-29') } }
+    if (u('all')) delete query['header.datetime']
     if (this.light) query['header.communionSchedule'] = true
     transfer.findAll(query).then(r => {
       r.sort((a, b) => b.header.datetime - a.header.datetime)
@@ -351,7 +367,11 @@ e.Mk = class {
         }
       })
       this.allSettings1.forEach((i, ii) => {
-        s.append($('<option/>', { class: 'pres' }).val(ii).html(i.header.med2))
+        let text = i.header.med2
+        if (i.header.creator) {
+          text += ` (${this.getName(i.header.creator)})`
+        }
+        s.append($('<option/>', { class: 'pres' }).val(ii).html(text))
       })
     } else {
       $('<button/>').html('Delete').appendTo(grid)
@@ -369,8 +389,12 @@ e.Mk = class {
             $('.pres').remove()
             this.allSettings.forEach((i, ii) => {
               let text = i.header.med2
-              if (i.header.creator) { // created by mkLight
-                text += ` (${i.header.creator})`
+              if (i.header.communionSchedule && !i.header.ancestral) {
+                text = `(template) ${text}`
+              }
+              if (i.header.creator) {
+                console.log(i.header.med2, i.header.creator, this.getName(i.header.creator))
+                text += ` (${this.getName(i.header.creator)})`
               }
               s.append($('<option/>', { class: 'pres' }).val(ii).html(text))
             })
@@ -384,7 +408,7 @@ e.Mk = class {
       placeholder: 'id for the meditation'
     }).appendTo(grid)
       .attr('title', 'The ID for the meditation (will appear on the URL).')
-      .val(utils.chooseUnique(['love', 'light', 'happiness', 'immortality', 'God', 'appreciation', 'hope', 'faith', 'peace', 'self-control'])[0])
+      .val(utils.chooseUnique(['love', 'light', 'happiness', 'immortality', 'God', 'appreciation', 'hope', 'faith', 'peace', 'self-control', 'rejuvenation'])[0])
 
     $('<span/>').html('when:').appendTo(grid)
     const adiv = $('<input/>', {
@@ -507,80 +531,20 @@ e.Mk = class {
 
   addFinalButtons () {
     const grid = utils.mkGrid(2, this.div1, '90%', '#eeeeff')
-    const p = v => typeof v === 'string' ? v : parseFloat(v.val())
     $('<button/>')
       .attr('title', 'Create the meditation with the settings defined.')
       .html('Create')
       .click(() => {
         const removed = this.setting.reduce((a, i) => a + i.grid.voiceRemoved, 0)
         if (this.setting.length === removed && !window.confirm('Do you really want to create an artifact without any sound?')) return
-        const voices = []
-        let ok = true
-        this.setting.forEach(i => {
-          if (i.grid.voiceRemoved) return
-          const voice = {}
-          for (const ii in i) {
-            if (ii === 'grid') continue
-            console.log(i, ii)
-            console.log(i[ii])
-            const v = p(i[ii])
-            if (ii !== 'type' && isNaN(v)) {
-              window.alert(`Define the value for <b>${ii}</b> in the voice with type <b>${i.type}</b>.`)
-              return
-            }
-            voice[ii] = v
-          }
-          if (voice.type.includes('Martigli')) {
-            voice.isOn = i.grid.onOff.isOn
-          }
-          if (!this.checkVoice(voice)) {
-            ok = false
-            return
-          }
-          voices.push(voice)
-        })
-        if (!ok) return
-        const h = this.header
-        if (!this.light && h.communionSchedule.prop('checked') && !window.confirm('You are creating a Template to be used in mkLight, confirm?')) return
-        const header = {
-          med2: h.med2.val(),
-          datetime: h.datetime.selectedDates[0],
-          d: p(h.d),
-          vcontrol: h.vcontrol.prop('checked'),
-          creator: this.user,
-          communionSchedule: this.light || h.communionSchedule.prop('checked')
-        }
-        if (this.light) {
-          header.ancestral = this.ancestral
-        }
-        if (!this.checkHeader(header)) return
-        const v = this.visSetting
-        const visSetting = {
-          lemniscate: p(v.lemniscate),
-          rainbowFlakes: v.rainbowFlakes.prop('checked'),
-          ellipse: v.ellipse.prop('checked'),
-          bPos: v.bPos.bindex
-        }
-        if (visSetting.lemniscate === 32) {
-          visSetting.network = p(v.lemniscate.asel)
-          visSetting.componentSize = p(v.lemniscate.aseln)
-        }
-        const colors = ['bcc', 'bgc', 'fgc', 'ccc', 'lcc']
-        colors.forEach(i => { visSetting[i] = v[i].toString() })
-        const toSave = {
-          header,
-          visSetting,
-          voices
-        }
-        window.toSave = toSave
-        console.log(toSave)
+        const toSave = this.mkWritableSettings(true)
         transfer.writeAny(toSave).then(resp => {
           const aS = this.light ? this.allSettings2 : this.allSettings
           aS.push(toSave)
           aS.sort((a, b) => b.header.datetime - a.header.datetime)
           this.removeOptions()
           this.resetArtifactOptions(toSave)
-          this.prefix = this.light ? '-' : '.'
+          this.prefix = toSave.header.ancestral ? '-' : '.'
           this.obutton.attr('disabled', false).html(`Open: ${toSave.header.med2}`)
           this.p3button.attr('disabled', false)
           this.p5button.attr('disabled', false).html(`Preview (5s): ${toSave.header.med2}`)
@@ -702,11 +666,12 @@ ${lw()}.
       soundSample.append($('<option/>').val(ii).html(`${s.name}, ${s.duration}s`))
     })
 
-    const soundSampleVolume = addNumField(grid, 'sample volume', 'in decibels', 'relative volume of the sound sample.', -6)
+    // const soundSampleVolume = addNumField(grid, 'sample volume', 'in decibels', 'relative volume of the sound sample.', -6)
     const soundSamplePeriod = addNumField(grid, 'sample repetition period', 'in seconds', 'period between repetitions of the sound.', maestro.sounds[0].duration)
     const soundSampleStart = addNumField(grid, 'sample starting time', 'in seconds', 'time for the first incidence of the sound', 0)
 
-    return { soundSample, soundSampleVolume, soundSamplePeriod, soundSampleStart }
+    // return { soundSample, soundSampleVolume, soundSamplePeriod, soundSampleStart }
+    return { soundSample, soundSamplePeriod, soundSampleStart }
   }
 
   addMartigliBinaural (grid) {
@@ -717,7 +682,8 @@ ${lw()}.
   }
 
   loadSetting (index, what) {
-    // const s = (this.light ? this[['allSettings1', 'allSettings2'][what]] : this.allSettings)[index]
+    if (window.wand.currentMed) this.disposeAudition()
+
     const s = this[['allSettings', 'allSettings1', 'allSettings2'][this.light + what]][index]
 
     const h = this.header
@@ -772,11 +738,12 @@ ${lw()}.
     const l = s.voices
     l.forEach(i => {
       const set = this.createVoice(i.type, i.isOn)
+      set.iniVolume = i.iniVolume
       console.log('iii', i)
       for (const j in i) {
         if (typeof i[j] !== 'string' && j !== 'isOn') {
           console.log(j, i[j])
-          set[j].val(i[j])
+          if (j !== 'iniVolume') set[j].val(i[j])
         }
         if (j === 'panOsc') {
           const ii = i[j]
@@ -827,7 +794,6 @@ ${lw()}.
       if (v.soundSamplePeriod !== 0 && v.soundSamplePeriod < maestro.sounds[v.soundSample].duration) {
         // todo: test if sampler can overlap playback (if so, remove the following line:)
         window.alert('define a repetition period which is greater than the samples\' duration or 0 (for looping).')
-        console.log('yeah, here')
         return
       }
     } else if (v.type === 'Martigli-Binaural') {
@@ -855,8 +821,9 @@ ${lw()}.
       window.alert('define the meditation id.')
       return
     }
-    for (let i = 0; i < this['allSettings' + (this.light ? '2' : '')].length; i++) {
-      if (h.med2 === this.allSettings[i].header.med2) {
+    const tas = this['allSettings' + (this.light ? '2' : '')]
+    for (let i = 0; i < tas.length; i++) {
+      if (h.med2 === tas[i].header.med2) {
         window.alert('change the meditation id to be unique.')
         return
       }
@@ -888,10 +855,10 @@ ${lw()}.
     aS.forEach((i, ii) => {
       let text = i.header.med2
       if (i.header.creator) {
-        const c = i.header.creator
-        const name = this.allUsers.filter(ii => ii.luser === c)[0].name || utils.users[c]
+        const name = this.getName(i.header.creator)
         text += ` (${name})`
-      } else if ((!this.light) && i.header.communionSchedule) {
+      }
+      if (!this.light && i.header.communionSchedule && !i.header.ancestral) {
         text = `(template) ${text}`
       }
       s.append($('<option/>', { class: 'pres' }).val(ii).html(text))
@@ -902,6 +869,122 @@ ${lw()}.
           s.val(ii)
         }
       })
+    }
+  }
+
+  getName (luser) {
+    return this.allUsers.filter(ii => ii.luser === luser)[0].name || utils.users[luser]
+  }
+
+  disposeAudition () {
+    const wand = window.wand
+    if (!wand.currentMed) return
+    wand.currentMed.voices.forEach(v => { // dispose nodes
+      for (const i in v.nodes) {
+        const n = v.nodes[i]
+        n.dispose()
+        if (n.panner) n.panner.dispose()
+      }
+    })
+    wand.currentMed.theGui.destroy()
+    if (wand.currentMed.meter) wand.currentMed.meter.dispose()
+    delete wand.currentMed
+  }
+
+  prev () {
+    const wand = window.wand
+    const r = this.mkWritableSettings()
+    this.disposeAudition()
+    if (!r) return
+    if (r.visSetting.lemniscate > 30) wand.currentMed = new wand.med.Model3(r, Boolean(r.header.ancestral))
+    else wand.currentMed = new wand.med.Model2(r, Boolean(r.header.ancestral))
+    const t = wand.currentMed.tone
+    t.start(0)
+    t.Transport.start(0)
+    t.Master.mute = false
+    wand.currentMed.volumeControl()
+    wand.currentMed.voices.forEach(v => v.start('+' + 1))
+  }
+
+  stopAll () {
+    window.wand.currentMed.voices.forEach(v => v.stop('+' + 1))
+  }
+
+  mkWritableSettings (write = false) {
+    const voices = []
+    let ok = true
+    const cm = window.wand.currentMed
+    this.setting.forEach((i, count) => {
+      if (i.grid.voiceRemoved) return
+      const voice = {}
+      for (const ii in i) {
+        if (ii === 'grid' || ii === 'iniVolume') continue
+        console.log(i, ii)
+        console.log(i[ii])
+        const v = p(i[ii])
+        if (ii !== 'type' && isNaN(v)) {
+          window.alert(`Define the value for <b>${ii}</b> in the voice with type <b>${i.type}</b>.`)
+          return
+        }
+        voice[ii] = v
+      }
+      if (voice.type.includes('Martigli')) {
+        voice.isOn = i.grid.onOff.isOn
+      }
+      if (write && !this.checkVoice(voice)) {
+        ok = false
+        return
+      }
+      // get volume using count
+      voice.iniVolume = (cm && cm.voices[count]) ? cm.voices[count].iniVolume : i.iniVolume
+      voices.push(voice)
+    })
+    if (!ok) return
+    const h = this.header
+    if (write && !this.light && h.communionSchedule.prop('checked') && !window.confirm('You are creating a Template to be used in mkLight, confirm?')) return
+    const header = {
+      med2: h.med2.val(),
+      datetime: h.datetime.selectedDates[0],
+      d: p(h.d),
+      vcontrol: h.vcontrol.prop('checked'),
+      creator: this.user,
+      communionSchedule: this.light || h.communionSchedule.prop('checked')
+    }
+    if (this.light) {
+      header.ancestral = this.ancestral
+    }
+    if (write && !this.checkHeader(header)) return
+    const v = this.visSetting
+    const visSetting = {
+      lemniscate: p(v.lemniscate),
+      rainbowFlakes: v.rainbowFlakes.prop('checked'),
+      ellipse: v.ellipse.prop('checked'),
+      bPos: v.bPos.bindex
+    }
+    if (visSetting.lemniscate === 32) {
+      visSetting.network = p(v.lemniscate.asel)
+      visSetting.componentSize = p(v.lemniscate.aseln)
+    }
+    const colors = ['bcc', 'bgc', 'fgc', 'ccc', 'lcc']
+    colors.forEach(i => { visSetting[i] = v[i].toString() })
+    const toSave = {
+      header,
+      visSetting,
+      voices
+    }
+    console.log(toSave)
+    return toSave
+  }
+
+  criteria (header) { // not used in code, just to keep track of the criteria
+    if (header.communionSchedule) {
+      if (header.ancestral) {
+        return 'mkLight artifact'
+      } else {
+        return 'template'
+      }
+    } else { // just an artifact made in mkMed2 and not a template
+      return 'mkMed2 non-template artifact'
     }
   }
 }

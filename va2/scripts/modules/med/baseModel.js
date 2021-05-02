@@ -1,7 +1,6 @@
 const PIXI = require('pixi.js')
 const t = require('tone')
 const $ = require('jquery')
-const percom = require('percom')
 const dat = require('dat.gui')
 const NS = require('nosleep.js')
 
@@ -21,6 +20,8 @@ const e = module.exports
 
 e.Med = class {
   constructor (r) {
+    this.PIXI = PIXI
+    this.tone = t
     this.finalFade = 5
     this.initialFade = 2
     this.initialVolume = -40
@@ -65,7 +66,7 @@ e.Med = class {
     this.voices = []
     for (let i = 0; i < r.voices.length; i++) {
       const v = r.voices[i]
-      this.voices.push({ ...this['add' + v.type.replace('-', '')](v), type: v.type, isOn: v.isOn })
+      this.voices.push({ ...this['add' + v.type.replace('-', '')](v), type: v.type, isOn: v.isOn, iniVolume: v.iniVolume })
     }
     this.visualsCommon = this.setVisualCommon(r.visSetting)
     this.visuals = this.setVisual(r.visSetting) // this changes between model2-3
@@ -75,24 +76,29 @@ e.Med = class {
 
   addMartigli (s) {
     const synthM = maestro.mkOsc(0, -150, 0, w[s.waveformM], false, true)
-    const mul = new t.Multiply(s.ma).chain(new t.Add(s.mf0), synthM.frequency)
+    const addmf0 = new t.Add(s.mf0)
+    const mul = new t.Multiply(s.ma).chain(addmf0, synthM.frequency)
     const mod = maestro.mkOsc(1 / s.mp0, 0, 0, 'sine', true, true).connect(mul)
     if (s.isOn) {
       const met = new t.DCMeter()
       mod.connect(met)
       this.meter = met // this.setVisual() checks if this var is existent.
     }
+    s.iniVolume = s.iniVolume || 0
     return {
       start: tt => {
         synthM.start(tt)
         mod.start(tt)
-        synthM.volume.linearRampTo(this.initialVolume, this.initialFade, tt)
+        synthM.volume.linearRampTo(s.iniVolume + this.initialVolume, this.initialFade, tt)
         mod.frequency.linearRampTo(1 / s.mp1, s.md, tt) // todo: check if better than rampTo
       },
       stop: tt => {
         synthM.volume.linearRampTo(-200, this.finalFade, tt)
         synthM.stop('+' + (tt + this.finalFade))
         mod.stop('+' + (tt + this.finalFade))
+      },
+      nodes: {
+        synthM, mul, mod, addmf0
       },
       volume: { synthM }
     }
@@ -103,16 +109,20 @@ e.Med = class {
     const synthR = maestro.mkOsc(s.fr, -150, 1, w[s.waveformR], false, true)
     const pan = this.setPanner(s, synthL, synthR)
     const all = [synthL, synthR, pan]
+    s.iniVolume = s.iniVolume || 0
     return {
       start: tt => {
         all.forEach(i => i.start(tt))
-        synthL.volume.linearRampTo(this.initialVolume, this.initialFade, tt)
-        synthR.volume.linearRampTo(this.initialVolume, this.initialFade, tt)
+        synthL.volume.linearRampTo(s.iniVolume + this.initialVolume, this.initialFade, tt)
+        synthR.volume.linearRampTo(s.iniVolume + this.initialVolume, this.initialFade, tt)
       },
       stop: tt => {
         synthL.volume.linearRampTo(-150, this.finalFade, tt)
         synthR.volume.linearRampTo(-150, this.finalFade, tt)
         all.forEach(i => i.stop('+' + (tt + this.finalFade)))
+      },
+      nodes: {
+        synthL, synthR, pan
       },
       volume: { synthL, synthR }
     }
@@ -121,9 +131,11 @@ e.Med = class {
   addMartigliBinaural (s) {
     const synthL = maestro.mkOsc(s.fl, -150, -1, w[s.waveformL], false, true)
     const synthR = maestro.mkOsc(s.fr, -150, 1, w[s.waveformR], false, true)
+    const synthL_ = (new t.Add(s.fl)).connect(synthL.frequency)
+    const synthR_ = (new t.Add(s.fr)).connect(synthR.frequency)
     const mul = new t.Multiply(s.ma).fan(
-      (new t.Add(s.fl)).connect(synthL.frequency),
-      (new t.Add(s.fr)).connect(synthR.frequency)
+      synthL_,
+      synthR_
     )
     const mod = maestro.mkOsc(1 / s.mp0, 0, 0, 'sine', true, true).connect(mul)
     if (s.isOn) {
@@ -133,17 +145,21 @@ e.Med = class {
     }
     const pan = this.setPanner(s, synthL, synthR, mod)
     const all = [synthL, synthR, mod, pan]
+    s.iniVolume = s.iniVolume || 0
     return {
       start: tt => {
         all.forEach(i => i.start(tt))
-        synthL.volume.linearRampTo(this.initialVolume, this.initialFade, tt)
-        synthR.volume.linearRampTo(this.initialVolume, this.initialFade, tt)
+        synthL.volume.linearRampTo(s.iniVolume + this.initialVolume, this.initialFade, tt)
+        synthR.volume.linearRampTo(s.iniVolume + this.initialVolume, this.initialFade, tt)
         mod.frequency.linearRampTo(1 / s.mp1, s.md, tt) // todo: check if better than rampTo
       },
       stop: tt => {
         synthL.volume.linearRampTo(-150, this.finalFade, tt)
         synthR.volume.linearRampTo(-150, this.finalFade, tt)
         all.forEach(i => i.stop('+' + (tt + this.finalFade)))
+      },
+      nodes: {
+        synthL, synthR, mul, mod, synthL_, synthR_, pan
       },
       volume: { synthL, synthR }
     }
@@ -157,7 +173,6 @@ e.Med = class {
     }
     const sy = new t.Synth({ oscillator: { type: w[s.waveform] } }).toDestination()
     sy.volume.value = -150
-    window.sy = sy
     const noteSep = s.d / notes.length
     const noteDur = noteSep / 2
     const permfunc = utils.permutations[p[s.permfunc]]
@@ -166,17 +181,21 @@ e.Med = class {
       permfunc(notes)
       for (const note in notes) {
         sy.triggerAttackRelease(notes[note], noteDur, time + noteSep * note)
+        console.log(sy.volume.value, 'VOLUME')
       }
     }, s.d)
-    window.percom = percom
+    s.iniVolume = s.iniVolume || 0
     return {
       start: tt => {
         loop.start(tt)
-        sy.volume.linearRampTo(this.initialVolume, this.initialFade, tt)
+        sy.volume.linearRampTo(s.iniVolume + this.initialVolume, this.initialFade, tt)
       },
       stop: tt => {
         loop.stop('+' + (tt + this.finalFade))
         sy.volume.linearRampTo(-150, this.finalFade, tt)
+      },
+      nodes: {
+        sy, loop
       },
       volume: { sy }
     }
@@ -184,8 +203,10 @@ e.Med = class {
 
   addSample (s) {
     const sampler = new t.Player(`assets/audio/${maestro.sounds[s.soundSample].name}.mp3`).toDestination()
-    sampler.volume.value = parseFloat(s.soundSampleVolume)
+    s.iniVolume = s.iniVolume || 0
+    sampler.volume.value = parseFloat(s.iniVolume + this.initialVolume)
     sampler.loop = s.soundSamplePeriod === 0
+    const nodes = { sampler }
     let theSamp
     if (sampler.loop) {
       theSamp = sampler
@@ -193,6 +214,7 @@ e.Med = class {
       theSamp = new t.Loop(time => {
         sampler.start(time)
       }, s.soundSamplePeriod)
+      nodes.theSamp = theSamp
     }
     return {
       start: tt => {
@@ -202,6 +224,7 @@ e.Med = class {
         sampler.volume.linearRampTo(-150, this.finalFade, tt)
         theSamp.stop('+' + (tt + this.finalFade))
       },
+      nodes,
       volume: { sampler }
     }
   }
@@ -276,8 +299,11 @@ e.Med = class {
 
   setPanner (s, synthL, synthR, mod) {
     if (s.panOsc === 0) {
-      return { start: () => { }, stop: () => { } }
+      return { start: () => { }, stop: () => { }, dispose: () => { } }
     } else if (s.panOsc === 1) { // linear transition and hold
+      const mul2 = new t.Multiply(2)
+      const addm1 = new t.Add(-1)
+      const negate = new t.Negate()
       const env = new t.Envelope({
         attack: s.panOscTrans,
         decay: 0.01,
@@ -285,14 +311,20 @@ e.Med = class {
         release: s.panOscTrans,
         attackCurve: 'linear',
         releaseCurve: 'linear'
-      }).chain(new t.Multiply(2), (new t.Add(-1)).connect(synthL.panner.pan), new t.Negate(), synthR.panner.pan)
+      }).chain(mul2, addm1.connect(synthL.panner.pan), negate, synthR.panner.pan)
       // todo: check if 2x period is the right way to go and if the settings are 100% ok.
       const loop = new t.Loop(time => {
         env.triggerAttackRelease(s.panOscPeriod, time)
       }, s.panOscPeriod * 2)
       return {
         start: tt => loop.start(tt), // has to have transport started
-        stop: tt => loop.stop(tt)
+        stop: tt => loop.stop(tt),
+        dispose: () => {
+          env.dispose()
+          mul2.dispose()
+          addm1.dispose()
+          negate.dispose()
+        }
       }
     } else if ([2, 3].includes(s.panOsc)) { // sine
       // todo: implement arbitrary Martigli to sync the pan
@@ -300,10 +332,10 @@ e.Med = class {
       let ret
       if (s.panOsc === 3) { // in sync with Martigli oscillation:
         panOsc = mod
-        ret = { start: () => { }, stop: () => { } }
+        ret = { start: () => { }, stop: () => { }, dispose: () => { } }
       } else { // independent:
         panOsc = maestro.mkOsc(1 / s.panOscPeriod, 0, 0, 'sine', true, true)
-        ret = { start: tt => panOsc.start(tt), stop: tt => panOsc.stop(tt + 1) }
+        ret = { start: tt => panOsc.start(tt), stop: tt => panOsc.stop(tt + 1), dispose: () => panOsc.dispose() }
       }
       const neg = new t.Negate()
       const mul1 = new t.Multiply(1)
@@ -405,7 +437,7 @@ e.Med = class {
     const set = {}
     set.width = window.innerWidth / 3.5
     if (this.isMobile) set.width = window.innerWidth / 2
-    const gui = new dat.GUI(set)
+    const gui = this.theGui = new dat.GUI(set)
     const counts = this.voices.reduce((a, v) => {
       a[v.type] = 0
       return a
@@ -422,17 +454,19 @@ e.Med = class {
         label = `${n(v.type)}-${++counts[v.type]}`
       }
       const d = {}
-      d[label] = 50
+      d[label] = 50 + v.iniVolume
       const voiceGui = gui.add(d, label, 0, 100).listen()
       const instr = []
+      console.log('CHECK VOICE', v)
       for (const instrument in v.volume) {
-        v.volume[instrument].defVolume = this.initialVolume
+        v.volume[instrument].defVolume = v.iniVolume + this.initialVolume
         instr.push(v.volume[instrument])
       }
       instruments.push({ voiceGui, instr })
       voiceGui.onChange(val => {
         for (const instrument in v.volume) {
-          v.volume[instrument].volume.value = val + v.volume[instrument].defVolume - 50 + master
+          v.iniVolume = val - 50
+          v.volume[instrument].volume.value = val + this.initialVolume - 50 + master
         }
       })
     }

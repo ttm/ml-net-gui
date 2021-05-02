@@ -1,21 +1,21 @@
 /* global wand */
 // to facilitate debug in mobile:
-// window.onerror = function (msg, url, lineNo, columnNo, error) {
-//   const string = msg.toLowerCase()
-//   const substring = 'script error'
-//   if (string.indexOf(substring) > -1) {
-//     window.alert('Script Error: See Browser Console for Detail')
-//   } else {
-//     const message = [
-//       'Message: ' + msg,
-//       'URL: ' + url,
-//       'Line: ' + lineNo,
-//       'Column: ' + columnNo,
-//       'Error object: ' + JSON.stringify(error)
-//     ].join(' - ')
-//     window.alert(message)
-//   }
-// }
+window.onerror = function (msg, url, lineNo, columnNo, error) {
+  const string = msg.toLowerCase()
+  const substring = 'script error'
+  if (string.indexOf(substring) > -1) {
+    window.alert('Script Error: See Browser Console for Detail')
+  } else {
+    const message = [
+      'Message: ' + msg,
+      'URL: ' + url,
+      'Line: ' + lineNo,
+      'Column: ' + columnNo,
+      'Error object: ' + JSON.stringify(error)
+    ].join(' - ')
+    window.alert('SEND THIS ERROR MESSAGE TO ADMINS:', message)
+  }
+}
 window.wand = {
   router: require('./modules/router.js'),
   net: require('./modules/net.js'),
@@ -46,14 +46,14 @@ if (uargs.values[0] === '') {
   if (k[0] === '_') { // meditation model 1:
     wand.currentMed = wand.med.model(k.slice(1))
     wand.utils.confirmExit()
-  } else if ('~-@.'.includes(k[0])) { // meditation model 2
+  } else if ('~-@.'.includes(k[0])) { // meditation model 2 or 3
     wand.$('<div/>', { id: 'canvasDiv' }).appendTo('body')
-    const query = { 'header.med2': k.slice(1) }
-    if ('~-'.includes(k[0])) query['header.creator'] = { $exists: true } // created by mkLight
+    const query = { 'header.med2': k.slice(1), 'header.datetime': { $gte: new Date('2021-04-29') } }
+    if ('~-'.includes(k[0])) query['header.ancestral'] = { $exists: true } // created by mkLight
     wand.transfer.findAny(query).then(r => {
       // use r.lemniscate to decide model2 or 3
-      if (r.visSetting.lemniscate > 30) wand.currentMed = new wand.med.Model3(r, Boolean(r.header.creator))
-      else wand.currentMed = new wand.med.Model2(r, Boolean(r.header.creator))
+      if (r.visSetting.lemniscate > 30) wand.currentMed = new wand.med.Model3(r, Boolean(r.header.ancestral))
+      else wand.currentMed = new wand.med.Model2(r, Boolean(r.header.ancestral))
     })
     wand.utils.confirmExit()
   } else if (k in wand.test) { // standard page:

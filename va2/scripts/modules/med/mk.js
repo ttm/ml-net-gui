@@ -39,7 +39,6 @@ function forms (grid) {
     .append($('<option/>').val(6).html('decorative torus knot'))
     .append($('<option/>').val(7).html('Lissajous 3-4'))
     .append($('<option/>').val(31).html('void'))
-    .append($('<option/>').val(32).html('net'))
     // .append($('<option/>').val(32).html('net'))
     .on('change', aself => {
       const i = parseInt(aself.currentTarget.value)
@@ -76,6 +75,11 @@ function forms (grid) {
         sel0.aseln.hide()
       }
     })
+  if (u('adv')) {
+    sel0
+      .append($('<option/>').val(32).html('net'))
+  }
+
   sel0.selt = selt
   sel0.selnt = selnt
   return sel0
@@ -156,7 +160,7 @@ function addType (grid, type, c, isOn) {
     const str = isOn_ ? 'reference' : 'secondary'
     onOff = $('<span/>', { css: { 'margin-left': '2%' } }).html(`(${str})`)
       .click(() => {
-        if (c.martigliList.length < 1) return
+        if (c.martigliList.length < 1 || c.light) return
         if (onOff.isOn) { // select first occuring Martigli:
           for (let i = 0; i < c.martigliList.length; i++) {
             const onOff_ = c.martigliList[i]
@@ -309,6 +313,9 @@ e.Mk = class {
     const query = { 'header.med2': { $exists: true }, 'header.datetime': { $gte: new Date('2021-04-29') } }
     if (u('all')) delete query['header.datetime']
     if (this.light) query['header.communionSchedule'] = true
+    const plural = this.user_[this.user_.length - 1] === 's' ? "'" : "'s"
+    $('<h2/>', { css: { 'text-align': 'center', background: '#d4d988' } })
+      .html(`${this.user_}${plural} Make ${this.light ? 'Light (<a href="https://youtu.be/LIenlf5umck" target="_blank">tutorial</a>)' : 'Medicine'}`).appendTo(this.div1)
     transfer.findAll(query).then(r => {
       r.sort((a, b) => b.header.datetime - a.header.datetime)
       this.allSettings = r
@@ -369,7 +376,8 @@ e.Mk = class {
       this.allSettings1.forEach((i, ii) => {
         let text = i.header.med2
         if (i.header.creator) {
-          text += ` (${this.getName(i.header.creator)})`
+          const text_ = `${this.getName(i.header.creator)}`
+          text += ` (${text_})`
         }
         s.append($('<option/>', { class: 'pres' }).val(ii).html(text))
       })
@@ -393,8 +401,11 @@ e.Mk = class {
                 text = `(template) ${text}`
               }
               if (i.header.creator) {
-                console.log(i.header.med2, i.header.creator, this.getName(i.header.creator))
-                text += ` (${this.getName(i.header.creator)})`
+                let text_ = `${this.getName(i.header.creator)}`
+                if (i.header.ancestral) {
+                  text_ += `-${i.header.ancestral}`
+                }
+                text += ` (${text_})`
               }
               s.append($('<option/>', { class: 'pres' }).val(ii).html(text))
             })
@@ -822,8 +833,16 @@ ${lw()}.
       return
     }
     const tas = this['allSettings' + (this.light ? '2' : '')]
+    let condition
+    if (this.light) {
+      condition = (h_, id) => id === h_.med2
+    } else {
+      condition = (h_, id) => id === h_.med2 && !h_.ancestral
+    }
     for (let i = 0; i < tas.length; i++) {
-      if (h.med2 === tas[i].header.med2) {
+      // id has to be unique among the mkLight-made and among the mkMed2-made
+      // if (h.med2 === tas[i].header.med2 && (!this.light || !tas[i].header.ancestral)) {
+      if (condition(tas[i].header, h.med2)) {
         window.alert('change the meditation id to be unique.')
         return
       }
@@ -855,7 +874,10 @@ ${lw()}.
     aS.forEach((i, ii) => {
       let text = i.header.med2
       if (i.header.creator) {
-        const name = this.getName(i.header.creator)
+        let name = this.getName(i.header.creator)
+        if (!this.light && i.header.ancestral) {
+          name += ` -> ${i.header.ancestral}`
+        }
         text += ` (${name})`
       }
       if (!this.light && i.header.communionSchedule && !i.header.ancestral) {

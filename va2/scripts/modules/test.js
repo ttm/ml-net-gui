@@ -1981,6 +1981,7 @@ const link = (text, path) => {
 
 e.angel = () => {
   const items = [
+    '"chave Pix": <b>luz</b>; or',
     `the ${link('Paypal inlet', 'paypal')}; or`,
     `the ${link('Pagseguro inlet', 'pagseguro')}; or`,
     `the ${link('Bitcoin inlet', 'bitcoin')}.`

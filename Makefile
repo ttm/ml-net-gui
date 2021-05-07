@@ -85,8 +85,12 @@ va2-install:
 	cd va2 && npm i
 va2-dev:
 	cd va2 && npm run dev
-va2-devE:
+va2-deve:
 	cd va2 && npm run devE
+va2-builde:
+	cd va2 && npm run buildE
+va2-buildea:
+	cd va2 && npm run buildEauto
 va2-fix:
 	cd va2 && npm run fixme
 

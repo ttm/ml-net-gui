@@ -1,10 +1,15 @@
 /* global chrome, XPathResult, alert */
 console.log('OA extension client load ok')
+chrome.extension.getBackgroundPage().console.log('foo')
 
 chrome.runtime.onMessage.addListener(
   function (request, sender, sendResponse) {
     const msg = request.message
+    console.log(request, sender, sendResponse)
+    chrome.runtime.sendMessage({ message: 'client_scrapped_user_friends' })
     if (msg === 'popup_advance_msg') {
+      console.log('front hi')
+      alert('HAAA')
       scrapeNameId()
     } else if (msg === 'opened_user_friends_page' || msg === 'opened_mutual_friends_page') {
       scrollTillEnd(request.newfb, () => {

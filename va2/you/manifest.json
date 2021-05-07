@@ -1,0 +1,12 @@
+{
+  "name": "You",
+  "description": "Accessing You as part of the Body of Light",
+  "version": "1.1",
+  "manifest_version": 3,
+  "permissions": ["scripting", "activeTab", "storage"],
+  "action": {
+    "default_popup": "pop.html",
+    "default_icon": "simple.png"
+  }
+}
+

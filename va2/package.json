@@ -6,8 +6,10 @@
   "scripts": {
     "build": "browserify scripts/main.js > scripts/bundle.js",
     "dev": "nodemon app.js --exec 'standard && npm run build && node'",
-    "buildE": "browserify OAextension/scripts/background.js > OAextension/scripts/background_ok.js",
-    "devE": "nodemon app.js --exec 'npm run test && npm run build && npm run buildE && node'",
+    "buildE": "browserify you/pop.js > you/pop_ok.js",
+    "buildAux": "browserify you/contentScript.js > you/contentScript_ok.js",
+    "buildEauto": "nodemon you/pop.js --exec 'standard you/pop.js you/contentScript.js && npm run buildAux && browserify you/pop.js > you/pop_ok.js'",
+    "devE": "nodemon app.js --exec 'npm run build && npm run buildE && node'",
     "fixme": "standard --fix"
   },
   "dependencies": {

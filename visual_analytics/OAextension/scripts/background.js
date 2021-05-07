@@ -23,7 +23,9 @@ chrome.runtime.onMessage.addListener(
       setVars()
       chrome.windows.create({ url: 'https://www.facebook.com/profile.php' }, function (win) {
         chrome.storage.sync.set({ windid: win.id })
+        console.log('back hi', win, win.tabs[0].id)
         chrome.tabs.executeScript(win.tabs[0].id, { file: 'scripts/fb_scrape.js' }, function () {
+          console.log('ex back hi', win, win.tabs[0].id)
           chrome.tabs.sendMessage(win.tabs[0].id, { message: 'popup_advance_msg' })
         })
       })
@@ -62,6 +64,7 @@ chrome.runtime.onMessage.addListener(
       updateNodesFrom(s)
       openMutualFriendsPage()
     } else if (msg === 'client_scrapped_user_friends') { // close current tab, open new
+      console.log('hi again')
       const s = request.structs
       graph.setAttribute('userFriends', s)
       addNodesFrom(s)
@@ -71,6 +74,7 @@ chrome.runtime.onMessage.addListener(
       graph.setNodeAttribute(iid, 'scrapped', false)
       return openTabToDownload()
     } else if (request.message === 'scrapped_user') {
+      console.log('scrapped user msg')
       const { sid, nid, newfb } = request.userData
       window.newfb = newfb
       const query = sid ? { sid } : { nid }

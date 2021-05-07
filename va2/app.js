@@ -2,7 +2,7 @@ const http = require('http')
 const path = require('path')
 const fs = require('fs')
 http.createServer(function (req, res) {
-  const url = 'http://localhost:8080' + req.url // this is ok because framework is to work without the server
+  const url = 'http://localhost:8081' + req.url // this is ok because framework is to work without the server
   const filePath = new URL(url).pathname === '/' ? './index.html' : '.' + req.url
   const extname = req.url.includes('.html') ? '.html' : String(path.extname(filePath)).toLowerCase()
   const mimeTypes = {
@@ -41,4 +41,4 @@ http.createServer(function (req, res) {
       res.end(content, 'utf-8')
     }
   })
-}).listen(8080)
+}).listen(8081)

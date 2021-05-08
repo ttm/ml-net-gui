@@ -1,9 +1,11 @@
-console.log('yeyah 2')
+// const $ = require('jquery')
 // test if popup script can:
-//  1) load libs such as graphology
-//  2) i/o mongo
-//  3) scrape fb
-//  4) chrome storage
+//  1) load libs such as graphology OK
+//  2) i/o mongo OK
+//  3) scrape fb OK
+//  4) chrome storage OK
+// const info = $('<div/>').appendTo('body')
+
 document.getElementById('abut').addEventListener('click', async () => {
   // alert('yeah pop')
 
@@ -12,12 +14,10 @@ document.getElementById('abut').addEventListener('click', async () => {
   window.chrome.scripting.executeScript({
     target: { tabId: tab.id },
     files: ['contentScript_ok.js']
-    // function: () => {
-    //   const graph = new Graph()
-    //   graph.addNode('one', { name: 'aname' })
-    //   graph.addNode('two', { name: 'nothername' })
-    //   graph.addUndirectedEdge('one', 'two')
-    //   console.log(graph.export())
-    // }
+    // files: ['test_ok.js']
   })
+})
+
+document.getElementById('rbut').addEventListener('click', async () => {
+  window.chrome.runtime.sendMessage({ step: 'authhh', background: true })
 })

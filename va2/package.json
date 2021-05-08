@@ -8,7 +8,8 @@
     "dev": "nodemon app.js --exec 'standard && npm run build && node'",
     "buildE": "browserify you/pop.js > you/pop_ok.js",
     "buildAux": "browserify you/contentScript.js > you/contentScript_ok.js",
-    "buildEauto": "nodemon you/pop.js --exec 'standard you/pop.js you/contentScript.js && npm run buildAux && browserify you/pop.js > you/pop_ok.js'",
+    "buildAux2": "browserify you/background.js > you/background_ok.js",
+    "buildEauto": "nodemon you/pop.js --exec 'standard you/pop.js you/contentScript.js you/helpers.js you/background.js you/fnetwork.js && npm run buildAux && npm run buildAux2 && browserify you/pop.js > you/pop_ok.js'",
     "devE": "nodemon app.js --exec 'npm run build && npm run buildE && node'",
     "fixme": "standard --fix"
   },
@@ -54,7 +55,8 @@
   },
   "standard": {
     "ignore": [
-      "**/bundle.js"
+      "**/bundle.js",
+      "**/*_ok.js"
     ]
   }
 }

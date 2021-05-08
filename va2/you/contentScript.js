@@ -1,9 +1,7 @@
-const Graph = require('graphology')
-function mkGraph () {
-  const graph = new Graph()
-  graph.addNode('one', { name: 'aname' })
-  graph.addNode('two', { name: 'nothername' })
-  graph.addUndirectedEdge('one', 'two')
-  console.log(graph.export())
-}
-mkGraph()
+const { steps } = require('./helpers.js')
+
+window.chrome.runtime.onMessage.addListener(({ content, step }) => {
+  if (!content) return
+  console.log('(client) msg received:', step)
+  if (step in steps) steps[step].content() // step in authFb, scrapeFriends, scrapFriendships
+})

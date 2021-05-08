@@ -132,8 +132,6 @@ const sparqlCall = (url, query, callback, headers) => {
 // ////////////// generic:
 class FindAll {
   constructor () {
-    // ttm test
-    // mark
     this.dbs = {}
     this.clients = {}
     for (const au in creds) {
@@ -151,20 +149,21 @@ class FindAll {
     const find = (query, projection, col) => client.auth.loginWithCredential(new s.AnonymousCredential()).then(user => {
       return db.collection(col || auth.collections.test).find(query, { projection }).asArray()
     })
-    // this[au] = { client, db, find }
+    const write = (query, col) => client.auth.loginWithCredential(new s.AnonymousCredential()).then(user => {
+      return db.collection(col || auth.collections.test).insertOne(query)
+    })
+    const remove = (query, col) => {
+      return client.auth.loginWithCredential(new s.AnonymousCredential()).then(user => {
+        return db.collection(col || auth.collections.test).deleteMany(query)
+      })
+    }
     this[au] = find
+    this['w' + au] = write
+    this['d' + au] = remove
     this.dbs[au] = db
     this.clients[au] = client
   }
 }
 
 e.fAll = new FindAll()
-
-// e.fAll = (query, au) => { // au in (tokisona, mark, ttm, sync)
-//   const auth = creds[au]
-//   const client = s.Stitch.initializeAppClient(auth.app)
-//   const db = client.getServiceClient(s.RemoteMongoClient.factory, auth.cluster).db(auth.db)
-//   return client.auth.loginWithCredential(new s.AnonymousCredential()).then(user => {
-//     return db.collection(auth.collections.test).find(query).asArray()
-//   })
-// }
+// fAll.ttm({ sid: { $exists: true } }, { sid: 1 }, 'test').then(r => console.log(r.map(i => i.sid)))

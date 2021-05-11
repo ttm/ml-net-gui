@@ -119,17 +119,22 @@ e.buildFromSparql = (members, friendships) => {
 }
 
 e.plotFromMongo = (anet, app) => {
-  const net = e.buildFromMongo(anet.nodes, anet.edges)
-  netdegree.assign(net)
-  const removedNodes = []
-  net.forEachNode((n, a) => {
-    if (a.degree === 0) {
-      removedNodes.push({ n, a })
-    }
-  })
-  removedNodes.forEach(v => {
-    net.dropNode(v.n)
-  })
+  // const net = e.buildFromMongo(anet.nodes, anet.edges)
+  const net = new Graph()
+  net.import(anet)
+  let removedNodes
+  do {
+    netdegree.assign(net)
+    removedNodes = []
+    net.forEachNode((n, a) => {
+      if (a.degree === 0 || !a.scrapped) {
+        removedNodes.push({ n, a })
+      }
+    })
+    removedNodes.forEach(v => {
+      net.dropNode(v.n)
+    })
+  } while (removedNodes.length > 0)
   random.assign(net)
   const saneSettings = forceAtlas2.inferSettings(net)
   const atlas = forceAtlas2(net, { iterations: 150, settings: saneSettings })
@@ -196,13 +201,13 @@ e.ParticleNet2 = class { // using graphology net and positions as given by force
     })
     this.nodeContainer.interactiveChildren = this.interactive
     this.nodeContainer.interactive = this.interactive
-    // this.edgeContainer = new PIXI.ParticleContainer(10000, {
-    //   scale: true,
-    //   position: true,
-    //   rotation: true,
-    //   alpha: true
-    // })
-    this.edgeContainer = new PIXI.Container()
+    this.edgeContainer = new PIXI.ParticleContainer(100000, {
+      scale: true,
+      position: true,
+      rotation: true,
+      alpha: true
+    })
+    // this.edgeContainer = new PIXI.Container()
     app.stage.addChild(this.edgeContainer)
     app.stage.addChild(this.nodeContainer)
   }
@@ -228,6 +233,7 @@ e.ParticleNet2 = class { // using graphology net and positions as given by force
       circle.y = p.y
       circle.anchor.x = 0.5
       circle.anchor.y = 0.5
+      circle.tint = 0x00ffff
       circle.interactive = this.interactive
       this.nodeContainer.addChild(circle)
       a.pixiElement = circle
@@ -237,7 +243,7 @@ e.ParticleNet2 = class { // using graphology net and positions as given by force
           { fontFamily: 'Arial', fontSize: 35, fill: 0xffffff, align: 'center' }
         )
 
-        texto.tint = 0x00ff00
+        texto.tint = 0xffffff
         texto.x = p.x
         texto.y = p.y
         texto.zIndex = 1000
@@ -290,6 +296,7 @@ e.ParticleNet2 = class { // using graphology net and positions as given by force
     line.rotation = angle
     line.x = pos1.x
     line.y = pos1.y
+    line.tint = 0xff00ff
     this.edgeContainer.addChild(line)
     return line
   }

@@ -157,9 +157,15 @@ class FindAll {
         return db.collection(col || auth.collections.test).deleteMany(query)
       })
     }
+    const update = (query, set, col) => {
+      return client.auth.loginWithCredential(new s.AnonymousCredential()).then(user => {
+        return db.collection(col || auth.collections.test).updateOne(query, { $set: set })
+      })
+    }
     this[au] = find
     this['w' + au] = write
     this['d' + au] = remove
+    this['u' + au] = update
     this.dbs[au] = db
     this.clients[au] = client
   }

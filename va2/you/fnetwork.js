@@ -2,14 +2,21 @@ const Graph = require('graphology')
 
 class FNetwork {
   constructor () {
-    this.graph = new Graph()
-    this.anonString = 'unnactive-' + Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15) + '-'
     this.anonCount = 0
     this.anonNames = {} // { name: id }
     this.membersNotFound = []
+    this.restart()
+  }
+
+  restart () {
+    this.graph = new Graph()
+    this.graph.setAttribute('preclude', [])
+    this.anonString = 'unnactive-' + Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15) + '-'
+    this.graph.setAttribute('anonString', this.anonString)
   }
 
   absorb (struct) {
+    if (struct === undefined) return
     if (this.graph.order) this.addFriendships(struct)
     else this.addFriends(struct)
   }
@@ -31,21 +38,23 @@ class FNetwork {
     const { sids, nids } = this.getIds()
     struct.forEach(s => {
       const { name, sid, nid, mutual, nfriends } = s
-      const id = this.findNode(name, sid, nid, sids, nids)
-      if (id === undefined) {
-        s.foundIn = this.lastId
-        this.membersNotFound.push(s)
-        return
-      }
-      const a = this.graph.getNodeAttributes(id)
+      let id = this.findNode(name, sid, nid, sids, nids)
+      let a = {}
+      let exists = true
+      if (id === undefined) [exists, id] = [false, s.sid || s.nid]
+      else a = this.graph.getNodeAttributes(id)
+      a.name = name
       a.sid = a.sid || sid
       a.nid = a.nid || nid
       a.mutual = a.mutual || mutual
       a.nfriends = a.nfriends || nfriends
-      console.log('IDS to be added:', this.lastId, id)
-      if (!this.graph.hasEdge(this.lastId, id)) {
-        this.graph.addUndirectedEdge(this.lastId, id)
+      a.anon = !id
+      if (a.anon) {
+        id = this.anonString + this.anonCount++
+        this.anonNames[name] = id
       }
+      if (!exists) this.graph.addNode(id, a)
+      if (!this.graph.hasEdge(this.lastId, id)) this.graph.addUndirectedEdge(this.lastId, id)
     })
     this.graph.setNodeAttribute(this.lastId, 'scrapped', true)
   }
@@ -95,7 +104,7 @@ class FNetwork {
         id: n
       })
     })
-    let url
+    let url, nid
     nodeIds.some(i => {
       if (i.nid !== undefined && !i.scrapped) {
         url = `https://www.facebook.com/browse/mutual_friends/?uid=${i.nid}`
@@ -103,7 +112,21 @@ class FNetwork {
       }
       return Boolean(url)
     })
-    return url
+    return [url, nid]
+  }
+
+  nScrapped () {
+    let count = 0
+    this.graph.forEachNode((n, a) => { count += Boolean(a.scrapped) })
+    return count
+  }
+
+  info () {
+    return {
+      scrapped: this.nScrapped(),
+      order: this.graph.order,
+      size: this.graph.size
+    }
   }
 }
 

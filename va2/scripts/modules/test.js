@@ -2356,6 +2356,17 @@ Thu Dec 31 11:17:02 -03 2020
   $('#loading').hide()
 }
 
+e['t018-Marcos'] = () => {
+  utils.stdDiv().html(`
+  <h2>Marcos, após 1-2 meses</h2>
+ Quero agradecer aos administadores dos artefatos de luz, que tenho acompanhado todas sessões desde quando entrei no grupo, está me fazendo muito bem, tudo que tenho pensado em realizar meus projetos em minha vida está se realizando, com muita fé e meditações diarias, estou alcançando meus objetivos em minha trajetória de trabalho e saúde, e se me previnindo de possiveis contra tempo, e obstacúlos que encontro pelo caminho, fica aqui minha experiência de alcançar o sonhos de ser alguem melhor e serei sempre melhor que ontem e assim por diante obrigado a todos.
+
+  <b>Marcos Pino Arroyo, 28/Abril/2021</b>
+  `.replace(/\n/g, '<br>')
+  )
+  $('#loading').hide()
+}
+
 e['t017-Helnice'] = () => {
   utils.stdDiv().html(`
   <h2>Helnice, após as primeiras semanas</h2>
@@ -3397,14 +3408,26 @@ e.netMongo = () => {
     pfm.dn = dn
     $('#loading').hide()
   })
-  // transfer.getNetMembersLinks(u('s'), r => {
-  //   console.log(r)
-  //   const pfs = net.plotFromSparql(r.members, r.friendships)
-  //   window.nnn = pfs
-  //   const dn = new net.ParticleNet2(app, pfs.net, pfs.atlas)
-  //   window.nnn.dn = dn
-  //   $('#loading').hide()
-  // })
+}
+
+e.you = () => {
+  const app = new PIXI.Application({
+    width: window.innerWidth,
+    height: window.innerHeight * 0.9,
+    // transparent: true
+    backgroundColor: 0x000000
+  })
+  app.stage.sortableChildren = true
+  document.body.appendChild(app.view)
+  window.wand.app = app
+  transfer.fAll.mark({ 'userData.id': u('id') }).then(r => {
+    const anet = r[0].net
+    const pfm = net.plotFromMongo(anet)
+    window.nnn = pfm
+    const dn = new net.ParticleNet2(app, pfm.net, pfm.atlas)
+    pfm.dn = dn
+    $('#loading').hide()
+  })
 }
 
 e.prayer = () => {
@@ -4175,6 +4198,34 @@ ${a(ap)}
   )
   $('#loading').hide()
 }
+
+e['007-meses'] = () => {
+  const meses = `janeiro (já, né, rô!): já é hora de conceber o que se quer com o ano, no que vai colocar suas forças/energias.
+  fevereiro (fé vê rei, rô!): pela fé e esperança, vê-se algo especial ou soberano.
+  março (marco): algum grande acontecimento ou feito, alguma observação ou mudança de postura/entendimento.
+  abril (abriu): uma abertura, não necessariamente um começo, por exemplo uma repercussão do marco.
+  maio (maiô): colocamos roupas de banho: tanto para a imersão quanto para conceber nascimento.
+  junho (júnior): nasce um (ou o) filho da saga.
+  julho (juro): há um firmamento, um comprometimento, de criar o filho, de completar a trajetória.
+  agosto (a gosto): fase de temperar e dosar elementos externos ou imprevistos e/ou os ingredientes internos.
+  setembro (você tem bro): note ou busque um companheiro firme. Conte consigo mesmo somente, mas uma companhia é valiosa.
+  outubro (outro bro): expansão do círculo social.
+  novembro (nove, hein, bro): abertura do círculo social. Também o momento do 9, (3x3: divino feito do divino, ou divino confirmado).
+  dezembro (dez, hein, bro): esmero nos arremates, no polimento, no que deixará de legado para o ano que vem e/ou para os outros.`.split('\n').reduce((a, i) => a + `<li>${i}</li>`, '')
+  utils.stdDiv().html(`
+  <h1>Meses do ano, 09/05/2021</h1>
+
+  Mensagem da Vó Jussara:
+
+  <p>O ano tem 12 partes, é completo. Cada mês é típico para algo e está nos nomes, sempre nos nomes, e feliz quem escuta e pensa.</p>
+  <ol>${meses}</ol>
+
+  :::
+  `
+  )
+  $('#loading').hide()
+}
+
 e.getPhrase = () => {
   utils.getPhrase().then(r => console.log('HERE MAN', r))
 }
@@ -4445,4 +4496,38 @@ e.colors = () => {
   //
   // distinct-colors:
   //  coloschemes customizáveis, não entendi ainda
+}
+
+e.mongoUtil = () => {
+  const app = new PIXI.Application({
+    width: window.innerWidth,
+    height: window.innerHeight,
+    // transparent: true
+    backgroundColor: 0x000000
+  })
+  app.stage.sortableChildren = true
+  document.body.appendChild(app.view)
+  window.wand.app = app
+  // transfer.fAll.mark({ sid: 'renato.fabbri.125' }, {}, 'test').then(r => {
+  if (u('d')) {
+    return transfer.fAll.dmark({ 'userData.id': 'renato.fabbri' }).then(r => {
+      window.rr = r
+      // const anet = JSON.parse(r[0].text)
+      // const pfm = net.plotFromMongo(anet)
+      // window.nnn = pfm
+      // const dn = new net.ParticleNet2(app, pfm.net, pfm.atlas)
+      // pfm.dn = dn
+      $('#loading').hide()
+    })
+  }
+  // transfer.fAll.mark({ 'userData.id': 'charlesa.anderson.338', 'net.edges.10': { $exists: false } }).then(r => {
+  transfer.fAll.mark({ 'userData.id': 'charlesa.anderson.338' }).then(r => { // 1008, 3362
+    window.rr = r
+    // const anet = JSON.parse(r[0].text)
+    // const pfm = net.plotFromMongo(anet)
+    // window.nnn = pfm
+    // const dn = new net.ParticleNet2(app, pfm.net, pfm.atlas)
+    // pfm.dn = dn
+    $('#loading').hide()
+  })
 }

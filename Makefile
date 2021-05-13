@@ -83,16 +83,14 @@ va-eOA-zip:
 # new va, cleaner, rewritten:
 va2-install:
 	cd va2 && npm i
-va2-dev:
+va2-d:
 	cd va2 && npm run dev
-va2-deve:
-	cd va2 && npm run devE
-va2-builde:
-	cd va2 && npm run buildE
-va2-buildea:
-	cd va2 && npm run buildEauto
+va2-e:
+	cd va2 && npm run buildEauto2
 va2-fix:
 	cd va2 && npm run fixme
+va2-e-zip:
+	cd va2 && npm run buildE2 && cd you && zip -vr ../you.zip background_ok.js contentScript_ok.js manifest.json person_.png pop.html pop_ok.js
 
 # testing of the client code must be performed on the client. The /test page should be accessed,
 # e.g. https://0.0.0.0:8080/test/

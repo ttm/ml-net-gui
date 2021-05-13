@@ -3410,8 +3410,27 @@ e.netMongo = () => {
   })
 }
 
+e.heritage = () => {
+  const w = u('w')
+  const adiv = utils.stdDiv().html(`
+  <h2>Æterni Anima <b>${w}</b> heritage</h2>
+  `)
+  if (w === 'f') {
+    transfer.fAll.mark({ 'userData.id': { $exists: true } }, { 'userData.id': true }).then(r => {
+      console.log(r)
+      window.rr = r
+    })
+  } else if (w === 'w') {
+    transfer.fAll.ttm({ marker: { $exists: true } }, { marker: 1, date: 1, groupTitle: 1 }).then(r => {
+      console.log(r)
+      window.rr = r
+    })
+  }
+  window.rr = adiv
+}
+
 e.you = () => {
-  const app = new PIXI.Application({
+  const app = window.wand.app = new PIXI.Application({
     width: window.innerWidth,
     height: window.innerHeight * 0.9,
     // transparent: true
@@ -3419,15 +3438,24 @@ e.you = () => {
   })
   app.stage.sortableChildren = true
   document.body.appendChild(app.view)
-  window.wand.app = app
-  transfer.fAll.mark({ 'userData.id': u('id') }).then(r => {
-    const anet = r[0].net
-    const pfm = net.plotFromMongo(anet)
-    window.nnn = pfm
-    const dn = new net.ParticleNet2(app, pfm.net, pfm.atlas)
-    pfm.dn = dn
-    $('#loading').hide()
-  })
+  if (u('id')) {
+    transfer.fAll.mark({ 'userData.id': u('id') }).then(r => {
+      const anet = r[0].net
+      const pfm = net.plotFromMongo(anet)
+      const dn = new net.ParticleNet2(app, pfm.net, pfm.atlas)
+      pfm.dn = dn
+      $('#loading').hide()
+    })
+  } else if (u('whats')) {
+    transfer.fAll.ttm({ marker: u('whats') }).then(r => {
+      console.log(r, '....')
+      if (r.length === 0) return window.alert('data has been deleted')
+      const pfm = window.pfm = net.plotWhatsFromMongo(r[0].data, r[0].creator)
+      const dn = window.dn = new net.ParticleNet2(app, pfm.net, pfm.atlas)
+      pfm.dn = dn
+      $('#loading').hide()
+    })
+  }
 }
 
 e.prayer = () => {
@@ -4510,7 +4538,9 @@ e.mongoUtil = () => {
   window.wand.app = app
   // transfer.fAll.mark({ sid: 'renato.fabbri.125' }, {}, 'test').then(r => {
   if (u('d')) {
-    return transfer.fAll.dmark({ 'userData.id': 'renato.fabbri' }).then(r => {
+    // return transfer.fAll.dmark({ 'userData.id': 'charlesa.anderson.338' }).then(r => {
+    console.log('yeah, in "d"')
+    return transfer.fAll.dttm({ marker: { $exists: true } }).then(r => {
       window.rr = r
       // const anet = JSON.parse(r[0].text)
       // const pfm = net.plotFromMongo(anet)

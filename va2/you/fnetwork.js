@@ -104,7 +104,7 @@ class FNetwork {
         id: n
       })
     })
-    let url, nid
+    let url
     nodeIds.some(i => {
       if (i.nid !== undefined && !i.scrapped) {
         url = `https://www.facebook.com/browse/mutual_friends/?uid=${i.nid}`
@@ -112,7 +112,7 @@ class FNetwork {
       }
       return Boolean(url)
     })
-    return [url, nid]
+    return url
   }
 
   nScrapped () {

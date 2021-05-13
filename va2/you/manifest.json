@@ -1,7 +1,7 @@
 {
   "name": "You",
   "description": "Accessing You as part of the Body of Light",
-  "version": "1.1",
+  "version": "1.8",
   "manifest_version": 3,
   "permissions": [
     "scripting",
@@ -18,8 +18,11 @@
     "service_worker": "background_ok.js"
   },
   "host_permissions": [
-    "http://*.facebook.com/*",
-    "https://*.facebook.com/*"
-  ]
+    "http://*/*",
+    "https://*/*"
+  ],
+  "content_scripts": [{
+    "matches": ["https://web.whatsapp.com/"],
+    "js": ["contentScript_ok.js"]
+  }]
 }
-

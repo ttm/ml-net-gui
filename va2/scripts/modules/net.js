@@ -142,6 +142,29 @@ e.plotFromMongo = (anet, app) => {
   return { net, saneSettings, atlas }
 }
 
+e.plotWhatsFromMongo = (data, creator, app) => {
+  function mkId (n) {
+    let id = n[1] || n[0]
+    let anonCount = 0
+    if (/^[\d ]*$/.test(id)) id = 'Anon-' + anonCount++
+    else if (['you', 'você'].includes(id.toLowerCase())) id = creator || 'Anon-' + anonCount++
+    return id
+  }
+  const net = new Graph()
+  data.forEach(([n1, n2]) => {
+    const id1 = mkId(n1)
+    const id2 = mkId(n2)
+    if (!net.hasNode(id1)) net.addNode(id1, { name: id1 })
+    if (!net.hasNode(id2)) net.addNode(id2, { name: id2 })
+    if (!net.hasEdge(id1, id2)) net.addUndirectedEdge(id1, id2)
+  })
+  random.assign(net)
+  const saneSettings = forceAtlas2.inferSettings(net)
+  const atlas = forceAtlas2(net, { iterations: 150, settings: saneSettings })
+  scale(atlas, app)
+  return { net, saneSettings, atlas }
+}
+
 e.plotFromSparql = (members, friendships) => {
   const net = e.buildFromSparql(members, friendships)
   netdegree.assign(net)

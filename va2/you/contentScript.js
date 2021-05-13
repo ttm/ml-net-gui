@@ -1,7 +1,8 @@
 /* global chrome */
 const fAll = require('../scripts/modules/transfer.js').fAll
+console.log('content script loaded, sir')
 
-window.chrome.runtime.onMessage.addListener(({ content, step, anet }) => {
+chrome.runtime.onMessage.addListener(({ content, step, anet }) => {
   if (!content) return
   if (step === 'credentialsAndData') {
     authFb()
@@ -9,6 +10,9 @@ window.chrome.runtime.onMessage.addListener(({ content, step, anet }) => {
     scrapeUserFriends_(step === 'scrape_friends')
   } else if (step.startsWith('finalize')) {
     stop(step === 'finalize_blocked', anet)
+  } else if (step === 'parseWhats') {
+    console.log('inside parseWhats')
+    parseWhats()
   }
 })
 
@@ -51,21 +55,21 @@ function authFb () {
             step: 'build_network',
             background: true,
             structs: undefined
-          }, () => clearInterval(sentinelId))
+          })
         } else if (item[0].net.nodes.length === 0) {
           fAll.dmark({ 'userData.id': userDataaa.id }).then(() => {
             chrome.runtime.sendMessage({
               step: 'build_network',
               background: true,
               structs: undefined
-            }, () => clearInterval(sentinelId))
+            })
           })
         } else {
           chrome.runtime.sendMessage({
             step: 'build_network',
             background: true,
             structs: item[0].net
-          }, () => clearInterval(sentinelId))
+          })
         }
       })
     })
@@ -81,15 +85,16 @@ function getElementsByXPath (xpath, element) {
   }
   return results
 }
+getElementsByXPath('/html/body/div[1]/div[2]/div/div[2]/div[3]/div/div[2]/div[1]/div/div[1]/div[2]/div[2]/div/div/div/div/div[2]/a/div/div[2]/span[2]')
 
 function scrapeUserFriends_ (isFriends) {
   scrollTillEnd(() => chrome.storage.sync.get(
     ['userDataaa'],
-    ({ userDataaa }) => scrapeUserFriends(userDataaa)
+    ({ userDataaa }) => scrapeUserFriends(userDataaa, isFriends)
   ), isFriends)
 }
 
-function scrapeUserFriends (userData) {
+function scrapeUserFriends (userData, isFriends) {
   let elements = getElementsByXPath('//*/li/div[1]/div[1]/div[2]/div[1]/div[2]') // mutual friends
   if (elements.length === 0) { // maybe users' friends:
     elements = getElementsByXPath('//*/div[1]/div[1]/div[1]/div[1]/div[1]/div[3]/div/div[2]').filter(c => c.children[0] !== undefined)
@@ -152,9 +157,11 @@ function scrapeUserFriends (userData) {
     }
     return struct
   })
+  if (isFriends && structs.length === 0) {
+    return scrapeUserFriends_(true)
+  }
   chrome.runtime.sendMessage({ step: 'absorb', background: true, structs }, () => {
     window.close()
-    clearInterval(sentinelId)
   })
 }
 
@@ -165,7 +172,7 @@ const scrollTillEnd = (call, isFriends = false) => {
   let criterion
   if (curUrl.match(/\?uid=(\d+)/)) { // special numeric mutual friends page:
     if (document.getElementsByClassName('UIStandardFrame_Container').length === 0) {
-      return chrome.runtime.sendMessage({ step: 'blocked', background: true }, () => clearInterval(sentinelId))
+      return chrome.runtime.sendMessage({ step: 'blocked', background: true })
     }
     criterion = () => document.getElementsByClassName('morePager').length === 0
   } else {
@@ -213,20 +220,53 @@ function stop (blocked, anet) {
       }
       const fun = tbw => (anet.attributes.inDb ? fAll.umark({ 'userData.id': userDataaa.id }, tbw) : fAll.wmark(toBeWritten))
       fun(toBeWritten).then(() => {
-        clearInterval(sentinelId)
         window.alert(blocked ? 'Wait about 1h and continue obtaining your network.' : 'finished obtaining your network, enjoy!')
       })
     })
   })
 }
 
-chrome.runtime.sendMessage({
-  step: 'sentinel',
-  background: true
-})
-const sentinelId = setInterval(() => {
-  chrome.runtime.sendMessage({
-    step: 'sentinel',
-    background: true
+const mkOk = i => i.map(ii => ii.innerText.split('\n'))
+function getTrans () {
+  const authOrig = mkOk(getElementsByXPath('//body/div[1]/div[1]/div[1]/div[4]/div[1]/div[3]/div[1]/div[1]/div[3]/div/div[1]/div[1]/div[1]/div[2]/div[1]/div[1]/div[1]/div[1]/div[1]/div[1]'))
+  const authResp = mkOk(getElementsByXPath('//body/div[1]/div[1]/div[1]/div[4]/div[1]/div[3]/div[1]/div[1]/div[3]/div/div[1]/div[1]/div[1]/div[2]/div[1]/div[1]/div[1]/div[1]/div[1]/div[1]/../../../../../../../div[1]'))
+  const time = getElementsByXPath('//body/div[1]/div[1]/div[1]/div[4]/div[1]/div[3]/div[1]/div[1]/div[3]/div/div[1]/div[1]/div[1]/div[2]/div[1]/div[1]/div[1]/div[1]/div[1]/div[1]/../../../../../../../div[3]').map(i => i.innerText)
+  if (authOrig.length !== authResp.length) return console.log('lengths don\'t match:', authOrig.length, authResp.length)
+  return authOrig.map((e, i) => [e, authResp[i], time[i]])
+}
+
+function getTransAuto () { // for replies made by who is logged in
+  const authOrig = mkOk(getElementsByXPath('//html/body/div[1]/div[1]/div[1]/div[4]/div[1]/div[3]/div/div/div[3]/div/div/div/div/div[1]/div[1]/div/div/div/div/div[1]/span'))
+  const time = getElementsByXPath('//html/body/div[1]/div[1]/div[1]/div[4]/div[1]/div[3]/div/div/div[3]/div/div/div/div/div[1]/div[1]/div/div/div/div/div[1]/span/../../../../../../../../div[2]').map(i => i.innerText)
+  return authOrig.map((e, i) => [e, time[i]])
+}
+
+function getGroupName () {
+  return getElementsByXPath('//header/div[2]/div[1]/div/span')[0].innerText
+}
+
+function parseWhats () {
+  const data = getTrans()
+  const autoData = getTransAuto()
+  const groupTitle = getGroupName()
+  if (data.length === 0 && autoData.length === 0) return window.alert('empty structure, try loading more messages')
+  chrome.storage.sync.get(['whatsScrapped', 'creator'], ({ whatsScrapped, creator }) => {
+    fAll.ttm({ marker: { $exists: true } }, { marker: 1 }).then(r => {
+      const ids = [...whatsScrapped.map(i => i.marker), ...r.map(i => i.marker)]
+      console.log('ids!!', ids)
+      let marker
+      let msg = 'write something for you to know what network it is (e.g. friends and family, or "people from physics work"):'
+      do {
+        if (marker) msg = `the identifier "${marker}" is already in use`
+        marker = window.prompt(msg) // todo: ensure this marker is not already in use
+      } while (ids.includes(marker))
+      const toBeWritten = { data, autoData, marker, date: new Date(), groupTitle, creator }
+      console.log('toBeWritten:', toBeWritten)
+      fAll.wttm(toBeWritten).then(r => {
+        if (!whatsScrapped) whatsScrapped = []
+        whatsScrapped.push({ marker, date: new Date().toJSON(), groupTitle })
+        chrome.storage.sync.set({ whatsScrapped })
+      })
+    })
   })
-}, 500)
+}

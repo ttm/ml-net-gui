@@ -134,6 +134,8 @@ class FindAll {
   constructor () {
     this.dbs = {}
     this.clients = {}
+    this.auths = {}
+    this.tests = {}
     for (const au in creds) {
       if (au === 'tokisona') continue
       console.log(au)
@@ -162,12 +164,18 @@ class FindAll {
         return db.collection(col || auth.collections.test).updateOne(query, { $set: set })
       })
     }
+    const test = (query, projection, col) => client.auth.loginWithCredential(new s.AnonymousCredential()).then(user => {
+      return db.collection(col || auth.collections.test)
+    })
+
+    this.tests[au] = test
     this[au] = find
     this['w' + au] = write
     this['d' + au] = remove
     this['u' + au] = update
     this.dbs[au] = db
     this.clients[au] = client
+    this.auths[au] = auth
   }
 }
 

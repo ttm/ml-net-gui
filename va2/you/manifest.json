@@ -1,7 +1,7 @@
 {
   "name": "You",
   "description": "Accessing You as part of the Body of Light",
-  "version": "1.8",
+  "version": "1.9",
   "manifest_version": 3,
   "permissions": [
     "scripting",

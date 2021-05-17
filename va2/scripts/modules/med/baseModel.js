@@ -290,6 +290,9 @@ e.Med = class {
       $('.slideraa').css('background', '#cacaca')
       countdownMsg.html('No late participants allowed. Time since session started:')
       countdownCount.html('')
+      setTimeout(() => {
+        utils.mkModal().show()
+      }, 4000)
     }, this.getDurationToStart(s))
     const badCounter = setInterval(() => {
       countdownCount.html(' ' + utils.secsToTime(this.getDurationToStart(s) / 1000))
@@ -378,6 +381,7 @@ e.Med = class {
       finished = true
       t.Draw.schedule(() => {
         this.guiEls.countdownMsg.html('session finished. Time elapsed:')
+        utils.mkModal().show()
       }, time)
     }, '+' + (d() + s.d))
 

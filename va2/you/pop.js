@@ -7,10 +7,12 @@ const { stdDiv, mkGrid, gridDivider, chooseUnique } = require('../scripts/module
 //  4) chrome storage OK
 
 const ad = stdDiv('80%')
-$('<label/>', { for: 'aoption' }).html('Facebook').appendTo(ad)
-$('<input/>', { value: 'fb', id: 'ofb', type: 'radio', name: 'oradio' }).appendTo(ad)
-$('<label/>', { for: 'aoption2' }).html('Whatsapp').appendTo(ad)
-$('<input/>', { value: 'whats', id: 'owhats', type: 'radio', name: 'oradio' }).appendTo(ad)
+$('<input/>', { value: 'fb', id: 'ofb', type: 'radio', name: 'oradio' }).appendTo(
+  $('<label/>', { for: 'ofb' }).html('Facebook').appendTo(ad))
+$('<input/>', { value: 'whats', id: 'owhats', type: 'radio', name: 'oradio' }).appendTo(
+  $('<label/>', { for: 'owhats' }).html('Whatsapp').appendTo(ad))
+$('<input/>', { value: 'tele', id: 'otele', type: 'radio', name: 'oradio' }).appendTo(
+  $('<label/>', { for: 'otele' }).html('Telegram').appendTo(ad))
 $('input[type=radio][name=oradio]').on('change', function () {
   const option = $(this).val()
   window.chrome.storage.sync.set({ option }, () => {
@@ -21,7 +23,7 @@ $('input[type=radio][name=oradio]').on('change', function () {
 const optionsLoaded = []
 function view (opt) {
   if (opt === 'fb') {
-    adiv.show() && adiv2.hide() && getWhats.hide() && logbut.show() && seebut.show()
+    adiv.show() && adiv2.hide() && getWhats.hide() && logbut.show() && seebut.show() && adiv3.hide()
     if (optionsLoaded.includes(opt)) return
     window.chrome.storage.sync.get(
       ['userDataaa', 'metaData', 'lastScrapped'],
@@ -51,7 +53,7 @@ function view (opt) {
       }
     )
   } else if (opt === 'whats') {
-    adiv.hide() && adiv2.show() && getWhats.show() && logbut.hide() && seebut.hide()
+    adiv.hide() && adiv2.show() && getWhats.show() && logbut.hide() && seebut.hide() && adiv3.hide()
     if (optionsLoaded.includes(opt)) return
     window.chrome.storage.sync.get(
       ['whatsScrapped'],
@@ -66,6 +68,8 @@ function view (opt) {
         }
       }
     )
+  } else if (opt === 'tele') {
+    adiv.hide() && adiv2.hide() && getWhats.hide() && logbut.hide() && seebut.hide() && adiv3.hide() && getTele.show()
   }
   optionsLoaded.push(opt)
 }
@@ -84,12 +88,16 @@ const adiv = stdDiv('80%').html(`
 `)
 const grid = mkGrid(2, adiv, '100%', chooseUnique(['#eeeeff', '#eeffee', '#ffeeee']))
 
+const adiv3 = stdDiv('80%').html(`
+<h2>Whatsapp</h2>
+`).hide()
+
 const adiv2 = stdDiv('80%').html(`
-<h2>Whatsapp & Telegram</h2>
+<h2>Whatsapp</h2>
 `).hide()
 $('<label/>', {
   for: 'creator'
-}).html('your name: ').appendTo(adiv2)
+}).html('your name: ').appendTo(adiv2).appendTo(adiv3)
 $('<input/>', {
   id: 'creator'
 }).appendTo(adiv2).on('change', () => {
@@ -112,7 +120,7 @@ const seebut = $('<button/>', {
     width: '75%',
     background: 'lightgreen'
   }
-}).appendTo('body').html('See yourself').attr('disabled', true)
+}).appendTo('body').html('See yourself (Unlock)').attr('disabled', true)
 
 const getWhats = $('<button/>', {
   id: 'wbut',
@@ -122,9 +130,17 @@ const getWhats = $('<button/>', {
   }
 }).appendTo('body').html('Get whats interation').hide()
 
+const getTele = $('<button/>', {
+  id: 'wbut',
+  css: {
+    width: '75%',
+    background: 'lightblue'
+  }
+}).appendTo('body').html('Get telegram interation').hide()
+
 logbut.click(() => {
   window.chrome.storage.sync.set({ lastScrapped: new Date().toJSON() }, () => {
-    window.chrome.runtime.sendMessage({ step: 'login', background: true })
+    window.chrome.runtime.sendMessage({ step: 'login', background: true }, window.close)
   })
 })
 
@@ -136,7 +152,16 @@ getWhats.click(() => {
   if ($('#creator').val() === '') return window.alert('please input your name')
   window.chrome.storage.sync.set({ creator: $('#creator').val() }, () => {
     window.chrome.tabs.query({ active: true, currentWindow: true }).then(([tab]) => {
-      window.chrome.runtime.sendMessage({ step: 'parseWhats', background: true, structs: tab }, () => window.close())
+      window.chrome.runtime.sendMessage({ step: 'parseWhats', background: true, structs: tab }, window.close)
+    })
+  })
+})
+
+getTele.click(() => {
+  if ($('#creator').val() === '') return window.alert('please input your name')
+  window.chrome.storage.sync.set({ creator: $('#creator').val() }, () => {
+    window.chrome.tabs.query({ active: true, currentWindow: true }).then(([tab]) => {
+      window.chrome.runtime.sendMessage({ step: 'parseTele', background: true, structs: tab }, window.close)
     })
   })
 })

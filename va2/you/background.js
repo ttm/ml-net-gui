@@ -11,6 +11,7 @@ let currentCount // to only visit 5 friends
 let step // of the background
 let windowId
 let url
+let lock = false
 
 function continueMutual () {
   url = fnet.getNextURL()
@@ -29,15 +30,21 @@ function continueMutual () {
 }
 
 chrome.runtime.onMessage.addListener(({ background, step, structs }) => {
-  if (!background) return
+  if (!background || (lock && step !== 'see')) return
   if (step === 'see') {
-    chrome.storage.sync.get(['userDataaa'], ({ userDataaa }) => {
+    return chrome.storage.sync.get(['userDataaa'], ({ userDataaa }) => {
       chrome.tabs.create({ url: `http://aeterni.github.io?you&id=${userDataaa.id}` })
+      lock = false
     })
   } else if (step === 'parseWhats') {
-    console.log('back parse', structs.id)
-    chrome.tabs.sendMessage(structs.id, { step, content: true })
-  } else if (step === 'login') {
+    return chrome.tabs.sendMessage(structs.id, { step, content: true })
+  } else if (step === 'parseTele') {
+    return chrome.tabs.sendMessage(structs.id, { step, content: true })
+  }
+
+  lock = true
+
+  if (step === 'login') {
     chrome.windows.create({ url: 'https://www.facebook.com/profile.php' }).then(r => {
       windowId = r.id
       currentTabId = r.tabs[0].id
@@ -73,7 +80,7 @@ chrome.runtime.onMessage.addListener(({ background, step, structs }) => {
     } else {
       chrome.tabs.create({ url: 'https://www.facebook.com/profile.php', windowId }).then(r => {
         currentTabId = r.id
-        currentStep = 'finalize_blocked'
+        currentStep = 'finalize_wait'
       })
     }
   } else if (step === 'blocked') {
@@ -95,7 +102,10 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo) => {
       if (step.startsWith('finalize')) {
         msg.anet = fnet.graph.toJSON()
       }
-      chrome.tabs.sendMessage(tabId, msg, () => console.log('MSG sent for step:', step, msg))
+      chrome.tabs.sendMessage(tabId, msg, () => {
+        console.log('MSG sent for step:', step, msg)
+        lock = false
+      })
     })
   }
 })

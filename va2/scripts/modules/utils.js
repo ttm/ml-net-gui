@@ -134,6 +134,55 @@ e.permutations = {
   none: a => a
 }
 
+e.stdMsg = `
+<h2>Fortaleça-se</h2>
+Você pode ajudar neste processo de diversas formas, por exemplo:
+<ul>
+<li>escreva relatando como tem sido as sessões para você: elas tem te ajudado? De que forma?</li>
+<li>Incentive outros membros a escreverem um relato das experiências deles.</li>
+<li>Traga pessoas para vibrar no corpo de Luz.</li>
+<li>Ajude a manter/gerir o grupo.</li>
+<li>Aproxime alguma pessoa ou entidade que possa ter interesse na iniciativa.</li>
+<li>Gere material sobre o corpo de Luz (postagens, artigos jornalísticos...).</li>
+<li>Divulgue sobre o grupo ou trabalho.</li>
+<li>Doe ou ajude a arrecadar financeiramente.</li>
+<li>Ore para o corpo de Luz e para o mundo.</li>
+<li>Cuide-se muito bem.</li>
+<li>Sugira mudanças sobre como conduzir o corpo de Luz.</li>
+</ul>
+Paz.
+`
+
+e.mkModal = content => {
+  $('<div/>', { id: 'myModal', class: 'modal' }).appendTo('body')
+    .append($('<div/>', {
+      class: 'modal-content',
+      css: { background: e.chooseUnique(['#eeeeff', '#eeffee', '#ffeeee'], 1)[0] }
+    })
+      .append($('<span/>', { class: 'close' }).html('&times;')
+        .on('click', () => {
+          $('#myModal').css('display', 'none')
+        })
+      )
+      .append($('<p/>', { id: 'mcontent' }))
+    )
+  window.onclick = function (event) {
+    if (event.target === $('#myModal')[0]) {
+      $('#myModal').css('display', 'none')
+    }
+  }
+  $('#mcontent').html(`
+  ${content || e.stdMsg}
+  <br><br><br>:::
+  `)
+  return {
+    show: () => $('#myModal').css('display', 'block'),
+    hide: () => $('#myModal').css('display', 'none'),
+    content: c => $('#mcontent').html(c + '<br><br><br>:::'),
+    content_: c => $('#mcontent').html(c)
+  }
+}
+
 e.confirmExit = () => {
   window.onbeforeunload = function (e) {
     e = e || window.event

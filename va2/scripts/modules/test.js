@@ -3112,6 +3112,20 @@ e.aalogs3 = ufrj => {
     href: 'https://cdnjs.cloudflare.com/ajax/libs/paginationjs/2.1.5/pagination.css'
   }).appendTo('head')
 
+  let cod__ = {}
+  function cod_ (id) {
+    if (id in cod__) return cod__[id]
+    const r = window.rrr.filter(i => i.sessionId === id)
+    const dur = (r[0].date - r[r.length - 1].date) / (60 * 60 * 1000)
+    const h = Math.floor(dur)
+    const min = dur - h
+    const min_ = String(Math.round(min * 60)).padStart(2, '0')
+    cod__[id] = `${h}h${min_}`
+    return cod__[id]
+  }
+  function cod (id) {
+    return '(' + String(id.match(/.{1,2}/g).reduce((a, i) => a + parseInt(i, 16), 0)) + ') ' + cod_(id)
+  }
   function simpleTemplating2 (data) {
     const grid = utils.mkGrid(4, adiv, '100%', utils.chooseUnique(['#eeeeff', '#eeffee', '#ffeeee']))
     $('<span/>', { css: { 'margin-left': '10%' } }).html('<b>user</b>').appendTo(grid)
@@ -3139,13 +3153,15 @@ e.aalogs3 = ufrj => {
         const c = utils.mongoIdToRGB(s.sessionId)
         css.background = `rgba(${c[0]}, ${c[1]}, ${c[2]}, 0.5)`
       }
-      $('<span/>', { css, title: `see shouts in session ${s.sessionId}` }).html(s.sessionId ? `<a href="?${url}&session=${s.sessionId}" target="_blank">${s.sessionId.slice(-10)}</a>` : '')[func](grid)
+      // $('<span/>', { css, title: `see shouts in session ${s.sessionId}` }).html(s.sessionId ? `<a href="?${url}&session=${s.sessionId}" target="_blank">${s.sessionId.slice(-10)}</a>` : '')[func](grid)
+      $('<span/>', { css, title: `see shouts in session ${s.sessionId}` }).html(s.sessionId ? `<a href="?${url}&session=${s.sessionId}" target="_blank">${cod(s.sessionId)}</a>` : '')[func](grid)
       if (u('admin')) { // todo: remove the shout correctly
         shout.click(() => {
           console.log(s)
           transfer.remove({ _id: s._id }, true)
           window.rrr = window.rrr.filter(s_ => s_._id !== s._id)
           window.rrrBack = window.rrrBack.filter(s_ => s_._id !== s._id)
+          cod__ = {}
           mkPag()
         })
       }
@@ -3197,7 +3213,7 @@ e.aalogs3 = ufrj => {
     const dur = (r[0].date - r[r.length - 1].date) / (60 * 60 * 1000)
     const h = Math.floor(dur)
     const min = dur - h
-    const min_ = Math.round(min * 60)
+    const min_ = String(Math.round(min * 60)).padStart(2, '0')
     // const dstr = `${h}:${min_}`
     const dstr = `${h}h${min_}m`
     $('#sessionDur').html(` (total duration: <b>${dstr}</b>)`)
@@ -3440,8 +3456,8 @@ e.you = () => {
   document.body.appendChild(app.view)
   if (u('id')) {
     transfer.fAll.mark({ 'userData.id': u('id') }).then(r => {
-      const anet = r[0].net
-      const pfm = net.plotFromMongo(anet)
+      const anet = window.anet = r[0].net
+      const pfm = window.pfm = net.plotFromMongo(anet)
       const dn = new net.ParticleNet2(app, pfm.net, pfm.atlas)
       pfm.dn = dn
       $('#loading').hide()
@@ -4560,4 +4576,62 @@ e.mongoUtil = () => {
     // pfm.dn = dn
     $('#loading').hide()
   })
+}
+
+e.mongoTranslator = () => { // utility to get data somewhere and translate it
+  const o = u('o')
+  if (o === 'ls') {
+    const query = { sid: { $exists: true } }
+    function s (db, col) {
+      transfer.fAll[db](query, { sid: 1, nid: 1, date: 1 }, col).then(r => {
+        console.log(`db: ${db}, col: ${col}, data:`, r)
+      })
+    }
+    s('mark')
+    s('tokisona')
+    s('tokisona', 'aatest')
+    s('ttm')
+    s('ttm', 'test')
+    s('ttm', 'test2')
+    s('ttm', 'nets')
+    // transfer.fAll.mark(query, { sid: 1, nid: 1, date: 1 }).then(r => {
+    //   window.mark = r
+    //   transfer.fAll.ttm(query, { sid: 1, nid: 1, date: 1 }).then(r => {
+    //     window.ttm = r
+    //     transfer.fAll.tokisona(query, { sid: 1, nid: 1, date: 1 }).then(r => {
+    //       window.tokisona = r
+    //       $('#loading').hide()
+    //     })
+    //   })
+    // })
+  }
+}
+
+e.testLoc = () => {
+  // const geoip = require('geoip-country')
+  // $.getJSON('https://api.ipify.org?format=json', function (data) {
+  //   console.log(data.ip)
+  //   console.log(data)
+  //   // const geo = geoip.lookup(data.ip)
+  //   // console.log(geo)
+  //   $.get(`https://ipinfo.io/${data.ip}/?token=a1cf42d7d11976`, function (response) {
+  //     console.log(response.city, response.country, response)
+  //   }, 'jsonp')
+  // })
+  // window.fetch('https://ipinfo.io/json?token=a1cf42d7d11976', { mode: 'no-cors' }).then(
+  //   response => {
+  //     console.log(response)
+  //     console.log(response.json())
+  //   }
+  // )
+  //   (response) => { return response.json() }
+  // ).then(
+  //   (jsonResponse) => console.log(jsonResponse.ip, jsonResponse.country)
+  // )
+
+  $.get('https://ipinfo.io/?token=a1cf42d7d11976', function (response) {
+  // $.get('https://ipinfo.io/', function (response) {
+    console.log(response.city, response.country, response, 'BBBB')
+  }, 'jsonp')
+  console.log('yey man')
 }

@@ -9,10 +9,11 @@ chrome.runtime.onMessage.addListener(({ content, step, anet }) => {
   } else if (step.startsWith('scrape')) {
     scrapeUserFriends_(step === 'scrape_friends')
   } else if (step.startsWith('finalize')) {
-    stop(step === 'finalize_blocked', anet)
+    stop(msgs[step], anet)
   } else if (step === 'parseWhats') {
-    console.log('inside parseWhats')
     parseWhats()
+  } else if (step === 'parseTele') {
+    parseTele()
   }
 })
 
@@ -76,6 +77,7 @@ function authFb () {
   }
 }
 
+const mkOk = i => i.map(ii => ii.innerText.split('\n'))
 function getElementsByXPath (xpath, element) {
   const results = []
   const query = document.evaluate(xpath, element || document,
@@ -85,7 +87,6 @@ function getElementsByXPath (xpath, element) {
   }
   return results
 }
-getElementsByXPath('/html/body/div[1]/div[2]/div/div[2]/div[3]/div/div[2]/div[1]/div/div[1]/div[2]/div[2]/div/div/div/div/div[2]/a/div/div[2]/span[2]')
 
 function scrapeUserFriends_ (isFriends) {
   scrollTillEnd(() => chrome.storage.sync.get(
@@ -204,7 +205,12 @@ function monload (work) {
   }
 }
 
-function stop (blocked, anet) {
+const msgs = {
+  finalize_ended: 'finished obtaining your network, enjoy!',
+  finalize_wait: 'Wait about *20 minutes* and continue obtaining your network.',
+  finalize_blocked: 'Wait about 1h and continue obtaining your network.'
+}
+function stop (msg, anet) {
   const metaData = {
     scrapped: anet.nodes.reduce((a, n) => a + Boolean(n.attributes.scrapped), 0),
     whenFinished: new Date(),
@@ -220,13 +226,12 @@ function stop (blocked, anet) {
       }
       const fun = tbw => (anet.attributes.inDb ? fAll.umark({ 'userData.id': userDataaa.id }, tbw) : fAll.wmark(toBeWritten))
       fun(toBeWritten).then(() => {
-        window.alert(blocked ? 'Wait about 1h and continue obtaining your network.' : 'finished obtaining your network, enjoy!')
+        window.alert(msg)
       })
     })
   })
 }
 
-const mkOk = i => i.map(ii => ii.innerText.split('\n'))
 function getTrans () {
   const authOrig = mkOk(getElementsByXPath('//body/div[1]/div[1]/div[1]/div[4]/div[1]/div[3]/div[1]/div[1]/div[3]/div/div[1]/div[1]/div[1]/div[2]/div[1]/div[1]/div[1]/div[1]/div[1]/div[1]'))
   const authResp = mkOk(getElementsByXPath('//body/div[1]/div[1]/div[1]/div[4]/div[1]/div[3]/div[1]/div[1]/div[3]/div/div[1]/div[1]/div[1]/div[2]/div[1]/div[1]/div[1]/div[1]/div[1]/div[1]/../../../../../../../div[1]'))
@@ -243,6 +248,58 @@ function getTransAuto () { // for replies made by who is logged in
 
 function getGroupName () {
   return getElementsByXPath('//header/div[2]/div[1]/div/span')[0].innerText
+}
+
+function getTTrans () { // todo: get this function right!
+  // gets reply to text msgs:
+  const authOrig = mkOk(getElementsByXPath('//html/body/div[1]/div[2]/div/div[2]/div[3]/div/div[2]/div[1]/div/div[1]/div[2]/div[2]/div/div/div/div/div[2]/a/div/div[2]/span[2]'))
+  const authResp = mkOk(getElementsByXPath('//html/body/div[1]/div[2]/div/div[2]/div[3]/div/div[2]/div[1]/div/div[1]/div[2]/div[2]/div/div/div/div/div[2]/a/div/div[2]/span[2]/../../../../span[1]/a'))
+  const time = mkOk(getElementsByXPath('//html/body/div[1]/div[2]/div/div[2]/div[3]/div/div[2]/div[1]/div/div[1]/div[2]/div[2]/div/div/div/div/div[2]/a/div/div[2]/span[2]/../../../../span[1]/span[1]/span'))
+
+  // gets pic reply but also other stuff:
+  const authOrig2 = mkOk(getElementsByXPath('//html/body/div[1]/div[2]/div/div[2]/div[3]/div/div[2]/div[1]/div/div[1]/div[2]/div[2]/div/div/div/div/div[2]/a/div/div[3]/span[2]'))
+  const authResp2 = mkOk(getElementsByXPath('//html/body/div[1]/div[2]/div/div[2]/div[3]/div/div[2]/div[1]/div/div[1]/div[2]/div[2]/div/div/div/div/div[2]/a/div/div[3]/span[2]/../../../../span[1]/a'))
+  const time2 = mkOk(getElementsByXPath('//html/body/div[1]/div[2]/div/div[2]/div[3]/div/div[2]/div[1]/div/div[1]/div[2]/div[2]/div/div/div/div/div[2]/a/div/div[3]/span[2]/../../../../span[1]/span[1]/span'))
+  if (authOrig.length !== authResp.length) return console.log('lengths don\'t match:', authOrig.length, authResp.length)
+  return [
+    authOrig.map((e, i) => [e, authResp[i], time[i]]),
+    authOrig2.map((e, i) => [e, authResp2[i], time2[i]])
+  ]
+}
+
+function getTTransAuto () { // todo: doesn't seem to be needed in telegram. Remove.
+  const authOrig = mkOk(getElementsByXPath('//html/body/div[1]/div[1]/div[1]/div[4]/div[1]/div[3]/div/div/div[3]/div/div/div/div/div[1]/div[1]/div/div/div/div/div[1]/span'))
+  const time = getElementsByXPath('//html/body/div[1]/div[1]/div[1]/div[4]/div[1]/div[3]/div/div/div[3]/div/div/div/div/div[1]/div[1]/div/div/div/div/div[1]/span/../../../../../../../../div[2]').map(i => i.innerText)
+  return authOrig.map((e, i) => [e, time[i]])
+}
+
+function getTGroupName () {
+  return getElementsByXPath('//header/div[2]/div[1]/div/span')[0].innerText
+}
+
+function parseTele () {
+  const data = getTTrans()
+  const autoData = getTTransAuto()
+  const groupTitle = getTGroupName()
+  if (data.length === 0 && autoData.length === 0) return window.alert('empty structure, try loading more messages of group:', groupTitle)
+  chrome.storage.sync.get(['teleScrapped', 'creator'], ({ teleScrapped, creator }) => {
+    fAll.ttm({ markerT: { $exists: true } }, { markerT: 1 }).then(r => {
+      const ids = [...teleScrapped.map(i => i.markerT), ...r.map(i => i.markerT)]
+      let markerT
+      let msg = 'write something for you to know what network it is (e.g. friends and family, or "people from physics work"):'
+      do {
+        if (markerT) msg = `the identifier "${markerT}" is already in use`
+        markerT = window.prompt(msg) // todo: ensure this marker is not already in use
+      } while (ids.includes(markerT))
+      const toBeWritten = { data, autoData, markerT, date: new Date(), groupTitle, creator }
+      console.log('toBeWritten:', toBeWritten)
+      fAll.wttm(toBeWritten).then(r => {
+        if (!teleScrapped) teleScrapped = []
+        teleScrapped.push({ markerT, date: new Date().toJSON(), groupTitle })
+        chrome.storage.sync.set({ teleScrapped })
+      })
+    })
+  })
 }
 
 function parseWhats () {

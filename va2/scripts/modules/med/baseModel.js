@@ -267,7 +267,7 @@ e.Med = class {
         clearTimeout(badTimer)
         clearInterval(badCounter)
         check.prop('disabled', true)
-        this.startGoodTimer(s, badTimer, badCounter)
+        this.startGoodTimer(s)
       }
     })
     $('<div/>', { class: 'slideraa round' }).appendTo(label)
@@ -291,8 +291,8 @@ e.Med = class {
       countdownMsg.html('No late participants allowed. Time since session started:')
       countdownCount.html('')
       setTimeout(() => {
-        utils.mkModal().show()
-      }, 4000)
+        window.wand.modal.show(4000)
+      }, 2000)
     }, this.getDurationToStart(s))
     const badCounter = setInterval(() => {
       countdownCount.html(' ' + utils.secsToTime(this.getDurationToStart(s) / 1000))
@@ -381,7 +381,7 @@ e.Med = class {
       finished = true
       t.Draw.schedule(() => {
         this.guiEls.countdownMsg.html('session finished. Time elapsed:')
-        utils.mkModal().show()
+        window.wand.modal.show(4000)
       }, time)
     }, '+' + (d() + s.d))
 

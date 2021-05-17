@@ -134,41 +134,92 @@ e.permutations = {
   none: a => a
 }
 
-e.stdMsg = `
-<h2>Fortaleça-se</h2>
-Você pode ajudar neste processo de diversas formas, por exemplo:
+const groups = `
+<a href="https://www.facebook.com/groups/arcturianart" target="_blank">AAA</a>,
+<a href="https://www.facebook.com/groups/mentaliz" target="_blank">MMM</a>,
+<a href="https://chat.whatsapp.com/BztLyvWDEgW3C1mjXZTTrP" target="_blank">WM</a>`
+
+e.stdMsg = () => {
+  if (window.wand.country === 'BR') {
+    return `
+
+<h2>Fortaleça o seu Corpo de Luz</h2>
+Você pode ajudar de diversas formas, por exemplo:
 <ul>
 <li>escreva relatando como tem sido as sessões para você: elas tem te ajudado? De que forma?</li>
-<li>Incentive outros membros a escreverem um relato das experiências deles.</li>
-<li>Traga pessoas para vibrar no corpo de Luz.</li>
-<li>Ajude a manter/gerir o grupo.</li>
-<li>Aproxime alguma pessoa ou entidade que possa ter interesse na iniciativa.</li>
-<li>Gere material sobre o corpo de Luz (postagens, artigos jornalísticos...).</li>
+<li>Incentive outros membros a escreverem relatos das experiências deles.</li>
+<li>Traga pessoas para vibrarem no Corpo de Luz.</li>
+<li>Ajude a manter/gerir um dos grupos existentes (e.g. ${groups}).</li>
+<li>Crie um novo grupo.</li>
+<li>Crie Artefatos Audiovisuais para serem usados nas sessões.</li>
+<li>Aproxime uma pessoa ou entidade que possa ter interesse especial na iniciativa.</li>
+<li>Gere mídia sobre o Corpo de Luz (postagens, artigos jornalísticos...).</li>
 <li>Divulgue sobre o grupo ou trabalho.</li>
-<li>Doe ou ajude a arrecadar financeiramente.</li>
-<li>Ore para o corpo de Luz e para o mundo.</li>
+<li>Doe ou ajude a arrecadar financeiramente (transfira para a chave PIX <b>luz</b> ou verifique <a href="?angel" target="_blank">as alternativas</a>).</li>
+<li>Ore para o Corpo de Luz e para o mundo.</li>
 <li>Cuide-se muito bem.</li>
-<li>Sugira mudanças sobre como conduzir o corpo de Luz.</li>
+<li>Sugira mudanças sobre como conduzir o Corpo de Luz.</li>
 </ul>
-Paz.
+
+Faça contato!<br>
+Luz e Paz ~
 `
+  }
+  return `
+<h2>Strengthen your Lightbody</h2>
+
+You can help in several ways, for example:
+
+<ul>
+<li>write about how the sessions have been for you: have they helped you? In what way?</li>
+<li>Encourage other members to write an account of their experiences.</li>
+<li>Bring people to vibrate in the body of Light.</li>
+<li>Help to maintain / manage one of the existing groups (e.g. ${groups}).</li>
+<li>Create a new group.</li>
+<li>Create Audiovisual Artifacts to be used in the sessions.</li>
+<li>Contact a person or entity that may be interested in the initiative.</li>
+<li>Generate media about the body of Light (posts, journalistic articles ...).</li>
+<li>Publicize a group or work.</li>
+<li>Donate or help raise money financially (transfer to PIX <b>luz</b> or check <a href="luz" target="_blank">the alternatives</a>).</li>
+<li>Pray for the Lightbody and the world.</li>
+<li>Take very good care of yourself.</li>
+<li>Suggest changes on how to conduct the Lightbody.</li>
+</ul>
+
+Make contact!<br>
+Light & Peace ~
+
+`
+}
 
 e.mkModal = content => {
-  $('<div/>', { id: 'myModal', class: 'modal' }).appendTo('body')
+  $('<div/>', {
+    id: 'myModal',
+    class: 'modal',
+    role: 'dialog',
+    show: {
+      effect: 'fade',
+      duration: 2000
+    },
+    hide: {
+      effect: 'fade',
+      duration: 2000
+    }
+  }).appendTo('body')
     .append($('<div/>', {
       class: 'modal-content',
       css: { background: e.chooseUnique(['#eeeeff', '#eeffee', '#ffeeee'], 1)[0] }
     })
       .append($('<span/>', { class: 'close' }).html('&times;')
         .on('click', () => {
-          $('#myModal').css('display', 'none')
+          $('#myModal').hide().css('display', 'none')
         })
       )
       .append($('<p/>', { id: 'mcontent' }))
     )
   window.onclick = function (event) {
     if (event.target === $('#myModal')[0]) {
-      $('#myModal').css('display', 'none')
+      $('#myModal').hide().css('display', 'none')
     }
   }
   $('#mcontent').html(`
@@ -176,10 +227,11 @@ e.mkModal = content => {
   <br><br><br>:::
   `)
   return {
-    show: () => $('#myModal').css('display', 'block'),
-    hide: () => $('#myModal').css('display', 'none'),
-    content: c => $('#mcontent').html(c + '<br><br><br>:::'),
-    content_: c => $('#mcontent').html(c)
+    show: ms => {
+      $('#mcontent').html(e.stdMsg() + '<br><br><br>:::')
+      $('#myModal').fadeIn(ms || 'slow') // show() // .css('display', 'block')
+    },
+    hide: () => $('#myModal').hide().css('display', 'none')
   }
 }
 

@@ -31,6 +31,11 @@ e.urlAllArguments = () => {
 }
 
 e.mkFooter = () => {
+  wand.$.get('https://ipinfo.io/?token=a1cf42d7d11976', function (response) {
+    console.log(response.city, response.country, response, 'BBBB')
+    wand.country = response.country
+  }, 'jsonp')
+  wand.modal = utils.mkModal()
   const isMobile = utils.mobileAndTabletCheck()
   console.log('isMobile:', isMobile)
   function sWord () {
@@ -63,8 +68,9 @@ e.mkFooter = () => {
   }).html('<b>About Æterni</b>').appendTo(ft)
   // wand.$('<div/>', { css: { display: 'inline-block', 'margin-left': '1%', float: 'left' } }).appendTo(ft).html(' | ')
   wand.$('<a/>', {
-    href: `?angel${lflag}`,
-    target: '_blank',
+    // href: `?angel${lflag}`,
+    // target: '_blank',
+    href: '',
     css: {
       // 'margin-left': '1%',
       margin: 'auto',
@@ -72,7 +78,11 @@ e.mkFooter = () => {
       'font-size': isMobile ? '3vw' : '1vw',
       float: 'left'
     }
-  }).html(`<b>${sWord()} this initiative</b>`).appendTo(ft)
+  }).html(`<b>${sWord()} this initiative</b>`).appendTo(ft).click(() => {
+    wand.modal.show()
+    console.log('fuck me hard')
+    return false
+  })
   wand.$('body', {
     css: {
       'background-color': '#dddddd'

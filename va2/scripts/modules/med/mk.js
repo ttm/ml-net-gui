@@ -276,7 +276,7 @@ function adminUsers () { // &create=1&u=luz&name=Ferraz
   } else if (u_ === 'all') {
     transfer.findAll({ luser: { $exists: true } }).then(r => {
       console.log('all users:', r)
-      window.alert('all users:', r)
+      window.alert('all users ::', String(r))
     })
   } else {
     return false
@@ -315,7 +315,7 @@ e.Mk = class {
     if (this.light) query['header.communionSchedule'] = true
     const plural = this.user_[this.user_.length - 1] === 's' ? "'" : "'s"
     $('<h2/>', { css: { 'text-align': 'center', background: '#d4d988' } })
-      .html(`${this.user_}${plural} Make ${this.light ? 'Light (<a href="https://youtu.be/LIenlf5umck" target="_blank">tutorial</a>)' : 'Medicine'}`).appendTo(this.div1)
+      .html(`${this.user_}${plural} Make ${this.light ? 'Light (tutorial: <a href="https://youtu.be/sMB5pMAzIAI" target="_blank">short</a>, <a href="https://youtu.be/LIenlf5umck" target="_blank">long</a>)' : 'Medicine'}`).appendTo(this.div1)
     transfer.findAll(query).then(r => {
       r.sort((a, b) => b.header.datetime - a.header.datetime)
       this.allSettings = r

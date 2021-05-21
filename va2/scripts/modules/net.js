@@ -7,6 +7,8 @@ const forceAtlas2 = require('graphology-layout-forceatlas2')
 const netdegree = require('graphology-metrics/degree')
 const subGraph = require('graphology-utils/subgraph')
 const netmetrics = require('graphology-metrics')
+const louvain = require('graphology-communities-louvain')
+const components = require('graphology-components')
 
 const { chooseUnique } = require('./utils')
 
@@ -118,23 +120,31 @@ e.buildFromSparql = (members, friendships) => {
   return net
 }
 
-e.plotFromMongo = (anet, app) => {
+e.plotFromMongo = (anet, app, keepUnscrapped) => {
   // const net = e.buildFromMongo(anet.nodes, anet.edges)
-  const net = new Graph()
+  let net = new Graph()
   net.import(anet)
-  let removedNodes
-  do {
-    netdegree.assign(net)
-    removedNodes = []
+  const removedNodes = []
+  if (!keepUnscrapped) {
     net.forEachNode((n, a) => {
-      if (a.degree === 0 || !a.scrapped) {
-        removedNodes.push({ n, a })
-      }
+      if (!a.scrapped) removedNodes.push({ n, a })
     })
-    removedNodes.forEach(v => {
-      net.dropNode(v.n)
-    })
-  } while (removedNodes.length > 0)
+    removedNodes.forEach(v => net.dropNode(v.n))
+  }
+  net = e.getLargestComponent(net, true)
+  // let removedNodes
+  // do {
+  //   netdegree.assign(net)
+  //   removedNodes = []
+  //   net.forEachNode((n, a) => {
+  //     if (a.degree === 0 || !a.scrapped) {
+  //       removedNodes.push({ n, a })
+  //     }
+  //   })
+  //   removedNodes.forEach(v => {
+  //     net.dropNode(v.n)
+  //   })
+  // } while (removedNodes.length > 0)
   random.assign(net)
   const saneSettings = forceAtlas2.inferSettings(net)
   const atlas = forceAtlas2(net, { iterations: 150, settings: saneSettings })
@@ -348,6 +358,10 @@ e.getComponent = (net, seed, size) => {
   return sg
 }
 
+e.getSubGraph = (net, nodes) => {
+  return subGraph(net, nodes).copy()
+}
+
 e.assignDistances = (g, seed) => {
   // has to be connected
   g.setNodeAttribute(seed, 'ndist', 0)
@@ -382,4 +396,50 @@ e.assignDistances = (g, seed) => {
   // g.forEachNode((n, a) => {
   //   a.index = g.vals_.findIndex(i => i > a.ndist_)
   // })
+}
+
+e.mkCommunities = g => {
+  // const gg = components.connectedComponents(g)
+  // let gg_ = []
+  // for (let i = 0; i < gg.length; i++) {
+  //   if (gg[i].length > gg_.length) {
+  //     gg_ = gg[i]
+  //   }
+  // }
+  // const sg = subGraph(g, gg_).copy()
+  const sg = g
+  netdegree.assign(sg)
+  netmetrics.centrality.degree.assign(sg)
+  sg.communities = louvain.detailed(sg)
+  const communitySizes = new Array(sg.communities.count).fill(0)
+  for (const key in sg.communities.communities) {
+    const index = sg.communities.communities[key]
+    sg.setNodeAttribute(key, 'community', index)
+    communitySizes[index]++
+  }
+  sg.communities.sizes = {
+    all: communitySizes,
+    max: Math.max(...communitySizes),
+    min: Math.min(...communitySizes)
+  }
+  return sg
+}
+
+e.getLargestComponent = (g, returnNet) => {
+  const gg = components.connectedComponents(g)
+  let gg_ = []
+  for (let i = 0; i < gg.length; i++) {
+    if (gg[i].length > gg_.length) {
+      gg_ = gg[i]
+    }
+  }
+  return returnNet ? subGraph(g, gg_).copy() : gg_
+}
+
+e.removeNode = (g, n) => {
+  g.getNodeAttribute(n, 'pixiElement').destroy()
+  g.forEachEdge(n, (e, ea) => {
+    ea.pixiElement.destroy()
+  })
+  g.dropNode(n)
 }

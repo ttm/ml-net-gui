@@ -23,11 +23,11 @@ $('input[type=radio][name=oradio]').on('change', function () {
 const optionsLoaded = []
 function view (opt) {
   if (opt === 'fb') {
-    adiv.show() && adiv2.hide() && getWhats.hide() && logbut.show() && seebut.show() && adiv3.hide()
+    adiv.show() && adiv2.hide() && getWhats.hide() && logbut.show() && seebut.show() && adiv3.hide() && autobut.show()
     if (optionsLoaded.includes(opt)) return
     window.chrome.storage.sync.get(
-      ['userDataaa', 'metaData', 'lastScrapped'],
-      ({ userDataaa, metaData, lastScrapped }) => {
+      ['userDataaa', 'metaData', 'lastScrapped', 'sround'],
+      ({ userDataaa, metaData, lastScrapped, sround }) => {
         if (!userDataaa || !metaData) {
           // window.alert('login a allow You to grow')
           $('<span/>').html('login to').appendTo(grid)
@@ -49,11 +49,13 @@ function view (opt) {
         if (lastScrapped !== undefined) {
           $('<span/>').html('previous scrappe:').appendTo(grid)
           $('<span/>').html(mkDate(lastScrapped)).appendTo(grid)
+          $('<span/>').html('round:').appendTo(grid)
+          $('<span/>').html(sround).appendTo(grid)
         }
       }
     )
   } else if (opt === 'whats') {
-    adiv.hide() && adiv2.show() && getWhats.show() && logbut.hide() && seebut.hide() && adiv3.hide()
+    adiv.hide() && adiv2.show() && getWhats.show() && logbut.hide() && seebut.hide() && adiv3.hide() && autobut.hide()
     if (optionsLoaded.includes(opt)) return
     window.chrome.storage.sync.get(
       ['whatsScrapped'],
@@ -69,7 +71,7 @@ function view (opt) {
       }
     )
   } else if (opt === 'tele') {
-    adiv.hide() && adiv2.hide() && getWhats.hide() && logbut.hide() && seebut.hide() && adiv3.hide() && getTele.show()
+    adiv.hide() && adiv2.hide() && getWhats.hide() && logbut.hide() && seebut.hide() && adiv3.hide() && getTele.show() && autobut.hide()
   }
   optionsLoaded.push(opt)
 }
@@ -122,6 +124,15 @@ const seebut = $('<button/>', {
   }
 }).appendTo('body').html('See yourself (Unlock)').attr('disabled', true)
 
+const wclose = () => setTimeout(() => window.close(), 1000)
+const autobut = $('<button/>', {
+  id: 'abut',
+  css: {
+    width: '75%',
+    background: 'lightred'
+  }
+}).appendTo('body').html('Auto scrape each 20 min')
+
 const getWhats = $('<button/>', {
   id: 'wbut',
   css: {
@@ -139,20 +150,22 @@ const getTele = $('<button/>', {
 }).appendTo('body').html('Get telegram interation').hide()
 
 logbut.click(() => {
-  window.chrome.storage.sync.set({ lastScrapped: new Date().toJSON() }, () => {
-    window.chrome.runtime.sendMessage({ step: 'login', background: true }, window.close)
-  })
+  window.chrome.runtime.sendMessage({ step: 'login', background: true }, wclose)
 })
 
 seebut.click(() => {
   window.chrome.runtime.sendMessage({ step: 'see', background: true })
 })
 
+autobut.click(() => {
+  window.chrome.runtime.sendMessage({ step: 'auto', background: true }, wclose)
+})
+
 getWhats.click(() => {
   if ($('#creator').val() === '') return window.alert('please input your name')
   window.chrome.storage.sync.set({ creator: $('#creator').val() }, () => {
     window.chrome.tabs.query({ active: true, currentWindow: true }).then(([tab]) => {
-      window.chrome.runtime.sendMessage({ step: 'parseWhats', background: true, structs: tab }, window.close)
+      window.chrome.runtime.sendMessage({ step: 'parseWhats', background: true, structs: tab }, wclose)
     })
   })
 })
@@ -161,7 +174,7 @@ getTele.click(() => {
   if ($('#creator').val() === '') return window.alert('please input your name')
   window.chrome.storage.sync.set({ creator: $('#creator').val() }, () => {
     window.chrome.tabs.query({ active: true, currentWindow: true }).then(([tab]) => {
-      window.chrome.runtime.sendMessage({ step: 'parseTele', background: true, structs: tab }, window.close)
+      window.chrome.runtime.sendMessage({ step: 'parseTele', background: true, structs: tab }, wclose)
     })
   })
 })

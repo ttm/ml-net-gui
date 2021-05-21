@@ -49,29 +49,41 @@ function authFb () {
       codename = parts[1]
     }
     const userDataaa = { name, codename, sid, nid, id, newfb: true }
-    chrome.storage.sync.set({ userDataaa }, () => { // todo: don't get the networks every time?!
-      fAll.mark({ 'userData.id': userDataaa.id }).then(item => {
-        if (item.length === 0) {
+    function action (item) {
+      console.log('the item:', item)
+      if (item.length === 0) {
+        chrome.runtime.sendMessage({
+          step: 'build_network',
+          background: true,
+          structs: undefined
+        })
+      } else if (item.net.nodes.length === 0) {
+        fAll.dmark({ 'userData.id': userDataaa.id }).then(() => {
           chrome.runtime.sendMessage({
             step: 'build_network',
             background: true,
             structs: undefined
           })
-        } else if (item[0].net.nodes.length === 0) {
-          fAll.dmark({ 'userData.id': userDataaa.id }).then(() => {
-            chrome.runtime.sendMessage({
-              step: 'build_network',
-              background: true,
-              structs: undefined
-            })
-          })
-        } else {
-          chrome.runtime.sendMessage({
-            step: 'build_network',
-            background: true,
-            structs: item[0].net
+        })
+      } else {
+        chrome.runtime.sendMessage({
+          step: 'build_network',
+          background: true,
+          structs: item.net
+        })
+      }
+    }
+    console.log('before query')
+    chrome.storage.sync.set({ userDataaa }, () => { // todo: don't get the networks every time?!
+      fAll.omark({ 'userData.id': userDataaa.id, origDate: { $exists: true } }).then(item => {
+        if (item === undefined) {
+          return fAll.omark({ 'userData.id': userDataaa.id }).then(item => {
+            action(item)
           })
         }
+        chrome.storage.sync.set({ origDate: item.origDate }, () => {
+          action(item)
+        })
       })
     })
   }
@@ -218,12 +230,14 @@ function stop (msg, anet) {
     friendships: anet.edges.length
   }
   chrome.storage.sync.set({ metaData }, () => {
-    chrome.storage.sync.get(['userDataaa'], ({ userDataaa }) => {
+    chrome.storage.sync.get(['userDataaa', 'origDate'], ({ userDataaa, origDate }) => {
       const toBeWritten = {
         date: new Date(),
         userData: userDataaa,
         net: anet
       }
+      if (origDate) toBeWritten.origDate = origDate
+      console.log(toBeWritten)
       const fun = tbw => (anet.attributes.inDb ? fAll.umark({ 'userData.id': userDataaa.id }, tbw) : fAll.wmark(toBeWritten))
       fun(toBeWritten).then(() => {
         window.alert(msg)

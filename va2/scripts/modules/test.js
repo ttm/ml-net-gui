@@ -2139,6 +2139,17 @@ Lógico, não se preocupe com isso, é apenas se vc quiser e é uma super boa co
     `.replace(/\n/g, '<br>')
     )
   }).appendTo(grid)
+  $('<button/>').html('cores').click(() => {
+    div.html('')
+    div2.html(`
+Segunda.Lua: Branco, prata e creme.
+Terça. Marte: vermelho e laranjas.
+Quarta. Mercurio:  violetas, cinzas e laranjas
+Quinta. Jupiter: azul royal, azul e roxos.
+Sexta. Venus: verde, rosa, tons pasteis.
+    `.replace(/\n/g, '<br>')
+    )
+  }).appendTo(grid)
   const div = $('<div/>').appendTo(adiv)
   const div2 = $('<div/>').appendTo(adiv)
   $('#loading').hide()
@@ -3446,6 +3457,214 @@ e.heritage = () => {
 }
 
 e.you = () => {
+  const removedNodes = []
+  utils.mkBtn('user-times', 'remove member', () => { // fixme: ensure no isolated node or group is left behind
+    const n = window.pfm.net
+    const uid = window.prompt('enter user string id:')
+    if (!n.hasNode(uid)) return window.alert('network has no such member')
+    net.removeNode(n, uid)
+    const newNet = net.getLargestComponent(n)
+    const toBeRemoved = []
+    n.forEachNode(nn => {
+      if (!newNet.includes(nn)) toBeRemoved.push(nn)
+    })
+    toBeRemoved.forEach(nn => net.removeNode(n, nn))
+    removedNodes.push(uid, ...toBeRemoved)
+  })
+  const rec = utils.mkBtn('record-vinyl', 'record current setup', () => {
+    if (!window.confirm('are you sure that you will be using this setup and want to write it?')) return
+    if (window.comNames.filter(i => i === '').length > 0) return window.alert('first name all communities')
+    // write the networks of each community with their names,
+    // keep a reference to the original array,
+    // reference the community names
+    //
+    // 0) check if all has names
+    const n = window.pfm.net
+    const toBeWritten = []
+    for (let i = 0; i < n.communities.count; i++) {
+      const name = window.comNames[i]
+      const members = []
+      n.forEachNode((nd, a) => {
+        if (a.community === i) members.push(nd)
+      })
+      const network = net.getSubGraph(n, members).toJSON()
+      network.edges.forEach(n => {
+        delete n.attributes.pixiElement
+      })
+      network.nodes.forEach(n => {
+        const a = n.attributes
+        delete a.pixiElement
+        delete a.textElement
+        delete a.community
+        delete a.degreeCentrality
+        delete a.x
+        delete a.y
+      })
+      toBeWritten.push({
+        // name: `${u('id')}-${i}-${name}`,
+        source: u('id'),
+        comName: name,
+        removedNodes,
+        network,
+        date: new Date()
+      })
+    }
+    for (let i = 0; i < toBeWritten.length; i++) {
+      (async function () {
+        const result = await transfer.fAll.waeterni(toBeWritten[i])
+        console.log(result)
+      })()
+    }
+    console.log(toBeWritten)
+    console.log(toBeWritten)
+    window.toBeWritten = toBeWritten
+  }).hide()
+  utils.mkBtn('dragon', 'group members', () => {
+    const n = window.pfm.net
+    const members = []
+    n.forEachNode((n, a) => {
+      members.push({
+        degree: a.degree,
+        name: a.name,
+        id: a.sid || n
+      })
+    })
+    members.sort((a, b) => a.degree - b.degree)
+    const memberSets = utils.chunkArray(members, window.prompt('Size of set:'))
+    const str = memberSets.map((set, count) => count + ' |||<br>' + set.map(member => `${member.name} ${member.degree} ${member.id}`).join('<br>')).join('<br>=====<br><br>')
+    window.wand.modal.show(10, str)
+    window.members = members
+  })
+  utils.mkBtn('users-cog', 'detect communities', () => {
+    const n = window.pfm.net
+    net.mkCommunities(n)
+    cycleCom.show()
+    rec.show()
+    window.comNames = new Array(n.communities.count).fill('')
+    makeCommsTable()
+  })
+  function makeCommsTable () {
+    if (window.adiv) window.adiv.remove()
+    const n = window.pfm.net
+    sinfo.text(`${n.communities.count} communities found. Sizes: ${n.communities.sizes.all.join(', ')}.`)
+    const adiv = window.adiv = $('<div/>').appendTo('body')
+    const grid = utils.mkGrid(3, adiv, '60%', utils.chooseUnique(['#eeeeff', '#eeffee', '#ffeeee']))
+    function addItem (text, bold) {
+      if (bold) text = `<b>${text}</b>`
+      return $('<span/>', { css: { border: '1px solid' } }).html(text).appendTo(grid)
+    }
+    addItem('index', 1)
+    addItem('size', 1)
+    addItem('name', 1)
+    const existingComms = []
+    n.communities.sizes.all.forEach((c, i) => {
+      existingComms.push(i)
+      addItem(i).click(() => {
+        console.log(`activate com ${i} on the visualization`)
+        showCom(i)
+      })
+      addItem(c).click(() => {
+        const mergeIndex = window.prompt(`enter index to merge ${i}:`)
+        if (existingComms.includes(parseInt(mergeIndex))) {
+          mergeComms(i, mergeIndex)
+        }
+      })
+      const me = addItem(window.comNames[i]).click(() => {
+        window.comNames[i] = window.prompt(`enter name for com ${i}:`)
+        me.text(window.comNames[i])
+      })
+    })
+  }
+  function mergeComms (i, j) {
+    if (i === j) return window.alert('will not merge to itself!')
+    // merge them:
+    //   join members of both communities into one
+    //   move the higher communities down:
+    const [keep, change] = [Math.min(i, j), Math.max(i, j)]
+    window.pfm.net.forEachNode((n, a) => {
+      if (a.community === change) a.community = keep
+    })
+    window.pfm.net.forEachNode((n, a) => {
+      if (a.community > change) a.community--
+    })
+    window.comNames.forEach((foo, count) => {
+      if (count >= change) {
+        window.comNames[count] = window.comNames[count + 1]
+      }
+    })
+    window.pfm.net.communities.count--
+    window.pfm.net.communities.sizes.all = new Array(window.pfm.net.communities.count).fill(0)
+    window.pfm.net.forEachNode((n, a) => {
+      window.pfm.net.communities.sizes.all[a.community]++
+    })
+    makeCommsTable()
+  }
+  let counter = 0
+  let names = []
+  const cycleCom = utils.mkBtn('shapes', 'cicle through communities', () => {
+    showCom(counter)
+    counter = ++counter % window.pfm.net.communities.count
+  }, '#users-cog-button').hide()
+  function showCom (index) {
+    names = []
+    window.pfm.net.forEachNode((n, a) => {
+      let color = 0x00ffff
+      if (a.community === index) {
+        color = 0x0000ff
+        names.push(a.name)
+      }
+      a.pixiElement.tint = color
+    })
+    sinfo.text(`community size: ${window.pfm.net.communities.sizes.all[index]}`)
+  }
+  const sinfo = $('<span/>', { id: 'sinfo', css: { cursor: 'pointer' } }).appendTo('body').click(() => {
+    if (names.length === 0) return
+    window.wand.modal.show(10, names.join(', '))
+  })
+  function setUp () {
+    const anet = window.pfm.net
+    function stdNode (n) {
+      anet.forEachNeighbor(n, (nn, na) => {
+        na.pixiElement.tint = 0x00ffff
+        clearInterval(na.textElement.iId)
+        na.textElement.alpha = 0
+        na.textElement.tint = 0xffffff
+      })
+    }
+    anet.forEachNode((n, a) => {
+      a.textElement.on('pointerover', () => {
+        sinfo.text(`degree: ${a.degree}`)
+      })
+      a.textElement.on('pointerout', () => {
+        stdNode(n)
+      })
+      a.textElement.on('pointerupoutside', () => {
+        stdNode(n)
+        anet.forEachNeighbor(n, (nn, na) => {
+          na.pixiElement.tint = 0x00ff00
+        })
+      })
+
+      a.textElement.on('pointerdown', () => {
+        anet.forEachNeighbor(n, (nn, na) => {
+          na.pixiElement.tint = 0x00ff00
+          na.textElement.tint = 0xff9999
+          na.textElement.iId = setInterval(() => {
+            if (Math.random() > 0.7) {
+              na.textElement.alpha = 1
+            } else {
+              na.textElement.alpha = 0
+            }
+          }, 200)
+        })
+        console.log('clicked jow')
+      })
+      a.textElement.on('pointerup', () => {
+        stdNode(n)
+        console.log('up jow')
+      })
+    })
+  }
   const app = window.wand.app = new PIXI.Application({
     width: window.innerWidth,
     height: window.innerHeight * 0.9,
@@ -3456,10 +3675,12 @@ e.you = () => {
   document.body.appendChild(app.view)
   if (u('id')) {
     transfer.fAll.mark({ 'userData.id': u('id') }).then(r => {
+      window.rrr = r
       const anet = window.anet = r[0].net
-      const pfm = window.pfm = net.plotFromMongo(anet)
+      const pfm = window.pfm = net.plotFromMongo(anet, app, u('deg'))
       const dn = new net.ParticleNet2(app, pfm.net, pfm.atlas)
       pfm.dn = dn
+      setUp()
       $('#loading').hide()
     })
   } else if (u('whats')) {
@@ -4567,7 +4788,8 @@ e.mongoUtil = () => {
     })
   }
   // transfer.fAll.mark({ 'userData.id': 'charlesa.anderson.338', 'net.edges.10': { $exists: false } }).then(r => {
-  transfer.fAll.mark({ 'userData.id': 'charlesa.anderson.338' }).then(r => { // 1008, 3362
+  // transfer.fAll.mark({ 'userData.id': 'charlesa.anderson.338' }).then(r => { // 1008, 3362
+  transfer.fAll.mark({ 'userData.id': 'renato.fabbri' }).then(r => { // 1008, 3362
     window.rr = r
     // const anet = JSON.parse(r[0].text)
     // const pfm = net.plotFromMongo(anet)
@@ -4580,13 +4802,16 @@ e.mongoUtil = () => {
 
 e.mongoTranslator = () => { // utility to get data somewhere and translate it
   const o = u('o')
+  const res = window.res = []
+  function ss (query, projection) {
+    return (db, col) => transfer.fAll[db](query, projection || { sid: 1, nid: 1, date: 1 }, col).then(r => {
+      console.log(`db: ${db}, col: ${col}, data:`, r)
+      res.push(r)
+    })
+  }
   if (o === 'ls') {
     const query = { sid: { $exists: true } }
-    function s (db, col) {
-      transfer.fAll[db](query, { sid: 1, nid: 1, date: 1 }, col).then(r => {
-        console.log(`db: ${db}, col: ${col}, data:`, r)
-      })
-    }
+    const s = ss(query)
     s('mark')
     s('tokisona')
     s('tokisona', 'aatest')
@@ -4604,6 +4829,63 @@ e.mongoTranslator = () => { // utility to get data somewhere and translate it
     //     })
     //   })
     // })
+    // ttm -, ttm test, mark -
+  } else if (u('i')) {
+    const query = { sid: u('i') }
+    const s = ss(query, {})
+    s('mark')
+    s('tokisona')
+    s('tokisona', 'aatest')
+    s('ttm')
+    s('ttm', 'test')
+    s('ttm', 'test2')
+    s('ttm', 'nets')
+  } else if (u('ii')) { // 3659
+    const query = { sid: u('ii') }
+    const s = ss(query, {})
+    s('mark')
+    const s2 = ss({ 'userData.id': 'renato.fabbri' }, {})
+    s2('mark')
+  } else if (u('iii')) {
+    const sid = u('iii')
+    transfer.fAll.mark({ sid }).then(old => {
+      const oldNet = JSON.parse(old[0].text)
+      const userData = {}
+      userData.id = old[0].id
+      userData.sid = old[0].sid
+      userData.nid = old[0].nid
+      userData.name = oldNet.attributes.userData.name
+      // add to oldNet: anonString, preclude []
+      oldNet.attributes = {
+        preclude: [],
+        anonString: 'unnactive-' + Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15) + '-'
+      }
+      const date = new Date(old[0].date)
+      const toBeWritten = {
+        userData,
+        date,
+        origDate: date,
+        net: oldNet
+      }
+      console.log('toBeWritten:', toBeWritten)
+      console.log('old:', old)
+      transfer.fAll.wmark(toBeWritten).then(wr => console.log('write resp:', wr))
+      // transfer.fAll.mark({ 'userData.id': sid }).then(now => {
+      //   console.log('new:', now)
+      // })
+    })
+  } else if (u('u')) {
+    const sid = u('u')
+    transfer.fAll.omark({ 'userData.id': sid, origDate: { $exists: true } }).then(item => {
+      console.log('titem', item)
+      window.yo = item
+    })
+  } else if (u('ud')) {
+    const sid = u('ud')
+    transfer.fAll.dmark({ 'userData.id': sid }).then(item => {
+      console.log('titem', item)
+      window.yo = item
+    })
   }
 }
 

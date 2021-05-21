@@ -19,6 +19,7 @@ regName('ttm', 'freene-gui-fzgxa', 'https://ttm.github.io/oa/', 'freenet-all', '
 regName('tokisona', 'aplicationcreated-mkwpm', 'https://tokisona.github.io/oa/', 'adbcreated', 'acolectioncreated') // sync.aquarium@ and aeterni, also col aatest
 regName('mark', 'anyapplication-faajz', 'https://markturian.github.io/ouraquarium/', 'anydb', 'anycollection') // markarcturian@
 // regName('sync', 'anyapplication-faajz', 'https://worldhealing.github.io/ouraquarium/', 'anydb', 'anycollection') // markarcturian@
+regName('aeterni', 'application-0-knxbk', '', 'adb', 'acol') // aeterni.anima@
 
 const auth = creds.tokisona
 // const auth = creds.mark
@@ -151,6 +152,9 @@ class FindAll {
     const find = (query, projection, col) => client.auth.loginWithCredential(new s.AnonymousCredential()).then(user => {
       return db.collection(col || auth.collections.test).find(query, { projection }).asArray()
     })
+    const findo = (query, projection, col) => client.auth.loginWithCredential(new s.AnonymousCredential()).then(user => {
+      return db.collection(col || auth.collections.test).findOne(query, { projection })
+    })
     const write = (query, col) => client.auth.loginWithCredential(new s.AnonymousCredential()).then(user => {
       return db.collection(col || auth.collections.test).insertOne(query)
     })
@@ -170,6 +174,7 @@ class FindAll {
 
     this.tests[au] = test
     this[au] = find
+    this['o' + au] = findo
     this['w' + au] = write
     this['d' + au] = remove
     this['u' + au] = update

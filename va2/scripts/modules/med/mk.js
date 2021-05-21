@@ -29,6 +29,47 @@ function forms (grid) {
   sel0.asel = $('<select/>').appendTo(grid).hide()
   const selnt = $('<span/>', { css: { background: '#ccddcc' } }).html('component size:').appendTo(grid).hide()
   sel0.aseln = $('<input/>', { placeholder: 10, title: 'number of nodes per component', value: 5 }).appendTo(grid).hide()
+  function after () {
+    sel0.asel.show()
+    sel0.asel.initialized = true
+    $('#loading').hide()
+  }
+  let gfun = () => { // fixme: write the sid of the network to retrieve only such network:
+    transfer.fAll.ttm({ sid: { $exists: true } }, { name: 1 }, 'test').then(r => {
+      r.sort((a, b) => a.name > b.name ? 1 : -1)
+      r.forEach((n, i) => sel0.asel.append($('<option/>').val(i).html(n.name)))
+      after()
+    })
+  }
+  if (u('id')) { // &adv=1&id=marielelizabethy
+    gfun = () => {
+      transfer.fAll.omark({ 'userData.id': u('id') }).then(r => {
+        sel0.asel.append($('<option/>').val(0).html(`${r.userData.name} || ${r.net.nodes.length} / ${r.net.edges.length} || ${r.date.toISOString()}`))
+        const order = r.net.nodes.reduce((a, i) => a + Boolean(i.attributes.scrapped), 0)
+        sel0.asel.append($('<option/>').val(1).html(`${r.userData.name} || ${order} scrapped || ${r.date.toISOString()}`))
+        after()
+      })
+    }
+  } else if (u('comName')) { // &u=bana&comName=bvc&ssize=8&adv=1
+    gfun = () => {
+      transfer.fAll.oaeterni({ comName: u('comName') }).then(r => {
+        r.network.nodes.sort((a, b) => {
+          const [aa, ab] = [a.attributes, b.attributes]
+          if (aa.degree !== ab.degree) return aa.degree - ab.degree
+          const [ai, bi] = [aa.sid || aa.nid, ab.sid || ab.nid]
+          // return ai > bi ? 1 : -1
+          return ai.split('').reverse().join('') > bi.split('').reverse().join('') ? 1 : -1
+        })
+        const memberSets = window.memberSets = utils.chunkArray(r.network.nodes, u('ssize'))
+        memberSets.forEach((s, i) => {
+          const degrees = s.map(m => m.attributes.degree)
+          const [maxd, mind] = [Math.max(...degrees), Math.min(...degrees)]
+          sel0.asel.append($('<option/>').val(i).html(`${i} (${mind}...${maxd}) - ${r.source} / ${r.comName} || nodes: ${r.network.nodes.length}, edges: ${r.network.edges.length} || ${r.date.toISOString()}`))
+        })
+        after()
+      })
+    }
+  }
   sel0
     .append($('<option/>').val(0).html('sinusoid'))
     .append($('<option/>').val(1).html('lemniscate'))
@@ -56,13 +97,7 @@ function forms (grid) {
           sel0.asel.show()
         } else {
           $('#loading').show()
-          transfer.fAll.ttm({ sid: { $exists: true } }, { name: 1 }, 'test').then(r => {
-            r.sort((a, b) => a.name > b.name ? 1 : -1)
-            r.forEach((n, i) => sel0.asel.append($('<option/>').val(i).html(n.name)))
-            sel0.asel.show()
-            sel0.asel.initialized = true
-            $('#loading').hide()
-          })
+          gfun()
         }
       } else {
         $('#lb_ccc').html('circ 1 color:')
@@ -276,7 +311,7 @@ function adminUsers () { // &create=1&u=luz&name=Ferraz
   } else if (u_ === 'all') {
     transfer.findAll({ luser: { $exists: true } }).then(r => {
       console.log('all users:', r)
-      window.alert('all users ::', String(r))
+      window.alert('all users:', JSON.stringify(r))
     })
   } else {
     return false
@@ -708,6 +743,7 @@ ${lw()}.
     const v = this.visSetting
     const v_ = s.visSetting
     v.lemniscate.val(Number(v_.lemniscate))
+    // fixme: this way to deal with networks is very messy:
     const isNet = v_.lemniscate === 32
     const func = isNet ? 'show' : 'hide'
     function dealNet () {
@@ -716,17 +752,56 @@ ${lw()}.
       v.lemniscate.selt[func]()
       v.lemniscate.selnt[func]()
     }
+    // select networks to make available:
+    // 1) ttm/test networks
+    // 2) mark transfer.fAll.mark({ 'userData.id': u('id') }) nets, scrapped and unscrapped
+    // 3) aeterni communities transfer.fAll.aeterni({ source: u('source'), comName: u('comName') })
+    function after () {
+      v.lemniscate.asel.show()
+      v.lemniscate.asel.initialized = true
+      dealNet()
+      $('#loading').hide()
+    }
+    let gfun = () => {
+      transfer.fAll.ttm({ sid: { $exists: true } }, { name: 1 }, 'test').then(r => {
+        r.sort((a, b) => a.name > b.name ? 1 : -1)
+        r.forEach((n, i) => v.lemniscate.asel.append($('<option/>').val(i).html(n.name)))
+        after()
+      })
+    }
+    if (u('id')) {
+      gfun = () => {
+        transfer.fAll.omark({ 'userData.id': u('id') }).then(r => {
+          v.lemniscate.asel.append($('<option/>').val(0).html(`${r.userData.name} || ${r.net.nodes.length} / ${r.net.edges.length} || ${r.date.toISOString()}`))
+          const order = r.net.nodes.reduce((a, i) => a + Boolean(i.attributes.scrapped), 0)
+          v.lemniscate.asel.append($('<option/>').val(1).html(`${r.userData.name} || ${order} scrapped || ${r.date.toISOString()}`))
+          after()
+        })
+      }
+    } else if (u('comName')) {
+      gfun = () => {
+        transfer.fAll.oaeterni({ comName: u('comName') }).then(r => {
+          r.network.nodes.sort((a, b) => {
+            const [aa, ab] = [a.attributes, b.attributes]
+            if (aa.degree !== ab.degree) return aa.degree - ab.degree
+            const [ai, bi] = [aa.sid || aa.nid, ab.sid || ab.nid]
+            // return ai > bi ? 1 : -1
+            return ai.split('').reverse().join('') > bi.split('').reverse().join('') ? 1 : -1
+          })
+          const memberSets = window.memberSets = utils.chunkArray(r.network.nodes, u('ssize'))
+          memberSets.forEach((s, i) => {
+            const degrees = s.map(m => m.attributes.degree)
+            const [maxd, mind] = [Math.max(...degrees), Math.min(...degrees)]
+            v.lemniscate.asel.append($('<option/>').val(i).html(`${i} (${mind}...${maxd}) - ${r.source} / ${r.comName} || nodes: ${r.network.nodes.length}, edges: ${r.network.edges.length} || ${r.date.toISOString()}`))
+          })
+          after()
+        })
+      }
+    }
     if (isNet) {
       if (!v.lemniscate.asel.initialized) {
         $('#loading').show()
-        transfer.fAll.ttm({ sid: { $exists: true } }, { name: 1 }, 'test').then(r => {
-          r.sort((a, b) => a.name > b.name ? 1 : -1)
-          r.forEach((n, i) => v.lemniscate.asel.append($('<option/>').val(i).html(n.name)))
-          v.lemniscate.asel.show()
-          v.lemniscate.asel.initialized = true
-          dealNet()
-          $('#loading').hide()
-        })
+        gfun()
       } else {
         dealNet()
       }
@@ -986,6 +1061,11 @@ ${lw()}.
     if (visSetting.lemniscate === 32) {
       visSetting.network = p(v.lemniscate.asel)
       visSetting.componentSize = p(v.lemniscate.aseln)
+      if (u('id')) visSetting.uid = u('id')
+      else if (u('comName')) {
+        visSetting.comName = u('comName')
+        visSetting.ssize = u('ssize')
+      }
     }
     const colors = ['bcc', 'bgc', 'fgc', 'ccc', 'lcc']
     colors.forEach(i => { visSetting[i] = v[i].toString() })

@@ -71,6 +71,7 @@ e.mkFooter = () => {
     // href: `?angel${lflag}`,
     // target: '_blank',
     href: '',
+    id: 'contribL',
     css: {
       // 'margin-left': '1%',
       margin: 'auto',
@@ -80,7 +81,6 @@ e.mkFooter = () => {
     }
   }).html(`<b>${sWord()} this initiative</b>`).appendTo(ft).click(() => {
     wand.modal.show()
-    console.log('fuck me hard')
     return false
   })
   wand.$('body', {

@@ -12,11 +12,13 @@ let step // of the background
 let windowId
 let url
 let lock = false
+let autoId
 
 function continueMutual () {
   url = fnet.getNextURL()
   if (url === undefined) {
     chrome.tabs.create({ url: 'https://www.facebook.com/profile.php', windowId }).then(r => {
+      fnet.defineRound()
       currentTabId = r.id
       currentStep = 'finalize_ended'
     })
@@ -27,6 +29,16 @@ function continueMutual () {
       currentCount++
     })
   }
+}
+
+function login () {
+  chrome.storage.sync.set({ lastScrapped: new Date().toJSON() }, () => {
+    chrome.windows.create({ url: 'https://www.facebook.com/profile.php' }).then(r => {
+      windowId = r.id
+      currentTabId = r.tabs[0].id
+      currentStep = 'credentialsAndData'
+    })
+  })
 }
 
 chrome.runtime.onMessage.addListener(({ background, step, structs }) => {
@@ -45,15 +57,21 @@ chrome.runtime.onMessage.addListener(({ background, step, structs }) => {
   lock = true
 
   if (step === 'login') {
-    chrome.windows.create({ url: 'https://www.facebook.com/profile.php' }).then(r => {
-      windowId = r.id
-      currentTabId = r.tabs[0].id
-      currentStep = 'credentialsAndData'
-    })
+    login()
+  } else if (step === 'auto') {
+    console.log('yeah man, lets see', autoId)
+    if (autoId) {
+      clearInterval(autoId)
+      autoId = undefined
+    } else {
+      autoId = setInterval(login, 20 * 60 * 1000)
+      login()
+    }
   } else if (step === 'build_network') { // initialize empty or with existing data
     if (structs !== undefined && structs.nodes.length > 0) { // continue mutual friends
       fnet.restart()
       fnet.graph.import(structs)
+      fnet.defineRound()
       fnet.graph.setAttribute('inDb', true)
       currentCount = 0
       continueMutual()

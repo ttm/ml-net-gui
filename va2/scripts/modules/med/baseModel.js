@@ -46,15 +46,42 @@ e.Med = class {
         return
       }
       if (r.visSetting.lemniscate === 32) {
-        transfer.fAll.ttm({ sid: { $exists: true } }, { name: 1, sid: 1 }, 'test').then(r0 => {
-          r0.sort((a, b) => a.name > b.name ? 1 : -1)
-          transfer.fAll.ttm({ sid: r0[r.visSetting.network].sid }, {}, 'test').then(rr => {
-            this.anet = net.plotFromMongo(JSON.parse(rr[0].text), this.app)
-            this.anet.dn = new net.ParticleNet2(this.app, this.anet.net, this.anet.atlas, false)
-            this.anet.dn.hide()
-            this.doIt(r)
+        const after = () => {
+          this.anet.dn = new net.ParticleNet2(this.app, this.anet.net, this.anet.atlas, false)
+          this.anet.dn.hide()
+          this.doIt(r)
+        }
+        if (r.visSetting.uid) {
+          transfer.fAll.omark({ 'userData.id': r.visSetting.uid }).then(r0 => {
+            this.anet = net.plotFromMongo(r0.net, this.app, !r.visSetting.network) // 1 is only scrapped, 0 is all
+            this.anet.net.nodes_ = this.anet.net.nodes()
+            after()
           })
-        })
+        } else if (r.visSetting.comName) {
+          transfer.fAll.oaeterni({ comName: r.visSetting.comName }).then(r0 => {
+            r0.network.nodes.sort((a, b) => {
+              const [aa, ab] = [a.attributes, b.attributes]
+              if (aa.degree !== ab.degree) return aa.degree - ab.degree
+              const [ai, bi] = [aa.sid || aa.nid, ab.sid || ab.nid]
+              // return ai > bi ? 1 : -1
+              return ai.split('').reverse().join('') > bi.split('').reverse().join('') ? 1 : -1
+            })
+            const memberSets = window.memberSets = utils.chunkArray(r0.network.nodes, r.visSetting.ssize)
+            window.memberSet = memberSets[r.visSetting.network]
+            this.anet = net.plotFromMongo(r0.network, this.app)
+            this.anet.net.nodes_ = window.memberSet.map(i => i.key)
+            after()
+          })
+        } else { // fixme: download only the network to be used:
+          transfer.fAll.ttm({ sid: { $exists: true } }, { name: 1, sid: 1 }, 'test').then(r0 => {
+            r0.sort((a, b) => a.name > b.name ? 1 : -1)
+            transfer.fAll.ttm({ sid: r0[r.visSetting.network].sid }, {}, 'test').then(rr => {
+              this.anet = net.plotFromMongo(JSON.parse(rr[0].text), this.app)
+              this.anet.net.nodes_ = this.anet.net.nodes()
+              after()
+            })
+          })
+        }
       } else {
         this.doIt(r)
       }
@@ -171,9 +198,11 @@ e.Med = class {
     for (let i = 1; i < s.nnotes; i++) {
       notes.push(s.f0 * (freqFact ** i))
     }
-    const sy = new t.Synth({ oscillator: { type: w[s.waveform] } }).toDestination()
-    sy.volume.value = -150
+    const syOptions = { oscillator: { type: w[s.waveform] } }
     const noteSep = s.d / notes.length
+    // if (noteSep > 10) syOptions.envelope = { attack: 2, decay: 2 }
+    const sy = new t.Synth(syOptions).toDestination()
+    sy.volume.value = -150
     const noteDur = noteSep / 2
     const permfunc = utils.permutations[p[s.permfunc]]
     const loop = new t.Loop(time => {
@@ -181,7 +210,6 @@ e.Med = class {
       permfunc(notes)
       for (const note in notes) {
         sy.triggerAttackRelease(notes[note], noteDur, time + noteSep * note)
-        console.log(sy.volume.value, 'VOLUME')
       }
     }, s.d)
     s.iniVolume = s.iniVolume || 0
@@ -292,7 +320,7 @@ e.Med = class {
       countdownCount.html('')
       setTimeout(() => {
         window.wand.modal.show(4000)
-      }, 2000)
+      }, 4000)
     }, this.getDurationToStart(s))
     const badCounter = setInterval(() => {
       countdownCount.html(' ' + utils.secsToTime(this.getDurationToStart(s) / 1000))
@@ -381,7 +409,7 @@ e.Med = class {
       finished = true
       t.Draw.schedule(() => {
         this.guiEls.countdownMsg.html('session finished. Time elapsed:')
-        window.wand.modal.show(4000)
+        window.wand.modal.show(5000)
       }, time)
     }, '+' + (d() + s.d))
 

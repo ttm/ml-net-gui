@@ -35,7 +35,7 @@ e.Med = class extends baseModel.Med {
       })
       this.notBouncingFuncs.push(() => {
         if (!seed && this.anet && this.anet.net) { // choose random seed using rot:
-          seed = this.anet.net.nodes()[Math.floor(this.anet.net.order * Math.random())] // todo: use nodes ordered by degree
+          seed = this.anet.net.nodes_[Math.floor(this.anet.net.nodes_.length * Math.random())] // todo: use nodes ordered by degree
           component = net.getComponent(this.anet.net, seed, s.componentSize) // choose 10 members connected to the seed
           window.gg = component
           seed_ = component.getNodeAttributes(seed)

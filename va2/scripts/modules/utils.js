@@ -227,11 +227,14 @@ e.mkModal = content => {
   <br><br><br>:::
   `)
   return {
-    show: ms => {
-      $('#mcontent').html(e.stdMsg() + '<br><br><br>:::')
+    show: (ms, msg) => {
+      $('#mcontent').html((msg || e.stdMsg()) + '<br><br><br>:::')
       $('#myModal').fadeIn(ms || 'slow') // show() // .css('display', 'block')
+      $('#contribL').fadeOut(200).fadeIn(200).fadeOut(200).fadeIn(200).fadeOut(200).fadeIn(200)
     },
-    hide: () => $('#myModal').hide().css('display', 'none')
+    hide: () => {
+      $('#myModal').hide().css('display', 'none')
+    }
   }
 }
 
@@ -430,4 +433,26 @@ e.mongoIdToRGB = mid => {
   const g = c(8, 16)
   const b = c(16, 24)
   return [r, g, b]
+}
+
+e.mkBtn = (iclass, title, fun, ref) => {
+  const fid = iclass
+  const btn = $('<button/>', {
+    class: 'btn tooltip',
+    id: `${fid}-button`,
+    click: fun,
+    css: {
+      height: '4%',
+      width: '4%',
+      'margin-left': '1%'
+    }
+  })
+  if (!ref) {
+    btn.prependTo('body')
+  } else {
+    btn.insertAfter(ref)
+  }
+  $('<i/>', { class: 'fa fa-' + iclass, id: `${fid}-icon` }).appendTo(btn)
+  $('<span/>', { class: 'tooltiptext' }).text(title).appendTo(btn)
+  return btn
 }

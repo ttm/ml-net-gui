@@ -13,6 +13,7 @@ const components = require('graphology-components')
 const { chooseUnique } = require('./utils')
 
 const e = module.exports
+e.netdegree = netdegree
 
 e.eR = (order, probability) => {
   return erdosRenyi(Graph, { order, probability })
@@ -145,6 +146,7 @@ e.plotFromMongo = (anet, app, keepUnscrapped) => {
   //     net.dropNode(v.n)
   //   })
   // } while (removedNodes.length > 0)
+  netdegree.assign(net)
   random.assign(net)
   const saneSettings = forceAtlas2.inferSettings(net)
   const atlas = forceAtlas2(net, { iterations: 150, settings: saneSettings })

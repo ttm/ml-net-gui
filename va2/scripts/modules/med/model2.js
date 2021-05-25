@@ -16,6 +16,7 @@ e.Med = class extends baseModel.Med {
 
     const [x, y] = [w * 0.1, h * 0.5] // for sinusoid, left-most point
     const [aLx, aLy] = [w * 0.4, h * 0.4]
+    const [aLx_, aLy_] = [aLx / 15, aLy / 15]
     const [a_, a__, h_] = [w * 0.13, h * 0.15, h * 0.05] // for trefoil
 
     const myLine = new PIXI.Graphics()
@@ -66,6 +67,13 @@ e.Med = class extends baseModel.Med {
     }
     const xyLis35 = angle => xyLis(angle, 3, 4)
 
+    function xyRay (angle) {
+      const foo = 2 * angle + 1 / angle
+      const x = aLx_ * (foo + 2 * Math.cos(14 * angle))
+      const y = aLy_ * (foo + 2 * Math.sin(15 * angle))
+      return [c[0] / 6 + x, c[1] / 6 + y]
+    }
+
     const xyLisDyn = angle => xyLis(angle, 3, 4.02)
     // let [lastX, lastY] = xyLisDyn(0)
     function xyDyn (angle) { // Lis with dynamic
@@ -82,9 +90,15 @@ e.Med = class extends baseModel.Med {
     let xy
     const table = []
     if (s.lemniscate) {
-      xy = [0, xyL, xyT, xy8, xyTorus, xyCinque, xyTorusDec, xyLis35][s.lemniscate]
-      for (let i = 0; i <= segments; i++) {
-        table.push(xy(2 * Math.PI * i / segments))
+      xy = [0, xyL, xyT, xy8, xyTorus, xyCinque, xyTorusDec, xyLis35, xyRay][s.lemniscate]
+      if (s.lemniscate !== 8) {
+        for (let i = 0; i <= segments; i++) {
+          table.push(xy(2 * Math.PI * i / segments))
+        }
+      } else {
+        for (let i = 0; i <= segments; i++) {
+          table.push(xy(1 + 13 * i / segments))
+        }
       }
     } else {
       bCircle.x = s.bPos === 0 ? x + dx / 2 : s.bPos === 1 ? x * 0.5 : x + dx * 1.05
@@ -150,7 +164,12 @@ e.Med = class extends baseModel.Med {
         myCircle3.x = pos[0]
         myCircle2.x = 2 * c[0] - pos[0]
         bCircle.y = val * a * 0.5 + y
-      } else if (s.lemniscate === 8) { // dynamic drawing
+      } else if (s.lemniscate === 8) { // Ray
+        const pos = xy(1 + (1 + val) * 6.5)
+        myCircle2.y = myCircle3.y = pos[1]
+        myCircle3.x = pos[0]
+        myCircle2.x = 2 * c[0] - pos[0]
+        bCircle.y = val * a * 0.5 + y
       } else { // sinusoid:
         const px = (avalr < 0 ? 2 * Math.PI + avalr : avalr) / (2 * Math.PI) * dx + x
         const px2 = (Math.PI - avalr) / (2 * Math.PI) * dx + x

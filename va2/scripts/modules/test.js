@@ -1863,13 +1863,8 @@ e.aeterni = () => {
     ['https://en.wikipedia.org/wiki/Brainwave_entrainment', 'Brainwave entrainment'],
     ['https://en.wikipedia.org/wiki/Senolytic', 'Senolytics']
   ].reduce((a, i) => a + `<li><a href="${i[0]}" target="_blank">${i[1]}</a></li>`, '')
-  $('<div/>', {
-    css: {
-      margin: '0 auto',
-      padding: '8px',
-      width: '50%'
-    }
-  }).append(`<h2>Hints</h2>
+  utils.stdDiv().html(`
+    <h2>Hints</h2>
   <div>
     on the probably soon-to-come immortality.
     <p>
@@ -3470,24 +3465,26 @@ e.you = () => {
     })
     toBeRemoved.forEach(nn => net.removeNode(n, nn))
     removedNodes.push(uid, ...toBeRemoved)
+    net.netdegree.assign(n)
   })
   const rec = utils.mkBtn('record-vinyl', 'record current setup', () => {
     if (!window.confirm('are you sure that you will be using this setup and want to write it?')) return
     if (window.comNames.filter(i => i === '').length > 0) return window.alert('first name all communities')
-    // write the networks of each community with their names,
-    // keep a reference to the original array,
-    // reference the community names
-    //
-    // 0) check if all has names
+    // fixme: check if any of the comNames input are already in use
     const n = window.pfm.net
     const toBeWritten = []
     for (let i = 0; i < n.communities.count; i++) {
       const name = window.comNames[i]
       const members = []
       n.forEachNode((nd, a) => {
-        if (a.community === i) members.push(nd)
+        if (a.community === i) {
+          members.push(nd)
+          a.origDegree = a.degree
+        }
       })
-      const network = net.getSubGraph(n, members).toJSON()
+      const network_ = net.getLargestComponent(net.getSubGraph(n, members), true)
+      net.netdegree.assign(network_)
+      const network = network_.toJSON()
       network.edges.forEach(n => {
         delete n.attributes.pixiElement
       })
@@ -3524,16 +3521,26 @@ e.you = () => {
     const members = []
     n.forEachNode((n, a) => {
       members.push({
-        degree: a.degree,
+        degree: a.origDegree || a.degree,
         name: a.name,
-        id: a.sid || n
+        id: a.sid || a.nid,
+        url: a.sid ? `https://www.facebook.com/${a.sid}` : `https://www.facebook.com/profile.php?id=${a.nid}`
       })
     })
-    members.sort((a, b) => a.degree - b.degree)
-    const memberSets = utils.chunkArray(members, window.prompt('Size of set:'))
-    const str = memberSets.map((set, count) => count + ' |||<br>' + set.map(member => `${member.name} ${member.degree} ${member.id}`).join('<br>')).join('<br>=====<br><br>')
-    window.wand.modal.show(10, str)
     window.members = members
+    members.sort((a, b) => {
+      if (a.degree !== b.degree) return a.degree - b.degree
+      const [ai, bi] = [a.id, b.id]
+      return ai.split('').reverse().join('') > bi.split('').reverse().join('') ? 1 : -1
+    })
+    const memberSets = window.memberSets = utils.chunkArray(members, window.prompt('Size of set:'))
+    let str
+    if (window.confirm('inline list?')) {
+      str = memberSets.map((set, count) => count + ' |||<br>' + set.map(member => `${member.name}`).join(', ')).join('<br>=====<br><br>')
+    } else {
+      str = memberSets.map((set, count) => count + ' |||<br>' + set.map(member => `<a target="_blank" href="${member.url}">${member.name}</a> ${member.degree}`).join('<br>')).join('<br>=====<br><br>')
+    }
+    window.wand.modal.show(10, str)
   })
   utils.mkBtn('users-cog', 'detect communities', () => {
     const n = window.pfm.net
@@ -3673,10 +3680,12 @@ e.you = () => {
   })
   app.stage.sortableChildren = true
   document.body.appendChild(app.view)
-  if (u('id')) {
-    transfer.fAll.mark({ 'userData.id': u('id') }).then(r => {
+  if (u('id') || u('cid')) {
+    (u('id') ? transfer.fAll.mark({ 'userData.id': u('id') }) : transfer.fAll.aeterni({ comName: u('cid') })).then(r => {
+      console.log('received data')
+      const foo = u('id') ? 'net' : 'network'
       window.rrr = r
-      const anet = window.anet = r[0].net
+      const anet = window.anet = r[0][foo]
       const pfm = window.pfm = net.plotFromMongo(anet, app, u('deg'))
       const dn = new net.ParticleNet2(app, pfm.net, pfm.atlas)
       pfm.dn = dn
@@ -4916,4 +4925,84 @@ e.testLoc = () => {
     console.log(response.city, response.country, response, 'BBBB')
   }, 'jsonp')
   console.log('yey man')
+}
+
+e.freeD = () => {
+  const app = new PIXI.Application({ // todo: make it resizable
+    width: window.innerWidth,
+    height: window.innerHeight * 0.80
+  })
+  $('body').append(app.view)
+  const [w, h] = [app.view.width, app.view.height]
+  const c = [w / 2, h / 2] // center
+  let a = w * 0.4
+  let a_ = h * 0.4
+  a /= 15
+  a_ /= 15
+
+  // const kx = u('kx')
+  // const ky = u('ky')
+  function xy (angle) { // lemniscate x, y given angle
+    // const x = a * Math.cos(kx * angle)
+    // const y = a_ * Math.sin(ky * angle)
+    // const foo = Math.cos(angle)
+    // const x = a * Math.cos(kx * angle * foo) * foo ** 3
+    // const y = a_ * Math.sin(ky * angle * foo) * foo ** 2
+    const foo = 2 * angle + 1 / angle
+    const x = a * (foo + 2 * Math.cos(14 * angle))
+    const y = a_ * (foo + 2 * Math.sin(15 * angle))
+    // return [c[0] + x, c[1] + y]
+    return [c[0] / 6 + x, c[1] / 6 + y]
+  }
+  const myLine = new PIXI.Graphics()
+  myLine.lineStyle(1, 0xffffff)
+    .moveTo(...xy(1))
+  const segments = 1000
+  const fact = parseFloat(u('f')) || 1
+  for (let i = 0; i <= segments * fact; i++) {
+    myLine.lineStyle(1, 0x00ffff + 0xff0000 * i / segments)
+    // myLine.lineTo(...xy(2 * Math.PI * i / segments))
+    const res = xy(1 + 13 * i / segments)
+    console.log(res)
+    myLine.lineTo(...res)
+  }
+  app.stage.addChild(myLine)
+  if (u('v')) {
+    myLine.pivot.x = c[0]
+    myLine.pivot.y = c[1]
+    myLine.position.set(...c)
+    myLine.rotation = Math.PI
+  }
+  window.lll = myLine
+  window.ccc = c
+  window.eq = xy
+  $('#loading').hide()
+}
+
+e.vmapT = () => {
+  const tzoffset = (new Date()).getTimezoneOffset() * 60000 // offset in milliseconds
+  const header = ['country', 'city', 'region', 'timezone', 'postal', 'loc', 'ip', 'hostname', 'org', 'date', 'dateLeft']
+  const grid = utils.mkGrid(header.length + 1, 'body', '100%', utils.chooseUnique(['#eeeeff', '#eeffee', '#ffeeee'])[0])
+  function addItems (ar, isHeader) {
+    if (isHeader) {
+      ar.forEach(i => $('<span/>').html(`<b>${i}</b>`).appendTo(grid))
+      $('<span/>').html('<b>loc</b>').appendTo(grid)
+    } else {
+      header.forEach(i => {
+        let val = `${ar[i]}`
+        if (i.includes('date')) {
+          if (!ar[i]) val = ''
+          else val = (new Date(ar[i] - tzoffset)).toISOString().replace(/T/, ' ').replace(/:\d\d\..+/, '')
+        }
+        $('<span/>').html(val).appendTo(grid)
+      })
+      $('<span/>').html(ar.uargs.keys[0]).appendTo(grid)
+    }
+  }
+  addItems(header, true)
+  transfer.fAll.costa({}).then(r => {
+    window.visits = r
+    r.forEach(rr => addItems(rr))
+  })
+  $('#loading').hide()
 }

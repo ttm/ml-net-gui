@@ -61,7 +61,7 @@ e.Med = class {
           transfer.fAll.oaeterni({ comName: r.visSetting.comName }).then(r0 => {
             r0.network.nodes.sort((a, b) => {
               const [aa, ab] = [a.attributes, b.attributes]
-              if (aa.degree !== ab.degree) return aa.degree - ab.degree
+              if (aa.origDegree !== ab.origDegree) return aa.origDegree - ab.origDegree
               const [ai, bi] = [aa.sid || aa.nid, ab.sid || ab.nid]
               // return ai > bi ? 1 : -1
               return ai.split('').reverse().join('') > bi.split('').reverse().join('') ? 1 : -1

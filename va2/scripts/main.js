@@ -25,7 +25,8 @@ window.wand = {
   monk: require('./modules/monk'),
   utils: require('./modules/utils.js'),
   test: require('./modules/test.js'),
-  $: require('jquery')
+  $: require('jquery'),
+  unloadFuncs: []
 }
 
 // cleaning facebook auto added argument (aesthetics, cleaning for users):
@@ -45,7 +46,6 @@ if (uargs.values[0] === '') {
   found = true
   if (k[0] === '_') { // meditation model 1:
     wand.currentMed = wand.med.model(k.slice(1))
-    wand.utils.confirmExit()
   } else if ('~-@.'.includes(k[0])) { // meditation model 2 or 3
     wand.$('<div/>', { id: 'canvasDiv' }).appendTo('body')
     const query = { 'header.med2': k.slice(1), 'header.datetime': { $gte: new Date('2021-04-29') } }
@@ -55,7 +55,6 @@ if (uargs.values[0] === '') {
       if (r.visSetting.lemniscate > 30) wand.currentMed = new wand.med.Model3(r, Boolean(r.header.ancestral))
       else wand.currentMed = new wand.med.Model2(r, Boolean(r.header.ancestral))
     })
-    wand.utils.confirmExit()
   } else if (k in wand.test) { // standard page:
     wand.test[k]() // if k[0] === '-': k is an article
   } else {
@@ -74,5 +73,8 @@ if (!found) { // includes empty/no URL parameters:
     window.open(window.location.origin, '_self')
   }
 }
+
+window.onbeforeunload = e => wand.unloadFuncs.forEach(f => f(e))
+wand.utils.confirmExit()
 
 wand.router.mkFooter()

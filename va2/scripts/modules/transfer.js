@@ -21,6 +21,8 @@ regName('mark', 'anyapplication-faajz', 'https://markturian.github.io/ouraquariu
 // regName('sync', 'anyapplication-faajz', 'https://worldhealing.github.io/ouraquarium/', 'anydb', 'anycollection') // markarcturian@
 regName('aeterni', 'application-0-knxbk', '', 'adb', 'acol') // aeterni.anima@
 
+regName('costa', 'application-0-izpfj', '', 'adbb', 'acoll') // rcostafabbri@
+
 const auth = creds.tokisona
 // const auth = creds.mark
 // const auth = creds.ttm

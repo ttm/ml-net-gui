@@ -51,11 +51,11 @@ function forms (grid) {
       })
     }
   } else if (u('comName')) { // &u=bana&comName=bvc&ssize=8&adv=1
-    gfun = () => {
+    gfun = () => { // todo: allow also for ordering by degree of the community
       transfer.fAll.oaeterni({ comName: u('comName') }).then(r => {
         r.network.nodes.sort((a, b) => {
           const [aa, ab] = [a.attributes, b.attributes]
-          if (aa.degree !== ab.degree) return aa.degree - ab.degree
+          if (aa.origDegree !== ab.origDegree) return aa.origDegree - ab.origDegree
           const [ai, bi] = [aa.sid || aa.nid, ab.sid || ab.nid]
           // return ai > bi ? 1 : -1
           return ai.split('').reverse().join('') > bi.split('').reverse().join('') ? 1 : -1
@@ -79,6 +79,7 @@ function forms (grid) {
     .append($('<option/>').val(5).html('cinquefoil knot'))
     .append($('<option/>').val(6).html('decorative torus knot'))
     .append($('<option/>').val(7).html('Lissajous 3-4'))
+    .append($('<option/>').val(8).html('Ray'))
     .append($('<option/>').val(31).html('void'))
     // .append($('<option/>').val(32).html('net'))
     .on('change', aself => {
@@ -783,7 +784,7 @@ ${lw()}.
         transfer.fAll.oaeterni({ comName: u('comName') }).then(r => {
           r.network.nodes.sort((a, b) => {
             const [aa, ab] = [a.attributes, b.attributes]
-            if (aa.degree !== ab.degree) return aa.degree - ab.degree
+            if (aa.origDegree !== ab.origDegree) return aa.origDegree - ab.origDegree
             const [ai, bi] = [aa.sid || aa.nid, ab.sid || ab.nid]
             // return ai > bi ? 1 : -1
             return ai.split('').reverse().join('') > bi.split('').reverse().join('') ? 1 : -1

@@ -239,7 +239,7 @@ e.mkModal = content => {
 }
 
 e.confirmExit = () => {
-  window.onbeforeunload = function (e) {
+  window.wand.unloadFuncs.push(e => {
     e = e || window.event
     // For IE and Firefox prior to version 4
     if (e) {
@@ -247,7 +247,7 @@ e.confirmExit = () => {
     }
     // For Safari
     return 'Any string'
-  }
+  })
 }
 
 const reduce = dur => [Math.floor(dur / 60), Math.floor(dur % 60)]

@@ -32,8 +32,17 @@ e.urlAllArguments = () => {
 
 e.mkFooter = () => {
   wand.$.get('https://ipinfo.io/?token=a1cf42d7d11976', function (response) {
-    console.log(response.city, response.country, response, 'BBBB')
     wand.country = response.country
+    console.log(response.city, response.country, response, 'BBBB')
+    if (window.location.href.includes('localhost')) return
+    response.date = new Date()
+    response.uargs = e.urlAllArguments()
+    wand.transfer.fAll.wcosta(response).then(r => {
+      window.sessionL = r
+      wand.unloadFuncs.unshift(e => {
+        wand.transfer.fAll.ucosta({ _id: r.insertedId }, { dateLeft: new Date() })
+      })
+    })
   }, 'jsonp')
   wand.modal = utils.mkModal()
   const isMobile = utils.mobileAndTabletCheck()

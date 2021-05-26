@@ -17,11 +17,11 @@ const regName = (name, app, url, db, coll) => {
 regName('ttm', 'freene-gui-fzgxa', 'https://ttm.github.io/oa/', 'freenet-all', 'test3') // renato.fabbri@, also cols: test, test2, nets
 // regName('ttm', 'freene-gui-fzgxa', 'https://ttm.github.io/oa/', 'freenet-all', 'nets') // dummy
 regName('tokisona', 'aplicationcreated-mkwpm', 'https://tokisona.github.io/oa/', 'adbcreated', 'acolectioncreated') // sync.aquarium@ and aeterni, also col aatest
+regName('costa', 'application-0-izpfj', '', 'adbb', 'acoll') // rcostafabbri@
+regName('aeterni', 'application-0-knxbk', '', 'adb', 'acol') // aeterni.anima@
 regName('mark', 'anyapplication-faajz', 'https://markturian.github.io/ouraquarium/', 'anydb', 'anycollection') // markarcturian@
 // regName('sync', 'anyapplication-faajz', 'https://worldhealing.github.io/ouraquarium/', 'anydb', 'anycollection') // markarcturian@
-regName('aeterni', 'application-0-knxbk', '', 'adb', 'acol') // aeterni.anima@
 
-regName('costa', 'application-0-izpfj', '', 'adbb', 'acoll') // rcostafabbri@
 
 const auth = creds.tokisona
 // const auth = creds.mark

@@ -74,6 +74,16 @@ e.Med = class extends baseModel.Med {
       return [c[0] / 6 + x, c[1] / 6 + y]
     }
 
+    let [prevX1, prevY1] = c
+    let [prevX2, prevY2] = c
+    function xyVoid (angle) {
+      prevX1 += 0.1 * aLx_ * (Math.random() - 0.5)
+      prevY1 += 0.1 * aLy_ * (Math.random() - 0.5)
+      prevX2 += 0.1 * aLx_ * (Math.random() - 0.5)
+      prevY2 += 0.1 * aLy_ * (Math.random() - 0.5)
+      return [[prevX1, prevY1], [prevX2, prevY2]]
+    }
+
     const xyLisDyn = angle => xyLis(angle, 3, 4.02)
     // let [lastX, lastY] = xyLisDyn(0)
     function xyDyn (angle) { // Lis with dynamic
@@ -90,17 +100,21 @@ e.Med = class extends baseModel.Med {
     let xy
     const table = []
     if (s.lemniscate) {
-      xy = [0, xyL, xyT, xy8, xyTorus, xyCinque, xyTorusDec, xyLis35, xyRay][s.lemniscate]
+      const foo = [0, xyL, xyT, xy8, xyTorus, xyCinque, xyTorusDec, xyLis35, xyRay]
+      foo[31] = xyVoid
+      foo[32] = () => { }
+      window.fooo = foo
+      xy = foo[s.lemniscate]
       if (s.lemniscate !== 8) {
         for (let i = 0; i <= segments; i++) {
           table.push(xy(2 * Math.PI * i / segments))
         }
-      } else {
+      } else if (s.lemniscate < 30) {
         for (let i = 0; i <= segments; i++) {
           table.push(xy(1 + 13 * i / segments))
         }
       }
-    } else {
+    } else { // sinusoid
       bCircle.x = s.bPos === 0 ? x + dx / 2 : s.bPos === 1 ? x * 0.5 : x + dx * 1.05
       for (let i = 0; i <= segments; i++) {
         table.push([x + dx * i / segments, y + Math.sin(2 * Math.PI * i / segments) * dy])
@@ -111,9 +125,11 @@ e.Med = class extends baseModel.Med {
         .tint = tr(s.fgc)
     }
 
-    myLine.moveTo(...table[0])
-    for (let i = 1; i <= segments; i++) {
-      myLine.lineTo(...table[i])
+    if (s.lemniscate < 30) {
+      myLine.moveTo(...table[0])
+      for (let i = 1; i <= segments; i++) {
+        myLine.lineTo(...table[i])
+      }
     }
 
     const ticker = app.ticker.add(() => {
@@ -170,7 +186,11 @@ e.Med = class extends baseModel.Med {
         myCircle3.x = pos[0]
         myCircle2.x = 2 * c[0] - pos[0]
         bCircle.y = val * a * 0.5 + y
-      } else { // sinusoid:
+      } else if (s.lemniscate === 31) { // Void
+        const p = xy()
+        myCircle2.position.set(...p[0])
+        myCircle3.position.set(...p[1])
+      } else if (s.lemniscate !== 32) { // sinusoid:
         const px = (avalr < 0 ? 2 * Math.PI + avalr : avalr) / (2 * Math.PI) * dx + x
         const px2 = (Math.PI - avalr) / (2 * Math.PI) * dx + x
         myCircle2.x = px
@@ -179,14 +199,94 @@ e.Med = class extends baseModel.Med {
       }
     })
     ticker.stop()
+    const tickers = [ticker]
+    let ticker2
+    if (['uid', 'comName', 'network'].some(x => x in s)) {
+      ticker2 = this.initNetwork(s, app, myCircle2, myCircle3)
+    }
+    if (ticker2 === undefined) {
+      ticker2 = { start: () => { }, stop: () => { } }
+    }
+    tickers.push(ticker2)
 
     return {
       start: () => {
-        ticker.start()
+        tickers.forEach(t => t.start())
       },
       stop: () => {
-        ticker.stop()
+        tickers.forEach(t => t.stop())
       }
     }
+  }
+
+  initNetwork (s, app, myCircle2, myCircle3) {
+    let component
+    let seed_
+    let seed
+    this.bounceFuncs.push(() => {
+      if (seed) {
+        component.forEachNode((n, a) => { a.textElement.alpha = a.pixiElement.alpha = 0 })
+        component.forEachEdge((e, a) => { a.pixiElement.alpha = 0 })
+        seed_.tint = component.target.tint = 0xffffff
+        seed = undefined
+      }
+    })
+    this.notBouncingFuncs.push(() => {
+      if (!seed && this.anet && this.anet.net) { // choose random seed using rot:
+        seed = this.anet.net.nodes_[Math.floor(this.anet.net.nodes_.length * Math.random())] // todo: use nodes ordered by degree
+        component = window.wand.net.getComponent(this.anet.net, seed, s.componentSize) // choose 10 members connected to the seed
+        window.gg = component
+        seed_ = component.getNodeAttributes(seed)
+        component.forEachNode((n, a) => {
+          a.pixiElement.tint = a.textElement.tint = 0xffffff * Math.random()
+        })
+        component.forEachEdge((e, a) => {
+          a.pixiElement.tint = 0xffffff * Math.random()
+        })
+        seed_.pixiElement.tint = seed_.textElement.tint = myCircle2.tint
+        component.target.pixiElement.tint = component.target.textElement.tint = myCircle3.tint
+      } else if (component) {
+        const w = (1 + this.dc) / 2
+        component.forEachNode((n, a) => {
+          const h = a.ndist__
+          let v
+          if (w < h) {
+            v = 0
+            a.textElement.alpha = 0
+          } else if (w > h + component.h_) {
+            v = 1
+            a.textElement.alpha = 0
+          } else {
+            v = (w - h) / component.h_
+            a.textElement.alpha = v ** 0.2
+          }
+          a.pixiElement.alpha = v
+        })
+        component.forEachEdge((e, a, n1, n2, a1, a2) => {
+          a.pixiElement.alpha = Math.min(a1.pixiElement.alpha, a2.pixiElement.alpha)
+        })
+      }
+    })
+    const f1_ = (n, c) => {
+      const sx = c.x - n.x
+      const sy = c.y - n.y
+      const mag = (sx ** 2 + sy ** 2) ** 0.5
+      n.x += sx / mag + (Math.random() - 0.5) * 5
+      n.y += sy / mag + (Math.random() - 0.5) * 5
+    }
+    let ticker
+    if (s.lemniscate === 32) {
+      ticker = app.ticker.add(() => {
+        if (component && component.target) {
+          f1_(myCircle2, seed_.pixiElement)
+          f1_(myCircle3, component.target.pixiElement)
+        } else {
+          myCircle2.x += (Math.random() - 0.5)
+          myCircle2.y += (Math.random() - 0.5)
+        }
+      })
+      ticker.stop()
+    }
+    return ticker
   }
 }

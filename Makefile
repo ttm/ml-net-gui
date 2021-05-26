@@ -92,6 +92,9 @@ va2-fix:
 va2-e-zip:
 	cd va2 && npm run buildE2 && cd you && zip -vr ../you.zip background_ok.js contentScript_ok.js manifest.json person_.png pop.html pop_ok.js
 
+backup:
+	cd backup && python3 mkBackup.py
+
 # testing of the client code must be performed on the client. The /test page should be accessed,
 # e.g. https://0.0.0.0:8080/test/
 

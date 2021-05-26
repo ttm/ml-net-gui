@@ -3521,6 +3521,7 @@ e.you = () => {
     const members = []
     n.forEachNode((n, a) => {
       members.push({
+        origId: n,
         degree: a.origDegree || a.degree,
         name: a.name,
         id: a.sid || a.nid,
@@ -5001,6 +5002,7 @@ e.vmapT = () => {
   }
   addItems(header, true)
   transfer.fAll.costa({}).then(r => {
+    r.sort((a, b) => b.date - a.date)
     window.visits = r
     r.forEach(rr => addItems(rr))
   })

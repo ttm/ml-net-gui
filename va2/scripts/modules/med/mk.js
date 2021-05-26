@@ -32,16 +32,22 @@ function forms (grid) {
   function after () {
     sel0.asel.show()
     sel0.asel.initialized = true
+    selt.show()
+    selnt.show()
+    sel0.aseln.show()
+    sel0.isNetwork = true
     $('#loading').hide()
   }
-  let gfun = () => { // fixme: write the sid of the network to retrieve only such network:
-    transfer.fAll.ttm({ sid: { $exists: true } }, { name: 1 }, 'test').then(r => {
-      r.sort((a, b) => a.name > b.name ? 1 : -1)
-      r.forEach((n, i) => sel0.asel.append($('<option/>').val(i).html(n.name)))
-      after()
-    })
-  }
-  if (u('id')) { // &adv=1&id=marielelizabethy
+  let gfun
+  if (u('legacy')) {
+    gfun = () => { // fixme: write the sid of the network to retrieve only such network:
+      transfer.fAll.ttm({ sid: { $exists: true } }, { name: 1 }, 'test').then(r => {
+        r.sort((a, b) => a.name > b.name ? 1 : -1)
+        r.forEach((n, i) => sel0.asel.append($('<option/>').val(i).html(n.name)))
+        after()
+      })
+    }
+  } else if (u('id')) { // &adv=1&id=marielelizabethy
     gfun = () => {
       transfer.fAll.omark({ 'userData.id': u('id') }).then(r => {
         sel0.asel.append($('<option/>').val(0).html(`${r.userData.name} || ${r.net.nodes.length} / ${r.net.edges.length} || ${r.date.toISOString()}`))
@@ -70,6 +76,8 @@ function forms (grid) {
       })
     }
   }
+  // todo: get cases correctly for them:
+  if (gfun) $('#loading').show() && gfun()
   sel0
     .append($('<option/>').val(0).html('sinusoid'))
     .append($('<option/>').val(1).html('lemniscate'))
@@ -90,26 +98,16 @@ function forms (grid) {
       } else if (i === 1) {
         $('#lb_ccc').html('left circ color:')
         $('#lb_lcc').html('right circ color:')
-      } else if (i === 32) {
-        selt.show()
-        selnt.show()
-        sel0.aseln.show()
-        if (sel0.asel.initialized) {
-          sel0.asel.show()
-        } else {
-          $('#loading').show()
-          gfun()
-        }
       } else {
         $('#lb_ccc').html('circ 1 color:')
         $('#lb_lcc').html('circ 2 color:')
       }
-      if (i !== 32 && sel0.asel) {
-        sel0.asel.hide()
-        selt.hide()
-        selnt.hide()
-        sel0.aseln.hide()
-      }
+      // if (i !== 32 && sel0.asel) {
+      //   sel0.asel.hide()
+      //   selt.hide()
+      //   selnt.hide()
+      //   sel0.aseln.hide()
+      // }
     })
   if (u('adv')) {
     sel0
@@ -745,14 +743,14 @@ ${lw()}.
     const v_ = s.visSetting
     v.lemniscate.val(Number(v_.lemniscate))
     // fixme: this way to deal with networks is very messy:
-    const isNet = v_.lemniscate === 32
-    const func = isNet ? 'show' : 'hide'
-    function dealNet () {
-      v.lemniscate.asel.val(isNet ? v_.network : 0)[func]()
-      v.lemniscate.aseln.val(isNet ? v_.componentSize : 5)[func]()
-      v.lemniscate.selt[func]()
-      v.lemniscate.selnt[func]()
-    }
+    const isNet = v_.isNetwork
+    // const func = isNet ? 'show' : 'hide'
+    // function dealNet () {
+    //   v.lemniscate.asel.val(isNet ? v_.network : 0)[func]()
+    //   v.lemniscate.aseln.val(isNet ? v_.componentSize : 5)[func]()
+    //   v.lemniscate.selt[func]()
+    //   v.lemniscate.selnt[func]()
+    // }
     // select networks to make available:
     // 1) ttm/test networks
     // 2) mark transfer.fAll.mark({ 'userData.id': u('id') }) nets, scrapped and unscrapped
@@ -760,7 +758,7 @@ ${lw()}.
     function after () {
       v.lemniscate.asel.show()
       v.lemniscate.asel.initialized = true
-      dealNet()
+      // dealNet()
       $('#loading').hide()
     }
     let gfun = () => {
@@ -803,12 +801,14 @@ ${lw()}.
       if (!v.lemniscate.asel.initialized) {
         $('#loading').show()
         gfun()
-      } else {
-        dealNet()
       }
-    } else {
-      dealNet()
+      // } else {
+      //   dealNet()
+      // }
     }
+    // } else {
+    //   dealNet()
+    // }
     v.rainbowFlakes.prop('checked', v_.rainbowFlakes)
     v.ellipse.prop('checked', v_.ellipse)
     v.bPos.bindex = v_.bPos || 0
@@ -994,8 +994,7 @@ ${lw()}.
     const r = this.mkWritableSettings()
     this.disposeAudition()
     if (!r) return
-    if (r.visSetting.lemniscate > 30) wand.currentMed = new wand.med.Model3(r, Boolean(r.header.ancestral))
-    else wand.currentMed = new wand.med.Model2(r, Boolean(r.header.ancestral))
+    wand.currentMed = new wand.med.Model2(r, Boolean(r.header.ancestral))
     const t = wand.currentMed.tone
     t.start(0)
     t.Transport.start(0)
@@ -1059,7 +1058,8 @@ ${lw()}.
       ellipse: v.ellipse.prop('checked'),
       bPos: v.bPos.bindex
     }
-    if (visSetting.lemniscate === 32) {
+    if (v.lemniscate.isNetwork) {
+      visSetting.isNetwork = true
       visSetting.network = p(v.lemniscate.asel)
       visSetting.componentSize = p(v.lemniscate.aseln)
       if (u('id')) visSetting.uid = u('id')

@@ -45,7 +45,7 @@ e.Med = class {
         window.alert(`Failed to retrieve the session artifact. Please reload. Such "${r.header.med2}" artifact may not exist.`)
         return
       }
-      if (r.visSetting.lemniscate === 32) {
+      if (r.visSetting.isNetwork) {
         const after = () => {
           this.anet.dn = new net.ParticleNet2(this.app, this.anet.net, this.anet.atlas, false)
           this.anet.dn.hide()

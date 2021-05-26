@@ -51,9 +51,11 @@ if (uargs.values[0] === '') {
     const query = { 'header.med2': k.slice(1), 'header.datetime': { $gte: new Date('2021-04-29') } }
     if ('~-'.includes(k[0])) query['header.ancestral'] = { $exists: true } // created by mkLight
     wand.transfer.findAny(query).then(r => {
+      wand.currentSet = r
       // use r.lemniscate to decide model2 or 3
-      if (r.visSetting.lemniscate > 30) wand.currentMed = new wand.med.Model3(r, Boolean(r.header.ancestral))
-      else wand.currentMed = new wand.med.Model2(r, Boolean(r.header.ancestral))
+      // if (r.visSetting.lemniscate > 30) wand.currentMed = new wand.med.Model3(r, Boolean(r.header.ancestral))
+      // else wand.currentMed = new wand.med.Model2(r, Boolean(r.header.ancestral))
+      wand.currentMed = new wand.med.Model2(r, Boolean(r.header.ancestral))
     })
   } else if (k in wand.test) { // standard page:
     wand.test[k]() // if k[0] === '-': k is an article

@@ -1,4 +1,5 @@
 const PIXI = require('pixi.js')
+const c = require('chroma-js')
 
 const baseModel = require('./baseModel.js')
 
@@ -223,10 +224,11 @@ e.Med = class extends baseModel.Med {
     let component
     let seed_
     let seed
+    const cs = c.scale([myCircle2.tint, myCircle3.tint])
     this.bounceFuncs.push(() => {
       if (seed) {
-        component.forEachNode((n, a) => { a.textElement.alpha = a.pixiElement.alpha = 0 })
-        component.forEachEdge((e, a) => { a.pixiElement.alpha = 0 })
+        // component.forEachNode((n, a) => { a.textElement.alpha = a.pixiElement.alpha = 0 })
+        // component.forEachEdge((e, a) => { a.pixiElement.alpha = 0 })
         seed_.tint = component.target.tint = 0xffffff
         seed = undefined
       }
@@ -237,11 +239,14 @@ e.Med = class extends baseModel.Med {
         component = window.wand.net.getComponent(this.anet.net, seed, s.componentSize) // choose 10 members connected to the seed
         window.gg = component
         seed_ = component.getNodeAttributes(seed)
+        const cs_ = window.cs_ = cs.colors(component.ndist[1] + 1, 'num')
         component.forEachNode((n, a) => {
-          a.pixiElement.tint = a.textElement.tint = 0xffffff * Math.random()
+          // a.pixiElement.tint = a.textElement.tint = 0xffffff * Math.random()
+          a.pixiElement.tint = a.textElement.tint = cs_[a.ndist]
         })
-        component.forEachEdge((e, a) => {
-          a.pixiElement.tint = 0xffffff * Math.random()
+        component.forEachEdge((e, a, n1, n2, a1, a2) => {
+          // a.pixiElement.tint = 0xffffff * Math.random()
+          a.pixiElement.tint = cs_[Math.min(a1.ndist, a2.ndist)]
         })
         seed_.pixiElement.tint = seed_.textElement.tint = myCircle2.tint
         component.target.pixiElement.tint = component.target.textElement.tint = myCircle3.tint
@@ -260,7 +265,7 @@ e.Med = class extends baseModel.Med {
             v = (w - h) / component.h_
             a.textElement.alpha = v ** 0.2
           }
-          a.pixiElement.alpha = v
+          a.pixiElement.alpha = !this.inhale || v
         })
         component.forEachEdge((e, a, n1, n2, a1, a2) => {
           a.pixiElement.alpha = Math.min(a1.pixiElement.alpha, a2.pixiElement.alpha)

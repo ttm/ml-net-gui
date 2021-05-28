@@ -8,6 +8,7 @@ require('paginationjs')
 const linkify = require('linkifyjs/html')
 
 const m = require('./med')
+const c = require('./conductor')
 const monk = require('./monk')
 const maestro = require('./maestro.js')
 const net = require('./net.js')
@@ -4982,12 +4983,13 @@ e.freeD = () => {
 
 e.vmapT = () => {
   const tzoffset = (new Date()).getTimezoneOffset() * 60000 // offset in milliseconds
-  const header = ['country', 'city', 'region', 'timezone', 'postal', 'loc', 'ip', 'hostname', 'org', 'date', 'dateLeft']
+  let header = ['country', 'city', 'region', 'timezone', 'postal', 'loc', 'ip', 'hostname', 'org', 'date', 'dateLeft']
+  if (!u('full')) header = ['country', 'city', 'region', 'timezone', 'postal', 'ip', 'org', 'date', 'dateLeft']
   const grid = utils.mkGrid(header.length + 1, 'body', '100%', utils.chooseUnique(['#eeeeff', '#eeffee', '#ffeeee'])[0])
   function addItems (ar, isHeader) {
     if (isHeader) {
       ar.forEach(i => $('<span/>').html(`<b>${i}</b>`).appendTo(grid))
-      $('<span/>').html('<b>loc</b>').appendTo(grid)
+      $('<span/>').html('<b>page</b>').appendTo(grid)
     } else {
       header.forEach(i => {
         let val = `${ar[i]}`
@@ -5001,10 +5003,26 @@ e.vmapT = () => {
     }
   }
   addItems(header, true)
-  transfer.fAll.costa({}).then(r => {
+  const query = {}
+  if (!u('all')) {
+    const d = new Date()
+    if (u('today')) {
+      d.setHours(0, 0, 0, 0)
+    } else if (u('h')) {
+      d.setHours(d.getHours() - u('h'))
+    } else { // 24h
+      d.setHours(d.getHours() - 24)
+    }
+    query.date = { $gte: d }
+  }
+  transfer.fAll.costa(query).then(r => {
     r.sort((a, b) => b.date - a.date)
     window.visits = r
     r.forEach(rr => addItems(rr))
   })
   $('#loading').hide()
+}
+
+e.tithorea = () => {
+  window.wand.tithorea = new c.Tithorea()
 }

@@ -154,22 +154,26 @@ e.plotFromMongo = (anet, app, keepUnscrapped) => {
   return { net, saneSettings, atlas }
 }
 
-e.plotWhatsFromMongo = (data, creator, app) => {
+e.plotWhatsFromMongo = (data, creator, app, full) => {
   function mkId (n) {
-    let id = n[1] || n[0]
+    let name = n[1]
+    let tel
+    if (name) tel = n[0]
+    else name = n[0]
     let anonCount = 0
-    if (/^[\d ]*$/.test(id)) id = 'Anon-' + anonCount++
-    else if (['you', 'você'].includes(id.toLowerCase())) id = creator || 'Anon-' + anonCount++
-    return id
+    if (/^[\d ]*$/.test(name)) name = 'Anon-' + anonCount++
+    else if (['you', 'você'].includes(name.toLowerCase())) name = creator || 'Anon-' + anonCount++
+    return { name, tel }
   }
-  const net = new Graph()
+  let net = new Graph()
   data.forEach(([n1, n2]) => {
-    const id1 = mkId(n1)
-    const id2 = mkId(n2)
-    if (!net.hasNode(id1)) net.addNode(id1, { name: id1 })
-    if (!net.hasNode(id2)) net.addNode(id2, { name: id2 })
-    if (!net.hasEdge(id1, id2)) net.addUndirectedEdge(id1, id2)
+    const m1 = mkId(n1)
+    const m2 = mkId(n2)
+    if (!net.hasNode(m1.name)) net.addNode(m1.name, m1)
+    if (!net.hasNode(m2.name)) net.addNode(m2.name, m2)
+    if (!net.hasEdge(m1.name, m2.name)) net.addUndirectedEdge(m1.name, m2.name)
   })
+  if (!full) net = e.getLargestComponent(net, true)
   random.assign(net)
   const saneSettings = forceAtlas2.inferSettings(net)
   const atlas = forceAtlas2(net, { iterations: 150, settings: saneSettings })
@@ -444,4 +448,21 @@ e.removeNode = (g, n) => {
     ea.pixiElement.destroy()
   })
   g.dropNode(n)
+}
+
+e.plotSync = (data, app) => {
+  const key = data.source === 'fb' ? 'id' : 'name'
+  const net = new Graph()
+  data.nodes.forEach(n => net.addNode(n[key], n))
+  data.links.forEach(step => {
+    step.forEach(link => {
+      net.addEdge(link.from, link.to)
+    })
+  })
+  netdegree.assign(net)
+  random.assign(net)
+  const saneSettings = forceAtlas2.inferSettings(net)
+  const atlas = forceAtlas2(net, { iterations: 150, settings: saneSettings })
+  scale(atlas, app)
+  return { net, saneSettings, atlas }
 }

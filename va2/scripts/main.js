@@ -22,6 +22,7 @@ window.wand = {
   maestro: require('./modules/maestro.js'),
   transfer: require('./modules/transfer.js'),
   med: require('./modules/med'),
+  conductor: require('./modules/conductor'),
   monk: require('./modules/monk'),
   utils: require('./modules/utils.js'),
   test: require('./modules/test.js'),
@@ -63,10 +64,14 @@ if (uargs.values[0] === '') {
     found = false
   }
 } else { // sync:
+  found = true
   const syncId = uargs.keys[0]
   const userRef = uargs.values[0]
-  // something as: wand.conductor.gradus(syncId, userRef)
-  console.log(`sync is under migration: id: ${syncId}, user: ${userRef}`)
+  console.log(`sync with id: ${syncId}, user: ${userRef}`)
+  wand.transfer.fAll.of4b({ syncId }).then(r => {
+    console.log('data', r)
+    wand.currentSync = new wand.conductor.Sync(r)
+  }).catch(e => window.alert('reload please, error:', e))
 }
 if (!found) { // includes empty/no URL parameters:
   if (uargs.keys.length === 0) {

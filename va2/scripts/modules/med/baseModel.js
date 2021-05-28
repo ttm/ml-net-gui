@@ -45,7 +45,7 @@ e.Med = class {
         window.alert(`Failed to retrieve the session artifact. Please reload. Such "${r.header.med2}" artifact may not exist.`)
         return
       }
-      if (r.visSetting.isNetwork) {
+      if (r.visSetting.isNetwork && r.header.datetime > new Date()) {
         const after = () => {
           this.anet.dn = new net.ParticleNet2(this.app, this.anet.net, this.anet.atlas, false)
           this.anet.dn.hide()
@@ -613,6 +613,7 @@ e.Med = class {
       })
     }
     const y = h / 2
+    this.inhale = true
     const ticker = app.ticker.add(() => {
       const dc = this.meter ? this.meter.getValue() : 0
       const cval = (1 - Math.abs(dc))
@@ -626,9 +627,11 @@ e.Med = class {
       }
 
       if (dc - lastdc > 0) { // inhale
+        this.inhale = true
         this.guiEls.inhale.css('background', `rgba(255,255,0,${cval})`) // mais proximo de 0, mais colorido
         this.guiEls.exhale.css('background', 'rgba(0,0,0,0)')
       } else { // exhale
+        this.inhale = false
         this.guiEls.exhale.css('background', `rgba(255,255,0,${cval})`) // mais proximo de 0, mais colorido
         this.guiEls.inhale.css('background', 'rgba(0,0,0,0)')
       }

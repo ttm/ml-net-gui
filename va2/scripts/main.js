@@ -70,8 +70,8 @@ if (uargs.values[0] === '') {
   console.log(`sync with id: ${syncId}, user: ${userRef}`)
   wand.transfer.fAll.of4b({ syncId }).then(r => {
     console.log('data', r)
-    wand.currentSync = new wand.conductor.Sync(r)
-  }).catch(e => window.alert('reload please, error:', e))
+    wand.currentSync = new wand.conductor.Sync(r, userRef)
+  })
 }
 if (!found) { // includes empty/no URL parameters:
   if (uargs.keys.length === 0) {

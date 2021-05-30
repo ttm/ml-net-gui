@@ -1,11 +1,11 @@
-const PIXI = require('pixi.js')
 const $ = require('jquery')
-const c = require('chroma-js')
+const chroma = require('chroma-js')
 
 const net = require('../net.js')
 const transfer = require('../transfer.js')
 const u = require('../router.js').urlArgument
 const utils = require('../utils.js')
+const { PIXI, defaultLinkRenderer } = require('./utils.js')
 
 module.exports.Tithorea = class {
   constructor () {
@@ -73,7 +73,7 @@ module.exports.Tithorea = class {
             this.net.getEdgeAttribute(link.from, link.to, 'pixiElement').alpha = 1
           })
         })
-        const cs = c.scale(['red', 'yellow', 'green', 'cyan', 'blue', '#ff00ff']).colors(this.diffusion.progression.length, 'num')
+        const cs = chroma.scale(['red', 'yellow', 'green', 'cyan', 'blue', '#ff00ff']).colors(this.diffusion.progression.length, 'num')
         this.diffusion.progression.forEach((nodes, i) => {
           const c = cs[i]
           nodes.forEach(n => {
@@ -176,51 +176,4 @@ module.exports.Tithorea = class {
 
     $('#mcontent').html('write the HTML you want to diffuse:').append(diag2)
   }
-}
-
-function defaultLinkRenderer (link, net, app) { // adapted from va.drawing.base
-  // first, let's compute normalized vector for our link:
-  const p1 = net.getNodeAttribute(link.from, 'pixiElement')
-  const p2 = net.getNodeAttribute(link.to, 'pixiElement')
-  const dx = p2.x - p1.x
-  const dy = p2.y - p1.y
-  const l = Math.sqrt(dx * dx + dy * dy)
-
-  if (l === 0) return // if length is 0 - can't render arrows
-
-  // This is our normal vector. It describes direction of the graph
-  // link, and has length == 1:
-  const nx = dx / l
-  const ny = dy / l
-
-  // Now let's draw the arrow:
-  const arrowLength = 13 // 26 // Length of the arrow
-  const arrowWingsLength = 6 // 12 // How far arrow wings are from the link?
-
-  // This is where arrow should end. We do `(l - NODE_WIDTH)` to
-  // make sure it ends before the node UI element.
-  const NODE_WIDTH = 15
-  const ex = p1.x + nx * (l - NODE_WIDTH)
-  const ey = p1.y + ny * (l - NODE_WIDTH)
-
-  // Offset on the graph link, where arrow wings should be
-  const sx = p1.x + nx * (l - NODE_WIDTH - arrowLength)
-  const sy = p1.y + ny * (l - NODE_WIDTH - arrowLength)
-
-  // orthogonal vector to the link vector is easy to compute:
-  const topX = -ny
-  const topY = nx
-
-  // Let's draw the arrow:
-  const graphics = new PIXI.Graphics()
-  // graphics.lineStyle(1, 0xcccccc, 1)
-  graphics.lineStyle(1, 0xcccccc, 1)
-
-  graphics.moveTo(ex, ey)
-  graphics.lineTo(sx + topX * arrowWingsLength, sy + topY * arrowWingsLength)
-  graphics.moveTo(ex, ey)
-  graphics.lineTo(sx - topX * arrowWingsLength, sy - topY * arrowWingsLength)
-  app.stage.addChild(graphics)
-  graphics.zIndex = 20000
-  return graphics
 }

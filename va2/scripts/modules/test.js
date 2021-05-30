@@ -3453,6 +3453,9 @@ e.heritage = () => {
 }
 
 e.you = () => {
+  // bezier
+  // sizing
+  // coloring (elements, proportional)
   const removedNodes = []
   utils.mkBtn('user-times', 'remove member', () => { // fixme: ensure no isolated node or group is left behind
     const n = window.pfm.net

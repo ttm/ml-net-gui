@@ -33,6 +33,7 @@ e.urlAllArguments = () => {
 e.mkFooter = () => {
   wand.$.get('https://ipinfo.io/?token=a1cf42d7d11976', function (response) {
     wand.country = response.country
+    wand.speaksPortuguese = ['BR', 'PT', 'AO', 'ST'].includes(wand.country)
     console.log(response.city, response.country, response, 'BBBB')
     if (window.location.href.includes('localhost')) return
     response.date = new Date()

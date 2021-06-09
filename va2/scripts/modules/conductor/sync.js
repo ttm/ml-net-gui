@@ -4,16 +4,19 @@ const Tone = require('tone')
 const dat = require('dat.gui')
 const subGraph = require('graphology-utils/subgraph')
 
-const { PIXI, defaultLinkRenderer, activateLink, rec, linkify2 } = require('./utils.js')
+const { PIXI, defaultLinkRenderer, activateLink, rec, linkify2, nl } = require('./utils.js')
 const { generateName } = require('./nameGen.js')
 // const { amset } = require('./instruments.js')
 
 const net = require('../net.js')
 const utils = require('../utils.js')
+// const u = require('../router.js').urlArgument
 
+const copyToClipboard = utils.copyToClipboard
 const d = (f, time) => Tone.Draw.schedule(f, time)
 
 // volume OK, rec OK, linkify OK, beautify, spread
+// pt if pt speaking countries, en otherwise
 
 module.exports.Sync = class {
   constructor (data, heir) {
@@ -29,23 +32,16 @@ module.exports.Sync = class {
     })
     app.stage.sortableChildren = true
     $('#canvasDiv').append(this.app.view)
-    this.rec = rec()
-    console.log('at rec')
     this.net_ = net.plotSync(data, app, false)
-    console.log('at plot')
     this.heir = parseInt(heir)
     this.net_.forEachNode((n, a) => {
       if (a.did === this.heir) this.heirId = n
     })
-    console.log('bef dists', this.heirId)
     this.net = this.setDists()
-    console.log('at dists')
     // net.attrNet(this.net)
     // const pfm = this.pfm = net.plotSync(data, app)
     const pfm = this.pfm = net.attrNet(this.net, app)
-    console.log('at attr')
     const dn = new net.ParticleNet2(app, pfm.net, pfm.atlas)
-    console.log('at part')
     pfm.dn = dn
     this.net = pfm.net
     this.net.forEachNode((n, a) => {
@@ -56,16 +52,11 @@ module.exports.Sync = class {
 
   setup () {
     window.defaultLinkRenderer = defaultLinkRenderer
-    console.log('at setup')
     this.setProgression()
-    console.log('at prog')
     // this.hideAll()
     this.setMusic()
-    console.log('at mus')
     this.volumeControl()
-    console.log('at cont')
     this.setInfo() // when user gives ok on info, music starts
-    console.log('at inf')
     // make music!
   }
 
@@ -82,11 +73,13 @@ module.exports.Sync = class {
   setMusic () {
     // this.amSy = new Tone.AMSynth(amset).toDestination() // random walk it in pentatonic
     const mkSong = () => {
-      Tone.Transport.bpm.value = 140
+      // Tone.Transport.bpm.value = 140
+      Tone.Transport.bpm.value = 240
       const vol = this.vol = new Tone.Volume(-6).toDestination()
       const rev = window.rev = new Tone.Reverb().connect(vol)
       rev.wet.value = 0.9
       const msy = new Tone.MembraneSynth().connect(rev)
+      const msy2 = new Tone.MembraneSynth().connect(rev)
       const nsy = new Tone.NoiseSynth({ envelope: { attack: 0.05 } }).connect(rev)
       const isy = new Tone.MetalSynth().connect(rev)
       const isy2 = new Tone.MetalSynth().connect(rev)
@@ -99,7 +92,12 @@ module.exports.Sync = class {
       const pe0 = this.net.getNodeAttribute(this.predecessor, 'pixiElement')
       const te0 = this.net.getNodeAttribute(this.predecessor, 'textElement')
       const zabumba = new Tone.Part((time, note) => {
-        msy.triggerAttackRelease(note, '8n', time)
+        if (note === 'C#1') {
+          if (Math.random() < 0.2) msy2.triggerAttackRelease(note, '8n', time)
+          else return
+        } else {
+          msy.triggerAttackRelease(note, '8n', time)
+        }
         // const pe = Math.random() > 0.2 ? pe1 : pe0
         const [pe, te] = note === 'C1' ? [pe1, te1] : [pe0, te0]
         if (note === 'G1') activateLink(pe0, pe1, this.app)
@@ -115,8 +113,9 @@ module.exports.Sync = class {
           te.alpha = 0
           pe.scale.set(1)
         }, time + 0.5)
-      }, [[0, 'C1'], ['0:1:2', 'C1'], ['0:3', 'G1']])
+      }, [[0, 'C1'], ['0:0:1.8', 'C#1'], ['0:1:2', 'C1'], ['0:3', 'G1']])
       zabumba.loop = true
+      zabumba.humanize = true
 
       const les = this.leafs.map(i => [
         this.net.getNodeAttribute(i, 'pixiElement'),
@@ -139,6 +138,7 @@ module.exports.Sync = class {
         }, time + 0.3)
       }, ['C4', 'G4', 'B4', 'C4'])
       chocalho.interval = '8n'
+      // chocalho.humanize = true
 
       const pes = this.successors.map(i => [
         this.net.getNodeAttribute(i, 'pixiElement'),
@@ -162,6 +162,7 @@ module.exports.Sync = class {
         }, time + 0.5)
       }, [[null, 'G2'], ['C2', null], ['C3', 'E3'], [null, 'G3']], '4n')
       succ.probability = 0.4
+      succ.humanize = true
 
       // const seq2 = new Tone.Sequence((time, note) => {
       //   isy2.triggerAttackRelease(note, '8n', time)
@@ -173,7 +174,9 @@ module.exports.Sync = class {
       ])
       const agogo = new Tone.Sequence((time, note) => {
         isy2.triggerAttackRelease(note, '8n', time)
-        const [pe, te] = res[reCount++ % res.length]
+        const res_ = res[reCount++ % res.length]
+        if (res_ === undefined) return
+        const [pe, te] = res_
         d(() => { // blink current or predecessor
           pe.tint = te.tint = 0xff00ff
           te.alpha = 1
@@ -186,13 +189,9 @@ module.exports.Sync = class {
           pe.scale.set(1)
         }, time + 0.4)
       }, ['C7', 'G7'], '4n')
+      agogo.humanize = true
       const actions = [
-        t => {
-          zabumba.start(t)
-          Tone.Transport.schedule(t2 => {
-            this.rec.astart()
-          }, t)
-        },
+        t => zabumba.start(t),
         t => succ.start(t),
         t => chocalho.start(t),
         t => zabumba.stop(t) && agogo.start(t),
@@ -206,10 +205,9 @@ module.exports.Sync = class {
           agogo.stop(t)
           Tone.Transport.schedule(t2 => {
             msy.triggerAttackRelease('C2', '2n', t2)
-            Tone.Transport.schedule(t3 => {
-              this.setLinks()
-              this.rec.astop()
-            }, t2 + 0.5)
+            this.setLinks()
+            Tone.Transport.stop()
+            if (this.recording) setTimeout(() => this.rec.astop(), 1000)
           }, t)
         }
       ]
@@ -228,7 +226,6 @@ module.exports.Sync = class {
     this.data.links.forEach((step, i) => {
       const stepNodes = []
       step.forEach(link => {
-        console.log('the link', link)
         if (!this.net.hasEdge(link.from, link.to)) return
         this.arrows.push(defaultLinkRenderer(link, this.net, this.app))
         if (!stepNodes.includes(link.to)) stepNodes.push(link.to)
@@ -269,7 +266,8 @@ module.exports.Sync = class {
     let currentNodes = [this.heirId]
     const consideredNodes = [this.heirId]
     let newNeighs = [this.heirId]
-    while (consideredNodes.length < 50 && newNeighs.length !== 0) {
+    // while (consideredNodes.length < 50 && newNeighs.length !== 0) {
+    while (consideredNodes.length < 25 && newNeighs.length !== 0) {
       newNeighs = []
       currentNodes.forEach(n => {
         this.net_.forEachNeighbor(n, nn => {
@@ -281,7 +279,6 @@ module.exports.Sync = class {
       })
       currentNodes = newNeighs
     }
-    console.log('bef subg')
     return subGraph(this.net_, consideredNodes).copy()
   }
 
@@ -296,7 +293,7 @@ module.exports.Sync = class {
         id: 'mcontent0',
         class: 'modal-content',
         css: { background: '#eeffee' }
-      }).html(`<h2>Olá, ${name}, você é herdeir@ de uma música feita para você!</h2>`)
+      }).html(`<h2>${nl.header(name)}</h2>`)
         .append($('<p/>', { id: 'mcontent2' }))
       )
     const diag2 = $('<div/>', {
@@ -304,7 +301,15 @@ module.exports.Sync = class {
     })
 
     // Tone.setContext(new Tone.Context({ latencyHint: 'playback' }))
-    $('<button/>').html('Ok, quero ouvir minha música agora!').on('click', () => {
+    $('<button/>', {
+      css: {
+        background: 'white',
+        border: '4px solid #449944',
+        'border-radius': '8px',
+        'font-size': 'larger',
+        cursor: 'pointer'
+      }
+    }).html(nl.listen()).on('click', () => {
       Tone.start()
       Tone.Transport.start('+0.1')
       // this.seq.start(2)
@@ -315,11 +320,14 @@ module.exports.Sync = class {
         }
       }, 500)
     }).appendTo(diag2)
+      .hover(function (e) {
+        $(this).css('background', e.type === 'mouseenter' ? '#e4f3e6' : 'transparent')
+      })
 
+    // todo: support biligual description
     const content = `
     <p>
-      A música se chama <b>${generateName(name, this.data.syncId)}</b>
-      e chegou junto a uma pequena mensagem de quem muito te admira:<br><br>
+      ${nl.song(generateName(name, this.data.syncId))}<br><br>
     </p>
 
     <div style="background:#ffffee;padding:2%;border-radius:5%;margin:2%">
@@ -346,23 +354,60 @@ module.exports.Sync = class {
     let links
     if (this.isLeaf) {
       this.findSeed()
-      $('#mcontent0').html('<h2>Parabéns, você é herdeiro final da sincronização!</h2>').append($('<p/>', { id: 'mcontent2' }))
-      links = `
-      Avise o iniciador da sincronização que você, herdeiro final, recebeu sua música e mensagem.
-      O nome delæ é ${this.seedAttrs.name}.
-
-      Você também pode querer avisar seu predecessor, ${this.net.getNodeAttribute(this.predecessor, 'name')}, que você é herdeiro final!
-      `.replace(/\n/g, '<br />')
+      $('#mcontent0').html(`<h2>${nl.leaf0()}</h2>`).append($('<p/>', { id: 'mcontent2' }))
+      links = nl.leaf(this.seedAttrs.name, this.net.getNodeAttribute(this.predecessor, 'name')).replace(/\n/g, '<br />')
     } else {
-      $('#mcontent0').html('<h2>Aqui os links para você repassar aos seus sucessores</h2>').append($('<p/>', { id: 'mcontent2' }))
-      links = this.successors.map(i => {
+      $('#mcontent0').html(`<h2>${nl.succLinks()}</h2>`).append($('<p/>', { id: 'mcontent2' }))
+      const clang = window.wand.speaksPortuguese ? ['copiar ', 'Copiado: '] : ['copy ', 'Copied: ']
+      links = this.successors.map((i, ii) => {
         const { name, did } = this.net.getNodeAttributes(i)
         const link = `${window.location.origin}?${this.data.syncId}=${did}`
-        return `<p>${name}: <a href="${link}" target="_blank">${link}</a></p>`
-      }).join('')
+        const p = $('<li/>').html(name + ': ')
+        const a = $('<a/>', {
+          href: link,
+          target: '_blank'
+        }).html(link).appendTo(p)
+        const bcolors = ['palegreen', 'lightblue', 0]
+        const btn = utils.mkBtn('copy', clang[0] + link, function () {
+          copyToClipboard(link)
+          btn.mtooltip.text(clang[1] + link + ' !!!')
+          btn.css('background', bcolors[++bcolors[2] % 2])
+        }, a, ii, 3).mouseleave(function () {
+          btn.mtooltip.text(clang[0] + link)
+        }).css('margin', '2px 1%')
+        return p
+      })
     }
-    $('#mcontent2').html(links)
-    $('<button/>').html('download your music video').click(() => this.rec.aa.click()).appendTo('#mcontent2')
+    $('#mcontent2').html($('<ul/>').append(links))
+    $('<button/>', {
+      css: {
+        background: 'white',
+        border: '4px solid #449944',
+        'border-radius': '8px',
+        'font-size': 'larger',
+        cursor: 'pointer'
+      }
+    }).html(nl.finall(this.recording, this.net.getNodeAttribute(this.heirId, 'name'))).click(() => {
+      // if (u('rec')) return this.rec.aa.click()
+      // window.alert('To record your music video, you will listen to it again.')
+      // window.open(window.location.href + '&rec=1')
+      if (this.recording) return this.rec.aa.click()
+      this.recording = true
+      this.rec = rec()
+      Tone.Transport.schedule(t2 => {
+        this.rec.astart()
+      }, '+1m')
+      Tone.start()
+      Tone.Transport.start('+0.1')
+      setTimeout(() => {
+        if (Tone.Transport.state === 'started') {
+          $('#myModal2').hide(2000)
+        }
+      }, 500)
+    }).appendTo('#mcontent2')
+      .hover(function (e) {
+        $(this).css('background', e.type === 'mouseenter' ? '#e4f3e6' : 'transparent')
+      })
     $('#myModal2').fadeIn(4000)
   }
 

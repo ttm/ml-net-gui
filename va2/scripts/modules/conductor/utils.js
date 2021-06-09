@@ -1,6 +1,30 @@
+/* global wand */
 const e = module.exports
 const PIXI = e.PIXI = require('pixi.js')
 const linkify = require('linkifyjs/html')
+
+e.nl = {
+  header: name => wand.speaksPortuguese ? `Olá, ${name}, você é herdeir@ de uma música feita para você!` : `Hi ${name}, you are the heir of a song made for you!`,
+  listen: () => wand.speaksPortuguese ? 'Ok, quero ouvir minha música agora!' : 'Okay, I want to hear my music now!',
+  song: sname => wand.speaksPortuguese ? `A música se chama <b>${sname}</b> e chegou junto a uma pequena mensagem de quem muito te admira:` : `The song is called <b>${sname}</b> and came with a small message from someone who admires you a lot:`,
+  leaf0: () => wand.speaksPortuguese ? 'Parabéns, você é herdeiro final da sincronização!' : 'Congratulations, you are a ultimate heir of the sync!',
+  leaf: (tseedName, pName) => wand.speaksPortuguese
+    ? `
+  Avise o iniciador da sincronização que você, herdeiro final, recebeu sua música e mensagem.
+  O nome delæ é ${tseedName}.
+
+  Você também pode querer avisar seu/sua predecessor(a), ${pName}, que você é herdeiro final!
+  `
+    : `
+  Notify the sync initiator that you, ultimate heir, have received your music and message.
+   His name is ${tseedName}
+
+   You might also want to let your predecessor ${pName} know that you are the final heir!
+  `,
+  succLinks: () => wand.speaksPortuguese ? 'Aqui os links para você repassar aos seus sucessores:' : 'Here are the links for you to pass on to your successors:',
+  finall: (rec, name) => wand.speaksPortuguese ? `clique para ${rec ? 'baixar' : 'gravar'} o clipe da sua música, ${name}.` : `click to ${rec ? 'download' : 'record'} your music video, ${name}.`
+
+}
 
 e.defaultLinkRenderer = (link, net, app) => { // adapted from va.drawing.base
   // first, let's compute normalized vector for our link:

@@ -457,16 +457,18 @@ e.mongoIdToRGB = mid => {
   return [r, g, b]
 }
 
-e.mkBtn = (iclass, title, fun, ref) => {
+e.mkBtn = (iclass, title, fun, ref, count, size) => {
   const fid = iclass
   const btn = $('<button/>', {
     class: 'btn tooltip',
-    id: `${fid}-button`,
+    id: `${fid}-button${(count || '')}`,
     click: fun,
     css: {
-      height: '4%',
-      width: '4%',
-      'margin-left': '1%'
+      height: (size || 4) + '%',
+      width: (size || 4) + '%',
+      'margin-left': '1%',
+      'border-radius': '8px',
+      cursor: 'pointer'
     }
   })
   if (!ref) {
@@ -475,7 +477,7 @@ e.mkBtn = (iclass, title, fun, ref) => {
     btn.insertAfter(ref)
   }
   $('<i/>', { class: 'fa fa-' + iclass, id: `${fid}-icon` }).appendTo(btn)
-  $('<span/>', { class: 'tooltiptext' }).text(title).appendTo(btn)
+  btn.mtooltip = $('<span/>', { class: 'tooltiptext' }).text(title).appendTo(btn)
   return btn
 }
 

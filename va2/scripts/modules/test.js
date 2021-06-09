@@ -5021,8 +5021,8 @@ e.freeD = () => {
 
 e.vmapT = () => {
   const tzoffset = (new Date()).getTimezoneOffset() * 60000 // offset in milliseconds
-  let header = ['country', 'city', 'region', 'timezone', 'postal', 'loc', 'ip', 'hostname', 'org', 'date', 'dateLeft', 'finishedSession', 'feedback']
-  if (!u('full')) header = ['country', 'city', 'region', 'timezone', 'postal', 'ip', 'org', 'date', 'dateLeft', 'finishedSession', 'feedback']
+  let header = ['country', 'city', 'region', 'timezone', 'postal', 'loc', 'ip', 'hostname', 'org', 'date', 'dateLeft', 'started', 'finishedSession', 'feedback']
+  if (!u('full')) header = ['country', 'city', 'region', 'timezone', 'postal', 'ip', 'org', 'date', 'dateLeft', 'started', 'finishedSession', 'feedback']
   const grid = utils.mkGrid(header.length + 1, 'body', '100%', utils.chooseUnique(['#eeeeff', '#eeffee', '#ffeeee'])[0])
   function addItems (ar, isHeader) {
     if (isHeader) {
@@ -5055,6 +5055,13 @@ e.vmapT = () => {
   }
   if (u('finished')) {
     query.finishedSession = { $exists: true }
+  } else if (u('started')) {
+    query.started = { $exists: true }
+  } else if (u('ev')) {
+    query.$or = [
+      { started: { $exists: true } },
+      { finishedSession: { $exists: true } }
+    ]
   }
   transfer.fAll.costa(query).then(r => {
     r.sort((a, b) => b.date - a.date)

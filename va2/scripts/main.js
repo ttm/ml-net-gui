@@ -42,28 +42,34 @@ const uargs = wand.router.urlAllArguments()
 // sync is specified with <sync id>=<participant ref>
 // else just welcome page
 let found = false
+wand.$('<div/>', { id: 'canvasDiv' }).appendTo('body')
 if (uargs.values[0] === '') {
   const k = uargs.keys[0]
   found = true
   if (k[0] === '_') { // meditation model 1:
     wand.currentMed = wand.med.model(k.slice(1))
   } else if ('~-@.'.includes(k[0])) { // meditation model 2 or 3
-    wand.$('<div/>', { id: 'canvasDiv' }).appendTo('body')
-    const query = { 'header.med2': k.slice(1), 'header.datetime': { $gte: new Date('2021-04-29') } }
-    if ('~-'.includes(k[0])) query['header.ancestral'] = { $exists: true } // created by mkLight
-    wand.transfer.findAny(query).then(r => {
+    const query = { 'header.med2': k.slice(1) }
+    if ('~-'.includes(k[0])) query['header.ancestral'] = { $exists: true } // created by mkLight. todo: remove '~' ?
+    else if (k[0] !== '@') {
+      query['header.onlyOnce'] = { $exists: true }
+      query._id = { $gt: wand.utils.objectIdWithTimestamp('2021/06/05') }
+    }
+    //  , $or: [{ 'header.datetime': { $gte: new Date('2021-04-29') } }, { 'header.onlyOnce': { $exists: true } }] }
+    wand.transfer[k[0] === '@' ? 'findAll' : 'findAny'](query).then(r => {
       wand.currentSet = r
       // use r.lemniscate to decide model2 or 3
       // if (r.visSetting.lemniscate > 30) wand.currentMed = new wand.med.Model3(r, Boolean(r.header.ancestral))
       // else wand.currentMed = new wand.med.Model2(r, Boolean(r.header.ancestral))
-      wand.currentMed = new wand.med.Model2(r, Boolean(r.header.ancestral))
+      wand.currentMed = new wand.med.Model2(r)
+      wand.utils.confirmExit()
     })
   } else if (k in wand.test) { // standard page:
     wand.test[k]() // if k[0] === '-': k is an article
   } else {
     found = false
   }
-} else { // sync:
+} else if (uargs.values.length !== 0) { // sync:
   found = true
   const syncId = uargs.keys[0]
   const userRef = uargs.values[0]
@@ -81,7 +87,8 @@ if (!found) { // includes empty/no URL parameters:
   }
 }
 
+if (uargs.keys.includes('stay')) wand.utils.confirmExit()
+
 window.onbeforeunload = e => wand.unloadFuncs.forEach(f => f(e))
-wand.utils.confirmExit()
 
 wand.router.mkFooter()

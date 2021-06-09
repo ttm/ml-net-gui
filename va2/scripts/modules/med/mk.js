@@ -1,6 +1,5 @@
 const $ = require('jquery')
 const J = require('@eastdesire/jscolor')
-const copyToClipboard = require('copy-to-clipboard')
 
 const maestro = require('../maestro.js')
 const utils = require('../utils.js')
@@ -8,6 +7,7 @@ const transfer = require('../transfer.js')
 const waveforms = require('./common.js').waveforms
 const permfuncs = require('./common.js').permfuncs
 
+const copyToClipboard = utils.copyToClipboard
 const u = require('../router.js').urlArgument
 const p = v => typeof v === 'string' ? v : parseFloat(v.val())
 const e = module.exports
@@ -344,9 +344,17 @@ e.Mk = class {
   }
 
   start () {
-    const query = { 'header.med2': { $exists: true }, 'header.datetime': { $gte: new Date('2021-04-29') } }
-    if (u('all')) delete query['header.datetime']
+    const query = { 'header.med2': { $exists: true }, _id: { $gt: window.wand.utils.objectIdWithTimestamp('2021/06/05') }, 'header.onlyOnce': { $exists: true } }
+    if (u('old') || u('all')) {
+      delete query._id
+      delete query['header.onlyOnce']
+      if (u('old')) query['header.datetime'] = { $gte: new Date('2021/04/29') }
+      else delete query['header.datetime']
+      this.isOld = true
+    }
+
     if (this.light) query['header.communionSchedule'] = true
+
     const plural = this.user_[this.user_.length - 1] === 's' ? "'" : "'s"
     $('<h2/>', { css: { 'text-align': 'center', background: '#d4d988' } })
       .html(`${this.user_}${plural} Make ${this.light ? 'Light (tutorial: <a href="https://youtu.be/sMB5pMAzIAI" target="_blank">short</a>, <a href="https://youtu.be/LIenlf5umck" target="_blank">long</a>)' : 'Medicine'}`).appendTo(this.div1)
@@ -455,11 +463,22 @@ e.Mk = class {
       .attr('title', 'The ID for the meditation (will appear on the URL).')
       .val(utils.chooseUnique(['love', 'light', 'happiness', 'immortality', 'God', 'appreciation', 'hope', 'faith', 'peace', 'self-control', 'rejuvenation'])[0])
 
+    $('<span/>').html('only once:').appendTo(grid)
+    const onlyOnce = $('<input/>', {
+      type: 'checkbox'
+    }).appendTo(grid)
+      .attr('title', 'if checked, will occur only once, else it will occur at all the standard times.')
+      .prop('checked', false)
+      .click(() => {
+        adiv.prop('disabled', !onlyOnce.prop('checked'))
+      })
+
     $('<span/>').html('when:').appendTo(grid)
     const adiv = $('<input/>', {
       placeholder: 'select date and time'
     }).appendTo(grid)
       .attr('title', 'Select a date and time for the mentalization to occur.')
+      .prop('disabled', true)
     const dt = new Date()
     dt.setMinutes(dt.getMinutes() + 10)
     dt.setSeconds(0)
@@ -468,6 +487,7 @@ e.Mk = class {
       enableTime: true
     })
     datetime.setDate(dt)
+    this.aadiv = adiv
 
     const d = addNumField(grid, 'total duration', 'in seconds (0 if forever)', 'Duration of the meditation in seconds.', 900)
 
@@ -488,7 +508,7 @@ e.Mk = class {
       communionSchedule.appendTo(grid)
     }
 
-    this.header = { med2, datetime, d, vcontrol, communionSchedule }
+    this.header = { med2, datetime, d, vcontrol, communionSchedule, onlyOnce }
   }
 
   setVisual () {
@@ -583,13 +603,14 @@ e.Mk = class {
         const removed = this.setting.reduce((a, i) => a + i.grid.voiceRemoved, 0)
         if (this.setting.length === removed && !window.confirm('Do you really want to create an artifact without any sound?')) return
         const toSave = this.mkWritableSettings(true)
+        if (!toSave) return
         transfer.writeAny(toSave).then(resp => {
           const aS = this.light ? this.allSettings2 : this.allSettings
           aS.push(toSave)
           aS.sort((a, b) => b.header.datetime - a.header.datetime)
           this.removeOptions()
           this.resetArtifactOptions(toSave)
-          this.prefix = toSave.header.ancestral ? '-' : '.'
+          this.prefix = this.isOld ? '@' : (toSave.header.ancestral ? '-' : '.')
           this.obutton.attr('disabled', false).html(`Open: ${toSave.header.med2}`)
           this.p3button.attr('disabled', false)
           this.p5button.attr('disabled', false).html(`Preview (5s): ${toSave.header.med2}`)
@@ -737,6 +758,8 @@ ${lw()}.
     h.datetime.setDate(h_.datetime)
     h.d.val(h_.d)
     h.vcontrol.prop('checked', h_.vcontrol)
+    h.onlyOnce.prop('checked', h_.onlyOnce === undefined ? true : h_.onlyOnce)
+    this.aadiv.prop('disabled', !h.onlyOnce.prop('checked'))
     if (!this.light) h.communionSchedule.prop('checked', h_.communionSchedule)
 
     const v = this.visSetting
@@ -845,7 +868,7 @@ ${lw()}.
         }
       }
     })
-    this.prefix = h_.ancestral ? '-' : '.'
+    this.prefix = this.isOld ? '@' : (h_.ancestral ? '-' : '.')
     this.obutton.attr('disabled', false).html(`Open: ${h_.med2}`)
     this.p3button.attr('disabled', false)
     this.p5button.attr('disabled', false).html(`Preview (5s): ${h_.med2}`)
@@ -923,7 +946,7 @@ ${lw()}.
         return
       }
     }
-    if (h.datetime === undefined || h.datetime < new Date()) {
+    if (h.onlyOnce && (h.datetime === undefined || h.datetime < new Date())) {
       if (!window.confirm('the date has passed. Are you shure?')) return
     }
     if (h.d < 30) {
@@ -1041,12 +1064,14 @@ ${lw()}.
     if (write && !this.light && h.communionSchedule.prop('checked') && !window.confirm('You are creating a Template to be used in mkLight, confirm?')) return
     const header = {
       med2: h.med2.val(),
-      datetime: h.datetime.selectedDates[0],
+      onlyOnce: h.onlyOnce.prop('checked'),
       d: p(h.d),
       vcontrol: h.vcontrol.prop('checked'),
       creator: this.user,
       communionSchedule: this.light || h.communionSchedule.prop('checked')
     }
+    if (header.onlyOnce) header.datetime = h.datetime.selectedDates[0]
+
     if (this.light) {
       header.ancestral = this.ancestral
     }

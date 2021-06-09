@@ -42,6 +42,9 @@ e.mkFooter = () => {
       wand.unloadFuncs.unshift(e => {
         wand.transfer.fAll.ucosta({ _id: r.insertedId }, { dateLeft: new Date() })
       })
+      setInterval(() => {
+        wand.transfer.fAll.ucosta({ _id: r.insertedId }, { lastSeen: new Date() })
+      }, 3 * 60 * 1000)
     })
   }, 'jsonp')
   wand.modal = utils.mkModal()

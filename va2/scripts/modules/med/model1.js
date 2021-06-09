@@ -139,7 +139,8 @@ e.meditation = mid => {
 
   const app = new PIXI.Application({ // todo: make it resizable
     width: window.innerWidth,
-    height: window.innerHeight * 0.80
+    height: window.innerHeight * 0.80,
+    antialias: true
   })
   document.body.appendChild(app.view)
   const [w, h] = [app.view.width, app.view.height]

@@ -11,6 +11,7 @@ const louvain = require('graphology-communities-louvain')
 const components = require('graphology-components')
 
 const { chooseUnique } = require('./utils')
+const u = require('./router.js').urlArgument
 
 const e = module.exports
 e.netdegree = netdegree
@@ -149,7 +150,10 @@ e.plotFromMongo = (anet, app, keepUnscrapped) => {
   netdegree.assign(net)
   random.assign(net)
   const saneSettings = forceAtlas2.inferSettings(net)
-  const atlas = forceAtlas2(net, { iterations: 150, settings: saneSettings })
+  console.log('the settings:', saneSettings)
+  // saneSettings.barnesHutTheta = 1.2
+  // saneSettings.scalingRatio = 2
+  const atlas = forceAtlas2(net, { iterations: parseInt(u('it')) || 150, settings: saneSettings })
   scale(atlas, app)
   return { net, saneSettings, atlas }
 }
@@ -223,10 +227,10 @@ function scale (positions, app) {
 }
 
 e.ParticleNet2 = class { // using graphology net and positions as given by forceatlas2
-  constructor (app, net, atlas, interactive = true) {
+  constructor (app, net, atlas, interactive = true, bezier = false) {
     this.interactive = interactive
     this.mkContainers(app)
-    this.mkTextures(app)
+    this.mkTextures(app, bezier)
     this.plot(net, atlas, app)
     this.input = { app, net, atlas }
   }
@@ -251,16 +255,20 @@ e.ParticleNet2 = class { // using graphology net and positions as given by force
     app.stage.addChild(this.nodeContainer)
   }
 
-  mkTextures (app) {
-    const myLine = new PIXI.Graphics()
-      .lineStyle(1, 0xffffff)
-      .moveTo(0, 0)
-      .lineTo(1000, 0)
+  mkTextures (app, bezier) {
     const myCircle = new PIXI.Graphics()
       .beginFill(0xffffff)
       .drawCircle(0, 0, 5)
       .endFill()
     this.circleTexture = app.renderer.generateTexture(myCircle)
+    const myLine = new PIXI.Graphics()
+      .lineStyle(1, 0xffffff)
+    if (bezier) setBezier(myLine)
+    else {
+      myLine
+        .moveTo(0, 0)
+        .lineTo(1000, 0)
+    }
     this.lineTexture = app.renderer.generateTexture(myLine)
   }
 
@@ -450,7 +458,7 @@ e.removeNode = (g, n) => {
   g.dropNode(n)
 }
 
-e.plotSync = (data, app) => {
+e.plotSync = (data, app, toDraw = true) => {
   const key = data.source === 'fb' ? 'id' : 'name'
   const net = new Graph()
   data.nodes.forEach(n => net.addNode(n[key], n))
@@ -459,10 +467,31 @@ e.plotSync = (data, app) => {
       net.addEdge(link.from, link.to)
     })
   })
+  if (!toDraw) return net
+  netdegree.assign(net)
+  random.assign(net)
+  const saneSettings = forceAtlas2.inferSettings(net)
+  console.log('bef fa')
+  const atlas = forceAtlas2(net, { iterations: 150, settings: saneSettings })
+  console.log('aft fa')
+  scale(atlas, app)
+  return { net, saneSettings, atlas }
+}
+
+e.attrNet = (net, app) => { // to be used with e.plotSync(data, --, false)
   netdegree.assign(net)
   random.assign(net)
   const saneSettings = forceAtlas2.inferSettings(net)
   const atlas = forceAtlas2(net, { iterations: 150, settings: saneSettings })
   scale(atlas, app)
   return { net, saneSettings, atlas }
+}
+
+function setBezier (bezier, xd = 1000, yd = 0, dx1 = 0.25, dy1 = 30, dx2 = 0.75, dy2 = 30) {
+  bezier.position.x = 0
+  bezier.position.y = 0
+  const localDest = { x: xd, y: yd }
+  const cp1 = { x: localDest.x * dx1, y: dy1 }
+  const cp2 = { x: localDest.x * dx2, y: dy2 }
+  bezier.bezierCurveTo(cp1.x, cp1.y, cp2.x, cp2.y, localDest.x, localDest.y)
 }

@@ -10,6 +10,7 @@ const net = require('../net.js')
 const utils = require('../utils.js')
 const w = require('./common.js').waveforms
 const p = require('./common.js').permfuncs
+const nextSync = require('./common.js').nextSync
 const u = require('../router.js').urlArgument
 
 const tr = PIXI.utils.string2hex
@@ -28,8 +29,13 @@ e.Med = class {
     this.isMobile = utils.mobileAndTabletCheck()
     this.app = new PIXI.Application({ // todo: make it resizable
       width: window.innerWidth,
-      height: window.innerHeight * 0.80
+      height: window.innerHeight * 0.80,
+      antialias: true
     })
+    if (r instanceof Array) {
+      console.log('the options:', r)
+      r = this.promptForSelection(r)
+    }
     $('#canvasDiv').append(this.app.view)
     if (u('offline')) { // for recording
       $('#loading').hide()
@@ -45,7 +51,7 @@ e.Med = class {
         window.alert(`Failed to retrieve the session artifact. Please reload. Such "${r.header.med2}" artifact may not exist.`)
         return
       }
-      if (r.visSetting.isNetwork && r.header.datetime > new Date()) {
+      if (r.visSetting.isNetwork) {
         const after = () => {
           this.anet.dn = new net.ParticleNet2(this.app, this.anet.net, this.anet.atlas, false)
           this.anet.dn.hide()
@@ -86,6 +92,37 @@ e.Med = class {
         this.doIt(r)
       }
     }
+  }
+
+  promptForSelection (r) {
+    if (r.length === 1) return r[0]
+    const opts = [
+      'sinusoid',
+      'lemniscate',
+      'trefoil (triquetra)',
+      'figure-eight (Listing\'s) knot',
+      'torus knot',
+      'cinquefoil knot',
+      'decorative torus knot',
+      'Lissajous 3-4',
+      'Ray',
+      'void'
+    ]
+    const options = []
+    r.forEach((rr, i) => {
+      let p1
+      if (rr.header.onlyOnce === false) {
+        p1 = 'Æternal!'
+      } else {
+        p1 = rr.header.datetime.toISOString().split('.')[0].replace('T', ', ')
+      }
+      const p2 = `is template: ${rr.header.communionSchedule}`
+      const p3 = `background: ${rr.visSetting.bgc}`
+      const p4 = `shape: ${opts[rr.visSetting.lemniscate]}`
+      const p5 = `voices: ${rr.voices.length}`
+      options.push(i + ')' + [p1, p2, p3, p4, p5].join(', '))
+    })
+    return r[window.prompt('Select artifact:\n' + options.join('\n'))]
   }
 
   doIt (r) {
@@ -208,7 +245,7 @@ e.Med = class {
     const loop = new t.Loop(time => {
       // todo: implement compound and peals
       permfunc(notes)
-      for (const note in notes) {
+      for (const note in notes) { // fixme: use Pattern instead of Loop for this
         sy.triggerAttackRelease(notes[note], noteDur, time + noteSep * note)
       }
     }, s.d)
@@ -260,7 +297,13 @@ e.Med = class {
   setVisual (s) { // gets overwritten by subclasses
   }
 
+  setTimeToStart (s) {
+    if (s.onlyOnce === undefined || s.onlyOnce) return
+    s.datetime = nextSync()
+  }
+
   setStage (s) {
+    this.setTimeToStart(s)
     const isMobile = this.isMobile
     const adiv = utils.centerDiv(undefined, $('#canvasDiv'), utils.chooseUnique(['#eeeeff', '#eeffee', '#ffeeee'], 1)[0])
       .css('text-align', 'center')
@@ -269,7 +312,8 @@ e.Med = class {
       css: {
         'font-size': isMobile ? '3vw' : '1vw'
       }
-    }).html('countdown to start:')
+    // }).html(`countdown to start (at ${nextSync(true)}):`)
+    }).html(`starts at ${nextSync(true)}, countdown:`)
     const countdownCount = $('<span/>', {
       css: {
         'font-size': isMobile ? '3vw' : '1vw'
@@ -286,6 +330,7 @@ e.Med = class {
       }
     }).appendTo(lpar)
     const noSleep = new NS()
+    // t.setContext(new t.Context({ latencyHint: 'playback' })) // fixme: why does teh counter stop??
     const check = $('<input/>', {
       type: 'checkbox',
       id: 'startChecked'
@@ -299,6 +344,7 @@ e.Med = class {
       }
     })
     $('<div/>', { class: 'slideraa round' }).appendTo(label)
+    // $('<div/>', { css: { width: '2%', height: '2%', background: 'green' } }).appendTo(lpar).click(() => console.log('clicked jowww')) // todo: make a way to start the artifact at once, maybe in the dat.gui
 
     const inhale = $('<span/>').html(' inhale ')
     const exhale = $('<span/>').html(' exhale ')
@@ -386,9 +432,6 @@ e.Med = class {
     this.visualsCommon.start()
     if (s.vcontrol) this.volumeControl()
     const d = () => this.getDurationToStart(s) / 1000
-    t.start(0)
-    t.Transport.start(0)
-    t.Master.mute = false
     this.voices.forEach(v => {
       if (!v) return
       v.start('+' + d())
@@ -401,6 +444,10 @@ e.Med = class {
       started = true
       t.Draw.schedule(() => {
         this.guiEls.countdownMsg.html('countdown to finish:')
+        window.wand.transfer.fAll.ucosta(
+          { _id: window.sessionL.insertedId },
+          { started: new Date() }
+        )
       }, time)
     }, '+' + d())
 
@@ -410,6 +457,10 @@ e.Med = class {
       t.Draw.schedule(() => {
         this.guiEls.countdownMsg.html('session finished. Time elapsed:')
         window.wand.modal.show(5000)
+        window.wand.transfer.fAll.ucosta(
+          { _id: window.sessionL.insertedId },
+          { finishedSession: new Date() }
+        )
       }, time)
     }, '+' + (d() + s.d))
 
@@ -427,6 +478,9 @@ e.Med = class {
         this.guiEls.countdownMsg.html('session finished. Time elapsed:')
       }
     }
+    t.start(0)
+    t.Transport.start('+0.1')
+    t.Master.mute = false
   }
 
   startGoodTimer2 (s) { // not being used!

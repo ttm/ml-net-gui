@@ -144,7 +144,9 @@ e.stdMsg = () => {
     return `
 
 <h2>Fortaleça o seu Corpo de Luz</h2>
-Você pode ajudar de diversas formas, por exemplo:
+
+algumas ideias:
+
 <ul>
 <li>escreva relatando como tem sido as sessões para você: elas tem te ajudado? De que forma?</li>
 <li>Incentive outros membros a escreverem relatos das experiências deles.</li>
@@ -168,7 +170,7 @@ Luz e Paz ~
   return `
 <h2>Strengthen your Lightbody</h2>
 
-You can help in several ways, for example:
+some ideas:
 
 <ul>
 <li>write about how the sessions have been for you: have they helped you? In what way?</li>
@@ -216,6 +218,7 @@ e.mkModal = content => {
         })
       )
       .append($('<p/>', { id: 'mcontent' }))
+      .append($('<p/>', { id: 'mfeedback' }))
     )
   window.onclick = function (event) {
     if (event.target === $('#myModal')[0]) {
@@ -226,9 +229,28 @@ e.mkModal = content => {
   ${content || e.stdMsg}
   <br><br><br>:::
   `)
+  const descArea = $('<textarea/>', {
+    maxlength: 3200,
+    css: {
+      'background-color': 'white',
+      margin: 'auto',
+      width: '50%',
+      height: '10%'
+    }
+  }).appendTo('#mfeedback')
+  $('<button/>', { css: { margin: '1%' } }).html('Send / Enviar Feedback').on('click', () => {
+    window.wand.transfer.fAll.ucosta(
+      { _id: window.sessionL.insertedId },
+      { feedback: descArea.val() }
+    ).then(r => {
+      descArea.val('')
+      window.alert('Thank you / Obrigado.')
+    })
+  }).appendTo('#mfeedback')
   return {
     show: (ms, msg) => {
-      $('#mcontent').html((msg || e.stdMsg()) + '<br><br><br>:::')
+      // $('#mcontent').html((msg || e.stdMsg()) + '<br><br><br>:::')
+      $('#mcontent').html((msg || e.stdMsg()))
       $('#myModal').fadeIn(ms || 'slow') // show() // .css('display', 'block')
       $('#contribL').fadeOut(200).fadeIn(200).fadeOut(200).fadeIn(200).fadeOut(200).fadeIn(200)
     },
@@ -260,7 +282,7 @@ e.secsToTime = secs => {
     [hours, minutes] = reduce(minutes)
     hours += ':'
   }
-  return `${hours}${p(minutes)}:${p(seconds)}`
+  return `${hours}${p(minutes)}'${p(seconds)}"`
 }
 
 e.mobileAndTabletCheck = () => {
@@ -456,3 +478,15 @@ e.mkBtn = (iclass, title, fun, ref) => {
   $('<span/>', { class: 'tooltiptext' }).text(title).appendTo(btn)
   return btn
 }
+
+e.objectIdWithTimestamp = timestamp => { // db.mycollection.find({ _id: { $gt: objectIdWithTimestamp('1980/05/25') } })
+  if (typeof timestamp === 'string') timestamp = new Date(timestamp)
+  /* Convert date object to hex seconds since Unix epoch */
+  const hexSeconds = Math.floor(timestamp / 1000).toString(16)
+
+  /* Create an ObjectId with that hex timestamp */
+  return new window.wand.transfer.ss.BSON.ObjectId(hexSeconds + '0000000000000000')
+}
+
+e.chroma = require('chroma-js')
+e.copyToClipboard = require('copy-to-clipboard')

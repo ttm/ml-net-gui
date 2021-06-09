@@ -7,6 +7,8 @@ const u = require('../router.js').urlArgument
 const utils = require('../utils.js')
 const { PIXI, defaultLinkRenderer } = require('./utils.js')
 
+const copyToClipboard = utils.copyToClipboard
+
 module.exports.Tithorea = class {
   constructor () {
     const app = this.app = window.wand.app = new PIXI.Application({
@@ -127,7 +129,7 @@ module.exports.Tithorea = class {
     nodes.forEach((n, i) => { n.did = i })
     this.toBeWritten = {
       source: this.source,
-      desc: this.descArea.val(),
+      desc: this.descArea.val().replace(/\n/g, '<br />'),
       syncId: this.syncIdInput.val(),
       links: this.diffusion.progressionLinks,
       nodes
@@ -139,7 +141,9 @@ module.exports.Tithorea = class {
       $('#loading').hide()
       const id = tbw.links[0][0].from
       const did = nodes.filter(i => (tbw.source === 'fb' ? i.id : i.name) === id)[0].did
-      window.alert(`sync created! Link to it: ${window.location.origin}?${tbw.syncId}=${did}`)
+      const link = `${window.location.origin}?${tbw.syncId}=${did}`
+      window.alert(`sync created! Link to it: ${link}`)
+      copyToClipboard(link)
     }).catch(e => window.alert('not written', e))
     console.log('tbw', this.toBeWritten)
   }

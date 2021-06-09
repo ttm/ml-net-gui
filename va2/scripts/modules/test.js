@@ -1,7 +1,7 @@
 const PIXI = require('pixi.js')
 const forceAtlas2 = require('graphology-layout-forceatlas2')
 
-const t = require('tone')
+const t = window.Tone = require('tone')
 const $ = require('jquery')
 window.jQuery = $
 require('paginationjs')
@@ -2020,7 +2020,7 @@ e.welcome = () => {
   <b>Æterni</b> initiatives.
   </p>
   <p>
-  They are fostered to be useful to each individual, group and the Cosmos.
+  They are fostered to the advantage of each individual, group and the Cosmos.
   </p>
 
   `)
@@ -2038,7 +2038,7 @@ e.about = () => {
   Previous efforts are being consolidated herein:
   <ul>
   <li>audiovisual artifacts for mentalization / meditation / manifestation;</li>
-  <li>social coordination mechanisms;</li>
+  <li>social coordination (sync) mechanisms;</li>
   <li>press (text publisher).</li>
   </ul>
   </p>
@@ -3681,7 +3681,8 @@ e.you = () => {
     width: window.innerWidth,
     height: window.innerHeight * 0.9,
     // transparent: true
-    backgroundColor: 0x000000
+    backgroundColor: 0x000000,
+    antialias: true
   })
   app.stage.sortableChildren = true
   document.body.appendChild(app.view)
@@ -3692,7 +3693,7 @@ e.you = () => {
       window.rrr = r
       const anet = window.anet = r[0][foo]
       const pfm = window.pfm = net.plotFromMongo(anet, app, u('deg'))
-      const dn = new net.ParticleNet2(app, pfm.net, pfm.atlas)
+      const dn = new net.ParticleNet2(app, pfm.net, pfm.atlas, true, true)
       pfm.dn = dn
       setUp()
       $('#loading').hide()
@@ -4505,6 +4506,38 @@ e['007-meses'] = () => {
   $('#loading').hide()
 }
 
+e['008-fabbri-relato-antes-da-transicao'] = () => {
+  utils.stdDiv().html(`
+  <h1>Sobre o último período e o próximo, 04/06/2021</h1>
+
+  Criamos o Grupo AAA (e MMM), os quais tem agora centenas de pessoas.
+  Neste processo, em especial, o Otávio manteve algumas dinâmicas individuais,
+  a Mariel criou a enorme maioria das sessões (e dos artefatos), eu mantive-me desenvolvendo
+  os artefatos, colocando novas visualizações/formas, melhorando as interfaces de criação.
+  Investi também bastante tempo falando com os novos integrantes.
+  Eles estavam sempre falando comigo devido às postagens ou algum outro motivo.
+
+  Pudemos também iniciar o Reiki do Corpo de Luz e esperar um pouco as coisas assentarem.
+  Em especial, pude desenvolver as frentes de redes complexas, integrar aos artefatos,
+  fazer difusões e interfaces de visualização.
+  Estão contemplados os Facebook, o Whatsapp e o Telegram.
+  Está consideravelmente fácil integrar outras redes sociais.
+
+  Por fim, começamos a "Cura do Mundo Novo" e acabamos de acabar a segunda semana.
+  Na semana que começará, devemos mudar os artefatos para "artefatos eternos" (permanentes)
+  que começam nas horas angelicais.
+  Isso nos permitirá caprichar bastante nos artefatos e postagens e aproveitar o grupo para manter
+  mais diálogo.
+
+  Deixamos bastante de lado a articulação com grupos, pessoas e instituições potencialmente interessadas.
+  Tanto a Cura quando esta nova dinâmica devem facilitar esta linha de ação.
+
+  :::
+  `.replace(/\n/g, '<br>')
+  )
+  $('#loading').hide()
+}
+
 e.getPhrase = () => {
   utils.getPhrase().then(r => console.log('HERE MAN', r))
 }
@@ -4803,7 +4836,9 @@ e.mongoUtil = () => {
   }
   // transfer.fAll.mark({ 'userData.id': 'charlesa.anderson.338', 'net.edges.10': { $exists: false } }).then(r => {
   // transfer.fAll.mark({ 'userData.id': 'charlesa.anderson.338' }).then(r => { // 1008, 3362
-  transfer.fAll.mark({ 'userData.id': 'renato.fabbri' }).then(r => { // 1008, 3362
+  // transfer.fAll.mark({ 'userData.id': 'renato.fabbri' }).then(r => { // 1008, 3362
+  // transfer.findAll({ 'header.med2': { $exists: true } }).then(r => { // 742 itens at 03/Jun/2021
+  transfer.findAll({ meditation: { $exists: true } }).then(r => { // 177
     window.rr = r
     // const anet = JSON.parse(r[0].text)
     // const pfm = net.plotFromMongo(anet)
@@ -4986,8 +5021,8 @@ e.freeD = () => {
 
 e.vmapT = () => {
   const tzoffset = (new Date()).getTimezoneOffset() * 60000 // offset in milliseconds
-  let header = ['country', 'city', 'region', 'timezone', 'postal', 'loc', 'ip', 'hostname', 'org', 'date', 'dateLeft']
-  if (!u('full')) header = ['country', 'city', 'region', 'timezone', 'postal', 'ip', 'org', 'date', 'dateLeft']
+  let header = ['country', 'city', 'region', 'timezone', 'postal', 'loc', 'ip', 'hostname', 'org', 'date', 'dateLeft', 'finishedSession', 'feedback']
+  if (!u('full')) header = ['country', 'city', 'region', 'timezone', 'postal', 'ip', 'org', 'date', 'dateLeft', 'finishedSession', 'feedback']
   const grid = utils.mkGrid(header.length + 1, 'body', '100%', utils.chooseUnique(['#eeeeff', '#eeffee', '#ffeeee'])[0])
   function addItems (ar, isHeader) {
     if (isHeader) {
@@ -5018,6 +5053,9 @@ e.vmapT = () => {
     }
     query.date = { $gte: d }
   }
+  if (u('finished')) {
+    query.finishedSession = { $exists: true }
+  }
   transfer.fAll.costa(query).then(r => {
     r.sort((a, b) => b.date - a.date)
     window.visits = r
@@ -5028,4 +5066,80 @@ e.vmapT = () => {
 
 e.tithorea = () => {
   window.wand.tithorea = new c.Tithorea()
+}
+
+e.bezier = () => {
+  const app = window.wand.app = new PIXI.Application({
+    width: window.innerWidth,
+    height: window.innerHeight * 0.9,
+    // transparent: true
+    backgroundColor: 0x000000
+  })
+  app.stage.sortableChildren = true
+  document.body.appendChild(app.view)
+
+  const bezier = new PIXI.Graphics()
+  bezier.lineStyle(4, 0xAA0000, 1)
+  bezier.position.x = u('x1') || 167
+  bezier.position.y = u('y1') || 409
+  const dest = {
+    x: u('x2') || 819,
+    y: u('y2') || 321
+  }
+  const localDest = {
+    x: dest.x - bezier.position.x,
+    y: dest.y - bezier.position.y
+  }
+  const cp1 = {
+    x: localDest.x * (u('dx1') || 0.25),
+    y: u('dy1') || -400
+  }
+  const cp2 = {
+    x: localDest.x * (u('dx2') || 0.75),
+    y: u('dy2') || -400
+  }
+  bezier.bezierCurveTo(cp1.x, cp1.y, cp2.x, cp2.y, localDest.x, localDest.y)
+  app.stage.addChild(bezier)
+  $('#loading').hide()
+}
+
+e.song0 = () => {
+  const Tone = t
+  utils.mkBtn('play', 'play mysic', async () => {
+    if (Tone.Transport.state !== 'stopped') {
+      await Tone.Transport.stop()
+    } else {
+      await Tone.start()
+      await Tone.Transport.start('+1')
+    }
+  })
+  function mkSong () {
+    Tone.Transport.bpm.value = 140
+    const msy = new Tone.MembraneSynth().toDestination()
+    const nsy = new Tone.NoiseSynth().toDestination()
+    const isy = new Tone.MetalSynth().toDestination()
+    const isy2 = new Tone.MetalSynth().toDestination()
+    isy.volume.value = -3
+    isy2.volume.value = -16
+    const part = new Tone.Part((time, note) => {
+      msy.triggerAttackRelease(note, '8n', time)
+    }, [[0, 'C1'], ['0:1:2', 'C1'], ['0:3', 'G1']]).start('+2')
+    part.loop = true
+    const pat = new Tone.Pattern((time, note) => {
+      nsy.triggerAttackRelease('2n', time)
+    }, ['C4', 'G4', 'B4', 'C4']).start('+2')
+    pat.interval = '8n'
+    const seq = new Tone.Sequence((time, note) => {
+      if (Math.random() > 0.6) isy.triggerAttackRelease(note, '8n', time)
+    }, [[null, 'C6'], ['C4', null], ['C3', 'C5'], [null, 'G5']], '4n').start('+2')
+    const seq2 = new Tone.Sequence((time, note) => {
+      isy2.triggerAttackRelease(note, '8n', time)
+    }, ['C8', 'G8'], '4n').start('+2')
+    window.all = {
+      nsy, msy, pat, seq, isy, seq2
+    }
+    $('#loading').hide()
+  }
+  mkSong()
+  // mk very nice song for the first time
 }

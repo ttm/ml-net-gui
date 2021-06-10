@@ -73,8 +73,8 @@ module.exports.Sync = class {
   setMusic () {
     // this.amSy = new Tone.AMSynth(amset).toDestination() // random walk it in pentatonic
     const mkSong = () => {
-      // Tone.Transport.bpm.value = 140
-      Tone.Transport.bpm.value = 240
+      Tone.Transport.bpm.value = 140
+      // Tone.Transport.bpm.value = 240
       const vol = this.vol = new Tone.Volume(-6).toDestination()
       const rev = window.rev = new Tone.Reverb().connect(vol)
       rev.wet.value = 0.9

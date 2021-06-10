@@ -5150,3 +5150,23 @@ e.song0 = () => {
   mkSong()
   // mk very nice song for the first time
 }
+
+e.artifacts = () => {
+  const arts = [
+    ['Silence', 'silencio'],
+    ['Protection', 'protecao'],
+    ['Consecration', 'consagracao']
+  ].reduce((a, i) => a + `<li><a href="?.${i[1]}" target="_blank">${i[0]}</a></li>`, '')
+  utils.stdDiv().html(`
+  <h1>Audiovisual Artifacts</h1>
+
+  The sessions aim at rejuvenation and extended longevity. They spread well-being to cure Humanity and prepare ourselves for physical immortality.
+
+  Sessions start every day at: 0h, 1h11, 2h22, 3h33, 4h44, 5h55, 6h30, 7h07, 8h08, 9h09, 10h10, 11h11, 12h12, 13h13, 14h14, 15h15, 16h16, 17h17, 18h18, 19h19, 20h20, 21h21, 22h22, 23h23
+
+  You might want to check the <a href="" target="_blank">2 minutes of instructions on how to participate</a>. Current publicly available artifacts are here (click to open):
+  <ul>${arts}</ul>
+  :::
+  `)
+  $('#loading').hide()
+}

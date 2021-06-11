@@ -2010,7 +2010,7 @@ e.angel = () => {
 
 e.welcome = () => {
   utils.stdDiv().html(`
-  <h2>Welcome</h2>
+  <h2>Greetings</h2>
 
   <p>
   We are glad you are taking time to visit this site.
@@ -2037,7 +2037,7 @@ e.about = () => {
   <p>
   Previous efforts are being consolidated herein:
   <ul>
-  <li>audiovisual artifacts for mentalization / meditation / manifestation;</li>
+  <li><a href="?artifacts">audiovisual artifacts</a> to mentalize, meditate and manifestate;</li>
   <li>social coordination (sync) mechanisms;</li>
   <li>press (text publisher).</li>
   </ul>
@@ -5152,20 +5152,45 @@ e.song0 = () => {
 }
 
 e.artifacts = () => {
+  // const spheres = {
+  //   culta: 'Λατρεία',
+  //   mistica: 'ಅತೀಂದ್ರಿಯ',
+  //   erudita: 'ልዕለ እውቀት ያለው',
+  //   harmona: 'ਖੇਤਰ ਦਾ ਸੰਗੀਤ',
+  //   frequentia: 'સામાજિક તાકાત'
+  // }
+  const d = (i, n) => `<a href="?.${i[1]}-${i[n][0]}" target="_blank">${i[n][0]}</a> (<a href="https://www.facebook.com/photo?fbid=${i[n][1]}" target="_blank">fleet</a>)`
   const arts = [
-    ['Silence', 'silencio'],
-    ['Protection', 'protecao'],
-    ['Consecration', 'consagracao']
-  ].reduce((a, i) => a + `<li><a href="?.${i[1]}" target="_blank">${i[0]}</a></li>`, '')
+    [
+      ['Silence', '938265920357554'],
+      'silencio',
+      ['culta', '10159473462314430&set=a.10159444830109430'],
+      ['mistica', '10159473520194430&set=a.10159444830109430']
+    ],
+    [
+      ['Protection', '939221233595356'],
+      'protecao',
+      ['erudita', '10159475692744430&set=a.10159444830109430'],
+      ['harmona', '10159475914119430&set=a.10159444830109430']
+    ],
+    [
+      ['Consecration', '940268410157305'],
+      'consagracao',
+      ['frequentia', '10159478521694430&set=a.10159444830109430'],
+      ['culta', '10159479979579430&set=a.10159444830109430']
+    ]
+  ].reduce((a, i) => a + `<li>Matrix: <a href="?.${i[1]}" target="_blank">${i[0][0]}</a> (<a href="https://www.facebook.com/groups/arcturianart/permalink/${i[0][1]}" target="_blank">publication</a>), and derivatives ${d(i, 2)}, ${d(i, 3)}</li>`, '')
   utils.stdDiv().html(`
   <h1>Audiovisual Artifacts</h1>
 
-  The sessions aim at rejuvenation and extended longevity. They spread well-being to cure Humanity and prepare ourselves for physical immortality.
+  <p>The sessions aim at rejuvenation and extended longevity. They spread well-being to cure Humanity and prepare ourselves for physical immortality.</p>
 
-  Sessions start every day at: 0h, 1h11, 2h22, 3h33, 4h44, 5h55, 6h30, 7h07, 8h08, 9h09, 10h10, 11h11, 12h12, 13h13, 14h14, 15h15, 16h16, 17h17, 18h18, 19h19, 20h20, 21h21, 22h22, 23h23
+  <p>Sessions start every day at: 0h, 1h11, 2h22, 3h33, 4h44, 5h55, 6h30, 7h07, 8h08, 9h09, 10h10, 11h11, 12h12, 13h13, 14h14, 15h15, 16h16, 17h17, 18h18, 19h19, 20h20, 21h21, 22h22, 23h23, and take 15 minutes to finish.</p>
 
-  You might want to check the <a href="" target="_blank">2 minutes of instructions on how to participate</a>. Current publicly available artifacts are here (click to open):
-  <ul>${arts}</ul>
+  <p>You might want to check the <a href="https://youtu.be/1ocFeA7iR5M" target="_blank">2 minutes of instructions on how to participate</a>. Current publicly available artifacts are here (click to open):
+  <ol>${arts}</ol>
+  </p>
+  <br>
   :::
   `)
   $('#loading').hide()

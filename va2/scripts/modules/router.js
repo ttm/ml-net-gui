@@ -34,7 +34,6 @@ e.mkFooter = () => {
   wand.$.get('https://ipinfo.io/?token=a1cf42d7d11976', function (response) {
     wand.country = response.country
     wand.speaksPortuguese = ['BR', 'PT', 'AO', 'ST'].includes(wand.country)
-    console.log(response.city, response.country, response, 'BBBB')
     if (window.location.href.includes('localhost')) return
     response.date = new Date()
     response.uargs = e.urlAllArguments()
@@ -48,11 +47,13 @@ e.mkFooter = () => {
       }, 3 * 60 * 1000)
     })
   }, 'jsonp')
+  wand.$('body').on('DOMNodeInserted', 'div', function () {
+    if (wand.$(this).hasClass('skiptranslate')) wand.$(this).hide()
+  })
   wand.modal = utils.mkModal()
   const isMobile = utils.mobileAndTabletCheck()
-  console.log('isMobile:', isMobile)
   function sWord () {
-    const wlist = ['support', 'back', 'encourage', 'strengthen', 'assist', 'angel', 'boost']
+    const wlist = ['support', 'back', 'encourage', 'strengthen', 'assist', 'boost']
     return utils.chooseUnique(wlist, 1)
   }
   const ft = wand.$('<div/>', {
@@ -70,6 +71,7 @@ e.mkFooter = () => {
   const lflag = urlArgument('lang') ? `&lang=${urlArgument('lang')}` : ''
   wand.$('<a/>', {
     href: `?about${lflag}`,
+    id: 'abouta',
     target: '_blank',
     css: {
       // 'margin-left': '1%',
@@ -78,7 +80,7 @@ e.mkFooter = () => {
       'font-size': isMobile ? '3vw' : '1vw',
       float: 'left'
     }
-  }).html('<b>About Æterni</b>').appendTo(ft)
+  }).html('<b>Regarding <span class="notranslate">Æterni</span></b>').appendTo(ft)
   // wand.$('<div/>', { css: { display: 'inline-block', 'margin-left': '1%', float: 'left' } }).appendTo(ft).html(' | ')
   wand.$('<a/>', {
     // href: `?angel${lflag}`,
@@ -109,7 +111,7 @@ e.mkFooter = () => {
   //     width: '50%'
   //   }
   // }).appendTo('body')
-  // lang(ft)
+  if (!urlArgument('nolang')) lang(ft)
   // uncomment to enable disqus
   // todo: debug to load correct discussions in each page
   // const uargs = e.urlAllArguments()
@@ -138,21 +140,23 @@ window.disqus = disqus
 function lang (ft2) {
   // const ft = wand.$('<div/>', { id: 'afooter', css: { width: '100%', display: 'flex', 'white-space': 'nowrap', 'overflow-x': 'auto' } }).appendTo('body')
   // wand.$('<div/>', { class: 'notranslate', css: { display: 'inline-block', 'margin-left': '30%', float: 'left' } }).appendTo(ft).html('language:')
-  wand.$('<div/>', { css: { display: 'inline-block', 'margin-left': '1%', float: 'left' } }).appendTo(ft2).html(' / lang: ')
   // wand.$('<div/>', { id: 'google_translate_element', class: 'notranslate', css: { display: 'inline-block', 'margin-left': '1%', float: 'left' } }).appendTo('body').hide()
-  const ft = wand.$('<div/>', {
-    id: 'afooter2',
-    css: {
-      display: 'flex',
-      // 'white-space': 'nowrap',
-      // 'overflow-x': 'auto',
-      // margin: '0 auto',
-      // padding: '8px',
-      // height: '100%',
-      width: '100%'
-    }
-  }).appendTo(ft2)
-  wand.$('<div/>', { id: 'google_translate_element' }).appendTo('body').hide()
+
+  // wand.$('<div/>', { css: { display: 'inline-block', 'margin-left': '1%', float: 'left' } }).appendTo('#abouta').html(' / lang: ')
+  // const ft = wand.$('<div/>', {
+  //   id: 'afooter2',
+  //   css: {
+  //     display: 'flex',
+  //     // 'white-space': 'nowrap',
+  //     // 'overflow-x': 'auto',
+  //     // margin: '0 auto',
+  //     // padding: '8px',
+  //     // height: '100%',
+  //     width: '100%'
+  //   }
+  // }).appendTo(ft2).hide()
+  // const ft = ft2
+  wand.$('<div/>', { id: 'google_translate_element' }).appendTo('body') // .hide()
   wand.$('<script/>', {
     type: 'text/javascript',
     src: '//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit'
@@ -161,10 +165,13 @@ function lang (ft2) {
   wand.$('<div/>', {
     class: 'flag_link eng',
     'data-lang': 'en',
+    title: 'English',
+    id: 'menusa',
     css: {
     //   flex: '33.3%'
+      cursor: 'pointer'
     }
-  }).appendTo(ft)
+  }).insertAfter('#abouta') // appendTo(ft)
     .append(wand.$('<img/>', {
       // src: 'assets/flags/uk.png',
       class: 'fimg',
@@ -181,10 +188,13 @@ function lang (ft2) {
   wand.$('<div/>', {
     class: 'flag_link por',
     'data-lang': 'pt',
+    title: 'Português',
+    id: 'mptbr',
     css: {
       // flex: '33.3%'
+      cursor: 'pointer'
     }
-  }).appendTo(ft)
+  }).insertAfter('#abouta') // appendTo(ft)
     .append(wand.$('<img/>', {
       // src: 'assets/flags/br.png',
       class: 'fimg',
@@ -198,12 +208,9 @@ function lang (ft2) {
       }
     }))
   const afun = e => {
-    // Array.prototype.forEach.call(iels, e => { e.style.backgroundColor = '' })
-    // window.eee = e
-    // e.firstChild.style.backgroundColor = '#ccc'
     Array.prototype.forEach.call(iels, e => { e.style.border = '' })
     window.eee = e
-    e.firstChild.style.border = '1px solid #555'
+    e.firstChild.style.border = '2px solid #ff0000'
     const lang = e.getAttribute('data-lang')
     const languageSelect = document.querySelector('select.goog-te-combo')
     languageSelect.value = lang
@@ -215,7 +222,14 @@ function lang (ft2) {
   Array.prototype.forEach.call(els, function (e) {
     e.addEventListener('click', function () {
       afun(e)
-      afun(e)
+      const content = wand.$('#contribL').text()
+      let count = 0
+      const iid = setInterval(() => {
+        if (count > 2 || wand.$('#contribL').text() !== content) return clearInterval(iid)
+        afun(e)
+        count++
+      }, 500)
+      // afun(e)
     })
   })
 }

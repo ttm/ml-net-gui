@@ -129,7 +129,7 @@ module.exports.Tithorea = class {
     nodes.forEach((n, i) => { n.did = i })
     this.toBeWritten = {
       source: this.source,
-      desc: this.descArea.val().replace(/\n/g, '<br />'),
+      desc: this.descArea.val(),
       syncId: this.syncIdInput.val(),
       links: this.diffusion.progressionLinks,
       nodes

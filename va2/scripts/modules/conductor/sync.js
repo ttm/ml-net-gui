@@ -3,8 +3,9 @@ const chroma = require('chroma-js')
 const Tone = require('tone')
 const dat = require('dat.gui')
 const subGraph = require('graphology-utils/subgraph')
+const showdown = require('showdown')
 
-const { PIXI, defaultLinkRenderer, activateLink, rec, linkify2, nl } = require('./utils.js')
+const { PIXI, defaultLinkRenderer, activateLink, rec, nl } = require('./utils.js')
 const { generateName } = require('./nameGen.js')
 // const { amset } = require('./instruments.js')
 
@@ -17,6 +18,19 @@ const d = (f, time) => Tone.Draw.schedule(f, time)
 
 // volume OK, rec OK, linkify OK, beautify, spread
 // pt if pt speaking countries, en otherwise
+
+window.showdown = showdown
+showdown.extension('targetlink', function () {
+  return [{
+    type: 'html',
+    regex: /(<a [^>]+?)(>.*<\/a>)/g,
+    replace: '$1 target="_blank"$2'
+  }]
+})
+const converter = new showdown.Converter({
+  extensions: ['targetlink']
+})
+window.mconv = converter
 
 module.exports.Sync = class {
   constructor (data, heir) {
@@ -83,7 +97,7 @@ module.exports.Sync = class {
       const nsy = new Tone.NoiseSynth({ envelope: { attack: 0.05 } }).connect(rev)
       const isy = new Tone.MetalSynth().connect(rev)
       const isy2 = new Tone.MetalSynth().connect(rev)
-      isy.volume.value = -10
+      isy.volume.value = -16
       isy2.volume.value = -19
       nsy.volume.value = -13
 
@@ -105,14 +119,14 @@ module.exports.Sync = class {
           pe.tint = te.tint = 0xffffff * Math.random()
           pe.alpha = 0.6
           te.alpha = 1
-          pe.scale.set(10)
+          pe.scale.set(2 + 10 * Math.random())
         }, time)
-        d(() => { // blink current or predecessor
-          pe.tint = pe.stdTint
-          pe.alpha = 1
-          te.alpha = 0
-          pe.scale.set(1)
-        }, time + 0.5)
+        // d(() => { // blink current or predecessor
+        //   pe.tint = pe.stdTint
+        //   pe.alpha = 1
+        //   te.alpha = 0
+        //   pe.scale.set(1)
+        // }, time + 0.5)
       }, [[0, 'C1'], ['0:0:1.8', 'C#1'], ['0:1:2', 'C1'], ['0:3', 'G1']])
       zabumba.loop = true
       zabumba.humanize = true
@@ -296,6 +310,7 @@ module.exports.Sync = class {
       }).html(`<h2>${nl.header(name)}</h2>`)
         .append($('<p/>', { id: 'mcontent2' }))
       )
+    $('#myModal2').css('z-index', 0)
     const diag2 = $('<div/>', {
       id: 'diag2'
     })
@@ -331,8 +346,8 @@ module.exports.Sync = class {
     </p>
 
     <div style="background:#ffffee;padding:2%;border-radius:5%;margin:2%">
-      <div style="font-family: Brush Script MT;font-size: x-large">
-        ${linkify2(this.data.desc)}
+      <div style="font-family:Georgia">
+        ${converter.makeHtml(this.data.desc)}
       </div>
     </div>
     `

@@ -141,7 +141,6 @@ class FindAll {
     this.tests = {}
     for (const au in creds) {
       if (au === 'tokisona') continue
-      console.log(au)
       this.mkOne(au)
     }
     this.tokisona = (query, projection, col) => e.findAll(query, false, projection, col)

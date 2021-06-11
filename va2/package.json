@@ -4,7 +4,7 @@
     "standard": "*"
   },
   "scripts": {
-    "build": "browserify scripts/main.js > scripts/bundle.js",
+    "build": "browserify scripts/main.js | uglifyjs > scripts/bundle.js",
     "dev": "nodemon app.js --exec 'standard && npm run build && node'",
     "buildAux": "browserify you/contentScript.js > you/contentScript_ok.js",
     "buildAux2": "browserify you/background.js > you/background_ok.js",
@@ -47,10 +47,12 @@
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
     "scribbletune": "^3.15.0",
+    "showdown": "^1.9.1",
     "stats-js": "^1.0.1",
     "superagent": "^6.1.0",
     "tinycolor2": "^1.4.1",
     "tone": "^14.7.77",
+    "uglify-js": "^3.13.9",
     "wavefile": "^11.0.0"
   },
   "standard": {

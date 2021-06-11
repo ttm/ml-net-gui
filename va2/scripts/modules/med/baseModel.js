@@ -315,6 +315,7 @@ e.Med = class {
     // }).html(`countdown to start (at ${nextSync(true)}):`)
     }).html(`starts at ${nextSync(true)}, countdown:`)
     const countdownCount = $('<span/>', {
+      class: 'notranslate',
       css: {
         'font-size': isMobile ? '3vw' : '1vw'
       }
@@ -444,6 +445,7 @@ e.Med = class {
       started = true
       t.Draw.schedule(() => {
         this.guiEls.countdownMsg.html('countdown to finish:')
+        if (!window.sessionL) return
         window.wand.transfer.fAll.ucosta(
           { _id: window.sessionL.insertedId },
           { started: new Date() }
@@ -457,6 +459,7 @@ e.Med = class {
       t.Draw.schedule(() => {
         this.guiEls.countdownMsg.html('session finished. Time elapsed:')
         window.wand.modal.show(5000)
+        if (!window.sessionL) return
         window.wand.transfer.fAll.ucosta(
           { _id: window.sessionL.insertedId },
           { finishedSession: new Date() }
@@ -543,7 +546,6 @@ e.Med = class {
       d[label] = 50 + v.iniVolume
       const voiceGui = gui.add(d, label, 0, 100).listen()
       const instr = []
-      console.log('CHECK VOICE', v)
       for (const instrument in v.volume) {
         v.volume[instrument].defVolume = v.iniVolume + this.initialVolume
         instr.push(v.volume[instrument])

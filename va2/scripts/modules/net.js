@@ -1,11 +1,12 @@
 /* global wand */
+const e = module.exports
 const Graph = require('graphology')
 const { erdosRenyi } = require('graphology-generators/random')
 const PIXI = require('pixi.js')
 const { random } = require('graphology-layout')
 const forceAtlas2 = require('graphology-layout-forceatlas2')
 const netdegree = require('graphology-metrics/degree')
-const subGraph = require('graphology-utils/subgraph')
+const subGraph = e.subGraph = require('graphology-utils/subgraph')
 const netmetrics = require('graphology-metrics')
 const louvain = require('graphology-communities-louvain')
 const components = require('graphology-components')
@@ -13,7 +14,6 @@ const components = require('graphology-components')
 const { chooseUnique } = require('./utils')
 const u = require('./router.js').urlArgument
 
-const e = module.exports
 e.netdegree = netdegree
 
 e.eR = (order, probability) => {
@@ -173,11 +173,13 @@ e.plotWhatsFromMongo = (data, creator, app, full) => {
   data.forEach(([n1, n2]) => {
     const m1 = mkId(n1)
     const m2 = mkId(n2)
+    if (m1.name === m2.name) return
     if (!net.hasNode(m1.name)) net.addNode(m1.name, m1)
     if (!net.hasNode(m2.name)) net.addNode(m2.name, m2)
-    if (!net.hasEdge(m1.name, m2.name)) net.addUndirectedEdge(m1.name, m2.name)
+    if (!net.hasUndirectedEdge(m1.name, m2.name)) net.addUndirectedEdge(m1.name, m2.name)
   })
   if (!full) net = e.getLargestComponent(net, true)
+  netdegree.assign(net)
   random.assign(net)
   const saneSettings = forceAtlas2.inferSettings(net)
   const atlas = forceAtlas2(net, { iterations: 150, settings: saneSettings })
@@ -495,3 +497,11 @@ function setBezier (bezier, xd = 1000, yd = 0, dx1 = 0.25, dy1 = 30, dx2 = 0.75,
   const cp2 = { x: localDest.x * dx2, y: dy2 }
   bezier.bezierCurveTo(cp1.x, cp1.y, cp2.x, cp2.y, localDest.x, localDest.y)
 }
+
+e.assignCC = net => net.forEachNode((n, a) => {
+  if (a.degree < 2) a.cc = 0
+  else {
+    const sg = e.subGraph(net, [...net.neighbors(n), n])
+    a.cc = 2 * (sg.size - a.degree) / (a.degree * (a.degree - 1))
+  }
+})

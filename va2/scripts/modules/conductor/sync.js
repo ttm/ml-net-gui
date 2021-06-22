@@ -5,7 +5,7 @@ const dat = require('dat.gui')
 const subGraph = require('graphology-utils/subgraph')
 const showdown = require('showdown')
 
-const { PIXI, defaultLinkRenderer, activateLink, rec, nl } = require('./utils.js')
+const { PIXI, defaultLinkRenderer, activateLink, rec, nl, linkify2 } = require('./utils.js')
 const { generateName } = require('./nameGen.js')
 // const { amset } = require('./instruments.js')
 
@@ -347,7 +347,7 @@ module.exports.Sync = class {
 
     <div style="background:#ffffee;padding:2%;border-radius:5%;margin:2%">
       <div style="font-family:Georgia">
-        ${converter.makeHtml(this.data.desc)}
+        ${linkify2(converter.makeHtml(this.data.desc))}
       </div>
     </div>
     `

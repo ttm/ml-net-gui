@@ -4,10 +4,10 @@ const PIXI = e.PIXI = require('pixi.js')
 const linkify = require('linkifyjs/html')
 
 e.nl = {
-  header: name => wand.speaksPortuguese ? `Olá, ${name}, você é herdeir@ de uma música feita para você!` : `Hi ${name}, you are the heir of a song made for you!`,
+  header: name => wand.speaksPortuguese ? `Olá, ${name}, há uma música feita para você e sobre você!` : `Hi ${name}, there is a song made for you and about you!`,
   listen: () => wand.speaksPortuguese ? 'Ok, quero ouvir minha música agora!' : 'Okay, I want to hear my music now!',
   song: sname => wand.speaksPortuguese ? `A música se chama <b>${sname}</b> e chegou junto a uma pequena mensagem de quem muito te admira:` : `The song is called <b>${sname}</b> and came with a small message from someone who admires you a lot:`,
-  leaf0: () => wand.speaksPortuguese ? 'Parabéns, você é herdeiro final da sincronização!' : 'Congratulations, you are a ultimate heir of the sync!',
+  leaf0: () => wand.speaksPortuguese ? 'Parabéns, você é sucessor final da sincronização!' : 'Congratulations, you are a ultimate successor of the sync!',
   leaf: (tseedName, pName) => wand.speaksPortuguese
     ? `
   Avise o iniciador da sincronização que você, herdeiro final, recebeu sua música e mensagem.

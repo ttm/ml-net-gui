@@ -3452,6 +3452,9 @@ e.heritage = () => {
   window.rr = adiv
 }
 
+e.you2 = () => {
+  window.you = new c.You()
+}
 e.you = () => {
   // bezier
   // sizing
@@ -4820,17 +4823,16 @@ e.mongoUtil = () => {
   app.stage.sortableChildren = true
   document.body.appendChild(app.view)
   window.wand.app = app
-  // transfer.fAll.mark({ sid: 'renato.fabbri.125' }, {}, 'test').then(r => {
-  if (u('d')) {
+  if (u('n')) {
+    return transfer.fAll.aeterni({ 'network.nodes.attributes.name': u('n') }).then(r => console.log(r))
+  } else if (u('u')) {
+    return transfer.fAll.aeterni({ 'network.nodes.key': u('u') }, { comName: 1 }).then(r => console.log(r))
+  } else if (u('d')) {
     // return transfer.fAll.dmark({ 'userData.id': 'charlesa.anderson.338' }).then(r => {
     console.log('yeah, in "d"')
-    return transfer.fAll.dttm({ marker: { $exists: true } }).then(r => {
+    // return transfer.fAll.dttm({ marker: { $exists: true } }).then(r => {
+    transfer.fAll.df4b({ syncId: u('dd') }).then(r => {
       window.rr = r
-      // const anet = JSON.parse(r[0].text)
-      // const pfm = net.plotFromMongo(anet)
-      // window.nnn = pfm
-      // const dn = new net.ParticleNet2(app, pfm.net, pfm.atlas)
-      // pfm.dn = dn
       $('#loading').hide()
     })
   }
@@ -4840,11 +4842,6 @@ e.mongoUtil = () => {
   // transfer.findAll({ 'header.med2': { $exists: true } }).then(r => { // 742 itens at 03/Jun/2021
   transfer.findAll({ meditation: { $exists: true } }).then(r => { // 177
     window.rr = r
-    // const anet = JSON.parse(r[0].text)
-    // const pfm = net.plotFromMongo(anet)
-    // window.nnn = pfm
-    // const dn = new net.ParticleNet2(app, pfm.net, pfm.atlas)
-    // pfm.dn = dn
     $('#loading').hide()
   })
 }
@@ -5159,25 +5156,31 @@ e.artifacts = () => {
   //   harmona: 'ਖੇਤਰ ਦਾ ਸੰਗੀਤ',
   //   frequentia: 'સામાજિક તાકાત'
   // }
-  const d = (i, n) => `<a href="?.${i[1]}-${i[n][0]}" target="_blank">${i[n][0]}</a> (<a href="https://www.facebook.com/photo?fbid=${i[n][1]}" target="_blank">fleet</a>)`
+  const d = (i, n) => `<a href="?.${i[1]}-${i[n][0]}" target="_blank">${i[n][0]}</a> (<a href="https://www.facebook.com/photo?fbid=${i[n][1]}&set=a.10159444830109430" target="_blank">fleet</a>)`
   const arts = [
     [
       ['Silence', '938265920357554'],
       'silencio',
-      ['culta', '10159473462314430&set=a.10159444830109430'],
-      ['mistica', '10159473520194430&set=a.10159444830109430']
+      ['culta', '10159473462314430'],
+      ['mistica', '10159473520194430']
     ],
     [
       ['Protection', '939221233595356'],
       'protecao',
-      ['erudita', '10159475692744430&set=a.10159444830109430'],
-      ['harmona', '10159475914119430&set=a.10159444830109430']
+      ['erudita', '10159475692744430'],
+      ['harmona', '10159475914119430']
     ],
     [
       ['Consecration', '940268410157305'],
       'consagracao',
-      ['frequentia', '10159478521694430&set=a.10159444830109430'],
-      ['culta', '10159479979579430&set=a.10159444830109430']
+      ['frequentia', '10159478521694430'],
+      ['culta', '10159479979579430']
+    ],
+    [
+      ['Creation', '942039879980158'],
+      'criacao',
+      ['mistica', '10159483725609430'],
+      ['erudita', '10159484269404430']
     ]
   ].reduce((a, i) => a + `<li>Matrix: <a href="?.${i[1]}" target="_blank">${i[0][0]}</a> (<a href="https://www.facebook.com/groups/arcturianart/permalink/${i[0][1]}" target="_blank">publication</a>), and derivatives ${d(i, 2)}, ${d(i, 3)}</li>`, '')
   utils.stdDiv().html(`
@@ -5190,6 +5193,10 @@ e.artifacts = () => {
   <p>You might want to check the <a href="https://youtu.be/1ocFeA7iR5M" target="_blank">2 minutes of instructions on how to participate</a>. Current publicly available artifacts are here (click to open):
   <ol>${arts}</ol>
   </p>
+
+  <p>These Artifacts employ <a href="https://en.wikipedia.org/wiki/Brainwave_entrainment" target="_blank">Brainwave Entrainment</a> and <a href="https://en.wikipedia.org/wiki/Biofeedback" target="_blank">Biofeedback</a> in order to harmonize your body and nervous system. Please concentrate and use headphones for optimal results.</p>
+
+  <p>For more advanced considerations on the usage of the Audiovisual Artifacts, mainly on the parametrization of the durations, check <a href="https://youtu.be/e45N612A2o8" target="_blank">this video</a>.</p>
   <br>
   :::
   `)

@@ -61,5 +61,6 @@ e.nextSync = justStr => {
   d.setMinutes(e.times[ii][1])
   d.setSeconds(0)
   d.setMilliseconds(0)
+  if (ii === 0) d.setHours(d.getHours() + 24)
   return d
 }

@@ -4,7 +4,7 @@
     "standard": "*"
   },
   "scripts": {
-    "build": "browserify scripts/main.js | uglifyjs > scripts/bundle.js",
+    "build": "browserify scripts/main.js > scripts/bundle.js",
     "dev": "nodemon app.js --exec 'standard && npm run build && node'",
     "buildAux": "browserify you/contentScript.js > you/contentScript_ok.js",
     "buildAux2": "browserify you/background.js > you/background_ok.js",

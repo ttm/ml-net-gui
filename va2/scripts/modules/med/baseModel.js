@@ -134,6 +134,7 @@ e.Med = class {
     }
     this.visualsCommon = this.setVisualCommon(r.visSetting)
     this.visuals = this.setVisual(r.visSetting) // this changes between model2-3
+    this.setControl()
     this.setStage(r.header)
     $('#loading').hide()
   }
@@ -341,10 +342,14 @@ e.Med = class {
         clearTimeout(badTimer)
         clearInterval(badCounter)
         check.prop('disabled', true)
+        this.pset.destroy()
         this.startGoodTimer(s)
       }
     })
     $('<div/>', { class: 'slideraa round' }).appendTo(label)
+    // utils.mkBtn('cog', 'Config artifact', () => {
+    //   this.openConfs()
+    // }, label).css('vertical-align', 'bottom')
     // $('<div/>', { css: { width: '2%', height: '2%', background: 'green' } }).appendTo(lpar).click(() => console.log('clicked jowww')) // todo: make a way to start the artifact at once, maybe in the dat.gui
 
     const inhale = $('<span/>').html(' inhale ')
@@ -364,6 +369,7 @@ e.Med = class {
       check.prop('disabled', true)
       $('.slideraa').css('background', '#cacaca')
       countdownMsg.html('No late participants allowed. Time since session started:')
+      this.pset.destroy()
       countdownCount.html('')
       setTimeout(() => {
         window.wand.modal.show(4000)
@@ -424,20 +430,23 @@ e.Med = class {
     }
   }
 
-  getDurationToStart (s) { // in ms
-    return s.datetime.getTime() - (new Date()).getTime()
+  getDurationToStart () { // in ms
+    return this.setting.header.datetime.getTime() - (new Date()).getTime()
+  }
+
+  d () {
+    return this.getDurationToStart() / 1000
   }
 
   startGoodTimer (s) {
     this.visuals.start()
     this.visualsCommon.start()
     if (s.vcontrol) this.volumeControl()
-    const d = () => this.getDurationToStart(s) / 1000
     this.voices.forEach(v => {
       if (!v) return
-      v.start('+' + d())
-      v.stop(d() + s.d)
-      // v.stop('+' + (d() + s.d))
+      v.start('+' + this.d())
+      // v.stop(this.d() + s.d)
+      v.stop('+' + (this.d() + s.d))
     })
 
     let started = false
@@ -451,7 +460,7 @@ e.Med = class {
           { started: new Date() }
         )
       }, time)
-    }, '+' + d())
+    }, '+' + this.d())
 
     let finished = false
     t.Transport.schedule((time) => { // change message to finished
@@ -465,11 +474,11 @@ e.Med = class {
           { finishedSession: new Date() }
         )
       }, time)
-    }, '+' + (d() + s.d))
+    }, '+' + (this.d() + s.d))
 
     new t.Loop(time => { // update counter before starts and then before ends.
       t.Draw.schedule(() => {
-        const mm = d()
+        const mm = this.d()
         this.guiEls.countdownCount.html(' ' + utils.secsToTime(mm > 0 ? mm : mm + s.d))
       }, time)
     }, 0.1).start(0)
@@ -521,6 +530,62 @@ e.Med = class {
     }
   }
 
+  setControl () {
+    const set = {}
+    set.width = window.innerWidth / 3.5
+    if (this.isMobile) set.width = window.innerWidth * 0.98
+    const pset = this.pset = new dat.GUI(set)
+    let mRef
+    const vv = this.setting.voices
+    vv.some((v, i) => {
+      if (v.isOn) {
+        mRef = i
+        return true
+      }
+      return false
+    })
+    const mVoices = []
+    vv.forEach((v, i) => {
+      // if (i === mRef) return
+      if (v.type.includes('Martigli')) {
+        if (v.mp0 === vv[mRef].mp0 && v.mp1 === vv[mRef].mp1) mVoices.push(i)
+      }
+    })
+    pset.add({ 'final period': vv[mRef].mp1 }, 'final period', 1, 60, 1).listen().onFinishChange(val => {
+      mVoices.forEach(i => {
+        vv[i].mp1 = val
+        this.voices[i].nodes.mod.frequency.linearRampTo(1 / val, vv[i].md, '+' + this.d())
+      })
+    })
+    pset.add({ 'initial period': vv[mRef].mp0 }, 'initial period', 1, 60, 1).listen().onFinishChange(val => {
+      mVoices.forEach(i => {
+        this.voices[i].nodes.mod.frequency.value = 1 / val
+      })
+    })
+    pset.add({ transition: vv[mRef].md }, 'transition', 60, 60 * 30, 30).listen().onFinishChange(val => {
+      mVoices.forEach(i => {
+        vv[i].md = val
+        this.voices[i].nodes.mod.frequency.linearRampTo(1 / vv[i].mp1, val, '+' + this.d())
+      })
+    })
+    this.dsli = pset.add({ duration: this.setting.header.d }, 'duration', 120, 60 * 60, 60).listen().onFinishChange(val => {
+      this.setting.header.d = val
+    })
+    this.mplay = pset.add({
+      play: () => {
+        if (!window.confirm('Are you sure that you prefer to start now instead of waiting for the next Angel hour?')) return
+        console.log('play')
+        const dt = new Date()
+        dt.setSeconds(dt.getSeconds() + 3)
+        this.setting.header.datetime = dt
+        $('#startChecked').click()
+      }
+    }, 'play').name('... Start now! ...')
+    const color = '#496284'
+    $('.function').css('background', color).css('border-left', color)
+    this.tuneControls(true)
+  }
+
   volumeControl () {
     // const gui = new dat.GUI({ closed: true, closeOnTop: true })
     const set = {}
@@ -567,27 +632,34 @@ e.Med = class {
         })
       })
     })
+    this.tuneControls()
+  }
+
+  tuneControls (isSet) {
     if (this.isMobile) {
+      const size = (isSet ? 67 : 37) + 'px'
       $('.dg.main .close-button.close-bottom')
         .css('padding-bottom', '10px').css('padding-top', '10px')
-      $('.dg .cr.number').css('height', '37px')
-      $('.dg .c .slider').css('height', '37px')
+      $('.dg .cr.number').css('height', size)
+      $('.dg .c .slider').css('height', size)
       let open = true
       $('.dg.main .close-button.close-bottom').click(() => {
         if (open) {
           $('.dg .cr.number').css('height', '0px')
         } else {
-          $('.dg .cr.number').css('height', '37px')
+          $('.dg .cr.number').css('height', size)
         }
         open = !open
       })
     }
-    $('.dg').css('font-size', '24px')
+    const size = (isSet && this.isMobile ? 33 : 24) + 'px'
+    $('.dg').css('font-size', size)
     // $('.close-button').css('background-color', '#777777')
     $('.close-button')
       .css('background-color', 'rgba(0,0,0,0)')
       .css('border', 'solid #777777')
       .click()
+    if (this.isMobile && isSet) $('.dg .cr.number input[type=text]').css('font-size', '36px')
     $('.dg .c input[type=text]').css('width', '15%')
     $('.dg .c .slider').css('width', '80%')
   }
@@ -736,4 +808,24 @@ e.Med = class {
       }
     }
   }
+
+  // openConfs () {
+  //   $('<div/>', {
+  //     id: 'myModal2',
+  //     class: 'modal',
+  //     role: 'dialog'
+  //   }).appendTo('body')
+  //     .append($('<div/>', {
+  //       id: 'mcontent0',
+  //       class: 'modal-content',
+  //       css: { background: '#eeffee' }
+  //     }).html('<h2>Yo</h2>')
+  //       .append($('<p/>', { id: 'mcontent2' }))
+  //     )
+  //   $('#myModal2').css('z-index', 0)
+  //   this.diag2 = $('<div/>', {
+  //     id: 'diag2'
+  //   })
+  //   $('#myModal2').show()
+  // }
 }

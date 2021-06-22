@@ -119,7 +119,7 @@ module.exports.Sync = class {
           pe.tint = te.tint = 0xffffff * Math.random()
           pe.alpha = 0.6
           te.alpha = 1
-          pe.scale.set(2 + 10 * Math.random())
+          pe.scale.set((2 + 10 * Math.random()) / 10)
         }, time)
         // d(() => { // blink current or predecessor
         //   pe.tint = pe.stdTint
@@ -143,12 +143,12 @@ module.exports.Sync = class {
           pe.tint = te.tint = 0xffffff
           te.alpha = 1
           pe.alpha = 1
-          pe.scale.set(2)
+          pe.scale.set(2 / 10)
         }, time)
         d(() => { // blink current or predecessor
           pe.tint = pe.stdTint
           te.alpha = 0
-          pe.scale.set(1)
+          pe.scale.set(1 / 10)
         }, time + 0.3)
       }, ['C4', 'G4', 'B4', 'C4'])
       chocalho.interval = '8n'
@@ -167,12 +167,12 @@ module.exports.Sync = class {
           pe.tint = te.tint = 0xffffff * Math.random()
           pe.alpha = 1
           te.alpha = 1
-          pe.scale.set(3)
+          pe.scale.set(3 / 10)
         }, time)
         d(() => { // blink current or predecessor
           pe.tint = pe.stdTint
           te.alpha = 0
-          pe.scale.set(1)
+          pe.scale.set(1 / 10)
         }, time + 0.5)
       }, [[null, 'G2'], ['C2', null], ['C3', 'E3'], [null, 'G3']], '4n')
       succ.probability = 0.4
@@ -195,12 +195,12 @@ module.exports.Sync = class {
           pe.tint = te.tint = 0xff00ff
           te.alpha = 1
           pe.alpha = 1
-          pe.scale.set(1.3)
+          pe.scale.set(1.3 / 10)
         }, time)
         d(() => { // blink current or predecessor
           pe.tint = pe.stdTint
           te.alpha = 0
-          pe.scale.set(1)
+          pe.scale.set(1 / 10)
         }, time + 0.4)
       }, ['C7', 'G7'], '4n')
       agogo.humanize = true

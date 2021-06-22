@@ -260,7 +260,7 @@ e.ParticleNet2 = class { // using graphology net and positions as given by force
   mkTextures (app, bezier) {
     const myCircle = new PIXI.Graphics()
       .beginFill(0xffffff)
-      .drawCircle(0, 0, 5)
+      .drawCircle(0, 0, 50)
       .endFill()
     this.circleTexture = app.renderer.generateTexture(myCircle)
     const myLine = new PIXI.Graphics()
@@ -283,6 +283,7 @@ e.ParticleNet2 = class { // using graphology net and positions as given by force
       circle.anchor.x = 0.5
       circle.anchor.y = 0.5
       circle.tint = 0x00ffff
+      circle.scale.set(0.1)
       circle.interactive = this.interactive
       this.nodeContainer.addChild(circle)
       a.pixiElement = circle

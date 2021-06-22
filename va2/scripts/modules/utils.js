@@ -199,6 +199,9 @@ e.mkModal = content => {
     id: 'myModal',
     class: 'modal',
     role: 'dialog',
+    css: {
+      'overflow-y': 'initial !important'
+    },
     show: {
       effect: 'fade',
       duration: 2000
@@ -210,7 +213,11 @@ e.mkModal = content => {
   }).appendTo('body')
     .append($('<div/>', {
       class: 'modal-content',
-      css: { background: e.chooseUnique(['#eeeeff', '#eeffee', '#ffeeee'], 1)[0] }
+      css: {
+        background: e.chooseUnique(['#eeeeff', '#eeffee', '#ffeeee'], 1)[0],
+        height: window.innerHeight * 0.75,
+        'overflow-y': 'auto'
+      }
     })
       .append($('<span/>', { class: 'close' }).html('&times;')
         .on('click', () => {
@@ -491,4 +498,25 @@ e.objectIdWithTimestamp = timestamp => { // db.mycollection.find({ _id: { $gt: o
 }
 
 e.chroma = require('chroma-js')
+e.colorNames = Object.keys(e.chroma.colors)
+e.randScale1 = (bezier = false) => {
+  const colors = e.chooseUnique(e.colorNames, 2 + Math.floor(Math.random() * 3))
+  console.log('yeah, here1', bezier)
+  const s = e.chroma[bezier ? 'bezier' : 'scale'](colors)
+  s.colors_ = colors
+  s.bezier_ = bezier
+  return s
+}
+e.brewerNames = Object.keys(e.chroma.brewer)
+e.randScale2 = (bezier = false) => {
+  const brewer = e.chooseUnique(e.brewerNames, 1)[0]
+  const colors = e.chroma.brewer[brewer]
+  console.log('yeah, here', bezier)
+  const s = e.chroma[bezier ? 'bezier' : 'scale'](bezier ? e.chooseUnique(colors, 5) : colors)
+  s.colors_ = colors
+  s.bezier_ = bezier
+  s.brewer_ = brewer
+  return s
+}
+
 e.copyToClipboard = require('copy-to-clipboard')

@@ -4288,6 +4288,49 @@ e.getPhrase = () => {
   utils.getPhrase().then(r => console.log('HERE MAN', r))
 }
 
+e['009-atendimento'] = () => {
+  utils.stdDiv().html(`
+  <h1>Atendimentos</h1>
+
+
+<h3>Estimad@s Senhoræs,</h3>
+
+<p>
+Estamos abrindo atendimentos de fronteira (com recursos audiovisuais, científicos, web, remotos e cognitivos) para:
+<ul>
+<li>tratamento individual, familiar ou de grupo para cura física (ex: dores musculares, enxaquecas), mentais (ex: ansiedade, depressão, memória) e espiritual.</li>
+<li>aprendizado sobre os Artefatos Audiovisuais: como utilizar, quais as técnicas e benefícios, como aproveitá-los e criá-los para sua própria atividade como terapeuta.</li>
+<li>Reiki de Luz: formação.</li>
+</ul>
+</p>
+
+<p>
+Contribuição sugerida: o valor que você achar apropriado. Pode também contribuir ajudando a iniciar outras pessoas, chamando pessoas para o Corpo de Luz, criando artefatos, etc.<br>
+Mais detalhes nos comentários.<br>
+Entre em contato pela Cura sua, de sua Família e do Mundo.<br>
+</p>
+
+<p>
+Paz e Luz.
+</p>
+
+<p>
+Dr. Renato Fabbri<br>
+Maestro Otávio Martigli<br>
+Dra. Mariel Elizabeth<br>
+</p>
+
+<i>14/Julho/2021</i>
+
+<br>
+<br>
+:::
+
+  `
+  )
+  $('#loading').hide()
+}
+
 e.gstat = () => {
   // const St = window.FooBar // fixme
   const St = require('stats.js')
@@ -4578,15 +4621,21 @@ e.mongoUtil = () => {
       window.rr = r
       $('#loading').hide()
     })
+  } else if (u('s')) {
+    transfer.fAll.f4b({ syncId: { $exists: true } }, { syncId: 1 }).then(r => {
+      window.rr = r
+      $('#loading').hide()
+    })
+  } else {
+    transfer.findAll({ meditation: { $exists: true } }).then(r => { // 177
+      window.rr = r
+      $('#loading').hide()
+    })
   }
   // transfer.fAll.mark({ 'userData.id': 'charlesa.anderson.338', 'net.edges.10': { $exists: false } }).then(r => {
   // transfer.fAll.mark({ 'userData.id': 'charlesa.anderson.338' }).then(r => { // 1008, 3362
   // transfer.fAll.mark({ 'userData.id': 'renato.fabbri' }).then(r => { // 1008, 3362
   // transfer.findAll({ 'header.med2': { $exists: true } }).then(r => { // 742 itens at 03/Jun/2021
-  transfer.findAll({ meditation: { $exists: true } }).then(r => { // 177
-    window.rr = r
-    $('#loading').hide()
-  })
 }
 
 e.mongoTranslator = () => { // utility to get data somewhere and translate it
@@ -4900,6 +4949,7 @@ e.artifacts = () => {
   //   frequentia: 'સામાજિક તાકાત'
   // }
   const d = (i, n) => `<a href="?.${i[1]}-${i[n][0]}" target="_blank">${i[n][0]}</a> (<a href="https://www.facebook.com/photo?fbid=${i[n][1]}&set=a.10159444830109430" target="_blank">fleet</a>)`
+  const dd = artifact => artifact.slice(2).map((a, i) => d(artifact, i + 2)).join(', ')
   const arts = [
     [
       ['Silence', '938265920357554'],
@@ -4924,8 +4974,94 @@ e.artifacts = () => {
       'criacao',
       ['mistica', '10159483725609430'],
       ['erudita', '10159484269404430']
+    ],
+    [
+      ['Attention', '948411796009633'],
+      'atencao',
+      ['culta', '10159520208934430'],
+      ['mistica', '10159520694384430']
+    ],
+    [
+      ['Transformation', '953189902198489'],
+      'transformation',
+      ['erudita', '10159521932799430'],
+      ['harmona', '10159522575754430']
+    ],
+    [
+      ['Paradise', '953823068801839'],
+      'paradise',
+      ['frequentia', '10159523575164430'],
+      ['culta', '10159524089689430']
+    ],
+    [
+      ['Firmness', '954432815407531'],
+      'firmeza',
+      ['mistica', '10159525347389430'],
+      ['erudita', '10159526308809430']
+    ],
+    [
+      ['Angels', '956411178543028'],
+      'Anjos',
+      ['harmona', '10159531289729430'],
+      ['frequentia', '10159531893554430']
+    ],
+    [
+      ['Faith', '957100145140798'],
+      'fe',
+      ['culta', '10159533578014430'],
+      ['mistica', '10159533796419430']
+    ],
+    [
+      ['Archangel Michael', '957808085070004'],
+      'Michael',
+      ['erudita', '10159535471769430'],
+      ['harmona', '10159535862464430']
+    ],
+    [
+      ['Archangel Gabriel', '958467288337417'],
+      'Gabriel',
+      ['frequentia', '10159537688174430'],
+      ['culta', '10159538046049430']
+    ],
+    [
+      ['Archangel Raphael', '771184126906833'],
+      'Rafael',
+      ['mistica', '10159539385594430'],
+      ['erudita', '10159539791584430']
+    ],
+    [
+      ['Sensibility', '959766838207462'],
+      'sensibility',
+      ['harmona', '10159541566339430'],
+      ['frequentia', '10159542148804430']
+    ],
+    [
+      ['Archangel Uriel', '966004090917070'],
+      'Uriel',
+      ['culta', '10159562603244430'],
+      ['mistica', '10159563075444430']
+    ],
+    [
+      ['Understanding', '966601247524021'],
+      'understanding',
+      ['culta', '10159565034239430'],
+      ['mistica', '10159565356214430']
+    ],
+    [
+      ['Excellence', '970982650419214'],
+      'excellence',
+      ['frequentia', '10159579400094430'],
+      ['culta', '10159579908424430']
+    ],
+    [
+      ['Courage', '970982650419214'],
+      'courage',
+      ['mistica', '10159581438824430'],
+      ['erudita', '10159582550664430'],
+      ['harmona', '10159591514599430'],
+      ['frequentia', '10159592284314430']
     ]
-  ].reduce((a, i) => a + `<li>Matrix: <a href="?.${i[1]}" target="_blank">${i[0][0]}</a> (<a href="https://www.facebook.com/groups/arcturianart/permalink/${i[0][1]}" target="_blank">publication</a>), and derivatives ${d(i, 2)}, ${d(i, 3)}</li>`, '')
+  ].reduce((a, i) => a + `<li>Matrix: <a href="?.${i[1]}" target="_blank">${i[0][0]}</a> (<a href="https://www.facebook.com/groups/arcturianart/permalink/${i[0][1]}" target="_blank">publication</a>), and derivatives ${dd(i)}.</li>`, '')
   utils.stdDiv().html(`
   <h1>Audiovisual Artifacts</h1>
 

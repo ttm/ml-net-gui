@@ -5,7 +5,7 @@ const net = require('../net.js')
 const transfer = require('../transfer.js')
 const u = require('../router.js').urlArgument
 const utils = require('../utils.js')
-const { PIXI, defaultLinkRenderer } = require('./utils.js')
+const { PIXI, defaultLinkRenderer, mkIds } = require('./utils.js')
 
 const copyToClipboard = utils.copyToClipboard
 
@@ -126,7 +126,8 @@ module.exports.Tithorea = class {
     let absorb = (n, a) => nodes.push({ name: n, tel: a.tel })
     if (this.source === 'fb') absorb = (n, a) => nodes.push({ id: n, name: a.name, nid: a.nid, sid: a.sid })
     this.net.forEachNode((n, a) => absorb(n, a))
-    nodes.forEach((n, i) => { n.did = i })
+    // nodes.forEach((n, i) => { n.did = i })
+    this.ids_ = mkIds(nodes, this.source)
     this.toBeWritten = {
       source: this.source,
       desc: this.descArea.val(),
@@ -140,7 +141,8 @@ module.exports.Tithorea = class {
     transfer.fAll.wf4b(tbw).then(r => { // todo: check if syncId is already in use
       $('#loading').hide()
       const id = tbw.links[0][0].from
-      const did = nodes.filter(i => (tbw.source === 'fb' ? i.id : i.name) === id)[0].did
+      // const did = nodes.filter(i => (tbw.source === 'fb' ? i.id : i.name) === id)[0].did2
+      const did = this.ids_[id]
       const link = `${window.location.origin}?${tbw.syncId}=${did}`
       window.alert(`sync created! Link to it: ${link}`)
       copyToClipboard(link)

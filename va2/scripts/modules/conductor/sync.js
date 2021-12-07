@@ -5,9 +5,10 @@ const dat = require('dat.gui')
 const subGraph = require('graphology-utils/subgraph')
 const showdown = require('showdown')
 
-const { PIXI, defaultLinkRenderer, activateLink, rec, nl, linkify2 } = require('./utils.js')
+const { PIXI, defaultLinkRenderer, activateLink, rec, nl, linkify2, mkIds } = require('./utils.js')
 const { generateName } = require('./nameGen.js')
 // const { amset } = require('./instruments.js')
+window.mkIds = mkIds
 
 const net = require('../net.js')
 const utils = require('../utils.js')
@@ -36,6 +37,7 @@ module.exports.Sync = class {
   constructor (data, heir) {
     this.isMobile = utils.mobileAndTabletCheck()
     this.data = data
+    this.source = data.source
     // plot stuff
     $('#loading').hide()
     const app = this.app = window.wand.app = new PIXI.Application({
@@ -47,10 +49,25 @@ module.exports.Sync = class {
     app.stage.sortableChildren = true
     $('#canvasDiv').append(this.app.view)
     this.net_ = net.plotSync(data, app, false)
-    this.heir = parseInt(heir)
-    this.net_.forEachNode((n, a) => {
-      if (a.did === this.heir) this.heirId = n
-    })
+    if (/^\d+$/.test(this.heir)) {
+      this.heir = parseInt(heir)
+      this.oldFormat = true
+      this.net_.forEachNode((n, a) => {
+        if (a.did === this.heir) this.heirId = n
+      })
+    } else {
+      this.heir = heir
+      const nodes = []
+      let absorb = (n, a) => nodes.push({ name: n, tel: a.tel })
+      if (this.source === 'fb') absorb = (n, a) => nodes.push({ id: n, name: a.name, nid: a.nid, sid: a.sid })
+      this.net_.forEachNode((n, a) => absorb(n, a))
+      this.ids_ = mkIds(nodes, this.data.source)
+      const key = this.source === 'fb' ? 'id' : 'name'
+      this.net_.forEachNode((n, a) => {
+        console.log(this.ids_[a[key]], this.heir, 'AAALOOOP')
+        if (this.ids_[a[key]] === this.heir) this.heirId = n
+      })
+    }
     this.net = this.setDists()
     // net.attrNet(this.net)
     // const pfm = this.pfm = net.plotSync(data, app)
@@ -255,9 +272,6 @@ module.exports.Sync = class {
         this.net.setNodeAttribute(n, 'stepColor', c)
       })
     })
-    this.net.forEachNode((n, a) => {
-      if (a.did === this.heir) this.heirId = n
-    })
     this.predecessor = this.net.inNeighbors(this.heirId)[0]
     if (this.predecessor === undefined) {
       this.isSeed = true
@@ -277,6 +291,7 @@ module.exports.Sync = class {
   }
 
   setDists () {
+    console.log('heirId:', this.heirId, this.source)
     let currentNodes = [this.heirId]
     const consideredNodes = [this.heirId]
     let newNeighs = [this.heirId]
@@ -375,8 +390,8 @@ module.exports.Sync = class {
       $('#mcontent0').html(`<h2>${nl.succLinks()}</h2>`).append($('<p/>', { id: 'mcontent2' }))
       const clang = window.wand.speaksPortuguese ? ['copiar ', 'Copiado: '] : ['copy ', 'Copied: ']
       links = this.successors.map((i, ii) => {
-        const { name, did } = this.net.getNodeAttributes(i)
-        const link = `${window.location.origin}?${this.data.syncId}=${did}`
+        const { id, name, did } = this.net.getNodeAttributes(i)
+        const link = `${window.location.origin}?${this.data.syncId}=${did || this.ids_[this.source === 'fb' ? id : name]}`
         const p = $('<li/>').html(name + ': ')
         const a = $('<a/>', {
           href: link,

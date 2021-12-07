@@ -3,14 +3,14 @@
     <title class="notranslate">&#x00C6;terni Anima</title>
     <link id="favicon" rel="shortcut icon" type="image/png" href="assets/fav5.png" />
 
+    <meta property="og:image:secure_url" content="https://aeterni.github.io/assets/imgs/coil2.jpeg" />
     <meta property="og:image:secure_url" content="https://aeterni.github.io/assets/imgs/sine.jpeg" />
     <meta property="og:image:secure_url" content="https://aeterni.github.io/assets/imgs/coil.jpeg" />
-    <meta property="og:image:secure_url" content="https://aeterni.github.io/assets/imgs/coil2.jpeg" />
     <meta property="og:image:secure_url" content="https://aeterni.github.io/assets/imgs/blank.jpeg" />
 
+    <meta property="og:image" content="https://aeterni.github.io/assets/imgs/coil2.jpeg" />
     <meta property="og:image" content="https://aeterni.github.io/assets/imgs/sine.jpeg" />
     <meta property="og:image" content="https://aeterni.github.io/assets/imgs/coil.jpeg" />
-    <meta property="og:image" content="https://aeterni.github.io/assets/imgs/coil2.jpeg" />
     <meta property="og:image" content="https://aeterni.github.io/assets/imgs/blank.jpeg" />
 
   </head>
@@ -24,6 +24,34 @@ function googleTranslateElementInit() {
 </script>
   <script type="module" src="scripts/bundle.js"></script>
   <input id="file-input" type="file" name="name" style="display: none;" />
+
+<!-- Messenger Plugin de bate-papo Code -->
+    <div id="fb-root"></div>
+
+    <!-- Your Plugin de bate-papo code -->
+    <div id="fb-customer-chat" class="fb-customerchat">
+    </div>
+
+    <script>
+      var chatbox = document.getElementById('fb-customer-chat');
+      chatbox.setAttribute("page_id", "110925224597669");
+      chatbox.setAttribute("attribution", "setup_tool");
+
+      window.fbAsyncInit = function() {
+        FB.init({
+          xfbml            : true,
+          version          : 'v11.0'
+        });
+      };
+
+      (function(d, s, id) {
+        var js, fjs = d.getElementsByTagName(s)[0];
+        if (d.getElementById(id)) return;
+        js = d.createElement(s); js.id = id;
+        js.src = 'https://connect.facebook.net/en_US/sdk/xfbml.customerchat.js';
+        fjs.parentNode.insertBefore(js, fjs);
+      }(document, 'script', 'facebook-jssdk'));
+    </script>
 </body>
 <style type="text/css">
 #loading {

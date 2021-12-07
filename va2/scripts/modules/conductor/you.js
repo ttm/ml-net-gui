@@ -9,6 +9,7 @@ const { PIXI } = require('./utils.js')
 
 module.exports.You = class {
   constructor () {
+    this.sphereColor = 0xff0000
     this.cFuncCount = 0
     this.sizingFuncCount = 0
     this.scaleCount = 0
@@ -64,16 +65,16 @@ module.exports.You = class {
     })
     function stdNode (n) {
       anet.forEachNeighbor(n, (nn, na) => {
-        na.pixiElement.tint = 0x00ffff
+        na.pixiElement.tint = na.pixiElement.btint
         clearInterval(na.textElement.iId)
         na.textElement.alpha = 0
-        na.textElement.tint = 0xffffff
+        na.textElement.tint = na.textElement.btint
       })
     }
     anet.forEachNode((n, a) => {
+      a.textElement.btint = a.textElement.tint
+      a.pixiElement.btint = a.pixiElement.tint
       a.textElement.on('pointerover', () => {
-        console.log('yeah, pover')
-        // this.sinfo.text(`degree: ${a.degree}`)
         this.mkInfo('degree', a.degree)
       })
       a.textElement.on('pointerout', () => {
@@ -323,7 +324,7 @@ module.exports.You = class {
     utils.mkBtn('palette', 'color nodes scale', () => {
       this.cscale = this.getScale()
       window.pfm.net.forEachNode((n, a) => {
-        a.pixiElement.tint = this.cscale(this.cCriteria(a)).num()
+        a.pixiElement.tint = a.pixiElement.btint = this.cscale(this.cCriteria(a)).num()
       })
       // wand.app.renderer.backgroundColor = 0xc3a06
     })
@@ -343,7 +344,7 @@ module.exports.You = class {
     utils.mkBtn('paint-roller', 'color nodes criteria', () => {
       this.cCriteria = this.setCCriteria()
       window.pfm.net.forEachNode((n, a) => {
-        a.pixiElement.tint = this.cscale(this.cCriteria(a)).num()
+        a.pixiElement.tint = a.pixiElement.btint = this.cscale(this.cCriteria(a)).num()
       })
       this.mkInfo('color node criteria:', `${this.cFuncCount}, ${this.cFuncCount % 3}`)
     })
@@ -427,7 +428,7 @@ module.exports.You = class {
     utils.mkBtn('tint-slash', 'color edges', () => {
       const method = methods[methodCount++ % methods.length]
       window.pfm.net.forEachEdge((e, a, n1, n2, a1, a2) => {
-        a.pixiElement.tint = utils.chroma.blend(a1.pixiElement.tint, a2.pixiElement.tint, method).num()
+        a.pixiElement.tint = utils.chroma.blend(a1.pixiElement.btint, a2.pixiElement.btint, method).num()
       })
       this.mkInfo('edge color method', method)
     })
@@ -455,7 +456,7 @@ module.exports.You = class {
     })
   }
 
-  mkBackgroundBtn () {
+  mkBackgroundBtn () { // 7444373, 3026478.3020627154
     let counter = 0
     utils.mkBtn('fill-drip', 'background color', () => {
       let color
@@ -470,24 +471,34 @@ module.exports.You = class {
     let counter = 0
     utils.mkBtn('signature', 'show memberset names', () => {
       if (!window.memberSets) return
-      window.pfm.net.forEachNode((n, a) => {
-        a.textElement.alpha = 0
-      })
-      this.mm = window.memberSets[counter++ % window.memberSets.length].map(m => m.id)
+      // window.pfm.net.forEachNode((n, a) => {
+      //   a.textElement.alpha = 0
+      // })
+      if (this.mm !== undefined) {
+        this.mm.forEach(m => {
+          const pe = window.pfm.net.getNodeAttribute(m, 'pixiElement')
+          const te = window.pfm.net.getNodeAttribute(m, 'textElement')
+          te.visible = false
+          // te.alpha = 0.9
+          // te.scale.set(0.8)
+          pe.tint = pe.backTint
+          pe.alpha = pe.backAlpha
+        })
+      }
+      this.mm = window.memberSets[counter++ % window.memberSets.length].map(m => m.origId)
       this.mm.forEach(m => {
         const pe = window.pfm.net.getNodeAttribute(m, 'pixiElement')
         const te = window.pfm.net.getNodeAttribute(m, 'textElement')
-        te.tint = pe.tint // + 0x222222 * Math.random()
+        te.tint = pe.tint
         te.visible = true
         te.alpha = 0.9
-        pe.tint = 0x00ffff
-        // pe.scale.set(0.6)
+        pe.backTint = pe.tint
+        pe.backAlpha = pe.alpha
+        pe.tint = this.sphereColor
         pe.alpha = 0.8
-        // te.tint = 0x440000 + Math.floor(0xa * Math.random()) * 0x100000 + Math.floor(0x8 * Math.random()) * 0x001000 + Math.floor(0x8 * Math.random()) * 0x000010 + 0x000066
-        // te.scale.set(0.6)
         te.scale.set(0.8)
       })
-      this.mkInfo('member set shown', `${counter}/${window.memberSets.length} (size: ${window.memberSets[0].length})`)
+      this.mkInfo('member set shown', `${counter % window.memberSets.length}/${window.memberSets.length} (size: ${window.memberSets[0].length})`)
     })
   }
 
@@ -504,13 +515,13 @@ module.exports.You = class {
           window.pfm.net.getNodeAttribute(m, 'textElement').scale.set(rgbm[color])
         })
         return this.mkInfo('name size', rgbm[color].toFixed(2))
-      } else if (color >= 3) rgbm[color] = val >= 0 ? val % 1 : 0.9
+      } else if (color >= 3) rgbm[color] = val >= 0 ? (val >= 1 ? 0 : val % 1) : 0.9
       else rgbm[color] = val >= 0 ? val % 11 : 10
       // const color_ = Math.floor(rgb[0] * 0xff / 10) * 0x010000 + rgb[1] * 0x000100 + rgb[2] * 0x000001
       const color_ = calc(0, 0x010000) + calc(1, 0x000100) + calc(2, 0x000001)
       this.mm.forEach(m => {
         const a = window.pfm.net.getNodeAttributes(m)
-        a.textElement.tint = mix(mix(color_, a.pixiElement.tint, rgbm[3]), utils.chroma.random(), rgbm[4]).num()
+        a.textElement.tint = mix(mix(color_, a.pixiElement.btint, rgbm[3]), utils.chroma.random(), rgbm[4]).num()
       })
       this.mkInfo('names color', `${utils.chroma(color_).hex()} (${[rgbm[0], rgbm[1], rgbm[2], rgbm[3].toFixed(2), rgbm[4].toFixed(2)]})`)
     }
@@ -610,16 +621,16 @@ module.exports.You = class {
     let counter = 0
     const tagHelper = (next = 1) => {
       this.mm.forEach(m => {
-        window.pfm.net.getNodeAttribute(m.origId, 'textElement').alpha = 0
+        window.pfm.net.getNodeAttribute(m, 'textElement').alpha = 0
       })
       const m = this.mm[next === 1 ? counter++ : counter--]
-      window.pfm.net.getNodeAttribute(m.origId, 'textElement').alpha = 1
-      window.pfm.net.getNodeAttribute(m.origId, 'textElement').tint = 0xff0000
-      console.log(m.name, counter - 1)
-      console.log(`https://www.facebook.com/${m.origId}`)
-      console.log(`https://www.facebook.com/profile.php?id=${m.origId}`)
-      console.log(m.origId)
-      utils.copyToClipboard(m.origId)
+      window.pfm.net.getNodeAttribute(m, 'textElement').alpha = 1
+      window.pfm.net.getNodeAttribute(m, 'textElement').tint = 0xff0000
+      console.log(window.pfm.net.getNodeAttribute(m, 'name'), counter - 1)
+      console.log(`https://www.facebook.com/${m}`)
+      console.log(`https://www.facebook.com/profile.php?id=${m}`)
+      console.log(m)
+      utils.copyToClipboard(m)
       this.mkInfo('tagging', `${counter} of ${this.mm.length}`)
     }
   }

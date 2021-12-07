@@ -21,7 +21,7 @@ e.nl = {
 
    You might also want to let your predecessor ${pName} know that you are the final heir!
   `,
-  succLinks: () => wand.speaksPortuguese ? 'Aqui os links para você repassar aos seus sucessores:' : 'Here are the links for you to pass on to your successors:',
+  succLinks: () => wand.speaksPortuguese ? 'Repasse as músicas dos seus sucessores para eles mesmos e ajude nesta sincronização social:' : 'Forward your successors\' songs to themselves and help in this social synchronization:',
   finall: (rec, name) => wand.speaksPortuguese ? `clique para ${rec ? 'baixar' : 'gravar'} o clipe da sua música, ${name}.` : `click to ${rec ? 'download' : 'record'} your music video, ${name}.`
 
 }
@@ -179,3 +179,42 @@ e.rec = () => {
 }
 
 e.linkify2 = link => linkify(`<span class="notranslate">${link}<span>`)
+
+e.mkIds = (nodes, source) => {
+  const ids = []
+  const ids_ = {}
+  const names = nodes.map(n => {
+    return {
+      name: n.name,
+      id: source === 'fb' ? n.id : n.name
+    }
+  })
+  names.sort((a, b) => { // todo: find alternative to Whats/Telegram
+    if (a.name > b.name) return -1
+    if (a.name < b.name) return 1
+    if (a.id > b.id) return -1
+    if (a.id < b.id) return 1
+    return 0
+  })
+  for (let ii = 0; ii < nodes.length; ii++) {
+    const n = names[ii]
+    const parts = n.name.split(' ')
+    let i = 0
+    let made = false
+    let did2 = parts[0]
+    do {
+      if (!ids.includes(did2)) {
+        ids.push(did2)
+        ids_[n.id] = did2
+        made = true
+      } else {
+        if (parts.length >= ++i) {
+          did2 = did2 + '.' + parts[i]
+        } else {
+          did2 = did2 + '.' + ids.reduce((a, e) => a + (e === did2), 0)
+        }
+      }
+    } while (!made)
+  }
+  return ids_
+}

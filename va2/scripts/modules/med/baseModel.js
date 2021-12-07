@@ -25,7 +25,7 @@ e.Med = class {
     this.tone = t
     this.finalFade = 5
     this.initialFade = 2
-    this.initialVolume = -40
+    this.initialVolume = -20
     this.isMobile = utils.mobileAndTabletCheck()
     this.app = new PIXI.Application({ // todo: make it resizable
       width: window.innerWidth,
@@ -544,32 +544,37 @@ e.Med = class {
       }
       return false
     })
-    const mVoices = []
-    vv.forEach((v, i) => {
-      // if (i === mRef) return
-      if (v.type.includes('Martigli')) {
-        if (v.mp0 === vv[mRef].mp0 && v.mp1 === vv[mRef].mp1) mVoices.push(i)
-      }
-    })
-    pset.add({ 'final period': vv[mRef].mp1 }, 'final period', 1, 60, 1).listen().onFinishChange(val => {
-      mVoices.forEach(i => {
-        vv[i].mp1 = val
-        this.voices[i].nodes.mod.frequency.linearRampTo(1 / val, vv[i].md, '+' + this.d())
+    if (mRef !== undefined) {
+      const mVoices = []
+      vv.forEach((v, i) => {
+        // if (i === mRef) return
+        if (v.type.includes('Martigli')) {
+          if (v.mp0 === vv[mRef].mp0 && v.mp1 === vv[mRef].mp1) mVoices.push(i)
+        }
       })
-    })
-    pset.add({ 'initial period': vv[mRef].mp0 }, 'initial period', 1, 60, 1).listen().onFinishChange(val => {
-      mVoices.forEach(i => {
-        this.voices[i].nodes.mod.frequency.value = 1 / val
+      pset.add({ 'final period': vv[mRef].mp1 }, 'final period', 1, 60, 1).listen().onFinishChange(val => {
+        mVoices.forEach(i => {
+          vv[i].mp1 = val
+          this.voices[i].nodes.mod.frequency.linearRampTo(1 / val, vv[i].md, '+' + this.d())
+        })
       })
-    })
-    pset.add({ transition: vv[mRef].md }, 'transition', 60, 60 * 30, 30).listen().onFinishChange(val => {
-      mVoices.forEach(i => {
-        vv[i].md = val
-        this.voices[i].nodes.mod.frequency.linearRampTo(1 / vv[i].mp1, val, '+' + this.d())
+      pset.add({ 'initial period': vv[mRef].mp0 }, 'initial period', 1, 60, 1).listen().onFinishChange(val => {
+        mVoices.forEach(i => {
+          this.voices[i].nodes.mod.frequency.value = 1 / val
+        })
       })
-    })
+      pset.add({ transition: vv[mRef].md }, 'transition', 60, 60 * 30, 30).listen().onFinishChange(val => {
+        mVoices.forEach(i => {
+          vv[i].md = val
+          this.voices[i].nodes.mod.frequency.linearRampTo(1 / vv[i].mp1, val, '+' + this.d())
+        })
+      })
+    }
     this.dsli = pset.add({ duration: this.setting.header.d }, 'duration', 120, 60 * 60, 60).listen().onFinishChange(val => {
       this.setting.header.d = val
+    })
+    this.prop = pset.add({ proportion: 0.5 }, 'proportion', 0.1, 0.9, 0.05).listen().onFinishChange(val => {
+      this.prop_ = val
     })
     this.mplay = pset.add({
       play: () => {

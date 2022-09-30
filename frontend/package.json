@@ -8,7 +8,7 @@
     "@feathersjs/socketio-client": "^1.2.1",
     "@nuxtjs/vuetify": "^0.5.2",
     "babylonjs": "^3.3.0",
-    "d3": "^5.8.0",
+    "d3": "^7.6.1",
     "earcut": "^2.1.5",
     "feathers-vuex": "^1.6.2",
     "jquery": "^3.4.1",

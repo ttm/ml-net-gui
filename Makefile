@@ -106,6 +106,3 @@ mk-random-nets:
 
 # example usage of mlpb, implemented in the aux_server/server.py, is in:
 # aux_server/utils/IOmlpb.py
-
-
-

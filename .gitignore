@@ -8,3 +8,29 @@ losdheaders.js
 mong_auth.js
 visual_analytics/data/
 backup/
+node_modules/
+va2/assets/
+paper/
+paper2/
+*.webm
+*.wav
+*.ico
+*.png
+*.jpg
+*.json
+va2/scripts/bundle.js
+va2/you 2/
+va2/you 3/
+va2/you.zip
+va2/you/background_ok.js
+va2/you/contentScript_ok.js
+va2/you/pop_ok.js
+va2/youBack/
+va2/youDiag/
+va2/youTest/
+visual_analytics/OAextension/scripts/background_ok.js
+visual_analytics/assets/sounds/
+visual_analytics/scripts/modules/conducting/diffusionModels/
+visual_analytics/scripts/tags
+visual_analytics/tests/t2s.py
+visual_analytics/you.zip

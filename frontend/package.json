@@ -13,7 +13,7 @@
     "feathers-vuex": "^1.6.2",
     "jquery": "^3.4.1",
     "node-fetch": "^2.5.0",
-    "nuxt": "^2.6.3",
+    "nuxt": "^2.15.8",
     "nuxt-dropzone": "^0.2.8",
     "pixi.js": "^5.0.2",
     "socket.io-client": "^2.2.0",

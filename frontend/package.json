@@ -12,7 +12,7 @@
     "earcut": "^2.1.5",
     "feathers-vuex": "^1.6.2",
     "jquery": "^3.4.1",
-    "node-fetch": "^2.5.0",
+    "node-fetch": "^2.6.7",
     "nuxt": "^2.6.3",
     "nuxt-dropzone": "^0.2.8",
     "pixi.js": "^5.0.2",

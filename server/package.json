@@ -67,7 +67,7 @@
     "pug": "^2.0.3",
     "s3-blob-store": "^3.2.0",
     "serve-favicon": "^2.5.0",
-    "underscore": "^1.9.1",
+    "underscore": "^1.12.1",
     "winston": "^2.4.2"
   },
   "devDependencies": {
